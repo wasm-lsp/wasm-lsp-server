@@ -13,6 +13,9 @@ A language server implementation for WebAssembly
 [badges]
 maintenance = { status = "experimental" }
 
+[build-dependencies]
+cc = "1.0.50"
+
 [dependencies]
 jsonrpc-core = "14.0.5"
 sled = "0.31.0"
