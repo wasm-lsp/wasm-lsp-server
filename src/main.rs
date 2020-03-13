@@ -1,3 +1,4 @@
+mod analyzer;
 mod error;
 mod parser;
 mod server;
