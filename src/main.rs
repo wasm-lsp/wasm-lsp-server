@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod analyzer;
 mod database;
 mod error;
