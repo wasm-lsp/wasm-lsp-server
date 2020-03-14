@@ -18,9 +18,7 @@ impl LanguageServer for Session {
                 workspace: Some(WorkspaceCapability {
                     workspace_folders: Some(WorkspaceFolderCapability {
                         supported: Some(true),
-                        change_notifications: Some(
-                            WorkspaceFolderCapabilityChangeNotifications::Bool(true),
-                        ),
+                        change_notifications: Some(WorkspaceFolderCapabilityChangeNotifications::Bool(true)),
                     }),
                 }),
                 workspace_symbol_provider: Some(true),
