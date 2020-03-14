@@ -9,6 +9,11 @@ impl LanguageServer for Session {
         log::info!("{:?}", data);
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
+                text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
+                    open_close: Some(true),
+                    change: Some(TextDocumentSyncKind::Full),
+                    ..TextDocumentSyncOptions::default()
+                })),
                 workspace: Some(WorkspaceCapability {
                     workspace_folders: Some(WorkspaceFolderCapability {
                         supported: Some(true),
