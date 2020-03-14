@@ -23,6 +23,7 @@ impl LanguageServer for Session {
                         ),
                     }),
                 }),
+                workspace_symbol_provider: Some(true),
                 ..ServerCapabilities::default()
             },
             ..InitializeResult::default()
