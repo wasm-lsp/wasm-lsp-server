@@ -9,6 +9,7 @@ impl LanguageServer for Session {
         log::info!("{:?}", data);
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
+                document_symbol_provider: Some(true),
                 text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
                     open_close: Some(true),
                     change: Some(TextDocumentSyncKind::Full),
