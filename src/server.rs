@@ -1,10 +1,12 @@
 use crate::session::Session;
 use jsonrpc_core::Result;
+use log;
 use tower_lsp::{lsp_types::*, Client, LanguageServer};
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Session {
-    fn initialize(&self, _: &Client, _: InitializeParams) -> Result<InitializeResult> {
+    fn initialize(&self, _: &Client, data: InitializeParams) -> Result<InitializeResult> {
+        log::info!("{:?}", data);
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
                 workspace: Some(WorkspaceCapability {
