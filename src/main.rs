@@ -18,7 +18,7 @@ extern {
 
 #[tokio::main]
 async fn main() -> Fallible<()> {
-    drop(env_logger::try_init()?);
+    env_logger::try_init()?;
     let session = Session::new()?;
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
