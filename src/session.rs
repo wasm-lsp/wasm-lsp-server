@@ -4,8 +4,8 @@ use std::sync::{Arc, Mutex};
 use tree_sitter::Parser;
 
 pub struct Session {
-    pub analyzer: Arc<Analyzer>,
-    pub parser: Arc<Mutex<Parser>>,
+    analyzer: Arc<Analyzer>,
+    parser: Arc<Mutex<Parser>>,
 }
 
 impl Session {
