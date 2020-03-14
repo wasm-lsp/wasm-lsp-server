@@ -7,23 +7,24 @@ use tower_lsp::{lsp_types::*, Client, LanguageServer};
 impl LanguageServer for Session {
     fn initialize(&self, _: &Client, data: InitializeParams) -> Result<InitializeResult> {
         log::info!("{:?}", data);
-        Ok(InitializeResult {
-            capabilities: ServerCapabilities {
-                document_symbol_provider: Some(true),
-                text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
-                    open_close: Some(true),
-                    change: Some(TextDocumentSyncKind::Full),
-                    ..TextDocumentSyncOptions::default()
-                })),
-                workspace: Some(WorkspaceCapability {
-                    workspace_folders: Some(WorkspaceFolderCapability {
-                        supported: Some(true),
-                        change_notifications: Some(WorkspaceFolderCapabilityChangeNotifications::Bool(true)),
-                    }),
+        let capabilities = ServerCapabilities {
+            document_symbol_provider: Some(true),
+            text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
+                open_close: Some(true),
+                change: Some(TextDocumentSyncKind::Full),
+                ..TextDocumentSyncOptions::default()
+            })),
+            workspace: Some(WorkspaceCapability {
+                workspace_folders: Some(WorkspaceFolderCapability {
+                    supported: Some(true),
+                    change_notifications: Some(WorkspaceFolderCapabilityChangeNotifications::Bool(true)),
                 }),
-                workspace_symbol_provider: Some(true),
-                ..ServerCapabilities::default()
-            },
+            }),
+            workspace_symbol_provider: Some(true),
+            ..ServerCapabilities::default()
+        };
+        Ok(InitializeResult {
+            capabilities,
             ..InitializeResult::default()
         })
     }
