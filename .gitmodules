@@ -1,0 +1,3 @@
+[submodule "vendor/tree-sitter-webassembly"]
+	path = vendor/tree-sitter-webassembly
+	url = https://github.com/darinmorrison/tree-sitter-webassembly
