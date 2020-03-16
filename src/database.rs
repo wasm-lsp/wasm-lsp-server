@@ -10,7 +10,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn new() -> Fallible<Database> {
+    pub fn new() -> Fallible<Self> {
         let uuid = Uuid::new_v4();
         let handle = Database::handle(&uuid);
         log::info!("{:?}", handle.clone());
