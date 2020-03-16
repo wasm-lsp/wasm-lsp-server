@@ -17,6 +17,7 @@ impl Database {
         let sled = sled::Config::default()
             .create_new(true)
             .temporary(true)
+            .use_compression(true)
             .path(handle)
             .open()?;
         Ok(Database { sled, uuid })
