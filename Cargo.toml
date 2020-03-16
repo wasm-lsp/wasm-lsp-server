@@ -26,6 +26,7 @@ tokio = { version = "0.2.13", features = ["io-std", "macros"] }
 tower-lsp = "0.9.1"
 tree-sitter = "0.6.3"
 uuid = { version = "0.8.1", features = ["v4"] }
+zerocopy = "0.3.0"
 
 [workspace]
 members = [
