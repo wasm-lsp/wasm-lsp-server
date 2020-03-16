@@ -13,18 +13,16 @@ use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
 
 extern {
+    #[doc(hidden)]
     fn tree_sitter_wast() -> Language;
-}
 
-extern {
+    #[doc(hidden)]
     fn tree_sitter_wat() -> Language;
-}
 
-extern {
+    #[doc(hidden)]
     fn tree_sitter_wit() -> Language;
-}
 
-extern {
+    #[doc(hidden)]
     fn tree_sitter_witx() -> Language;
 }
 
