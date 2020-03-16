@@ -13,7 +13,19 @@ use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
 
 extern {
-    fn tree_sitter_webassembly() -> Language;
+    fn tree_sitter_wast() -> Language;
+}
+
+extern {
+    fn tree_sitter_wat() -> Language;
+}
+
+extern {
+    fn tree_sitter_wit() -> Language;
+}
+
+extern {
+    fn tree_sitter_witx() -> Language;
 }
 
 #[tokio::main]
