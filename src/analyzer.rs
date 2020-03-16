@@ -8,7 +8,7 @@ pub struct Analyzer {
 }
 
 impl Analyzer {
-    pub fn new(database: Arc<Database>, parser: Arc<Parser>) -> Fallible<Analyzer> {
+    pub fn new(database: Arc<Database>, parser: Arc<Parser>) -> Fallible<Self> {
         Ok(Analyzer { database, parser })
     }
 }

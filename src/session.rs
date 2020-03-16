@@ -19,7 +19,7 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn new() -> Fallible<Session> {
+    pub fn new() -> Fallible<Self> {
         let database = Arc::new(Database::new()?);
         let elaborator = Arc::new(Elaborator::new()?);
         let highlighter = Arc::new(Highlighter::new()?);
