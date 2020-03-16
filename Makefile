@@ -10,6 +10,10 @@ clean:
 clippy:
 	cargo clippy --all-features --all-targets --benches --bins --examples --tests --workspace -- -D warnings
 
+.PHONY: doc
+doc:
+	cargo doc --all-features --no-deps --package webassembly-language-server
+
 .PHONY: fmt
 fmt:
 	cargo +nightly fmt --all
