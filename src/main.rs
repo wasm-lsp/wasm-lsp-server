@@ -2,10 +2,13 @@
 
 mod analyzer;
 mod database;
+mod elaborator;
 mod error;
+mod highlighter;
 mod parser;
 mod server;
 mod session;
+mod synchronizer;
 
 use crate::session::Session;
 use failure::Fallible;
