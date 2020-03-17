@@ -465,6 +465,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "lsp-types"
+version = "0.73.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93d0cf64ea141b43d9e055f6b9df13f0bce32b103d84237509ce0a571ab9b159"
+dependencies = [
+ "base64",
+ "bitflags",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "url",
+]
+
+[[package]]
 name = "matches"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -887,7 +901,7 @@ dependencies = [
  "jsonrpc-core",
  "jsonrpc-derive",
  "log",
- "lsp-types",
+ "lsp-types 0.70.2",
  "nom",
  "serde",
  "serde_json",
@@ -977,10 +991,12 @@ name = "webassembly-language-server"
 version = "0.0.0"
 dependencies = [
  "cc",
+ "dashmap",
  "env_logger",
  "failure",
  "jsonrpc-core",
  "log",
+ "lsp-types 0.73.0",
  "sled",
  "tokio",
  "tower-lsp",
