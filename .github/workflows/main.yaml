@@ -89,7 +89,7 @@ jobs:
     needs: [skip-commit]
     runs-on: ubuntu-latest
     env:
-      RUST_TOOLCHAIN: 1.42.0
+      RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@master
         with:
@@ -101,6 +101,7 @@ jobs:
       - name: Run cargo doc
         uses: actions-rs/cargo@v1
         with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           command: doc
           args: --all-features --no-deps --package webassembly-language-server
       - uses: peaceiris/actions-gh-pages@v3

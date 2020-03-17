@@ -12,7 +12,7 @@ clippy:
 
 .PHONY: doc
 doc:
-	cargo doc --all-features --no-deps --package webassembly-language-server
+	cargo +nightly doc --all-features --no-deps --package webassembly-language-server
 
 .PHONY: fmt
 fmt:
