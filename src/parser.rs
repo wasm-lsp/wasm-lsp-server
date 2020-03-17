@@ -3,7 +3,7 @@ use failure::Fallible;
 use std::sync::Mutex;
 use tree_sitter;
 
-/// Parser owns tree-sitter instances for supported WebAssembly text formats.
+/// Owns tree-sitter instances for supported WebAssembly text formats.
 pub struct Parser {
     pub wast: Mutex<tree_sitter::Parser>,
     pub wat: Mutex<tree_sitter::Parser>,

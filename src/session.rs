@@ -9,7 +9,7 @@ use crate::{
 use failure::Fallible;
 use std::sync::Arc;
 
-/// Session represents the current state of the LSP service.
+/// Represents the current state of the LSP service.
 pub struct Session {
     analyzer: Arc<Analyzer>,
     database: Arc<Database>,

@@ -2,7 +2,7 @@ use crate::database::Database;
 use failure::Fallible;
 use std::sync::Arc;
 
-/// Elaborator writes elaborated syntax and metadata to Database.
+/// Writes elaborated syntax and metadata to [Database].
 pub struct Elaborator {
     database: Arc<Database>,
 }
