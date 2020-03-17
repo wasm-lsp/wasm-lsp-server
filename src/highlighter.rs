@@ -2,7 +2,7 @@ use crate::{database::Database, synchronizer::Synchronizer};
 use failure::Fallible;
 use std::sync::Arc;
 
-/// Analyzer computes highlights from elaborated syntax and metadata in Database.
+/// Computes highlights from elaborated syntax and metadata in [Database].
 pub struct Highlighter {
     database: Arc<Database>,
     synchronizer: Arc<Synchronizer>,
