@@ -33,9 +33,9 @@ extern {
 async fn main() -> Fallible<()> {
     env_logger::try_init()?;
     let session = Session::new()?;
+    let (service, messages) = LspService::new(session);
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
-    let (service, messages) = LspService::new(session);
     Server::new(stdin, stdout).interleave(messages).serve(service).await;
     Ok(())
 }
