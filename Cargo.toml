@@ -18,9 +18,11 @@ cc = "1.0.50"
 
 [dependencies]
 env_logger = "0.7.1"
+dashmap = "3.7.0"
 failure = "0.1.7"
 jsonrpc-core = "14.0.5"
 log = "0.4.8"
+lsp-types = "0.73.0"
 sled = { version = "0.31.0", features = ["compression"] }
 tokio = { version = "0.2.13", features = ["io-std", "macros"] }
 tower-lsp = "0.9.1"
