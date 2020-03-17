@@ -9,6 +9,7 @@ use crate::{
 use failure::Fallible;
 use std::sync::Arc;
 
+/// Session represents the current state of the LSP service.
 pub struct Session {
     analyzer: Arc<Analyzer>,
     database: Arc<Database>,
@@ -21,11 +22,11 @@ pub struct Session {
 impl Session {
     pub fn new() -> Fallible<Self> {
         let database = Arc::new(Database::new()?);
-        let elaborator = Arc::new(Elaborator::new()?);
-        let highlighter = Arc::new(Highlighter::new()?);
         let parser = Arc::new(Parser::new()?);
-        let synchronizer = Arc::new(Synchronizer::new(database.clone(), parser.clone())?);
-        let analyzer = Arc::new(Analyzer::new(database.clone(), parser.clone())?);
+        let elaborator = Arc::new(Elaborator::new(database.clone())?);
+        let synchronizer = Arc::new(Synchronizer::new(elaborator.clone(), parser.clone())?);
+        let analyzer = Arc::new(Analyzer::new(database.clone(), synchronizer.clone())?);
+        let highlighter = Arc::new(Highlighter::new(database.clone(), synchronizer.clone())?);
         Ok(Session {
             analyzer,
             database,

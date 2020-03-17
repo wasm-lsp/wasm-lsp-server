@@ -1,14 +1,15 @@
-use crate::{database::Database, parser::Parser};
+use crate::{database::Database, synchronizer::Synchronizer};
 use failure::Fallible;
 use std::sync::Arc;
 
+/// Analyzer computes queries from elaborated syntax and metadata in Database.
 pub struct Analyzer {
     database: Arc<Database>,
-    parser: Arc<Parser>,
+    synchronizer: Arc<Synchronizer>,
 }
 
 impl Analyzer {
-    pub fn new(database: Arc<Database>, parser: Arc<Parser>) -> Fallible<Self> {
-        Ok(Analyzer { database, parser })
+    pub fn new(database: Arc<Database>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
+        Ok(Analyzer { database, synchronizer })
     }
 }
