@@ -23,10 +23,10 @@ impl Session {
     pub fn new() -> Fallible<Self> {
         let database = Arc::new(Database::new()?);
         let parser = Arc::new(Parser::new()?);
-        let elaborator = Arc::new(Elaborator::new(database.clone())?);
-        let synchronizer = Arc::new(Synchronizer::new(elaborator.clone(), parser.clone())?);
-        let analyzer = Arc::new(Analyzer::new(database.clone(), synchronizer.clone())?);
-        let highlighter = Arc::new(Highlighter::new(database.clone(), synchronizer.clone())?);
+        let elaborator = Arc::new(Elaborator::new()?);
+        let synchronizer = Arc::new(Synchronizer::new(database.clone(), elaborator.clone(), parser.clone())?);
+        let analyzer = Arc::new(Analyzer::new(synchronizer.clone())?);
+        let highlighter = Arc::new(Highlighter::new(synchronizer.clone())?);
         Ok(Session {
             analyzer,
             database,

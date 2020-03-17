@@ -1,17 +1,33 @@
-use crate::{elaborator::Elaborator, parser::Parser};
+use crate::{database::Database, elaborator::Elaborator, parser::Parser};
+use dashmap::DashMap;
 use failure::Fallible;
-use std::sync::Arc;
+use lsp_types::Url;
+use std::sync::{Arc, Mutex};
+use tree_sitter::Tree;
 
-/// Parses documents into trees with [Parser]. Trees are passed to [Elaborator]
-/// for further processing. Document parsing is triggered by file watcher events
-/// or by document modification events.
+/// Parses a given document into a [`Tree`] with [`Parser`]. Then [`Elaborator`]
+/// processes the resulting tree into structured data which is finally cached in
+/// [`Database`]. The parsed tree is also stored in hashmap to allow for
+/// incremental edits and re-parsing. Document parsing is triggered by file
+/// watcher events or by document modification events.
+///
+/// [`Parser`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Parser.html
+/// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
 pub struct Synchronizer {
+    database: Arc<Database>,
     elaborator: Arc<Elaborator>,
     parser: Arc<Parser>,
+    trees: Arc<DashMap<Url, Arc<Mutex<Tree>>>>,
 }
 
 impl Synchronizer {
-    pub fn new(elaborator: Arc<Elaborator>, parser: Arc<Parser>) -> Fallible<Self> {
-        Ok(Synchronizer { elaborator, parser })
+    pub fn new(database: Arc<Database>, elaborator: Arc<Elaborator>, parser: Arc<Parser>) -> Fallible<Self> {
+        let trees = Arc::new(DashMap::new());
+        Ok(Synchronizer {
+            database,
+            elaborator,
+            parser,
+            trees,
+        })
     }
 }
