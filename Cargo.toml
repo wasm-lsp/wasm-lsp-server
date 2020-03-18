@@ -34,3 +34,6 @@ zerocopy = "0.3.0"
 [workspace]
 members = [
 ]
+
+[patch.crates-io]
+tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", branch = "proposed-api" }

@@ -452,20 +452,6 @@ dependencies = [
 
 [[package]]
 name = "lsp-types"
-version = "0.70.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6743fb3902ab3dfa6ce030daeac6ff492e20bb0fee840739d16f6bfb0efaf91c"
-dependencies = [
- "base64",
- "bitflags",
- "serde",
- "serde_json",
- "serde_repr",
- "url",
-]
-
-[[package]]
-name = "lsp-types"
 version = "0.73.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93d0cf64ea141b43d9e055f6b9df13f0bce32b103d84237509ce0a571ab9b159"
@@ -867,8 +853,7 @@ dependencies = [
 [[package]]
 name = "tower-lsp"
 version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8adcc6a6f16003580c799d6d9ba6071768eae44a4ccca6bea80a4a1247b39c99"
+source = "git+https://github.com/darinmorrison/tower-lsp?branch=proposed-api#d97fcc051854d574ab6ef35a3e4ffc854c23f0c0"
 dependencies = [
  "async-trait",
  "bytes",
@@ -877,7 +862,7 @@ dependencies = [
  "jsonrpc-core",
  "jsonrpc-derive",
  "log",
- "lsp-types 0.70.2",
+ "lsp-types",
  "nom",
  "serde",
  "serde_json",
@@ -996,7 +981,7 @@ dependencies = [
  "failure",
  "jsonrpc-core",
  "log",
- "lsp-types 0.73.0",
+ "lsp-types",
  "sled",
  "tokio",
  "tower-lsp",
