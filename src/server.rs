@@ -9,6 +9,25 @@ impl LanguageServer for Session {
         log::info!("{:?}", data);
         let capabilities = ServerCapabilities {
             document_symbol_provider: Some(true),
+            semantic_tokens_provider: Some(SemanticTokensServerCapabilities::SemanticTokensRegistrationOptions(
+                SemanticTokensRegistrationOptions {
+                    semantic_tokens_options: SemanticTokensOptions {
+                        document_provider: Some(SemanticTokensDocumentProvider::Bool(true)),
+                        legend: SemanticTokensLegend {
+                            token_modifiers: vec![],
+                            token_types: vec![],
+                        },
+                        range_provider: Some(false),
+                        work_done_progress_options: WorkDoneProgressOptions {
+                            work_done_progress: Some(false),
+                        },
+                    },
+                    static_registration_options: StaticRegistrationOptions { id: None },
+                    text_document_registration_options: TextDocumentRegistrationOptions {
+                        document_selector: None,
+                    },
+                },
+            )),
             text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
                 open_close: Some(true),
                 change: Some(TextDocumentSyncKind::Full),
