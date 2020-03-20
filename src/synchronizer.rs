@@ -1,8 +1,9 @@
 use crate::{database::Database, elaborator::Elaborator, parser::Parser};
 use dashmap::DashMap;
 use failure::Fallible;
-use lsp_types::Url;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use tower_lsp::{lsp_types::*, Client};
 use tree_sitter::Tree;
 
 /// Parses a given document into a [`Tree`] with [`Parser`]. Then [`Elaborator`]
@@ -16,8 +17,8 @@ use tree_sitter::Tree;
 pub struct Synchronizer {
     database: Arc<Database>,
     elaborator: Arc<Elaborator>,
-    parser: Arc<Parser>,
-    trees: Arc<DashMap<Url, Arc<Mutex<Tree>>>>,
+    pub parser: Arc<Parser>,
+    trees: Arc<DashMap<Url, Mutex<Tree>>>,
 }
 
 impl Synchronizer {
