@@ -1,8 +1,8 @@
-use crate::{database::Database, elaborator::Elaborator, parser::Parser};
+use crate::parser::Parser;
 use dashmap::DashMap;
 use failure::Fallible;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::{watch, Mutex};
 use tower_lsp::{lsp_types::*, Client};
 use tree_sitter::Tree;
 
@@ -15,21 +15,17 @@ use tree_sitter::Tree;
 /// [`Parser`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Parser.html
 /// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
 pub struct Synchronizer {
-    database: Arc<Database>,
-    elaborator: Arc<Elaborator>,
     parser: Arc<Parser>,
     trees: Arc<DashMap<Url, Mutex<Tree>>>,
+    tx: watch::Sender<()>,
+    pub rx: watch::Receiver<()>,
 }
 
 impl Synchronizer {
-    pub fn new(database: Arc<Database>, elaborator: Arc<Elaborator>, parser: Arc<Parser>) -> Fallible<Self> {
+    pub fn new(parser: Arc<Parser>) -> Fallible<Self> {
         let trees = Arc::new(DashMap::new());
-        Ok(Synchronizer {
-            database,
-            elaborator,
-            parser,
-            trees,
-        })
+        let (tx, rx) = watch::channel(());
+        Ok(Synchronizer { parser, rx, trees, tx })
     }
 
     pub async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
@@ -43,6 +39,7 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
+            self.tx.broadcast(()).unwrap();
         } else {
             // TODO: report
         }
@@ -61,6 +58,7 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
+            self.tx.broadcast(()).unwrap();
         } else {
             // TODO: report
         }
