@@ -20,6 +20,7 @@ cc = "1.0.50"
 env_logger = "0.7.1"
 dashmap = "3.7.0"
 failure = "0.1.7"
+futures = "0.3.4"
 jsonrpc-core = "14.0.5"
 log = "0.4.8"
 lsp-types = { version = "0.73.0", features = ["proposed"] }

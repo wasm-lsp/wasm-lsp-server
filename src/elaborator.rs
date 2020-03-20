@@ -1,13 +1,31 @@
+use crate::{database::Database, synchronizer::Synchronizer};
 use failure::Fallible;
+use std::sync::Arc;
+use tokio::sync::watch;
 
 /// Elaborates a given [`Tree`] into structured data to be cached in
 /// [`Database`](crate::database::Database).
 ///
 /// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
-pub struct Elaborator;
+pub struct Elaborator {
+    database: Arc<Database>,
+    rx: watch::Receiver<()>,
+    synchronizer: Arc<Synchronizer>,
+}
 
 impl Elaborator {
-    pub fn new() -> Fallible<Self> {
-        Ok(Elaborator)
+    pub fn new(database: Arc<Database>, rx: watch::Receiver<()>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
+        Ok(Elaborator {
+            database,
+            rx,
+            synchronizer,
+        })
+    }
+
+    pub async fn init(&self) {
+        let mut rx = self.rx.clone();
+        while let Some(_value) = rx.recv().await {
+            log::info!("rx");
+        }
     }
 }
