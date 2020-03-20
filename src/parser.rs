@@ -1,6 +1,6 @@
 use crate::error::Error;
 use failure::Fallible;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use tree_sitter;
 
 /// Owns tree-sitter [`Parser`] instances for supported WebAssembly documents.
