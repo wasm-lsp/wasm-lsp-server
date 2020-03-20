@@ -60,4 +60,16 @@ impl LanguageServer for Session {
     async fn shutdown(&self) -> Result<()> {
         Ok(())
     }
+
+    async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
+        self.synchronizer.did_open(client, params).await
+    }
+
+    async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
+        self.synchronizer.did_change(client, params).await
+    }
+
+    async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
+        self.synchronizer.did_close(client, params).await
+    }
 }

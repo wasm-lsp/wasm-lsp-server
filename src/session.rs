@@ -16,7 +16,7 @@ pub struct Session {
     elaborator: Arc<Elaborator>,
     highlighter: Arc<Highlighter>,
     parser: Arc<Parser>,
-    synchronizer: Arc<Synchronizer>,
+    pub synchronizer: Arc<Synchronizer>,
 }
 
 impl Session {
