@@ -31,4 +31,46 @@ impl Synchronizer {
             trees,
         })
     }
+
+    pub async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
+        let _ = client;
+        let mut parser = self.parser.wat.lock().await;
+        let DidOpenTextDocumentParams {
+            text_document: TextDocumentItem { uri, text, .. },
+        } = &params;
+        let old_tree = None;
+        let tree = parser.parse(text, old_tree);
+        log::info!("tree: {:?}", tree);
+        if let Some(tree) = tree {
+            let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
+        } else {
+            // TODO: report
+        }
+    }
+
+    pub async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
+        let _ = client;
+        let mut parser = self.parser.wat.lock().await;
+        let DidChangeTextDocumentParams {
+            text_document: VersionedTextDocumentIdentifier { uri, .. },
+            content_changes,
+        } = &params;
+        let TextDocumentContentChangeEvent { ref text, .. } = content_changes[0];
+        let old_tree = None;
+        let tree = parser.parse(text, old_tree);
+        log::info!("tree: {:?}", tree);
+        if let Some(tree) = tree {
+            let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
+        } else {
+            // TODO: report
+        }
+    }
+
+    pub async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
+        let _ = client;
+        let DidCloseTextDocumentParams {
+            text_document: TextDocumentIdentifier { uri },
+        } = &params;
+        self.trees.remove(uri);
+    }
 }
