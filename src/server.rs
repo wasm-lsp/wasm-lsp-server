@@ -11,7 +11,7 @@ impl LanguageServer for Session {
         let semantic_tokens_provider = Some(SemanticTokensServerCapabilities::SemanticTokensRegistrationOptions(
             SemanticTokensRegistrationOptions {
                 semantic_tokens_options: SemanticTokensOptions {
-                    document_provider: Some(SemanticTokensDocumentProvider::Bool(true)),
+                    document_provider: Some(SemanticTokensDocumentProvider::Bool(false)),
                     legend: SemanticTokensLegend {
                         token_modifiers: vec![],
                         token_types: vec![],
@@ -34,11 +34,11 @@ impl LanguageServer for Session {
         }));
         let workspace = Some(WorkspaceCapability {
             workspace_folders: Some(WorkspaceFolderCapability {
-                supported: Some(true),
-                change_notifications: Some(WorkspaceFolderCapabilityChangeNotifications::Bool(true)),
+                supported: Some(false),
+                change_notifications: Some(WorkspaceFolderCapabilityChangeNotifications::Bool(false)),
             }),
         });
-        let workspace_symbol_provider = Some(true);
+        let workspace_symbol_provider = Some(false);
         let capabilities = ServerCapabilities {
             document_symbol_provider,
             semantic_tokens_provider,
