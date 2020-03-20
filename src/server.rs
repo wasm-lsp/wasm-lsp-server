@@ -8,7 +8,8 @@ impl LanguageServer for Session {
     fn initialize(&self, _: &Client, params: InitializeParams) -> Result<InitializeResult> {
         log::info!("{:?}", params);
         // let document_symbol_provider = Some(false);
-        // let semantic_tokens_provider = Some(SemanticTokensServerCapabilities::SemanticTokensRegistrationOptions(
+        // let semantic_tokens_provider =
+        // Some(SemanticTokensServerCapabilities::SemanticTokensRegistrationOptions(
         //     SemanticTokensRegistrationOptions {
         //         semantic_tokens_options: SemanticTokensOptions {
         //             document_provider: Some(SemanticTokensDocumentProvider::Bool(false)),
