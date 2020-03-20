@@ -17,7 +17,7 @@ use tree_sitter::Tree;
 pub struct Synchronizer {
     database: Arc<Database>,
     elaborator: Arc<Elaborator>,
-    pub parser: Arc<Parser>,
+    parser: Arc<Parser>,
     trees: Arc<DashMap<Url, Mutex<Tree>>>,
 }
 
