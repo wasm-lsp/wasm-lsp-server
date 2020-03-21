@@ -28,8 +28,7 @@ impl Synchronizer {
         Ok(Synchronizer { parser, rx, trees, tx })
     }
 
-    pub async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
-        let _ = client;
+    pub async fn did_open(&self, _: &Client, params: DidOpenTextDocumentParams) {
         let mut parser = self.parser.wat.lock().await;
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem { uri, text, .. },
@@ -45,8 +44,7 @@ impl Synchronizer {
         }
     }
 
-    pub async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
-        let _ = client;
+    pub async fn did_change(&self, _: &Client, params: DidChangeTextDocumentParams) {
         let mut parser = self.parser.wat.lock().await;
         let DidChangeTextDocumentParams {
             text_document: VersionedTextDocumentIdentifier { uri, .. },
@@ -64,8 +62,7 @@ impl Synchronizer {
         }
     }
 
-    pub async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
-        let _ = client;
+    pub async fn did_close(&self, _: &Client, params: DidCloseTextDocumentParams) {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
