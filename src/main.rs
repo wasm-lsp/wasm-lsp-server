@@ -5,6 +5,7 @@ mod database;
 mod elaborator;
 mod error;
 mod highlighter;
+mod message;
 mod parser;
 mod server;
 mod session;
