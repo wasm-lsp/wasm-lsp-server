@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod analyzer;
+mod auditor;
 mod database;
 mod elaborator;
 mod error;
@@ -13,6 +14,7 @@ mod synchronizer;
 
 use crate::{
     analyzer::Analyzer,
+    auditor::Auditor,
     database::Database,
     elaborator::Elaborator,
     highlighter::Highlighter,
@@ -47,10 +49,12 @@ async fn main() -> Fallible<()> {
     let synchronizer = Arc::new(Synchronizer::new(Arc::new(Parser::new()?))?);
     let rx = &synchronizer.rx;
 
+    let auditor = Arc::new(Auditor::new(rx.clone(), synchronizer.clone())?);
+    let highlighter = Arc::new(Highlighter::new(rx.clone(), synchronizer.clone())?);
+
     let database = Arc::new(Database::new()?);
     let analyzer = Arc::new(Analyzer::new(database.clone(), rx.clone(), synchronizer.clone())?);
     let elaborator = Arc::new(Elaborator::new(database.clone(), rx.clone(), synchronizer.clone())?);
-    let highlighter = Arc::new(Highlighter::new(rx.clone(), synchronizer.clone())?);
 
     let session = Session::new(synchronizer.clone())?;
     let (service, messages) = LspService::new(session);
@@ -60,6 +64,7 @@ async fn main() -> Fallible<()> {
 
     join_all(vec![
         tokio::spawn(async move { analyzer.init().await }),
+        tokio::spawn(async move { auditor.init().await }),
         tokio::spawn(async move { elaborator.init().await }),
         tokio::spawn(async move { highlighter.init().await }),
         tokio::spawn(async move { server.await }),

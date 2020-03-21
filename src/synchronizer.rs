@@ -17,9 +17,9 @@ use tree_sitter::Tree;
 /// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
 pub struct Synchronizer {
     parser: Arc<Parser>,
-    trees: Arc<DashMap<Url, Mutex<Tree>>>,
     tx: watch::Sender<Message>,
     pub rx: watch::Receiver<Message>,
+    pub trees: Arc<DashMap<Url, Mutex<Tree>>>,
 }
 
 impl Synchronizer {
