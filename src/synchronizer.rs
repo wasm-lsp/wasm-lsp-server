@@ -1,9 +1,10 @@
-use crate::parser::Parser;
+use crate::{message::Message, parser::Parser};
 use dashmap::DashMap;
 use failure::Fallible;
+use lsp_types::*;
 use std::sync::Arc;
 use tokio::sync::{watch, Mutex};
-use tower_lsp::{lsp_types::*, Client};
+use tower_lsp::Client;
 use tree_sitter::Tree;
 
 /// Parses a given document into a [`Tree`] with [`Parser`]. Then [`Elaborator`]
@@ -17,18 +18,18 @@ use tree_sitter::Tree;
 pub struct Synchronizer {
     parser: Arc<Parser>,
     trees: Arc<DashMap<Url, Mutex<Tree>>>,
-    tx: watch::Sender<()>,
-    pub rx: watch::Receiver<()>,
+    tx: watch::Sender<Message>,
+    pub rx: watch::Receiver<Message>,
 }
 
 impl Synchronizer {
     pub fn new(parser: Arc<Parser>) -> Fallible<Self> {
         let trees = Arc::new(DashMap::new());
-        let (tx, rx) = watch::channel(());
+        let (tx, rx) = watch::channel(Message::Start);
         Ok(Synchronizer { parser, rx, trees, tx })
     }
 
-    pub async fn did_open(&self, _: &Client, params: DidOpenTextDocumentParams) {
+    pub async fn did_open(&self, _: &Client, params: DidOpenTextDocumentParams) -> Fallible<()> {
         let mut parser = self.parser.wat.lock().await;
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem { uri, text, .. },
@@ -38,13 +39,14 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(()).unwrap();
+            self.tx.broadcast(Message::DidOpenTree { uri: uri.clone() })?;
         } else {
             // TODO: report
         }
+        Ok(())
     }
 
-    pub async fn did_change(&self, _: &Client, params: DidChangeTextDocumentParams) {
+    pub async fn did_change(&self, _: &Client, params: DidChangeTextDocumentParams) -> Fallible<()> {
         let mut parser = self.parser.wat.lock().await;
         let DidChangeTextDocumentParams {
             text_document: VersionedTextDocumentIdentifier { uri, .. },
@@ -56,16 +58,19 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(()).unwrap();
+            self.tx.broadcast(Message::DidChangeTree { uri: uri.clone() })?;
         } else {
             // TODO: report
         }
+        Ok(())
     }
 
-    pub async fn did_close(&self, _: &Client, params: DidCloseTextDocumentParams) {
+    pub async fn did_close(&self, _: &Client, params: DidCloseTextDocumentParams) -> Fallible<()> {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
         self.trees.remove(uri);
+        self.tx.broadcast(Message::DidCloseTree { uri: uri.clone() })?;
+        Ok(())
     }
 }

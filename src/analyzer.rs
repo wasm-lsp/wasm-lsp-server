@@ -1,4 +1,4 @@
-use crate::{database::Database, synchronizer::Synchronizer};
+use crate::{database::Database, message::Message, synchronizer::Synchronizer};
 use failure::Fallible;
 use std::sync::Arc;
 use tokio::sync::watch;
@@ -6,12 +6,16 @@ use tokio::sync::watch;
 /// Computes queries from elaborated syntax and metadata in [`Database`](crate::database::Database).
 pub struct Analyzer {
     database: Arc<Database>,
-    rx: watch::Receiver<()>,
+    rx: watch::Receiver<Message>,
     synchronizer: Arc<Synchronizer>,
 }
 
 impl Analyzer {
-    pub fn new(database: Arc<Database>, rx: watch::Receiver<()>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
+    pub fn new(
+        database: Arc<Database>,
+        rx: watch::Receiver<Message>,
+        synchronizer: Arc<Synchronizer>,
+    ) -> Fallible<Self> {
         Ok(Analyzer {
             database,
             rx,
@@ -22,7 +26,7 @@ impl Analyzer {
     pub async fn init(&self) {
         let mut rx = self.rx.clone();
         while let Some(_value) = rx.recv().await {
-            log::info!("rx");
+            log::info!("{:?}", rx);
         }
     }
 }

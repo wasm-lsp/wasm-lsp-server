@@ -1,7 +1,8 @@
 use crate::session::Session;
 use jsonrpc_core::Result;
 use log;
-use tower_lsp::{lsp_types::*, Client, LanguageServer};
+use lsp_types::*;
+use tower_lsp::{Client, LanguageServer};
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Session {
@@ -63,14 +64,14 @@ impl LanguageServer for Session {
     }
 
     async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
-        self.synchronizer.did_open(client, params).await
+        self.synchronizer.did_open(client, params).await.unwrap()
     }
 
     async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
-        self.synchronizer.did_change(client, params).await
+        self.synchronizer.did_change(client, params).await.unwrap()
     }
 
     async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
-        self.synchronizer.did_close(client, params).await
+        self.synchronizer.did_close(client, params).await.unwrap()
     }
 }
