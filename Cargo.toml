@@ -37,5 +37,5 @@ members = [
 ]
 
 [patch.crates-io]
-tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", rev = "ef5e3cd" }
+tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", rev = "9240379" }
 tree-sitter-highlight = { git = "https://github.com/tree-sitter/tree-sitter", rev = "e259af6" }
