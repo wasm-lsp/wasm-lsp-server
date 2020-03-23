@@ -84,11 +84,11 @@ impl Synchronizer {
     pub async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) -> Fallible<()> {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
-        } = &params;
-        self.trees.remove(uri);
+        } = params;
+        self.trees.remove(&uri);
         self.sender.broadcast(Message::TreeDidClose {
             client: client.clone(),
-            uri: uri.clone(),
+            uri,
         })?;
         Ok(())
     }
