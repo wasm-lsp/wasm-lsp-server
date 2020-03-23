@@ -3,6 +3,6 @@ use tree_sitter;
 
 #[derive(Debug, Fail)]
 pub enum Error {
-    #[fail(display = "tree_sitter :: language error :: {}", 0)]
+    #[fail(display = "tree_sitter::LanguageError: {}", 0)]
     LanguageError(tree_sitter::LanguageError),
 }
