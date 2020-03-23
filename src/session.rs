@@ -26,24 +26,24 @@ impl SessionHandle {
 
 /// Represents the current state of the LSP service.
 pub struct Session {
-    pub analyzer: Arc<Analyzer>,
-    pub auditor: Arc<Auditor>,
-    pub database: Arc<Database>,
-    pub elaborator: Arc<Elaborator>,
-    pub highlighter: Arc<Highlighter>,
-    pub synchronizer: Arc<Synchronizer>,
-    pub synthesizer: Arc<Synthesizer>,
+    pub analyzer: Analyzer,
+    pub auditor: Auditor,
+    pub database: Database,
+    pub elaborator: Elaborator,
+    pub highlighter: Highlighter,
+    pub synchronizer: Synchronizer,
+    pub synthesizer: Synthesizer,
 }
 
 impl Session {
     pub fn new(
-        analyzer: Arc<Analyzer>,
-        auditor: Arc<Auditor>,
-        database: Arc<Database>,
-        elaborator: Arc<Elaborator>,
-        highlighter: Arc<Highlighter>,
-        synchronizer: Arc<Synchronizer>,
-        synthesizer: Arc<Synthesizer>,
+        analyzer: Analyzer,
+        auditor: Auditor,
+        database: Database,
+        elaborator: Elaborator,
+        highlighter: Highlighter,
+        synchronizer: Synchronizer,
+        synthesizer: Synthesizer,
     ) -> Fallible<Self> {
         Ok(Session {
             analyzer,

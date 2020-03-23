@@ -2,21 +2,20 @@ use crate::{parser::Parser, session::SessionHandle};
 use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
-use std::sync::Arc;
 use tokio::sync::Mutex;
 use tower_lsp::Client;
 use tree_sitter::Tree;
 
 /// Synchronizes document edits and parse trees and notifies other server components of changes.
 pub struct Synchronizer {
-    parser: Arc<Parser>,
+    parser: Parser,
     session: SessionHandle,
-    pub trees: Arc<DashMap<Url, Mutex<Tree>>>,
+    pub trees: DashMap<Url, Mutex<Tree>>,
 }
 
 impl Synchronizer {
-    pub fn new(parser: Arc<Parser>, session: SessionHandle) -> Fallible<Self> {
-        let trees = Arc::new(DashMap::new());
+    pub fn new(parser: Parser, session: SessionHandle) -> Fallible<Self> {
+        let trees = DashMap::new();
         Ok(Synchronizer { parser, session, trees })
     }
 
