@@ -22,7 +22,7 @@ impl Auditor {
             if node.has_error() {
                 // prepare a query to match tree-sitter ERROR nodes
                 let language = tree.language();
-                let source = "(ERROR (ERROR) @error)"; // query the tree for ERROR nodes
+                let source = "((ERROR) @error)"; // query the tree for ERROR nodes
                 let query = tree_sitter::Query::new(language, source).map_err(Error::QueryError)?;
 
                 // prepare a query cursor
