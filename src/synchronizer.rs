@@ -42,6 +42,7 @@ impl Synchronizer {
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem { uri, text, .. },
         } = &params;
+        // NOTE: Perhaps we should persist trees even on close. We could make this configurable.
         let old_tree = None;
         let tree = parser.parse(text, old_tree);
         log::info!("tree: {:?}", tree);
@@ -64,6 +65,7 @@ impl Synchronizer {
             content_changes,
         } = &params;
         let TextDocumentContentChangeEvent { ref text, .. } = content_changes[0];
+        // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
         let old_tree = None;
         let tree = parser.parse(text, old_tree);
         log::info!("tree: {:?}", tree);
