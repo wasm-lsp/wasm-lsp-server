@@ -9,18 +9,18 @@ use tokio::sync::watch;
 /// Computes highlights from elaborated syntax and metadata in
 /// [`Database`](crate::database::Database).
 pub struct Highlighter {
-    rx: watch::Receiver<Message>,
+    receiver: watch::Receiver<Message>,
     synchronizer: Arc<Synchronizer>,
 }
 
 impl Highlighter {
-    pub fn new(rx: watch::Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
-        Ok(Highlighter { rx, synchronizer })
+    pub fn new(receiver: watch::Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
+        Ok(Highlighter { receiver, synchronizer })
     }
 
     pub async fn init(&self) -> Fallible<()> {
-        let mut rx = self.rx.clone();
-        while let Some(message) = rx.recv().await {
+        let mut receiver = self.receiver.clone();
+        while let Some(message) = receiver.recv().await {
             log::info!("{:?}", message);
         }
         Ok(())
