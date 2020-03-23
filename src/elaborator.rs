@@ -49,6 +49,7 @@ impl Elaborator {
                 log::info!("syntax well-formed");
             }
             // NOTE: else let auditor handle
+            // TODO: allow partial elaboration in presence of syntax errors
         }
         Ok(())
     }
@@ -65,6 +66,7 @@ impl Elaborator {
                 log::info!("syntax well-formed");
             }
             // NOTE: else let auditor handle
+            // TODO: allow partial elaboration in presence of syntax errors
         }
         Ok(())
     }
