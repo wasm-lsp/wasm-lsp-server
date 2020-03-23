@@ -30,16 +30,7 @@ impl Elaborator {
         Ok(())
     }
 
-    pub async fn tree_did_open(&self, _: &Client, uri: &Url) -> Fallible<()> {
-        if let Some(tree) = self.session.get().await.synchronizer.trees.get(&uri) {
-            let tree = tree.lock().await.clone();
-            let node = tree.root_node();
-            if !node.has_error() {
-                log::info!("syntax well-formed");
-            }
-            // NOTE: else let auditor handle
-            // TODO: allow partial elaboration in presence of syntax errors
-        }
-        Ok(())
+    pub async fn tree_did_open(&self, client: &Client, uri: &Url) -> Fallible<()> {
+        self.tree_did_change(client, uri).await
     }
 }
