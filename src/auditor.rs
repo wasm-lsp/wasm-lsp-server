@@ -1,7 +1,9 @@
 use crate::{message::Message, synchronizer::Synchronizer};
 use failure::Fallible;
+use lsp_types::*;
 use std::sync::Arc;
 use tokio::sync::watch;
+use tower_lsp::Client;
 
 pub struct Auditor {
     rx: watch::Receiver<Message>,
@@ -13,7 +15,7 @@ impl Auditor {
         Ok(Auditor { rx, synchronizer })
     }
 
-    pub async fn init(&self) {
+    pub async fn init(&self) -> Fallible<()> {
         let mut rx = self.rx.clone();
         while let Some(message) = rx.recv().await {
             match &message {
@@ -39,5 +41,6 @@ impl Auditor {
                 Message::Start => {},
             }
         }
+        Ok(())
     }
 }
