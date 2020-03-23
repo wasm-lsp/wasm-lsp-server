@@ -1,33 +1,23 @@
-use crate::{message::Message, parser::Parser};
+use crate::{parser::Parser, session::SessionHandle};
 use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
-use tokio::sync::{
-    watch::{self, Receiver, Sender},
-    Mutex,
-};
+use tokio::sync::Mutex;
 use tower_lsp::Client;
 use tree_sitter::Tree;
 
 /// Synchronizes document edits and parse trees and notifies other server components of changes.
 pub struct Synchronizer {
     parser: Arc<Parser>,
-    sender: Sender<Message>,
-    pub receiver: Receiver<Message>,
+    session: SessionHandle,
     pub trees: Arc<DashMap<Url, Mutex<Tree>>>,
 }
 
 impl Synchronizer {
-    pub fn new(parser: Arc<Parser>) -> Fallible<Self> {
+    pub fn new(parser: Arc<Parser>, session: SessionHandle) -> Fallible<Self> {
         let trees = Arc::new(DashMap::new());
-        let (sender, receiver) = watch::channel(Message::Start);
-        Ok(Synchronizer {
-            parser,
-            receiver,
-            sender,
-            trees,
-        })
+        Ok(Synchronizer { parser, session, trees })
     }
 
     pub async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) -> Fallible<()> {
@@ -35,16 +25,16 @@ impl Synchronizer {
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem { uri, text, .. },
         } = &params;
-        // NOTE: Perhaps we should persist trees even on close. We could make this configurable.
-        let old_tree = None;
-        let tree = parser.parse(text, old_tree);
-        log::info!("tree: {:?}", tree);
+        let tree;
+        {
+            // NOTE: Perhaps we should persist trees even on close. We could make this configurable.
+            let old_tree = None;
+            tree = parser.parse(text, old_tree);
+        }
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.sender.broadcast(Message::TreeDidOpen {
-                client: client.clone(),
-                uri: uri.clone(),
-            })?;
+            self.session.get().await.auditor.tree_did_open(client, uri).await?;
+            self.session.get().await.elaborator.tree_did_open(client, uri).await?;
         } else {
             // TODO: report
         }
@@ -58,16 +48,19 @@ impl Synchronizer {
             content_changes,
         } = &params;
         let TextDocumentContentChangeEvent { ref text, .. } = content_changes[0];
-        // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
-        let old_tree = None;
-        let tree = parser.parse(text, old_tree);
-        log::info!("tree: {:?}", tree);
-        if let Some(tree) = tree {
-            let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.sender.broadcast(Message::TreeDidChange {
-                client: client.clone(),
-                uri: uri.clone(),
-            })?;
+        let mut success = false;
+        {
+            // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
+            let old_tree = None;
+            if let Some(tree) = parser.parse(text, old_tree) {
+                log::info!("tree: {:?}", tree);
+                self.trees.insert(uri.clone(), Mutex::new(tree));
+                success = true;
+            }
+        }
+        if success {
+            self.session.get().await.auditor.tree_did_change(client, uri).await?;
+            self.session.get().await.elaborator.tree_did_change(client, uri).await?;
         } else {
             // TODO: report
         }
@@ -77,12 +70,10 @@ impl Synchronizer {
     pub async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) -> Fallible<()> {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
-        } = params;
+        } = &params;
         self.trees.remove(&uri);
-        self.sender.broadcast(Message::TreeDidClose {
-            client: client.clone(),
-            uri,
-        })?;
+        self.session.get().await.auditor.tree_did_close(client, uri).await?;
+        self.session.get().await.elaborator.tree_did_close(client, uri).await?;
         Ok(())
     }
 }
