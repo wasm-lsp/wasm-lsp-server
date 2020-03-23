@@ -3,7 +3,7 @@ use failure::Fallible;
 use std::sync::Arc;
 use tokio::sync::watch::Receiver;
 
-/// Computes queries from elaborated syntax and metadata in [`Database`](crate::database::Database).
+/// Computes queries about documents.
 pub struct Analyzer {
     database: Arc<Database>,
     receiver: Receiver<Message>,

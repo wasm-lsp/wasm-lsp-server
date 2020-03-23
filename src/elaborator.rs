@@ -5,10 +5,7 @@ use std::sync::Arc;
 use tokio::sync::watch::Receiver;
 use tower_lsp::Client;
 
-/// Elaborates a given [`Tree`] into structured data to be cached in
-/// [`Database`](crate::database::Database).
-///
-/// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
+/// Elaborates parse trees into structured data to be cached in the database.
 pub struct Elaborator {
     database: Arc<Database>,
     receiver: Receiver<Message>,
