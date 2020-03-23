@@ -73,7 +73,12 @@ impl Auditor {
         Ok(())
     }
 
-    async fn tree_did_close(&self, _: Client, _: Url) -> Fallible<()> {
+    async fn tree_did_close(&self, client: Client, uri: Url) -> Fallible<()> {
+        // clear diagnostics on tree close
+        // FIXME: handle this properly
+        let diagnostics = vec![];
+        let version = None;
+        client.publish_diagnostics(uri, diagnostics, version);
         Ok(())
     }
 
