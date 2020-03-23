@@ -46,7 +46,8 @@ extern {
 async fn main() -> Fallible<()> {
     env_logger::try_init()?;
 
-    let synchronizer = Arc::new(Synchronizer::new(Arc::new(Parser::new()?))?);
+    let parser = Arc::new(Parser::new()?);
+    let synchronizer = Arc::new(Synchronizer::new(parser)?);
     let receiver = &synchronizer.receiver;
 
     let auditor = Arc::new(Auditor::new(receiver.clone(), synchronizer.clone())?);
