@@ -2,19 +2,19 @@ use crate::{message::Message, synchronizer::Synchronizer};
 use failure::Fallible;
 use log;
 use std::sync::Arc;
-use tokio::sync::watch;
+use tokio::sync::watch::Receiver;
 
 // TODO: implement highlight adapter from tree-sitter to LSP SemanticTokenType
 
 /// Computes highlights from elaborated syntax and metadata in
 /// [`Database`](crate::database::Database).
 pub struct Highlighter {
-    receiver: watch::Receiver<Message>,
+    receiver: Receiver<Message>,
     synchronizer: Arc<Synchronizer>,
 }
 
 impl Highlighter {
-    pub fn new(receiver: watch::Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
+    pub fn new(receiver: Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
         Ok(Highlighter { receiver, synchronizer })
     }
 

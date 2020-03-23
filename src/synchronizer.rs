@@ -3,7 +3,10 @@ use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
-use tokio::sync::{watch, Mutex};
+use tokio::sync::{
+    watch::{self, Receiver, Sender},
+    Mutex,
+};
 use tower_lsp::Client;
 use tree_sitter::Tree;
 
@@ -17,8 +20,8 @@ use tree_sitter::Tree;
 /// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
 pub struct Synchronizer {
     parser: Arc<Parser>,
-    sender: watch::Sender<Message>,
-    pub receiver: watch::Receiver<Message>,
+    sender: Sender<Message>,
+    pub receiver: Receiver<Message>,
     pub trees: Arc<DashMap<Url, Mutex<Tree>>>,
 }
 
