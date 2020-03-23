@@ -25,8 +25,8 @@ impl Analyzer {
 
     pub async fn init(&self) -> Fallible<()> {
         let mut rx = self.rx.clone();
-        while let Some(_value) = rx.recv().await {
-            log::info!("{:?}", rx);
+        while let Some(message) = rx.recv().await {
+            log::info!("{:?}", message);
         }
         Ok(())
     }
