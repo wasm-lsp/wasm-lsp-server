@@ -52,7 +52,7 @@ impl Auditor {
             }
             // NOTE: else let elaborator handle
             let version = None;
-            client.publish_diagnostics(uri.clone(), diagnostics.clone(), version);
+            client.publish_diagnostics(uri.clone(), diagnostics, version);
         }
         Ok(())
     }
