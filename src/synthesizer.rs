@@ -3,8 +3,7 @@ use failure::Fallible;
 use std::sync::Arc;
 use tokio::sync::watch::Receiver;
 
-/// Synthesizes typing information from elaborated syntax and metadata in
-/// [`Database`](crate::database::Database).
+/// Synthesizes typing information for documents.
 pub struct Synthesizer {
     database: Arc<Database>,
     receiver: Receiver<Message>,

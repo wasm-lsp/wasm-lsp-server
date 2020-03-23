@@ -5,6 +5,7 @@ use std::sync::Arc;
 use tokio::sync::watch::Receiver;
 use tower_lsp::Client;
 
+/// Collects diagnostics for documents with syntax errors, etc.
 pub struct Auditor {
     receiver: Receiver<Message>,
     synchronizer: Arc<Synchronizer>,

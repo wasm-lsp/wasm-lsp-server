@@ -4,7 +4,7 @@ use sled;
 use std::{env, path::Path};
 use uuid::Uuid;
 
-/// Caches elaborated syntax and metadata about WebAssembly documents.
+/// Caches elaborated syntax and metadata of documents.
 pub struct Database {
     sled: sled::Db,
     uuid: Uuid,
