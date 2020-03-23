@@ -19,9 +19,9 @@ impl Auditor {
         let mut rx = self.rx.clone();
         while let Some(message) = rx.recv().await {
             match message {
-                Message::DidChangeTree { client, uri, .. } => self.tree_did_change(client, uri).await?,
-                Message::DidCloseTree { client, uri, .. } => self.tree_did_close(client, uri).await?,
-                Message::DidOpenTree { client, uri, .. } => self.tree_did_open(client, uri).await?,
+                Message::TreeDidChange { client, uri, .. } => self.tree_did_change(client, uri).await?,
+                Message::TreeDidClose { client, uri, .. } => self.tree_did_close(client, uri).await?,
+                Message::TreeDidOpen { client, uri, .. } => self.tree_did_open(client, uri).await?,
                 _ => {},
             }
         }

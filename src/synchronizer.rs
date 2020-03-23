@@ -39,7 +39,7 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(Message::DidOpenTree {
+            self.tx.broadcast(Message::TreeDidOpen {
                 client: client.clone(),
                 uri: uri.clone(),
             })?;
@@ -61,7 +61,7 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(Message::DidChangeTree {
+            self.tx.broadcast(Message::TreeDidChange {
                 client: client.clone(),
                 uri: uri.clone(),
             })?;
@@ -76,7 +76,7 @@ impl Synchronizer {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
         self.trees.remove(uri);
-        self.tx.broadcast(Message::DidCloseTree {
+        self.tx.broadcast(Message::TreeDidClose {
             client: client.clone(),
             uri: uri.clone(),
         })?;
