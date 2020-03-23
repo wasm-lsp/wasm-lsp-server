@@ -5,4 +5,6 @@ use tree_sitter;
 pub enum Error {
     #[fail(display = "tree_sitter::LanguageError: {}", 0)]
     LanguageError(tree_sitter::LanguageError),
+    #[fail(display = "tree_sitter::QueryError")]
+    QueryError(tree_sitter::QueryError),
 }
