@@ -18,27 +18,37 @@ impl Auditor {
     pub async fn init(&self) -> Fallible<()> {
         let mut rx = self.rx.clone();
         while let Some(message) = rx.recv().await {
-            match &message {
-                Message::DidChangeTree { uri } => {
-                    if let Some(tree) = self.synchronizer.trees.get(uri) {
-                        let tree = tree.lock().await.clone();
-                        let node = tree.root_node();
-                        if node.has_error() {
-                            log::info!("syntax error");
-                        }
-                    }
-                },
-                Message::DidCloseTree { .. } => {},
-                Message::DidOpenTree { uri } => {
-                    if let Some(tree) = self.synchronizer.trees.get(uri) {
-                        let tree = tree.lock().await.clone();
-                        let node = tree.root_node();
-                        if node.has_error() {
-                            log::info!("syntax error");
-                        }
-                    }
-                },
-                Message::Start => {},
+            match message {
+                Message::DidChangeTree { client, uri, .. } => self.tree_did_change(client, uri).await?,
+                Message::DidCloseTree { client, uri, .. } => self.tree_did_close(client, uri).await?,
+                Message::DidOpenTree { client, uri, .. } => self.tree_did_open(client, uri).await?,
+                _ => {},
+            }
+        }
+        Ok(())
+    }
+
+    async fn tree_did_change(&self, _: Client, uri: Url) -> Fallible<()> {
+        if let Some(tree) = self.synchronizer.trees.get(&uri) {
+            let tree = tree.lock().await.clone();
+            let node = tree.root_node();
+            if node.has_error() {
+                log::info!("syntax error");
+            }
+        }
+        Ok(())
+    }
+
+    async fn tree_did_close(&self, _: Client, _: Url) -> Fallible<()> {
+        Ok(())
+    }
+
+    async fn tree_did_open(&self, _: Client, uri: Url) -> Fallible<()> {
+        if let Some(tree) = self.synchronizer.trees.get(&uri) {
+            let tree = tree.lock().await.clone();
+            let node = tree.root_node();
+            if node.has_error() {
+                log::info!("syntax error");
             }
         }
         Ok(())

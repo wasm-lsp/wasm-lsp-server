@@ -29,7 +29,7 @@ impl Synchronizer {
         Ok(Synchronizer { parser, rx, trees, tx })
     }
 
-    pub async fn did_open(&self, _: &Client, params: DidOpenTextDocumentParams) -> Fallible<()> {
+    pub async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) -> Fallible<()> {
         let mut parser = self.parser.wat.lock().await;
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem { uri, text, .. },
@@ -39,14 +39,17 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(Message::DidOpenTree { uri: uri.clone() })?;
+            self.tx.broadcast(Message::DidOpenTree {
+                client: client.clone(),
+                uri: uri.clone(),
+            })?;
         } else {
             // TODO: report
         }
         Ok(())
     }
 
-    pub async fn did_change(&self, _: &Client, params: DidChangeTextDocumentParams) -> Fallible<()> {
+    pub async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) -> Fallible<()> {
         let mut parser = self.parser.wat.lock().await;
         let DidChangeTextDocumentParams {
             text_document: VersionedTextDocumentIdentifier { uri, .. },
@@ -58,19 +61,25 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(Message::DidChangeTree { uri: uri.clone() })?;
+            self.tx.broadcast(Message::DidChangeTree {
+                client: client.clone(),
+                uri: uri.clone(),
+            })?;
         } else {
             // TODO: report
         }
         Ok(())
     }
 
-    pub async fn did_close(&self, _: &Client, params: DidCloseTextDocumentParams) -> Fallible<()> {
+    pub async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) -> Fallible<()> {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
         self.trees.remove(uri);
-        self.tx.broadcast(Message::DidCloseTree { uri: uri.clone() })?;
+        self.tx.broadcast(Message::DidCloseTree {
+            client: client.clone(),
+            uri: uri.clone(),
+        })?;
         Ok(())
     }
 }
