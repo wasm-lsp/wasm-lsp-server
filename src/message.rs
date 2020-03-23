@@ -1,9 +1,10 @@
 use lsp_types::Url;
+use tower_lsp::Client;
 
 #[derive(Clone, Debug)]
 pub enum Message {
-    DidOpenTree { uri: Url },
-    DidChangeTree { uri: Url },
-    DidCloseTree { uri: Url },
+    DidChangeTree { client: Client, uri: Url },
+    DidCloseTree { client: Client, uri: Url },
+    DidOpenTree { client: Client, uri: Url },
     Start,
 }
