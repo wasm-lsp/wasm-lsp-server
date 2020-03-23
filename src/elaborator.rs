@@ -2,7 +2,7 @@ use crate::{database::Database, message::Message, synchronizer::Synchronizer};
 use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
-use tokio::sync::watch;
+use tokio::sync::watch::Receiver;
 use tower_lsp::Client;
 
 /// Elaborates a given [`Tree`] into structured data to be cached in
@@ -11,14 +11,14 @@ use tower_lsp::Client;
 /// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
 pub struct Elaborator {
     database: Arc<Database>,
-    receiver: watch::Receiver<Message>,
+    receiver: Receiver<Message>,
     synchronizer: Arc<Synchronizer>,
 }
 
 impl Elaborator {
     pub fn new(
         database: Arc<Database>,
-        receiver: watch::Receiver<Message>,
+        receiver: Receiver<Message>,
         synchronizer: Arc<Synchronizer>,
     ) -> Fallible<Self> {
         Ok(Elaborator {

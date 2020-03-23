@@ -2,16 +2,16 @@ use crate::{message::Message, synchronizer::Synchronizer};
 use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
-use tokio::sync::watch;
+use tokio::sync::watch::Receiver;
 use tower_lsp::Client;
 
 pub struct Auditor {
-    receiver: watch::Receiver<Message>,
+    receiver: Receiver<Message>,
     synchronizer: Arc<Synchronizer>,
 }
 
 impl Auditor {
-    pub fn new(receiver: watch::Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
+    pub fn new(receiver: Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
         Ok(Auditor { receiver, synchronizer })
     }
 
