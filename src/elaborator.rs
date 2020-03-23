@@ -8,7 +8,7 @@ pub struct Elaborator {
     session: SessionHandle,
 }
 
-impl<'a> Elaborator {
+impl Elaborator {
     pub fn new(session: SessionHandle) -> Fallible<Self> {
         Ok(Elaborator { session })
     }
