@@ -11,6 +11,7 @@ mod parser;
 mod server;
 mod session;
 mod synchronizer;
+mod synthesizer;
 
 use crate::{
     analyzer::Analyzer,
@@ -21,6 +22,7 @@ use crate::{
     parser::Parser,
     session::Session,
     synchronizer::Synchronizer,
+    synthesizer::Synthesizer,
 };
 use failure::Fallible;
 use futures::future::join_all;
@@ -60,6 +62,11 @@ async fn main() -> Fallible<()> {
         receiver.clone(),
         synchronizer.clone(),
     )?);
+    let synthesizer = Arc::new(Synthesizer::new(
+        database.clone(),
+        receiver.clone(),
+        synchronizer.clone(),
+    )?);
 
     let session = Session::new(synchronizer.clone())?;
     let (service, messages) = LspService::new(session);
@@ -75,6 +82,7 @@ async fn main() -> Fallible<()> {
         tokio::spawn(async move { auditor.init().await }),
         tokio::spawn(async move { elaborator.init().await }),
         tokio::spawn(async move { highlighter.init().await }),
+        tokio::spawn(async move { synthesizer.init().await }),
         tokio::spawn(server),
     ])
     .await;
