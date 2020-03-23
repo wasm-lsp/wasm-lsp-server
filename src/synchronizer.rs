@@ -17,16 +17,21 @@ use tree_sitter::Tree;
 /// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
 pub struct Synchronizer {
     parser: Arc<Parser>,
-    tx: watch::Sender<Message>,
-    pub rx: watch::Receiver<Message>,
+    sender: watch::Sender<Message>,
+    pub receiver: watch::Receiver<Message>,
     pub trees: Arc<DashMap<Url, Mutex<Tree>>>,
 }
 
 impl Synchronizer {
     pub fn new(parser: Arc<Parser>) -> Fallible<Self> {
         let trees = Arc::new(DashMap::new());
-        let (tx, rx) = watch::channel(Message::Start);
-        Ok(Synchronizer { parser, rx, trees, tx })
+        let (sender, receiver) = watch::channel(Message::Start);
+        Ok(Synchronizer {
+            parser,
+            receiver,
+            sender,
+            trees,
+        })
     }
 
     pub async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) -> Fallible<()> {
@@ -39,7 +44,7 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(Message::TreeDidOpen {
+            self.sender.broadcast(Message::TreeDidOpen {
                 client: client.clone(),
                 uri: uri.clone(),
             })?;
@@ -61,7 +66,7 @@ impl Synchronizer {
         log::info!("tree: {:?}", tree);
         if let Some(tree) = tree {
             let _ = self.trees.insert(uri.clone(), Mutex::new(tree));
-            self.tx.broadcast(Message::TreeDidChange {
+            self.sender.broadcast(Message::TreeDidChange {
                 client: client.clone(),
                 uri: uri.clone(),
             })?;
@@ -76,7 +81,7 @@ impl Synchronizer {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
         self.trees.remove(uri);
-        self.tx.broadcast(Message::TreeDidClose {
+        self.sender.broadcast(Message::TreeDidClose {
             client: client.clone(),
             uri: uri.clone(),
         })?;

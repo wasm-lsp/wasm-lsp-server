@@ -6,26 +6,26 @@ use tokio::sync::watch;
 /// Computes queries from elaborated syntax and metadata in [`Database`](crate::database::Database).
 pub struct Analyzer {
     database: Arc<Database>,
-    rx: watch::Receiver<Message>,
+    receiver: watch::Receiver<Message>,
     synchronizer: Arc<Synchronizer>,
 }
 
 impl Analyzer {
     pub fn new(
         database: Arc<Database>,
-        rx: watch::Receiver<Message>,
+        receiver: watch::Receiver<Message>,
         synchronizer: Arc<Synchronizer>,
     ) -> Fallible<Self> {
         Ok(Analyzer {
             database,
-            rx,
+            receiver,
             synchronizer,
         })
     }
 
     pub async fn init(&self) -> Fallible<()> {
-        let mut rx = self.rx.clone();
-        while let Some(message) = rx.recv().await {
+        let mut receiver = self.receiver.clone();
+        while let Some(message) = receiver.recv().await {
             log::info!("{:?}", message);
         }
         Ok(())

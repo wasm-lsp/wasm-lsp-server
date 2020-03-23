@@ -11,26 +11,26 @@ use tower_lsp::Client;
 /// [`Tree`]: https://docs.rs/tree-sitter/latest/tree_sitter/struct.Tree.html
 pub struct Elaborator {
     database: Arc<Database>,
-    rx: watch::Receiver<Message>,
+    receiver: watch::Receiver<Message>,
     synchronizer: Arc<Synchronizer>,
 }
 
 impl Elaborator {
     pub fn new(
         database: Arc<Database>,
-        rx: watch::Receiver<Message>,
+        receiver: watch::Receiver<Message>,
         synchronizer: Arc<Synchronizer>,
     ) -> Fallible<Self> {
         Ok(Elaborator {
             database,
-            rx,
+            receiver,
             synchronizer,
         })
     }
 
     pub async fn init(&self) -> Fallible<()> {
-        let mut rx = self.rx.clone();
-        while let Some(message) = rx.recv().await {
+        let mut receiver = self.receiver.clone();
+        while let Some(message) = receiver.recv().await {
             match message {
                 Message::TreeDidChange { client, uri, .. } => self.tree_did_change(client, uri).await?,
                 Message::TreeDidClose { client, uri, .. } => self.tree_did_close(client, uri).await?,

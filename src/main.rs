@@ -47,14 +47,18 @@ async fn main() -> Fallible<()> {
     env_logger::try_init()?;
 
     let synchronizer = Arc::new(Synchronizer::new(Arc::new(Parser::new()?))?);
-    let rx = &synchronizer.rx;
+    let receiver = &synchronizer.receiver;
 
-    let auditor = Arc::new(Auditor::new(rx.clone(), synchronizer.clone())?);
-    let highlighter = Arc::new(Highlighter::new(rx.clone(), synchronizer.clone())?);
+    let auditor = Arc::new(Auditor::new(receiver.clone(), synchronizer.clone())?);
+    let highlighter = Arc::new(Highlighter::new(receiver.clone(), synchronizer.clone())?);
 
     let database = Arc::new(Database::new()?);
-    let analyzer = Arc::new(Analyzer::new(database.clone(), rx.clone(), synchronizer.clone())?);
-    let elaborator = Arc::new(Elaborator::new(database.clone(), rx.clone(), synchronizer.clone())?);
+    let analyzer = Arc::new(Analyzer::new(database.clone(), receiver.clone(), synchronizer.clone())?);
+    let elaborator = Arc::new(Elaborator::new(
+        database.clone(),
+        receiver.clone(),
+        synchronizer.clone(),
+    )?);
 
     let session = Session::new(synchronizer.clone())?;
     let (service, messages) = LspService::new(session);
