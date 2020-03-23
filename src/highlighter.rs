@@ -1,27 +1,15 @@
-use crate::{message::Message, synchronizer::Synchronizer};
+use crate::session::SessionHandle;
 use failure::Fallible;
-use log;
-use std::sync::Arc;
-use tokio::sync::watch::Receiver;
 
 // TODO: implement highlight adapter from tree-sitter to LSP SemanticTokenType
 
 /// Computes highlights for documents.
 pub struct Highlighter {
-    receiver: Receiver<Message>,
-    synchronizer: Arc<Synchronizer>,
+    session: SessionHandle,
 }
 
 impl Highlighter {
-    pub fn new(receiver: Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
-        Ok(Highlighter { receiver, synchronizer })
-    }
-
-    pub async fn init(&self) -> Fallible<()> {
-        let mut receiver = self.receiver.clone();
-        while let Some(message) = receiver.recv().await {
-            log::info!("{:?}", message);
-        }
-        Ok(())
+    pub fn new(session: SessionHandle) -> Fallible<Self> {
+        Ok(Highlighter { session })
     }
 }

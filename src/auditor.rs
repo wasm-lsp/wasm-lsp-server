@@ -1,37 +1,21 @@
-use crate::{error::Error, message::Message, synchronizer::Synchronizer};
+use crate::{error::Error, session::SessionHandle};
 use failure::Fallible;
 use lsp_types::*;
-use std::sync::Arc;
-use tokio::sync::watch::Receiver;
 use tower_lsp::Client;
 use tree_sitter;
 
 /// Collects diagnostics for documents with syntax errors, etc.
 pub struct Auditor {
-    receiver: Receiver<Message>,
-    synchronizer: Arc<Synchronizer>,
+    session: SessionHandle,
 }
 
 impl Auditor {
-    pub fn new(receiver: Receiver<Message>, synchronizer: Arc<Synchronizer>) -> Fallible<Self> {
-        Ok(Auditor { receiver, synchronizer })
+    pub fn new(session: SessionHandle) -> Fallible<Self> {
+        Ok(Auditor { session })
     }
 
-    pub async fn init(&self) -> Fallible<()> {
-        let mut receiver = self.receiver.clone();
-        while let Some(message) = receiver.recv().await {
-            match message {
-                Message::TreeDidChange { client, uri, .. } => self.tree_did_change(client, uri).await?,
-                Message::TreeDidClose { client, uri, .. } => self.tree_did_close(client, uri).await?,
-                Message::TreeDidOpen { client, uri, .. } => self.tree_did_open(client, uri).await?,
-                _ => {},
-            }
-        }
-        Ok(())
-    }
-
-    async fn tree_did_change(&self, client: Client, uri: Url) -> Fallible<()> {
-        if let Some(tree) = self.synchronizer.trees.get(&uri) {
+    pub async fn tree_did_change(&self, client: &Client, uri: &Url) -> Fallible<()> {
+        if let Some(tree) = self.session.get().await.synchronizer.trees.get(&uri) {
             let tree = tree.lock().await.clone();
             let node = tree.root_node();
             let mut diagnostics = vec![];
@@ -68,21 +52,21 @@ impl Auditor {
             }
             // NOTE: else let elaborator handle
             let version = None;
-            client.publish_diagnostics(uri, diagnostics, version);
+            client.publish_diagnostics(uri.clone(), diagnostics.clone(), version);
         }
         Ok(())
     }
 
-    async fn tree_did_close(&self, client: Client, uri: Url) -> Fallible<()> {
+    pub async fn tree_did_close(&self, client: &Client, uri: &Url) -> Fallible<()> {
         // clear diagnostics on tree close
         // FIXME: handle this properly
         let diagnostics = vec![];
         let version = None;
-        client.publish_diagnostics(uri, diagnostics, version);
+        client.publish_diagnostics(uri.clone(), diagnostics, version);
         Ok(())
     }
 
-    async fn tree_did_open(&self, client: Client, uri: Url) -> Fallible<()> {
+    pub async fn tree_did_open(&self, client: &Client, uri: &Url) -> Fallible<()> {
         self.tree_did_change(client, uri).await
     }
 }

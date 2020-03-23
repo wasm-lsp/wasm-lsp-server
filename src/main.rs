@@ -6,7 +6,6 @@ mod database;
 mod elaborator;
 mod error;
 mod highlighter;
-mod message;
 mod parser;
 mod server;
 mod session;
@@ -20,13 +19,13 @@ use crate::{
     elaborator::Elaborator,
     highlighter::Highlighter,
     parser::Parser,
-    session::Session,
+    session::{Session, SessionHandle},
     synchronizer::Synchronizer,
     synthesizer::Synthesizer,
 };
 use failure::Fallible;
-use futures::future::join_all;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
 
@@ -48,44 +47,33 @@ extern {
 async fn main() -> Fallible<()> {
     env_logger::try_init()?;
 
-    let parser = Arc::new(Parser::new()?);
-    let synchronizer = Arc::new(Synchronizer::new(parser)?);
-    let receiver = &synchronizer.receiver;
+    let lock = Arc::new(RwLock::new(Weak::new()));
+    let handle = SessionHandle::new(lock.clone());
 
-    let auditor = Arc::new(Auditor::new(receiver.clone(), synchronizer.clone())?);
-    let highlighter = Arc::new(Highlighter::new(receiver.clone(), synchronizer.clone())?);
-
+    let analyzer = Arc::new(Analyzer::new(handle.clone())?);
+    let auditor = Arc::new(Auditor::new(handle.clone())?);
     let database = Arc::new(Database::new()?);
-    let analyzer = Arc::new(Analyzer::new(database.clone(), receiver.clone(), synchronizer.clone())?);
-    let elaborator = Arc::new(Elaborator::new(
-        database.clone(),
-        receiver.clone(),
-        synchronizer.clone(),
-    )?);
-    let synthesizer = Arc::new(Synthesizer::new(
-        database.clone(),
-        receiver.clone(),
-        synchronizer.clone(),
-    )?);
+    let elaborator = Arc::new(Elaborator::new(handle.clone())?);
+    let highlighter = Arc::new(Highlighter::new(handle.clone())?);
+    let parser = Arc::new(Parser::new()?);
+    let synchronizer = Arc::new(Synchronizer::new(parser, handle.clone())?);
+    let synthesizer = Arc::new(Synthesizer::new(handle.clone())?);
 
-    let session = Session::new(synchronizer.clone())?;
+    let session = Arc::new(Session::new(
+        analyzer.clone(),
+        auditor.clone(),
+        database.clone(),
+        elaborator.clone(),
+        highlighter.clone(),
+        synchronizer.clone(),
+        synthesizer.clone(),
+    )?);
+    *lock.write().await = Arc::downgrade(&session.clone());
+
     let (service, messages) = LspService::new(session);
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
-    let server = async {
-        Server::new(stdin, stdout).interleave(messages).serve(service).await;
-        Ok(())
-    };
-
-    join_all(vec![
-        tokio::spawn(async move { analyzer.init().await }),
-        tokio::spawn(async move { auditor.init().await }),
-        tokio::spawn(async move { elaborator.init().await }),
-        tokio::spawn(async move { highlighter.init().await }),
-        tokio::spawn(async move { synthesizer.init().await }),
-        tokio::spawn(server),
-    ])
-    .await;
+    Server::new(stdin, stdout).interleave(messages).serve(service).await;
 
     Ok(())
 }

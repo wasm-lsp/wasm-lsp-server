@@ -20,9 +20,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.24"
+version = "0.1.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "750b1c38a1dfadd108da0f01c08f4cdc7ff1bb39b325f9c82cc972361780a6e1"
+checksum = "21a03abb7c9b93ae229356151a083d26218c0358866a2a59d4280c856e9482e6"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -855,7 +855,7 @@ dependencies = [
 [[package]]
 name = "tower-lsp"
 version = "0.10.0"
-source = "git+https://github.com/darinmorrison/tower-lsp?rev=9240379#9240379492887b4164c396a0b743a5386acaaf87"
+source = "git+https://github.com/darinmorrison/tower-lsp?rev=f8e78b4#f8e78b4ee207250c845a7d288766804230ea7bd1"
 dependencies = [
  "async-trait",
  "bytes",
