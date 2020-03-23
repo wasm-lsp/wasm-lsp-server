@@ -3,8 +3,8 @@ use tower_lsp::Client;
 
 #[derive(Clone, Debug)]
 pub enum Message {
-    DidChangeTree { client: Client, uri: Url },
-    DidCloseTree { client: Client, uri: Url },
-    DidOpenTree { client: Client, uri: Url },
+    TreeDidChange { client: Client, uri: Url },
+    TreeDidClose { client: Client, uri: Url },
+    TreeDidOpen { client: Client, uri: Url },
     Start,
 }
