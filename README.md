@@ -15,4 +15,8 @@
 
 ## Status
 
-Doesn't do much yet.
+The server is still in an early state and most features have not yet been implemented.
+
+## Supported Features
+
+- [x] reports syntax errors based on (work-in-progress) [wasm tree-sitter grammars](https://github.com/darinmorrison/tree-sitter-webassembly)
