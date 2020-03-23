@@ -50,23 +50,23 @@ async fn main() -> Fallible<()> {
     let lock = Arc::new(RwLock::new(Weak::new()));
     let handle = SessionHandle::new(lock.clone());
 
-    let analyzer = Arc::new(Analyzer::new(handle.clone())?);
-    let auditor = Arc::new(Auditor::new(handle.clone())?);
-    let database = Arc::new(Database::new()?);
-    let elaborator = Arc::new(Elaborator::new(handle.clone())?);
-    let highlighter = Arc::new(Highlighter::new(handle.clone())?);
-    let parser = Arc::new(Parser::new()?);
-    let synchronizer = Arc::new(Synchronizer::new(parser, handle.clone())?);
-    let synthesizer = Arc::new(Synthesizer::new(handle.clone())?);
+    let analyzer = Analyzer::new(handle.clone())?;
+    let auditor = Auditor::new(handle.clone())?;
+    let database = Database::new()?;
+    let elaborator = Elaborator::new(handle.clone())?;
+    let highlighter = Highlighter::new(handle.clone())?;
+    let parser = Parser::new()?;
+    let synchronizer = Synchronizer::new(parser, handle.clone())?;
+    let synthesizer = Synthesizer::new(handle.clone())?;
 
     let session = Arc::new(Session::new(
-        analyzer.clone(),
-        auditor.clone(),
-        database.clone(),
-        elaborator.clone(),
-        highlighter.clone(),
-        synchronizer.clone(),
-        synthesizer.clone(),
+        analyzer,
+        auditor,
+        database,
+        elaborator,
+        highlighter,
+        synchronizer,
+        synthesizer,
     )?);
     *lock.write().await = Arc::downgrade(&session.clone());
 
