@@ -60,14 +60,17 @@ async fn main() -> Fallible<()> {
     let (service, messages) = LspService::new(session);
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
-    let server = Server::new(stdin, stdout).interleave(messages).serve(service);
+    let server = async {
+        Server::new(stdin, stdout).interleave(messages).serve(service).await;
+        Ok(())
+    };
 
     join_all(vec![
         tokio::spawn(async move { analyzer.init().await }),
         tokio::spawn(async move { auditor.init().await }),
         tokio::spawn(async move { elaborator.init().await }),
         tokio::spawn(async move { highlighter.init().await }),
-        tokio::spawn(async move { server.await }),
+        tokio::spawn(server),
     ])
     .await;
 

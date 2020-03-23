@@ -26,10 +26,11 @@ impl Elaborator {
         })
     }
 
-    pub async fn init(&self) {
+    pub async fn init(&self) -> Fallible<()> {
         let mut rx = self.rx.clone();
         while let Some(_value) = rx.recv().await {
             log::info!("{:?}", rx);
         }
+        Ok(())
     }
 }
