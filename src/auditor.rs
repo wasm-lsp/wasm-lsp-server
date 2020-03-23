@@ -33,8 +33,9 @@ impl Auditor {
             let tree = tree.lock().await.clone();
             let node = tree.root_node();
             if node.has_error() {
-                log::info!("syntax error");
+                log::warn!("syntax error");
             }
+            // NOTE: else let elaborator handle
         }
         Ok(())
     }
@@ -48,8 +49,9 @@ impl Auditor {
             let tree = tree.lock().await.clone();
             let node = tree.root_node();
             if node.has_error() {
-                log::info!("syntax error");
+                log::warn!("syntax error");
             }
+            // NOTE: else let elaborator handle
         }
         Ok(())
     }
