@@ -27,7 +27,7 @@ impl Auditor {
 
                 // prepare a query cursor
                 let mut query_cursor = tree_sitter::QueryCursor::new();
-                let text_callback = |node: tree_sitter::Node| format!("{:?}", node); // FIXME: placeholder
+                let text_callback = |node: tree_sitter::Node| &document.text[node.byte_range()];
                 let matches = query_cursor.matches(&query, node, text_callback);
 
                 // iterate the query cursor and construct appropriate lsp diagnostics
