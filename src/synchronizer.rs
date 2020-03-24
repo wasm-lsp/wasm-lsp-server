@@ -52,7 +52,6 @@ impl Synchronizer {
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
             if let Some(tree) = parser.parse(text, old_tree) {
-                log::info!("tree: {:?}", tree);
                 self.trees.insert(uri.clone(), Mutex::new(tree));
                 success = true;
             }
