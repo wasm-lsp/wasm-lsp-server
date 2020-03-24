@@ -3,29 +3,16 @@
 mod analyzer;
 mod auditor;
 mod database;
+mod document;
 mod elaborator;
 mod error;
 mod highlighter;
 mod parser;
 mod server;
-mod session;
-mod synchronizer;
 mod synthesizer;
 
-use crate::{
-    analyzer::Analyzer,
-    auditor::Auditor,
-    database::Database,
-    elaborator::Elaborator,
-    highlighter::Highlighter,
-    parser::Parser,
-    session::{Session, SessionHandle},
-    synchronizer::Synchronizer,
-    synthesizer::Synthesizer,
-};
+use crate::server::Session;
 use failure::Fallible;
-use std::sync::{Arc, Weak};
-use tokio::sync::RwLock;
 use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
 
@@ -43,33 +30,11 @@ extern {
     fn tree_sitter_witx() -> Language;
 }
 
-#[tokio::main]
+#[tokio::main(threaded_scheduler)]
 async fn main() -> Fallible<()> {
     env_logger::try_init()?;
 
-    let lock = Arc::new(RwLock::new(Weak::new()));
-    let handle = SessionHandle::new(lock.clone());
-
-    let analyzer = Analyzer::new(handle.clone())?;
-    let auditor = Auditor::new(handle.clone())?;
-    let database = Database::new()?;
-    let elaborator = Elaborator::new(handle.clone())?;
-    let highlighter = Highlighter::new(handle.clone())?;
-    let parser = Parser::new()?;
-    let synchronizer = Synchronizer::new(parser, handle.clone())?;
-    let synthesizer = Synthesizer::new(handle.clone())?;
-
-    let session = Arc::new(Session::new(
-        analyzer,
-        auditor,
-        database,
-        elaborator,
-        highlighter,
-        synchronizer,
-        synthesizer,
-    )?);
-    *lock.write().await = Arc::downgrade(&session.clone());
-
+    let session = Session::new()?;
     let (service, messages) = LspService::new(session);
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();

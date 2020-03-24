@@ -814,6 +814,7 @@ dependencies = [
  "bytes",
  "fnv",
  "futures-core",
+ "num_cpus",
  "pin-project-lite",
  "tokio-macros",
 ]
