@@ -15,8 +15,8 @@ impl Auditor {
     }
 
     pub async fn tree_did_change(&self, client: &Client, uri: &Url) -> Fallible<()> {
-        if let Some(tree) = self.session.get().await.synchronizer.trees.get(&uri) {
-            let tree = tree.lock().await.clone();
+        if let Some(document) = self.session.get().await.synchronizer.documents.get(&uri) {
+            let tree = document.tree.lock().await.clone();
             let node = tree.root_node();
             let mut diagnostics = vec![];
             if node.has_error() {
