@@ -8,7 +8,7 @@ use tower_lsp::{Client, LanguageServer};
 impl LanguageServer for Session {
     fn initialize(&self, _: &Client, params: InitializeParams) -> Result<InitializeResult> {
         log::info!("{:?}", params);
-        // let document_symbol_provider = Some(false);
+        let document_symbol_provider = Some(true);
         // let semantic_tokens_provider =
         // Some(SemanticTokensServerCapabilities::SemanticTokensRegistrationOptions(
         //     SemanticTokensRegistrationOptions {
@@ -42,7 +42,7 @@ impl LanguageServer for Session {
         // });
         // let workspace_symbol_provider = Some(false);
         let capabilities = ServerCapabilities {
-            // document_symbol_provider,
+            document_symbol_provider,
             // semantic_tokens_provider,
             text_document_sync,
             // workspace,
@@ -73,5 +73,9 @@ impl LanguageServer for Session {
 
     async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
         self.synchronizer.did_close(client, params).await.unwrap()
+    }
+
+    async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
+        self.elaborator.document_symbol(params).await
     }
 }
