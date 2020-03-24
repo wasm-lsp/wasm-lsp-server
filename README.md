@@ -17,6 +17,7 @@
 
 The server is still in an early state and most features have not yet been implemented.
 
-## Supported Features
+## Features
 
-- [x] reports syntax errors based on (work-in-progress) [wasm tree-sitter grammars](https://github.com/darinmorrison/tree-sitter-webassembly)
+- [x] document symbol provider (partial)
+- [x] syntax diagnostics (partial) based on (work-in-progress) [wasm tree-sitter grammars](https://github.com/darinmorrison/tree-sitter-webassembly)
