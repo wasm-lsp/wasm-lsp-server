@@ -36,9 +36,11 @@ impl Auditor {
                         let start = node.start_position();
                         let end = node.end_position();
                         diagnostics.push({
-                            let start = Position::new(start.row as u64, start.column as u64);
-                            let end = Position::new(end.row as u64, end.column as u64);
-                            let range = Range::new(start, end);
+                            let range = {
+                                let start = Position::new(start.row as u64, start.column as u64);
+                                let end = Position::new(end.row as u64, end.column as u64);
+                                Range::new(start, end)
+                            };
                             let severity = Some(DiagnosticSeverity::Error);
                             let code = None;
                             let source = Some(String::from("wasm-lsp"));
