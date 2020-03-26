@@ -83,16 +83,22 @@ impl LanguageServer for Session {
 
     async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
         let documents = self.documents.clone();
+        // FIXME: remove on next tower-lsp release
+        let client: &'static Client = unsafe { std::mem::transmute(client) };
         server::tasks_did_open(documents, client, params).await.unwrap()
     }
 
     async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
         let documents = self.documents.clone();
+        // FIXME: remove on next tower-lsp release
+        let client: &'static Client = unsafe { std::mem::transmute(client) };
         server::tasks_did_change(documents, client, params).await.unwrap()
     }
 
     async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
         let documents = self.documents.clone();
+        // FIXME: remove on next tower-lsp release
+        let client: &'static Client = unsafe { std::mem::transmute(client) };
         server::tasks_did_close(documents, client, params).await.unwrap()
     }
 
@@ -105,7 +111,7 @@ impl LanguageServer for Session {
 
 async fn tasks_did_open(
     documents: Arc<DashMap<Url, Document>>,
-    client: &Client,
+    client: &'static Client,
     params: DidOpenTextDocumentParams,
 ) -> Fallible<()> {
     let DidOpenTextDocumentParams {
@@ -152,7 +158,7 @@ async fn tasks_parse_tree(documents: Arc<DashMap<Url, Document>>, uri: Url, text
 
 async fn tasks_did_change(
     documents: Arc<DashMap<Url, Document>>,
-    client: &Client,
+    client: &'static Client,
     params: DidChangeTextDocumentParams,
 ) -> Fallible<()> {
     let DidChangeTextDocumentParams {
@@ -198,7 +204,7 @@ async fn tasks_did_change(
 
 async fn tasks_did_close(
     documents: Arc<DashMap<Url, Document>>,
-    client: &Client,
+    client: &'static Client,
     params: DidCloseTextDocumentParams,
 ) -> Fallible<()> {
     let DidCloseTextDocumentParams {
