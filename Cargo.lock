@@ -48,9 +48,9 @@ checksum = "f8aac770f1885fd7e387acedd76065302551364496e46b3dd00860b2f8359b9d"
 
 [[package]]
 name = "backtrace"
-version = "0.3.45"
+version = "0.3.46"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad235dabf00f36301792cfe82499880ba54c6486be094d1047b02bacb67c14e8"
+checksum = "b1e692897359247cc6bb902933361652380af0f1b7651ae5c5013407f30e109e"
 dependencies = [
  "backtrace-sys",
  "cfg-if",
@@ -60,9 +60,9 @@ dependencies = [
 
 [[package]]
 name = "backtrace-sys"
-version = "0.1.34"
+version = "0.1.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca797db0057bae1a7aa2eef3283a874695455cecf08a43bfb8507ee0ebc1ed69"
+checksum = "7de8aba10a69c8e8d7622c5710229485ec32e9d55fdad160ea559c086fdcd118"
 dependencies = [
  "cc",
  "libc",
@@ -659,9 +659,9 @@ checksum = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
 
 [[package]]
 name = "regex"
-version = "1.3.5"
+version = "1.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8900ebc1363efa7ea1c399ccc32daed870b4002651e0bed86e72d501ebbe0048"
+checksum = "7f6946991529684867e47d86474e3a6d0c0ab9b82d5821e314b1ede31fa3a4b3"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -856,7 +856,8 @@ dependencies = [
 [[package]]
 name = "tower-lsp"
 version = "0.10.0"
-source = "git+https://github.com/darinmorrison/tower-lsp?rev=f8e78b4#f8e78b4ee207250c845a7d288766804230ea7bd1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "095ef93aa94b3e0cc525771ab0827803402a9e03d46243cdd0024f2dc5e5715e"
 dependencies = [
  "async-trait",
  "bytes",
@@ -882,18 +883,6 @@ checksum = "e987b6bf443f4b5b3b6f38704195592cca41c5bb7aedd3c3693c7081f8289860"
 
 [[package]]
 name = "tree-sitter"
-version = "0.6.2"
-source = "git+https://github.com/tree-sitter/tree-sitter?rev=e259af6#e259af6a4e9bdda3f762746af8f53109589e0fdc"
-dependencies = [
- "cc",
- "regex",
- "serde",
- "serde_derive",
- "serde_json",
-]
-
-[[package]]
-name = "tree-sitter"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "376e181cb69da67bad2d69806cf2500656fd68123c526a61e5cbbfc65110c5b0"
@@ -903,18 +892,6 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
-]
-
-[[package]]
-name = "tree-sitter-highlight"
-version = "0.1.6"
-source = "git+https://github.com/tree-sitter/tree-sitter?rev=e259af6#e259af6a4e9bdda3f762746af8f53109589e0fdc"
-dependencies = [
- "regex",
- "serde",
- "serde_derive",
- "serde_json",
- "tree-sitter 0.6.2",
 ]
 
 [[package]]
@@ -989,8 +966,7 @@ dependencies = [
  "sled",
  "tokio",
  "tower-lsp",
- "tree-sitter 0.6.3",
- "tree-sitter-highlight",
+ "tree-sitter",
  "uuid",
  "zerocopy",
 ]
