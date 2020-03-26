@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tower_lsp::Client;
 use tree_sitter;
 
-pub async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, client: Client, uri: Url) -> Fallible<()> {
+pub async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
     if let Some(document) = documents.get(&uri) {
         let tree = document.tree.lock().await.clone();
         let node = tree.root_node();
@@ -53,7 +53,7 @@ pub async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, client: Cli
     Ok(())
 }
 
-pub async fn tree_did_close(_: Arc<DashMap<Url, Document>>, client: Client, uri: Url) -> Fallible<()> {
+pub async fn tree_did_close(_: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
     // clear diagnostics on tree close
     // FIXME: handle this properly
     let diagnostics = vec![];
@@ -62,6 +62,6 @@ pub async fn tree_did_close(_: Arc<DashMap<Url, Document>>, client: Client, uri:
     Ok(())
 }
 
-pub async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: Client, uri: Url) -> Fallible<()> {
+pub async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
     self::tree_did_change(documents, client, uri).await
 }
