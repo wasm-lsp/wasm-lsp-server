@@ -47,7 +47,7 @@ pub async fn document_symbol(
         if !node.has_error() {
             // prepare a query to match tree-sitter module nodes
             let language = tree.language();
-            let source = "(module id: (id) @module-id)";
+            let source = "(module (id) @module-id)";
             let query = tree_sitter::Query::new(language, source).map_err(|err| {
                 let code = jsonrpc_core::ErrorCode::InternalError;
                 let message = format!("{}", Error::QueryError(err));
