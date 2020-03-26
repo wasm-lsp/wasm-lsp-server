@@ -6,6 +6,7 @@ authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
 readme = "README.md"
 repository = "https://github.com/wasm-lsp/wasm-language-server"
+keywords = ["lsp", "wasm"]
 description = """
 A language server implementation for WebAssembly
 """
@@ -28,7 +29,6 @@ sled = { version = "0.31.0", features = ["compression"] }
 tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "rt-threaded"] }
 tower-lsp = "0.10.0"
 tree-sitter = "0.6.3"
-tree-sitter-highlight = "0.1.6"
 uuid = { version = "0.8.1", features = ["v4"] }
 zerocopy = "0.3.0"
 
@@ -37,5 +37,5 @@ members = [
 ]
 
 [patch.crates-io]
-tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", rev = "f8e78b4" }
-tree-sitter-highlight = { git = "https://github.com/tree-sitter/tree-sitter", rev = "e259af6" }
+# tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", rev = "f8e78b4" }
+# tree-sitter-highlight = { git = "https://github.com/tree-sitter/tree-sitter", rev = "e259af6" }
