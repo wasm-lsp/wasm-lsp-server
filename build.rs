@@ -1,7 +1,7 @@
 use std::path::Path;
 
 fn main() {
-    let dir = Path::new("vendor/tree-sitter-webassembly");
+    let dir = Path::new("vendor/tree-sitter-wasm");
     cc::Build::new()
         .include(dir.join("wast/src"))
         .file(dir.join("wast/src/parser.c"))

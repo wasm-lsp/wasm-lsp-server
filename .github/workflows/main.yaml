@@ -103,7 +103,7 @@ jobs:
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           command: doc
-          args: --all-features --no-deps --package webassembly-language-server
+          args: --all-features --no-deps --package wasm-language-server
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

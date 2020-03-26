@@ -975,7 +975,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
 
 [[package]]
-name = "webassembly-language-server"
+name = "wasm-language-server"
 version = "0.0.0"
 dependencies = [
  "cc",
