@@ -7,6 +7,4 @@ pub enum Error {
     LanguageError(tree_sitter::LanguageError),
     #[fail(display = "tree_sitter::QueryError")]
     QueryError(tree_sitter::QueryError),
-    #[fail(display = "{}", 0)]
-    Utf8Error(std::str::Utf8Error),
 }

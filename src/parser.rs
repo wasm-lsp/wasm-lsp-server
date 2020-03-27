@@ -2,6 +2,7 @@ use crate::error::Error;
 use failure::Fallible;
 use tree_sitter;
 
+#[allow(dead_code)]
 pub fn wast() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_wast() };
     let mut parser = tree_sitter::Parser::new();
@@ -16,6 +17,7 @@ pub fn wat() -> Fallible<tree_sitter::Parser> {
     Ok(parser)
 }
 
+#[allow(dead_code)]
 pub fn wit() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_wit() };
     let mut parser = tree_sitter::Parser::new();
@@ -23,6 +25,7 @@ pub fn wit() -> Fallible<tree_sitter::Parser> {
     Ok(parser)
 }
 
+#[allow(dead_code)]
 pub fn witx() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_witx() };
     let mut parser = tree_sitter::Parser::new();

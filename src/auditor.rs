@@ -62,6 +62,7 @@ pub async fn tree_did_close(_: Arc<DashMap<Url, Document>>, client: &Client, uri
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
     self::tree_did_change(documents, client, uri).await
 }
