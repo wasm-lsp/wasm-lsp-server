@@ -10,6 +10,7 @@ use tower_lsp::{Client, LanguageServer};
 
 /// Represents the current state of the LSP service.
 pub struct Session {
+    #[allow(dead_code)]
     database: Database,
     documents: Arc<DashMap<Url, Document>>,
 }

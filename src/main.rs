@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 mod analyzer;
 mod auditor;
 mod cli;
@@ -20,15 +18,18 @@ use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
 
 extern {
+    #[allow(dead_code)]
     #[doc(hidden)]
     fn tree_sitter_wast() -> Language;
 
     #[doc(hidden)]
     fn tree_sitter_wat() -> Language;
 
+    #[allow(dead_code)]
     #[doc(hidden)]
     fn tree_sitter_wit() -> Language;
 
+    #[allow(dead_code)]
     #[doc(hidden)]
     fn tree_sitter_witx() -> Language;
 }

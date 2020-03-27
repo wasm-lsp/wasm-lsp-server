@@ -6,7 +6,9 @@ use uuid::Uuid;
 
 /// Caches elaborated syntax and metadata of documents.
 pub struct Database {
+    #[allow(dead_code)]
     sled: sled::Db,
+    #[allow(dead_code)]
     uuid: Uuid,
 }
 
