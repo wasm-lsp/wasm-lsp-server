@@ -20,9 +20,11 @@ compression = ["sled/compression"]
 threaded = ["tokio/rt-threaded"]
 
 [build-dependencies]
+built = { version = "0.4.0", features = ["git2"] }
 cc = "1.0.50"
 
 [dependencies]
+clap = "2.33.0"
 env_logger = "0.7.1"
 dashmap = "3.7.0"
 failure = "0.1.7"
