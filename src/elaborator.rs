@@ -142,7 +142,7 @@ pub async fn document_symbol(
                     data1.push(text);
                     state1 += 1;
                     if state1.wrapping_rem_euclid(4) == 0 {
-                        if let &[module, import_module, import_item, importdesc] = &data1.drain(.. 4).collect::<Vec<_>>()[..] {
+                        if let [module, import_module, import_item, importdesc] = data1.drain(.. 4).collect::<Vec<_>>()[..] {
                             log::info!("{}, {}, {}, {}", module, import_module, import_item, importdesc);
                         }
                     }
@@ -152,7 +152,7 @@ pub async fn document_symbol(
                     data2.push(text);
                     state2 += 1;
                     if state2.wrapping_rem_euclid(2) == 0 {
-                        if let &[module, type_] = &data2.drain(.. 2).collect::<Vec<_>>()[..] {
+                        if let [module, type_] = data2.drain(.. 2).collect::<Vec<_>>()[..] {
                             log::info!("{}, {}", module, type_);
                             let start = node.start_position();
                             let end = node.end_position();
@@ -186,7 +186,7 @@ pub async fn document_symbol(
                     data3.push(text);
                     state3 += 1;
                     if state3.wrapping_rem_euclid(2) == 0 {
-                        if let &[module, func] = &data3.drain(.. 2).collect::<Vec<_>>()[..] {
+                        if let [module, func] = data3.drain(.. 2).collect::<Vec<_>>()[..] {
                             log::info!("{}, {}", module, func);
                             let start = node.start_position();
                             let end = node.end_position();
