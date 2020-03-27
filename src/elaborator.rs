@@ -1,49 +1,10 @@
 /// Elaborates parse trees into structured data to be cached in the database.
 use crate::document::Document;
-use crate::error::Error;
 use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
 use tower_lsp::Client;
-use tree_sitter::QueryMatch;
-
-mod queries {
-    pub mod document_symbol {
-        pub static QUERY: &str = r"
-        (module
-            (id) @module)
-
-        (module
-            (id) @module
-            (modulefield
-                (import
-                    (name) @import-module
-                    (name) @import-item
-                    (importdesc
-                        (id) @importdesc))))
-
-        (module
-            (id) @module
-            (modulefield
-                (type
-                    (id) @type)))
-
-        (module
-            (id) @module
-            (modulefield
-                (func
-                    (id) @func)))
-        ";
-
-        pub mod patterns {
-            pub static MODULE: usize = 0;
-            pub static IMPORT: usize = 1;
-            pub static TYPE: usize = 2;
-            pub static FUNC: usize = 3;
-        }
-    }
-}
 
 pub async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, _: &Client, uri: Url) -> Fallible<()> {
     if let Some(document) = documents.get(&uri) {
@@ -68,7 +29,6 @@ pub async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Clie
 }
 
 // FIXME: reorganize this to where outline is pulled from database
-// FIXME: generalize this to handle all symbol kinds (more than module nodes)
 pub async fn document_symbol(
     documents: Arc<DashMap<Url, Document>>,
     params: DocumentSymbolParams,
@@ -76,119 +36,157 @@ pub async fn document_symbol(
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
     } = params;
+
+    // Prepare the response.
     let mut response = None;
+
+    // Attempt to obtain the document.
     if let Some(document) = documents.get(&uri) {
-        let mut results: Vec<SymbolInformation> = vec![];
+        let mut results: Vec<DocumentSymbol> = vec![];
+
+        // Prepare the syntax tree.
         let tree = document.tree.lock().await.clone();
         let node = tree.root_node();
 
-        // TODO: allow partial elaboration in presence of syntax errors
-        if !node.has_error() {
-            // prepare a query to match tree-sitter module nodes
-            let source = queries::document_symbol::QUERY;
-            let language = tree.language();
-            let query = tree_sitter::Query::new(language, source).map_err(|err| {
-                let code = jsonrpc_core::ErrorCode::InternalError;
-                let message = format!("{}", Error::QueryError(err));
-                let data = None;
-                jsonrpc_core::Error { code, message, data }
-            })?;
-
-            // prepare a query cursor
-            let mut query_cursor = tree_sitter::QueryCursor::new();
-            let text_callback = |node: tree_sitter::Node| &document.text[node.byte_range()];
-            let matches = query_cursor.captures(&query, node, text_callback);
-
-            // prepare the stack machine
-            let mut stack: [Vec<&str>; 4] = [vec![], vec![], vec![], vec![]];
-            let mut state: [u8; 4] = [0, 0, 0, 0];
-
-            for (
-                QueryMatch {
-                    captures,
-                    pattern_index,
-                    ..
-                },
-                index,
-            ) in matches
-            {
-                let capture = captures[index];
-                let text = capture
-                    .node
-                    .utf8_text(&document.text.as_bytes())
-                    .unwrap_or("")
-                    .trim_start();
-
-                stack[pattern_index].push(text);
-                state[pattern_index] += 1;
-
-                log::info!(
-                    "pattern: {}, capture: {}, row: {}, text: {:?}",
-                    pattern_index,
-                    &query.capture_names()[capture.index as usize],
-                    capture.node.start_position().row,
-                    text
-                );
-
-                if pattern_index == queries::document_symbol::patterns::MODULE {
-                    results.push({
-                        SymbolInformation {
-                            name: String::from(text),
-                            kind: SymbolKind::Module,
-                            deprecated: Default::default(),
-                            location: crate::lsp::node::location(uri.clone(), &node),
-                            container_name: Default::default(),
-                        }
-                    });
-                }
-
-                if pattern_index == queries::document_symbol::patterns::IMPORT
-                    && state[pattern_index].wrapping_rem_euclid(4) == 0
-                {
-                    if let [module, import_module, import_item, importdesc] =
-                        stack[pattern_index].drain(.. 4).collect::<Vec<_>>()[..]
-                    {
-                        log::info!("{}, {}, {}, {}", module, import_module, import_item, importdesc);
-                    }
-                }
-
-                if pattern_index == queries::document_symbol::patterns::TYPE
-                    && state[pattern_index].wrapping_rem_euclid(2) == 0
-                {
-                    if let [module, type_] = stack[pattern_index].drain(.. 2).collect::<Vec<_>>()[..] {
-                        log::info!("{}, {}", module, type_);
-                        results.push({
-                            SymbolInformation {
-                                name: String::from(type_),
-                                kind: SymbolKind::TypeParameter,
-                                deprecated: Default::default(),
-                                location: crate::lsp::node::location(uri.clone(), &node),
-                                container_name: Some(String::from(module)),
-                            }
-                        });
-                    }
-                }
-
-                if pattern_index == queries::document_symbol::patterns::FUNC
-                    && state[pattern_index].wrapping_rem_euclid(2) == 0
-                {
-                    if let [module, func] = stack[pattern_index].drain(.. 2).collect::<Vec<_>>()[..] {
-                        log::info!("{}, {}", module, func);
-                        results.push({
-                            SymbolInformation {
-                                name: String::from(func),
-                                kind: SymbolKind::Function,
-                                deprecated: Default::default(),
-                                location: crate::lsp::node::location(uri.clone(), &node),
-                                container_name: Some(String::from(module)),
-                            }
-                        });
-                    }
-                }
-            }
-
-            response = Some(DocumentSymbolResponse::Flat(results));
+        // Define local data structures for the stack machine.
+        #[derive(Clone, Debug)]
+        struct Data {
+            children_count: usize,
+            kind: SymbolKind,
+            name: String,
+            range: Range,
+            selection_range: Range,
         }
+        #[derive(Debug)]
+        enum Work<'a> {
+            Data,
+            Node(tree_sitter::Node<'a>),
+        }
+        use crate::lsp::node::NameAndRanges;
+
+        // Prepare the stack machine:
+        //   data: contains data for constructing upcoming DocumentSymbols
+        //   work: contains remaining tree_sitter nodes to process
+        let mut data = vec![];
+        let mut work = vec![Work::Node(node)];
+
+        // FIXME: move these somewhere else
+        #[allow(non_snake_case)]
+        let START = tree.language().id_for_node_kind("START", true);
+        #[allow(non_snake_case)]
+        let FUNC = tree.language().id_for_node_kind("func", true);
+        #[allow(non_snake_case)]
+        let MODULE = tree.language().id_for_node_kind("module", true);
+        #[allow(non_snake_case)]
+        let TYPE = tree.language().id_for_node_kind("type", true);
+
+        while let Some(next) = work.pop() {
+            match next {
+                // Construct a DocumentSymbol and pop data stack
+                Work::Data => {
+                    if let Some(Data {
+                        children_count,
+                        kind,
+                        ref name,
+                        range,
+                        selection_range,
+                    }) = data.pop()
+                    {
+                        let this = DocumentSymbol {
+                            children: if results.is_empty() {
+                                None
+                            } else {
+                                // Drain the results array by the number of children nodes we counted for this
+                                // DocumentSymbol. This allows us to properly reconstruct symbol nesting.
+                                Some(results.drain(.. children_count).collect())
+                            },
+                            deprecated: Default::default(),
+                            detail: Default::default(),
+                            kind,
+                            name: name.clone(),
+                            range,
+                            selection_range,
+                        };
+                        results.push(this);
+                    }
+                },
+
+                Work::Node(node) => {
+                    if node.kind_id() == START {
+                        if let Some(module) = node.child_by_field_name("module") {
+                            work.push(Work::Node(module));
+                        }
+                        continue;
+                    }
+
+                    if node.kind_id() == FUNC {
+                        let NameAndRanges {
+                            name,
+                            range,
+                            selection_range,
+                        } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, "id", Some("trim"));
+                        work.push(Work::Data);
+                        data.push(Data {
+                            children_count: 0,
+                            kind: SymbolKind::Function,
+                            name,
+                            range,
+                            selection_range,
+                        });
+                        continue;
+                    }
+
+                    if node.kind_id() == MODULE {
+                        let NameAndRanges {
+                            name,
+                            range,
+                            selection_range,
+                        } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, "id", Some("trim"));
+                        work.push(Work::Data);
+
+                        let mut children_count = 0;
+                        for modulefield in node
+                            .children_by_field_name("modulefield", &mut node.walk())
+                            .filter(|node| match node.kind() {
+                                "func" => true,
+                                "type" => true,
+                                _ => false,
+                            })
+                        {
+                            work.push(Work::Node(modulefield));
+                            children_count += 1;
+                        }
+
+                        data.push(Data {
+                            children_count,
+                            kind: SymbolKind::Module,
+                            name,
+                            range,
+                            selection_range,
+                        });
+                        continue;
+                    }
+
+                    if node.kind_id() == TYPE {
+                        let NameAndRanges {
+                            name,
+                            range,
+                            selection_range,
+                        } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, "id", Some("trim"));
+                        work.push(Work::Data);
+                        data.push(Data {
+                            children_count: 0,
+                            kind: SymbolKind::TypeParameter,
+                            name,
+                            range,
+                            selection_range,
+                        });
+                        continue;
+                    }
+                },
+            }
+        }
+        response = Some(DocumentSymbolResponse::Nested(results));
     }
     Ok(response)
 }
