@@ -14,6 +14,11 @@ A language server implementation for WebAssembly
 [badges]
 maintenance = { status = "experimental" }
 
+[features]
+default = ["compression", "threaded"]
+compression = ["sled/compression"]
+threaded = ["tokio/rt-threaded"]
+
 [build-dependencies]
 cc = "1.0.50"
 
@@ -24,9 +29,9 @@ failure = "0.1.7"
 futures = "0.3.4"
 jsonrpc-core = "14.0.5"
 log = "0.4.8"
-lsp-types = { version = "0.73.0", features = ["proposed"] }
-sled = { version = "0.31.0", features = ["compression"] }
-tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "rt-threaded"] }
+lsp-types = "0.73.0"
+sled = "0.31.0"
+tokio = { version = "0.2.13", features = ["io-std", "macros", "sync"] }
 tower-lsp = "0.10.0"
 tree-sitter = "0.6.3"
 uuid = { version = "0.8.1", features = ["v4"] }
@@ -37,5 +42,3 @@ members = [
 ]
 
 [patch.crates-io]
-# tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", rev = "f8e78b4" }
-# tree-sitter-highlight = { git = "https://github.com/tree-sitter/tree-sitter", rev = "e259af6" }
