@@ -8,6 +8,7 @@ mod document;
 mod elaborator;
 mod error;
 mod highlighter;
+mod lsp;
 mod package;
 mod parser;
 mod server;
