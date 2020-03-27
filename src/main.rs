@@ -30,7 +30,7 @@ extern {
     fn tree_sitter_witx() -> Language;
 }
 
-#[tokio::main(threaded_scheduler)]
+#[tokio::main]
 async fn main() -> Fallible<()> {
     env_logger::try_init()?;
 
