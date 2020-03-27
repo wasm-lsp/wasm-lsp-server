@@ -182,7 +182,7 @@ async fn tasks_did_change(
         // run the auditor tasks
         let task = {
             let documents = documents.clone();
-            let client = client.clone();
+            let client = client; // FIXME
             let uri = uri.clone();
             auditor::tree_did_change(documents, client, uri)
         };
@@ -191,7 +191,7 @@ async fn tasks_did_change(
         // run the elaborator tasks
         let task = {
             let documents = documents.clone();
-            let client = client.clone();
+            let client = client; // FIXME
             let uri = uri.clone();
             elaborator::tree_did_change(documents, client, uri)
         };
@@ -214,7 +214,7 @@ async fn tasks_did_close(
 
     let task = {
         let documents = documents.clone();
-        let client = client.clone();
+        let client = client; // FIXME
         let uri = uri.clone();
         auditor::tree_did_close(documents, client, uri)
     };
@@ -222,7 +222,7 @@ async fn tasks_did_close(
 
     let task = {
         let documents = documents.clone();
-        let client = client.clone();
+        let client = client; // FIXME
         let uri = uri.clone();
         elaborator::tree_did_close(documents, client, uri)
     };
