@@ -2,11 +2,13 @@
 
 mod analyzer;
 mod auditor;
+mod cli;
 mod database;
 mod document;
 mod elaborator;
 mod error;
 mod highlighter;
+mod package;
 mod parser;
 mod server;
 mod synthesizer;
@@ -33,6 +35,8 @@ extern {
 #[tokio::main]
 async fn main() -> Fallible<()> {
     env_logger::try_init()?;
+
+    crate::cli::cli();
 
     let session = Session::new()?;
     let (service, messages) = LspService::new(session);
