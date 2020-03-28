@@ -1,6 +1,5 @@
 pub mod node {
     use lsp_types::*;
-    use smol_str::SmolStr;
     use tree_sitter::Node;
 
     pub mod position {
@@ -23,13 +22,13 @@ pub mod node {
     }
 
     #[derive(Clone, Debug)]
-    pub struct NameAndRanges {
-        pub name: SmolStr,
+    pub struct NameAndRanges<'a> {
+        pub name: &'a str,
         pub range: Range,
         pub selection_range: Range,
     }
 
-    pub fn name_and_ranges<'a>(source: &'a [u8], node: &Node, outer_id: u16, inner_id: Option<u16>) -> NameAndRanges {
+    pub fn name_and_ranges<'a>(source: &'a [u8], node: &Node, outer_id: u16, inner_id: Option<u16>) -> NameAndRanges<'a> {
         let name;
         let range = crate::lsp::node::range(&node);
         let selection_range;
@@ -39,10 +38,10 @@ pub mod node {
             } else {
                 outer_node
             };
-            name = SmolStr::new(inner_node.utf8_text(source).unwrap());
+            name = inner_node.utf8_text(source).unwrap();
             selection_range = crate::lsp::node::range(&inner_node);
         } else {
-            name = SmolStr::new("<anonymous>");
+            name = "<anonymous>";
             selection_range = range;
         }
 

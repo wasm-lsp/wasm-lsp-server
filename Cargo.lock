@@ -219,9 +219,9 @@ dependencies = [
 
 [[package]]
 name = "dashmap"
-version = "3.7.0"
+version = "3.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "010ef3f25ed5bb93505a3238d19957622190268640526aab07174c66ccf5d611"
+checksum = "c33f99bd677c8e139a6c32b65dbd624ba94c6f59d1597cecaed0398b0521ad48"
 dependencies = [
  "ahash",
  "cfg-if",
@@ -870,12 +870,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c2fb2ec9bcd216a5b0d0ccf31ab17b5ed1d627960edff65bbe95d3ce221cefc"
 
 [[package]]
-name = "smol_str"
-version = "0.1.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34836c9a295c62c2ce3514471117c5cb269891e8421b2aafdd910050576c4d8b"
-
-[[package]]
 name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1110,8 +1104,6 @@ dependencies = [
  "log",
  "lsp-types",
  "sled",
- "smallvec",
- "smol_str",
  "tokio",
  "tower-lsp",
  "tree-sitter",
