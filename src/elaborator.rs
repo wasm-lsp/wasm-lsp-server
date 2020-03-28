@@ -3,8 +3,6 @@ use crate::document::Document;
 use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
-use smallvec::{smallvec, SmallVec};
-use smol_str::SmolStr;
 use std::sync::Arc;
 use tower_lsp::Client;
 
@@ -54,10 +52,10 @@ pub async fn document_symbol(
 
         // Define local data structures for the stack machine.
         #[derive(Clone, Debug)]
-        struct Data {
+        struct Data<'a> {
             children_count: usize,
             kind: SymbolKind,
-            name: SmolStr,
+            name: &'a str,
             range: Range,
             selection_range: Range,
         }
@@ -72,8 +70,8 @@ pub async fn document_symbol(
         //   data: contains data for constructing upcoming DocumentSymbols
         //   work: contains remaining tree_sitter nodes to process
         // FIXME: tune this
-        let mut data: SmallVec<[_; 16]> = smallvec![];
-        let mut work: SmallVec<[_; 64]> = smallvec![Work::Node(node)];
+        let mut data = vec![];
+        let mut work = vec![Work::Node(node)];
 
         // Pre-compute ids for names to avoid repeated string matching.
 
