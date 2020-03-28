@@ -35,6 +35,8 @@ pub async fn document_symbol(
     documents: Arc<DashMap<Url, Document>>,
     params: DocumentSymbolParams,
 ) -> jsonrpc_core::Result<Option<DocumentSymbolResponse>> {
+    #![allow(non_snake_case)]
+
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
     } = params;
@@ -74,14 +76,18 @@ pub async fn document_symbol(
         let mut work: SmallVec<[_; 64]> = smallvec![Work::Node(node)];
 
         // FIXME: move these somewhere else
-        #[allow(non_snake_case)]
-        let START = tree.language().id_for_node_kind("START", true);
-        #[allow(non_snake_case)]
-        let FUNC = tree.language().id_for_node_kind("func", true);
-        #[allow(non_snake_case)]
-        let MODULE = tree.language().id_for_node_kind("module", true);
-        #[allow(non_snake_case)]
-        let TYPE = tree.language().id_for_node_kind("type", true);
+
+        let language = tree.language();
+
+        let kind_START = language.id_for_node_kind("START", true);
+        let kind_FUNC = language.id_for_node_kind("func", true);
+        let kind_MODULE = language.id_for_node_kind("module", true);
+        let kind_TYPE = language.id_for_node_kind("type", true);
+
+        let field_ID = language.field_id_for_name("id").unwrap();
+        let field_MODULE = language.field_id_for_name("module").unwrap();
+        let field_MODULEFIELD = language.field_id_for_name("modulefield").unwrap();
+        let field_TRIM = language.field_id_for_name("trim").unwrap();
 
         while let Some(next) = work.pop() {
             log::info!("data: {}, work: {}", data.len(), work.len());
@@ -115,79 +121,75 @@ pub async fn document_symbol(
                     }
                 },
 
-                Work::Node(node) => {
-                    if node.kind_id() == START {
-                        if let Some(module) = node.child_by_field_name("module") {
-                            work.push(Work::Node(module));
-                        }
-                        continue;
-                    }
-
-                    if node.kind_id() == FUNC {
-                        let NameAndRanges {
-                            name,
-                            range,
-                            selection_range,
-                        } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, "id", Some("trim"));
-                        work.push(Work::Data);
-                        data.push(Data {
-                            children_count: 0,
-                            kind: SymbolKind::Function,
-                            name,
-                            range,
-                            selection_range,
-                        });
-                        continue;
-                    }
-
-                    if node.kind_id() == MODULE {
-                        let NameAndRanges {
-                            name,
-                            range,
-                            selection_range,
-                        } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, "id", Some("trim"));
-                        work.push(Work::Data);
-
-                        let mut children_count = 0;
-                        for modulefield in node
-                            .children_by_field_name("modulefield", &mut node.walk())
-                            .filter(|node| match node.kind() {
-                                "func" => true,
-                                "type" => true,
-                                _ => false,
-                            })
-                        {
-                            work.push(Work::Node(modulefield));
-                            children_count += 1;
-                        }
-
-                        data.push(Data {
-                            children_count,
-                            kind: SymbolKind::Module,
-                            name,
-                            range,
-                            selection_range,
-                        });
-                        continue;
-                    }
-
-                    if node.kind_id() == TYPE {
-                        let NameAndRanges {
-                            name,
-                            range,
-                            selection_range,
-                        } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, "id", Some("trim"));
-                        work.push(Work::Data);
-                        data.push(Data {
-                            children_count: 0,
-                            kind: SymbolKind::TypeParameter,
-                            name,
-                            range,
-                            selection_range,
-                        });
-                        continue;
+                Work::Node(node) if node.kind_id() == kind_START => {
+                    if let Some(module) = node.child_by_field_id(field_MODULE) {
+                        work.push(Work::Node(module));
                     }
                 },
+
+                Work::Node(node) if node.kind_id() == kind_FUNC => {
+                    let NameAndRanges {
+                        name,
+                        range,
+                        selection_range,
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID, Some(field_TRIM));
+                    work.push(Work::Data);
+                    data.push(Data {
+                        children_count: 0,
+                        kind: SymbolKind::Function,
+                        name,
+                        range,
+                        selection_range,
+                    });
+                },
+
+                Work::Node(node) if node.kind_id() == kind_MODULE => {
+                    let NameAndRanges {
+                        name,
+                        range,
+                        selection_range,
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID, Some(field_TRIM));
+                    work.push(Work::Data);
+
+                    let mut children_count = 0;
+                    for modulefield in node
+                        .children_by_field_id(field_MODULEFIELD, &mut node.walk())
+                        .filter(|node| match node.kind() {
+                            "func" => true,
+                            "type" => true,
+                            _ => false,
+                        })
+                    {
+                        work.push(Work::Node(modulefield));
+                        children_count += 1;
+                    }
+
+                    data.push(Data {
+                        children_count,
+                        kind: SymbolKind::Module,
+                        name,
+                        range,
+                        selection_range,
+                    });
+                },
+
+                Work::Node(node) if node.kind_id() == kind_TYPE => {
+                    let NameAndRanges {
+                        name,
+                        range,
+                        selection_range,
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID, Some(field_TRIM));
+                    work.push(Work::Data);
+                    data.push(Data {
+                        children_count: 0,
+                        kind: SymbolKind::TypeParameter,
+                        name,
+                        range,
+                        selection_range,
+                    });
+                },
+
+                _ => {},
             }
         }
         response = Some(DocumentSymbolResponse::Nested(results));
