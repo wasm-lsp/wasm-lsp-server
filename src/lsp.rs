@@ -47,7 +47,7 @@ pub mod node {
             selection_range = crate::lsp::node::range(&inner_node);
         } else {
             name = String::from("<anonymous>");
-            selection_range = range.clone();
+            selection_range = range;
         }
 
         NameAndRanges {
