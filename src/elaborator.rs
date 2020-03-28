@@ -75,7 +75,7 @@ pub async fn document_symbol(
         let mut data: SmallVec<[_; 16]> = smallvec![];
         let mut work: SmallVec<[_; 64]> = smallvec![Work::Node(node)];
 
-        // FIXME: move these somewhere else
+        // Pre-compute ids for names to avoid repeated string matching.
 
         let language = tree.language();
 
@@ -90,7 +90,6 @@ pub async fn document_symbol(
         let field_TRIM = language.field_id_for_name("trim").unwrap();
 
         while let Some(next) = work.pop() {
-            log::info!("data: {}, work: {}", data.len(), work.len());
             match next {
                 // Construct a DocumentSymbol and pop data stack
                 Work::Data => {
