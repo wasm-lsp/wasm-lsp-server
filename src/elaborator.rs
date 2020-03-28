@@ -151,10 +151,7 @@ pub async fn document_symbol(
                     let mut children_count = 0;
                     for modulefield in node
                         .children_by_field_id(field_MODULEFIELD, &mut node.walk())
-                        .filter(|node| {
-                            let kind_id = node.kind_id();
-                            kind_id == kind_FUNC || kind_id == kind_TYPE
-                        })
+                        .filter(|node| node.kind_id() == kind_FUNC || node.kind_id() == kind_TYPE)
                     {
                         work.push(Work::Node(modulefield));
                         children_count += 1;
