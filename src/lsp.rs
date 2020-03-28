@@ -1,5 +1,6 @@
 pub mod node {
     use lsp_types::*;
+    use smol_str::SmolStr;
     use tree_sitter::Node;
 
     pub mod position {
@@ -23,7 +24,7 @@ pub mod node {
 
     #[derive(Clone, Debug)]
     pub struct NameAndRanges {
-        pub name: String,
+        pub name: SmolStr,
         pub range: Range,
         pub selection_range: Range,
     }
@@ -43,10 +44,10 @@ pub mod node {
             } else {
                 outer_node
             };
-            name = String::from(inner_node.utf8_text(source).unwrap());
+            name = SmolStr::new(inner_node.utf8_text(source).unwrap());
             selection_range = crate::lsp::node::range(&inner_node);
         } else {
-            name = String::from("<anonymous>");
+            name = SmolStr::new("<anonymous>");
             selection_range = range;
         }
 

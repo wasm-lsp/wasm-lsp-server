@@ -3,6 +3,8 @@ use crate::document::Document;
 use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
+use smallvec::{smallvec, SmallVec};
+use smol_str::SmolStr;
 use std::sync::Arc;
 use tower_lsp::Client;
 
@@ -53,7 +55,7 @@ pub async fn document_symbol(
         struct Data {
             children_count: usize,
             kind: SymbolKind,
-            name: String,
+            name: SmolStr,
             range: Range,
             selection_range: Range,
         }
@@ -67,8 +69,9 @@ pub async fn document_symbol(
         // Prepare the stack machine:
         //   data: contains data for constructing upcoming DocumentSymbols
         //   work: contains remaining tree_sitter nodes to process
-        let mut data = vec![];
-        let mut work = vec![Work::Node(node)];
+        // FIXME: tune this
+        let mut data: SmallVec<[_; 16]> = smallvec![];
+        let mut work: SmallVec<[_; 64]> = smallvec![Work::Node(node)];
 
         // FIXME: move these somewhere else
         #[allow(non_snake_case)]
@@ -81,13 +84,14 @@ pub async fn document_symbol(
         let TYPE = tree.language().id_for_node_kind("type", true);
 
         while let Some(next) = work.pop() {
+            log::info!("data: {}, work: {}", data.len(), work.len());
             match next {
                 // Construct a DocumentSymbol and pop data stack
                 Work::Data => {
                     if let Some(Data {
                         children_count,
                         kind,
-                        ref name,
+                        name,
                         range,
                         selection_range,
                     }) = data.pop()
@@ -103,7 +107,7 @@ pub async fn document_symbol(
                             deprecated: Default::default(),
                             detail: Default::default(),
                             kind,
-                            name: name.clone(),
+                            name: name.to_string(),
                             range,
                             selection_range,
                         };
