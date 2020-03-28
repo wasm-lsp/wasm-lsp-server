@@ -28,7 +28,12 @@ pub mod node {
         pub selection_range: Range,
     }
 
-    pub fn name_and_ranges<'a>(source: &'a [u8], node: &Node, outer_id: u16, inner_id: Option<u16>) -> NameAndRanges<'a> {
+    pub fn name_and_ranges<'a>(
+        source: &'a [u8],
+        node: &Node,
+        outer_id: u16,
+        inner_id: Option<u16>,
+    ) -> NameAndRanges<'a> {
         let name;
         let range = crate::lsp::node::range(&node);
         let selection_range;
