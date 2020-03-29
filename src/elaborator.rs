@@ -77,7 +77,7 @@ pub async fn document_symbol(
 
         let language = tree.language();
 
-        let kind_START = language.id_for_node_kind("START", true);
+        let kind_ENTRYPOINT = language.id_for_node_kind("ENTRYPOINT", true);
         let kind_FUNC = language.id_for_node_kind("func", true);
         let kind_MODULE = language.id_for_node_kind("module", true);
         let kind_TYPE = language.id_for_node_kind("type", true);
@@ -118,7 +118,7 @@ pub async fn document_symbol(
                     }
                 },
 
-                Work::Node(node) if node.kind_id() == kind_START => {
+                Work::Node(node) if node.kind_id() == kind_ENTRYPOINT => {
                     if let Some(module) = node.child_by_field_id(field_MODULE) {
                         work.push(Work::Node(module));
                     }
