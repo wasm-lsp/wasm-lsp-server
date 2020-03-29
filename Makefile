@@ -15,7 +15,7 @@ doc:
 	cargo +nightly doc --all-features --no-deps --package wasm-language-server
 
 .PHONY: fmt
-fmt:
+format:
 	cargo +nightly fmt --all
 
 .PHONY: test
