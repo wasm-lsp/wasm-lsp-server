@@ -7,18 +7,22 @@ fn compile_tree_sitter_grammars() -> Result<(), Error> {
     cc::Build::new()
         .include(dir.join("wast/src"))
         .file(dir.join("wast/src/parser.c"))
+        .flag("-Wno-overflow")
         .compile("tree-sitter-wast");
     cc::Build::new()
         .include(dir.join("wat/src"))
         .file(dir.join("wat/src/parser.c"))
+        .flag("-Wno-overflow")
         .compile("tree-sitter-wat");
     cc::Build::new()
         .include(dir.join("wit/src"))
         .file(dir.join("wit/src/parser.c"))
+        .flag("-Wno-overflow")
         .compile("tree-sitter-wit");
     cc::Build::new()
         .include(dir.join("witx/src"))
         .file(dir.join("witx/src/parser.c"))
+        .flag("-Wno-overflow")
         .compile("tree-sitter-witx");
     Ok(())
 }
