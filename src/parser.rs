@@ -10,6 +10,7 @@ pub fn wast() -> Fallible<tree_sitter::Parser> {
     Ok(parser)
 }
 
+#[allow(dead_code)]
 pub fn wat() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_wat() };
     let mut parser = tree_sitter::Parser::new();
