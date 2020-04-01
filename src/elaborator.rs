@@ -105,7 +105,7 @@ pub async fn document_symbol(
                             } else {
                                 // Drain the results array by the number of children nodes we counted for this
                                 // DocumentSymbol. This allows us to properly reconstruct symbol nesting.
-                                Some(results.drain(.. children_count).collect())
+                                Some(results.drain(results.len() - children_count ..).collect())
                             },
                             deprecated: Default::default(),
                             detail: Default::default(),
