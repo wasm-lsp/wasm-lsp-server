@@ -144,7 +144,7 @@ async fn tasks_did_open(
 // TODO: implement parser cancellation
 async fn tasks_parse_tree(documents: Arc<DashMap<Url, Document>>, uri: Url, text: String) -> bool {
     let mut success = false;
-    let mut parser = parser::wat().expect("parser creation failed");
+    let mut parser = parser::wast().expect("parser creation failed");
     // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
     let old_tree = None;
     if let Some(tree) = parser.parse(&text[..], old_tree) {
