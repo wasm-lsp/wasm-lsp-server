@@ -77,15 +77,15 @@ pub async fn document_symbol(
 
         let language = tree.language();
 
+        let kind_COMMAND = language.id_for_node_kind("command", true);
         let kind_ENTRYPOINT = language.id_for_node_kind("ENTRYPOINT", true);
         let kind_FUNC = language.id_for_node_kind("func", true);
         let kind_MODULE = language.id_for_node_kind("module", true);
         let kind_TYPE = language.id_for_node_kind("type", true);
 
+        let field_COMMAND = language.field_id_for_name("command").unwrap();
+        let field_FIELD = language.field_id_for_name("field").unwrap();
         let field_ID = language.field_id_for_name("id").unwrap();
-        let field_MODULE = language.field_id_for_name("module").unwrap();
-        let field_MODULEFIELD = language.field_id_for_name("modulefield").unwrap();
-        let field_TRIM = language.field_id_for_name("trim").unwrap();
 
         while let Some(next) = work.pop() {
             match next {
@@ -119,9 +119,14 @@ pub async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_ENTRYPOINT => {
-                    if let Some(module) = node.child_by_field_id(field_MODULE) {
-                        work.push(Work::Node(module));
-                    }
+                    let mut cursor = node.walk();
+                    let commands = node.children_by_field_id(field_COMMAND, &mut cursor).map(Work::Node);
+                    work.extend(commands);
+                },
+
+                Work::Node(node) if node.kind_id() == kind_COMMAND => {
+                    let command = node.named_child(0).expect("'command' should have a single named child");
+                    work.push(Work::Node(command));
                 },
 
                 Work::Node(node) if node.kind_id() == kind_FUNC => {
@@ -129,7 +134,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID, Some(field_TRIM));
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -145,12 +150,12 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID, Some(field_TRIM));
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
                     work.push(Work::Data);
 
                     let mut children_count = 0;
                     for modulefield in node
-                        .children_by_field_id(field_MODULEFIELD, &mut node.walk())
+                        .children_by_field_id(field_FIELD, &mut node.walk())
                         .filter(|node| node.kind_id() == kind_FUNC || node.kind_id() == kind_TYPE)
                     {
                         work.push(Work::Node(modulefield));
@@ -171,7 +176,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID, Some(field_TRIM));
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,

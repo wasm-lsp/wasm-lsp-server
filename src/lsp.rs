@@ -31,18 +31,12 @@ pub mod node {
     pub fn name_and_ranges<'a>(
         source: &'a [u8],
         node: &Node,
-        outer_id: u16,
-        inner_id: Option<u16>,
+        field_id: u16,
     ) -> NameAndRanges<'a> {
         let name;
         let range = crate::lsp::node::range(&node);
         let selection_range;
-        if let Some(outer_node) = node.child_by_field_id(outer_id) {
-            let inner_node = if let Some(inner_id) = inner_id {
-                outer_node.child_by_field_id(inner_id).unwrap()
-            } else {
-                outer_node
-            };
+        if let Some(inner_node) = node.child_by_field_id(field_id) {
             name = inner_node.utf8_text(source).unwrap();
             selection_range = crate::lsp::node::range(&inner_node);
         } else {
