@@ -44,7 +44,7 @@ pub async fn document_symbol(
 
     // Attempt to obtain the document.
     if let Some(document) = documents.get(&uri) {
-        let mut results: Vec<DocumentSymbol> = vec![];
+        let mut syms: Vec<DocumentSymbol> = vec![];
 
         // Prepare the syntax tree.
         let tree = document.tree.lock().await.clone();
@@ -74,7 +74,6 @@ pub async fn document_symbol(
         let mut work = vec![Work::Node(node)];
 
         // Pre-compute ids for names to avoid repeated string matching.
-
         let language = tree.language();
 
         let kind_COMMAND = language.id_for_node_kind("command", true);
@@ -100,12 +99,15 @@ pub async fn document_symbol(
                     }) = data.pop()
                     {
                         let this = DocumentSymbol {
-                            children: if results.is_empty() {
+                            children: if syms.is_empty() {
                                 None
                             } else {
-                                // Drain the results array by the number of children nodes we counted for this
+                                // Drain the syms array by the number of children nodes we counted for this
                                 // DocumentSymbol. This allows us to properly reconstruct symbol nesting.
-                                Some(results.drain(results.len() - children_count ..).collect())
+                                let children = syms.drain(syms.len() - children_count ..);
+                                // Process the nodes in reverse (because tree-sitter returns later nodes first).
+                                let children = children.rev();
+                                Some(children.collect())
                             },
                             deprecated: Default::default(),
                             detail: Default::default(),
@@ -114,7 +116,7 @@ pub async fn document_symbol(
                             range,
                             selection_range,
                         };
-                        results.push(this);
+                        syms.push(this);
                     }
                 },
 
@@ -190,6 +192,10 @@ pub async fn document_symbol(
                 _ => {},
             }
         }
+        // Collect the syms vec into a new vec in reverse so that document symbols are returned in the
+        // correct order. Note that children nodes are reversed _as the symbols are nested_.
+        let results = syms.into_iter().rev().collect();
+
         response = Some(DocumentSymbolResponse::Nested(results));
     }
     Ok(response)
