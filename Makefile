@@ -18,6 +18,10 @@ doc:
 format:
 	cargo +nightly fmt --all
 
+.PHONY: install
+install:
+	cargo install --path . --offline
+
 .PHONY: test
 test:
 	RUSTFLAGS="-Dwarnings" cargo test --all-features --all-targets --benches --bins --examples --tests --workspace
