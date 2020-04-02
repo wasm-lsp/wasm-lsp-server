@@ -28,7 +28,7 @@ pub mod node {
         pub selection_range: Range,
     }
 
-    pub fn name_and_ranges<'a>(source: &'a [u8], node: &Node, field_id: u16) -> NameAndRanges<'a> {
+    pub fn name_and_ranges<'a>(source: &'a [u8], empty_name: &'a str, node: &Node, field_id: u16) -> NameAndRanges<'a> {
         let name;
         let range = crate::lsp::node::range(&node);
         let selection_range;
@@ -36,7 +36,7 @@ pub mod node {
             name = inner_node.utf8_text(source).unwrap();
             selection_range = crate::lsp::node::range(&inner_node);
         } else {
-            name = "<anonymous>";
+            name = empty_name;
             selection_range = range;
         }
 

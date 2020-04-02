@@ -154,7 +154,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<data>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -170,7 +170,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<elem>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -186,7 +186,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<func>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -202,7 +202,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<global>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -218,7 +218,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<memory>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -234,7 +234,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<module>", &node, field_ID);
                     work.push(Work::Data);
 
                     let mut children_count = 0;
@@ -260,7 +260,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<table>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -276,7 +276,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), &node, field_ID);
+                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<type>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
