@@ -10,9 +10,10 @@ mod lsp;
 mod package;
 mod parser;
 mod server;
+mod session;
 mod synthesizer;
 
-use crate::server::Session;
+use crate::session::Session;
 use failure::Fallible;
 use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
