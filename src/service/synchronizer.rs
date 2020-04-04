@@ -17,33 +17,14 @@ pub(crate) async fn tasks_did_open(
     } = &params;
 
     // spawn a parser and try to generate a syntax tree
-    let tree_was_generated = {
-        let task = {
-            let documents = documents.clone();
-            tasks_open_tree(documents, params.clone())
-        };
-        tokio::spawn(task).await??
-    };
+    let tree_was_generated = tasks_open_tree(documents.clone(), params.clone()).await?;
 
     // on successful generation of a parse tree (which may contain syntax errors)
     if tree_was_generated {
         // run the auditor tasks
-        let task = {
-            let documents = documents.clone();
-            let client = client; // FIXME
-            let uri = uri.clone();
-            crate::service::auditor::tree_did_open(documents, client, uri)
-        };
-        tokio::spawn(task).await??;
-
+        crate::service::auditor::tree_did_open(documents.clone(), client, uri.clone()).await?;
         // run the elaborator tasks
-        let task = {
-            let documents = documents.clone();
-            let client = client; // FIXME
-            let uri = uri.clone();
-            crate::service::elaborator::tree_did_open(documents, client, uri)
-        };
-        tokio::spawn(task).await??;
+        crate::service::elaborator::tree_did_open(documents.clone(), client, uri.clone()).await?;
     } else {
         // TODO: report
         log::warn!("tree_was_generated == false");
@@ -111,33 +92,15 @@ pub(crate) async fn tasks_did_change(
     } = params;
     let TextDocumentContentChangeEvent { text, .. } = content_changes[0].clone();
 
-    let tree_was_generated = {
-        let task = {
-            let documents = documents.clone();
-            tasks_change_tree(documents, uri.clone(), text)
-        };
-        tokio::spawn(task).await?
-    };
+    let tree_was_generated = tasks_change_tree(documents.clone(), uri.clone(), text).await;
 
     // on successful generation of a parse tree (which may contain syntax errors)
     if tree_was_generated {
         // run the auditor tasks
-        let task = {
-            let documents = documents.clone();
-            let client = client; // FIXME
-            let uri = uri.clone();
-            crate::service::auditor::tree_did_change(documents, client, uri)
-        };
-        tokio::spawn(task).await??;
+        crate::service::auditor::tree_did_change(documents.clone(), client, uri.clone()).await?;
 
         // run the elaborator tasks
-        let task = {
-            let documents = documents.clone();
-            let client = client; // FIXME
-            let uri = uri.clone();
-            crate::service::elaborator::tree_did_change(documents, client, uri)
-        };
-        tokio::spawn(task).await??;
+        crate::service::elaborator::tree_did_change(documents.clone(), client, uri.clone()).await?;
     } else {
         // TODO: report
         log::warn!("tree_was_generated == false");
@@ -154,22 +117,7 @@ pub(crate) async fn tasks_did_close(
         text_document: TextDocumentIdentifier { uri },
     } = &params;
     documents.remove(uri);
-
-    let task = {
-        let documents = documents.clone();
-        let client = client; // FIXME
-        let uri = uri.clone();
-        crate::service::auditor::tree_did_close(documents, client, uri)
-    };
-    tokio::spawn(task).await??;
-
-    let task = {
-        let documents = documents.clone();
-        let client = client; // FIXME
-        let uri = uri.clone();
-        crate::service::elaborator::tree_did_close(documents, client, uri)
-    };
-    tokio::spawn(task).await??;
-
+    crate::service::auditor::tree_did_close(documents.clone(), client, uri.clone()).await?;
+    crate::service::elaborator::tree_did_close(documents.clone(), client, uri.clone()).await?;
     Ok(())
 }
