@@ -1,4 +1,4 @@
-use crate::{auditor, database::Database, document::Document, elaborator, parser, server};
+use crate::{auditor, document::Document, elaborator, parser, server, session::Session};
 use dashmap::DashMap;
 use failure::Fallible;
 use jsonrpc_core::Result;
@@ -7,21 +7,6 @@ use lsp_types::*;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tower_lsp::{Client, LanguageServer};
-
-/// Represents the current state of the LSP service.
-pub struct Session {
-    #[allow(dead_code)]
-    database: Database,
-    documents: Arc<DashMap<Url, Document>>,
-}
-
-impl Session {
-    pub fn new() -> Fallible<Self> {
-        let database = Database::new()?;
-        let documents = Arc::new(DashMap::new());
-        Ok(Session { database, documents })
-    }
-}
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Session {
