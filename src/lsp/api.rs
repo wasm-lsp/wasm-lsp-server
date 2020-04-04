@@ -27,7 +27,7 @@ impl LanguageServer for Server {
         let documents = self.session.documents.clone();
         // FIXME: remove on next tower-lsp release
         let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::tasks_did_open(documents, client, params)
+        crate::service::synchronizer::document::open(documents, client, params)
             .await
             .unwrap()
     }
@@ -36,7 +36,7 @@ impl LanguageServer for Server {
         let documents = self.session.documents.clone();
         // FIXME: remove on next tower-lsp release
         let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::tasks_did_change(documents, client, params)
+        crate::service::synchronizer::document::change(documents, client, params)
             .await
             .unwrap()
     }
@@ -45,7 +45,7 @@ impl LanguageServer for Server {
         let documents = self.session.documents.clone();
         // FIXME: remove on next tower-lsp release
         let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::tasks_did_close(documents, client, params)
+        crate::service::synchronizer::document::close(documents, client, params)
             .await
             .unwrap()
     }
