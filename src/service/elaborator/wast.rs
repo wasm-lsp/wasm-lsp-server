@@ -1,12 +1,11 @@
 /// Elaborates parse trees into structured data to be cached in the database.
-use crate::core::document::Document;
-use dashmap::DashMap;
+use crate::core::session::Session;
 use lsp_types::*;
 use std::sync::Arc;
 
 // FIXME: reorganize this to where outline is pulled from database
 pub(crate) async fn document_symbol(
-    documents: Arc<DashMap<Url, Document>>,
+    session: Arc<Session>,
     params: DocumentSymbolParams,
 ) -> jsonrpc_core::Result<Option<DocumentSymbolResponse>> {
     #![allow(non_snake_case)]
@@ -19,7 +18,7 @@ pub(crate) async fn document_symbol(
     let mut response = None;
 
     // Attempt to obtain the document.
-    if let Some(document) = documents.get(&uri) {
+    if let Some(document) = session.documents.get(&uri) {
         let mut syms: Vec<DocumentSymbol> = vec![];
 
         // Prepare the syntax tree.

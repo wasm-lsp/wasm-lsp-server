@@ -1,15 +1,14 @@
 /// Synchronizes document changes between editor and server
 
 pub(crate) mod document {
-    use crate::core::document::Document;
-    use dashmap::DashMap;
+    use crate::core::{session::Session};
     use failure::Fallible;
     use lsp_types::*;
     use std::sync::Arc;
     use tower_lsp::Client;
 
     pub(crate) async fn change(
-        documents: Arc<DashMap<Url, Document>>,
+        session: Arc<Session>,
         client: &'static Client,
         params: DidChangeTextDocumentParams,
     ) -> Fallible<()> {
@@ -19,15 +18,15 @@ pub(crate) mod document {
         } = params;
         let TextDocumentContentChangeEvent { text, .. } = content_changes[0].clone();
 
-        let tree_was_generated = super::tree::change(documents.clone(), uri.clone(), text).await;
+        let tree_was_generated = super::tree::change(session.clone(), uri.clone(), text).await;
 
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
             // run the auditor tasks
-            crate::service::auditor::tree_did_change(documents.clone(), client, uri.clone()).await?;
+            crate::service::auditor::tree_did_change(session.clone(), client, uri.clone()).await?;
 
             // run the elaborator tasks
-            crate::service::elaborator::tree_did_change(documents.clone(), client, uri.clone()).await?;
+            crate::service::elaborator::tree_did_change(session.clone(), client, uri.clone()).await?;
         } else {
             // TODO: report
             log::warn!("tree_was_generated == false");
@@ -36,21 +35,21 @@ pub(crate) mod document {
     }
 
     pub(crate) async fn close(
-        documents: Arc<DashMap<Url, Document>>,
+        session: Arc<Session>,
         client: &'static Client,
         params: DidCloseTextDocumentParams,
     ) -> Fallible<()> {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
-        documents.remove(uri);
-        crate::service::auditor::tree_did_close(documents.clone(), client, uri.clone()).await?;
-        crate::service::elaborator::tree_did_close(documents.clone(), client, uri.clone()).await?;
+        session.documents.remove(uri);
+        crate::service::auditor::tree_did_close(session.clone(), client, uri.clone()).await?;
+        crate::service::elaborator::tree_did_close(session.clone(), client, uri.clone()).await?;
         Ok(())
     }
 
     pub(crate) async fn open(
-        documents: Arc<DashMap<Url, Document>>,
+        session: Arc<Session>,
         client: &'static Client,
         params: DidOpenTextDocumentParams,
     ) -> Fallible<()> {
@@ -59,14 +58,14 @@ pub(crate) mod document {
         } = &params;
 
         // spawn a parser and try to generate a syntax tree
-        let tree_was_generated = super::tree::open(documents.clone(), params.clone()).await?;
+        let tree_was_generated = super::tree::open(session.clone(), params.clone()).await?;
 
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
             // run the auditor tasks
-            crate::service::auditor::tree_did_open(documents.clone(), client, uri.clone()).await?;
+            crate::service::auditor::tree_did_open(session.clone(), client, uri.clone()).await?;
             // run the elaborator tasks
-            crate::service::elaborator::tree_did_open(documents.clone(), client, uri.clone()).await?;
+            crate::service::elaborator::tree_did_open(session.clone(), client, uri.clone()).await?;
         } else {
             // TODO: report
             log::warn!("tree_was_generated == false");
@@ -76,18 +75,14 @@ pub(crate) mod document {
 }
 
 mod tree {
-    use crate::core::document::Document;
-    use dashmap::DashMap;
+    use crate::core::{document::Document, session::Session};
     use failure::Fallible;
     use lsp_types::*;
     use std::{convert::TryFrom, sync::Arc};
     use tokio::sync::Mutex;
 
     // TODO: implement parser cancellation
-    pub(super) async fn open(
-        documents: Arc<DashMap<Url, Document>>,
-        params: DidOpenTextDocumentParams,
-    ) -> Fallible<bool> {
+    pub(super) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> Fallible<bool> {
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem {
                 language_id, text, uri, ..
@@ -102,7 +97,7 @@ mod tree {
 
         let mut success = false;
         if let Some(tree) = parser.parse(&text[..], old_tree) {
-            documents.insert(uri, Document {
+            session.documents.insert(uri, Document {
                 language,
                 parser: Mutex::new(parser),
                 text: text.clone(),
@@ -114,9 +109,9 @@ mod tree {
     }
 
     // TODO: implement parser cancellation
-    pub(super) async fn change(documents: Arc<DashMap<Url, Document>>, uri: Url, text: String) -> bool {
+    pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> bool {
         let mut success = false;
-        if let Some(mut document) = documents.get_mut(&uri) {
+        if let Some(mut document) = session.documents.get_mut(&uri) {
             let tree;
             {
                 let mut parser = document.parser.lock().await;

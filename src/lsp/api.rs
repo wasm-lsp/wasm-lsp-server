@@ -24,33 +24,30 @@ impl LanguageServer for Server {
     }
 
     async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
-        let documents = self.session.documents.clone();
         // FIXME: remove on next tower-lsp release
         let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::document::open(documents, client, params)
+        crate::service::synchronizer::document::open(self.session.clone(), client, params)
             .await
             .unwrap()
     }
 
     async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
-        let documents = self.session.documents.clone();
         // FIXME: remove on next tower-lsp release
         let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::document::change(documents, client, params)
+        crate::service::synchronizer::document::change(self.session.clone(), client, params)
             .await
             .unwrap()
     }
 
     async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
-        let documents = self.session.documents.clone();
         // FIXME: remove on next tower-lsp release
         let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::document::close(documents, client, params)
+        crate::service::synchronizer::document::close(self.session.clone(), client, params)
             .await
             .unwrap()
     }
 
     async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
-        crate::service::elaborator::document_symbol(self.session.documents.clone(), params).await
+        crate::service::elaborator::document_symbol(self.session.clone(), params).await
     }
 }
