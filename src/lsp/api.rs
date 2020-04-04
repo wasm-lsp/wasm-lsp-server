@@ -1,3 +1,5 @@
+//! Definitions for the request handlers.
+
 use crate::lsp::server::Server;
 use jsonrpc_core::Result;
 use log;

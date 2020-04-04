@@ -1,1 +1,1 @@
-// Synthesizes typing information for documents.
+//! Synthesizes typing information for documents.

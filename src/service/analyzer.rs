@@ -1,1 +1,1 @@
-// Computes queries about documents.
+//! Computes queries about documents.
