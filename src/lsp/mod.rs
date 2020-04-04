@@ -7,4 +7,4 @@ mod api;
 mod capabilities;
 
 // Definitions for the server instance.
-pub(crate) mod server;
+pub mod server;

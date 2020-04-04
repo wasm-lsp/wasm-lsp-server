@@ -1,10 +1,13 @@
 //! Core functionality related to document parsers.
 
+// FIXME: move these to a subcrate
+
 use crate::core::{error::Error, language::Language};
 use failure::Fallible;
 use tree_sitter;
 
 /// Create a wast parser from the tree-sitter grammar.
+#[allow(unsafe_code)]
 pub(crate) fn wast() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_wast() };
     let mut parser = tree_sitter::Parser::new();
@@ -13,6 +16,7 @@ pub(crate) fn wast() -> Fallible<tree_sitter::Parser> {
 }
 
 /// Create a wat parser from the tree-sitter grammar.
+#[allow(unsafe_code)]
 pub(crate) fn wat() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_wat() };
     let mut parser = tree_sitter::Parser::new();
@@ -21,6 +25,7 @@ pub(crate) fn wat() -> Fallible<tree_sitter::Parser> {
 }
 
 /// Create a wit parser from the tree-sitter grammar.
+#[allow(unsafe_code)]
 pub(crate) fn wit() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_wit() };
     let mut parser = tree_sitter::Parser::new();
@@ -29,6 +34,7 @@ pub(crate) fn wit() -> Fallible<tree_sitter::Parser> {
 }
 
 /// Create a witx parser from the tree-sitter grammar.
+#[allow(unsafe_code)]
 pub(crate) fn witx() -> Fallible<tree_sitter::Parser> {
     let language = unsafe { crate::tree_sitter_witx() };
     let mut parser = tree_sitter::Parser::new();
