@@ -48,7 +48,7 @@ async fn tasks_open_tree(documents: Arc<DashMap<Url, Document>>, params: DidOpen
 
     let mut success = false;
     if let Some(tree) = parser.parse(&text[..], old_tree) {
-        documents.insert(uri.clone(), Document {
+        documents.insert(uri, Document {
             language,
             parser: Mutex::new(parser),
             text: text.clone(),

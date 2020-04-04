@@ -18,7 +18,7 @@ impl TryFrom<String> for Language {
             "wasm.wat" => Ok(Language::Wat),
             "wasm.wit" => Ok(Language::Wit),
             "wasm.witx" => Ok(Language::Witx),
-            _ => Err(crate::core::error::Error::CoreInvalidLanguageId(language_id))?,
+            _ => Err(crate::core::error::Error::CoreInvalidLanguageId(language_id).into()),
         }
     }
 }
