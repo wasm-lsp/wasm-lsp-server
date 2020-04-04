@@ -1,8 +1,8 @@
+//! The WASM language server.
+
 #![deny(clippy::all)]
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
-
-//! The WASM language server.
 
 use failure::Fallible;
 use tower_lsp::{LspService, Server};

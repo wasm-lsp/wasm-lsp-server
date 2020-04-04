@@ -1,8 +1,8 @@
+//! The WASM language server.
+
 #![deny(clippy::all)]
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
-
-//! The WASM language server.
 
 // Command-line interface for the WASM language server.
 pub mod cli;
