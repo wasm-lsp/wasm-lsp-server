@@ -50,6 +50,7 @@ pub(crate) async fn document_symbol(
         }
     } else {
         // TODO: report
-        panic!()
+        log::warn!("documents.get failed for {}", uri);
+        Ok(None)
     }
 }
