@@ -21,12 +21,6 @@ pub(crate) async fn document_symbol(
 
     // Attempt to obtain the document.
     if let Some(document) = session.documents.get(&uri) {
-        let mut syms: Vec<DocumentSymbol> = vec![];
-
-        // Prepare the syntax tree.
-        let tree = document.tree.lock().await.clone();
-        let node = tree.root_node();
-
         // Define local data structures for the stack machine.
         #[derive(Clone, Debug)]
         struct Data<'a> {
@@ -42,6 +36,12 @@ pub(crate) async fn document_symbol(
             Node(tree_sitter::Node<'a>),
         }
         use crate::util::node::NameAndRanges;
+
+        let mut syms: Vec<DocumentSymbol> = vec![];
+
+        // Prepare the syntax tree.
+        let tree = document.tree.lock().await.clone();
+        let node = tree.root_node();
 
         // Prepare the stack machine:
         //   data: contains data for constructing upcoming DocumentSymbols
