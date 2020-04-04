@@ -1,6 +1,7 @@
 use failure::Fail;
 use tree_sitter;
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Fail)]
 pub(crate) enum Error {
     #[fail(display = "core::InvalidLanguageId: {}", 0)]
