@@ -46,6 +46,7 @@ pub(crate) async fn tasks_did_open(
         tokio::spawn(task).await??;
     } else {
         // TODO: report
+        log::warn!("tree_was_generated == false");
     }
     Ok(())
 }
@@ -139,6 +140,7 @@ pub(crate) async fn tasks_did_change(
         tokio::spawn(task).await??;
     } else {
         // TODO: report
+        log::warn!("tree_was_generated == false");
     }
     Ok(())
 }
