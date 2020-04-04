@@ -5,7 +5,7 @@ use std::{env, path::Path};
 use uuid::Uuid;
 
 /// Caches elaborated syntax and metadata of documents.
-pub struct Database {
+pub(crate) struct Database {
     #[allow(dead_code)]
     sled: sled::Db,
     #[allow(dead_code)]
@@ -13,7 +13,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn new() -> Fallible<Self> {
+    pub(crate) fn new() -> Fallible<Self> {
         let uuid = Uuid::new_v4();
         let handle = Database::handle(&uuid);
         log::info!("{:?}", handle.clone());
@@ -26,7 +26,7 @@ impl Database {
         Ok(Database { sled, uuid })
     }
 
-    pub fn handle(uuid: &Uuid) -> Box<Path> {
+    fn handle(uuid: &Uuid) -> Box<Path> {
         let mut buf = env::temp_dir();
         buf.push(uuid.to_string());
         buf.set_extension("sled");

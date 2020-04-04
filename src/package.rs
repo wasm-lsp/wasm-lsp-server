@@ -1,4 +1,4 @@
-pub mod metadata {
+pub(crate) mod metadata {
     #![allow(dead_code)]
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }

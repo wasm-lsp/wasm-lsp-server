@@ -1,19 +1,11 @@
-mod analyzer;
-mod auditor;
 mod cli;
-mod database;
-mod document;
-mod elaborator;
-mod error;
-mod highlighter;
+mod core;
 mod lsp;
 mod package;
-mod parser;
-mod server;
-mod session;
-mod synthesizer;
+mod service;
+mod util;
 
-use crate::session::Session;
+use crate::lsp::session::Session;
 use failure::Fallible;
 use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
@@ -23,6 +15,7 @@ extern {
     #[doc(hidden)]
     fn tree_sitter_wast() -> Language;
 
+    #[allow(dead_code)]
     #[doc(hidden)]
     fn tree_sitter_wat() -> Language;
 
