@@ -51,8 +51,6 @@ impl LanguageServer for Session {
     }
 
     async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
-        let documents = self.documents.clone();
-        let task = crate::service::elaborator::document_symbol(documents, params);
-        tokio::spawn(task).await.unwrap()
+        crate::service::elaborator::document_symbol(self.documents.clone(), params).await
     }
 }
