@@ -1,12 +1,12 @@
 /// Elaborates parse trees into structured data to be cached in the database.
-use crate::document::Document;
+use crate::core::document::Document;
 use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
 use tower_lsp::Client;
 
-pub async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, _: &Client, uri: Url) -> Fallible<()> {
+pub(crate) async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, _: &Client, uri: Url) -> Fallible<()> {
     if let Some(document) = documents.get(&uri) {
         let tree = document.tree.lock().await.clone();
         let node = tree.root_node();
@@ -19,17 +19,17 @@ pub async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, _: &Client,
     Ok(())
 }
 
-pub async fn tree_did_close(_: Arc<DashMap<Url, Document>>, _: &Client, _: Url) -> Fallible<()> {
+pub(crate) async fn tree_did_close(_: Arc<DashMap<Url, Document>>, _: &Client, _: Url) -> Fallible<()> {
     Ok(())
 }
 
 #[allow(dead_code)]
-pub async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
+async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
     self::tree_did_change(documents, client, uri).await
 }
 
 // FIXME: reorganize this to where outline is pulled from database
-pub async fn document_symbol(
+pub(crate) async fn document_symbol(
     documents: Arc<DashMap<Url, Document>>,
     params: DocumentSymbolParams,
 ) -> jsonrpc_core::Result<Option<DocumentSymbolResponse>> {
@@ -64,7 +64,7 @@ pub async fn document_symbol(
             Data,
             Node(tree_sitter::Node<'a>),
         }
-        use crate::lsp::node::NameAndRanges;
+        use crate::util::node::NameAndRanges;
 
         // Prepare the stack machine:
         //   data: contains data for constructing upcoming DocumentSymbols
@@ -154,7 +154,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<data>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<data>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -170,7 +170,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<elem>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<elem>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -186,7 +186,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<func>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<func>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -202,7 +202,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<global>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<global>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -218,7 +218,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<memory>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<memory>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -234,7 +234,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<module>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<module>", &node, field_ID);
                     work.push(Work::Data);
 
                     let mut children_count = 0;
@@ -260,7 +260,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<table>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<table>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -276,7 +276,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = crate::lsp::node::name_and_ranges(&document.text.as_bytes(), "<type>", &node, field_ID);
+                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<type>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
