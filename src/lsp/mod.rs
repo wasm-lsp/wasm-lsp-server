@@ -1,3 +1,3 @@
+mod api;
 mod capabilities;
-mod server;
-pub(crate) mod session;
+pub(crate) mod server;

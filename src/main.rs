@@ -5,7 +5,6 @@ mod package;
 mod service;
 mod util;
 
-use crate::lsp::session::Session;
 use failure::Fallible;
 use tower_lsp::{LspService, Server};
 use tree_sitter::Language;
@@ -34,8 +33,8 @@ async fn main() -> Fallible<()> {
 
     crate::cli::cli();
 
-    let session = Session::new()?;
-    let (service, messages) = LspService::new(session);
+    let server = crate::lsp::server::Server::new()?;
+    let (service, messages) = LspService::new(server);
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
     Server::new(stdin, stdout).interleave(messages).serve(service).await;
