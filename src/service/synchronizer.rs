@@ -3,7 +3,7 @@ use crate::core::document::Document;
 use dashmap::DashMap;
 use failure::Fallible;
 use lsp_types::*;
-use std::sync::Arc;
+use std::{convert::TryFrom, sync::Arc};
 use tokio::sync::Mutex;
 use tower_lsp::Client;
 
@@ -13,43 +13,88 @@ pub(crate) async fn tasks_did_open(
     params: DidOpenTextDocumentParams,
 ) -> Fallible<()> {
     let DidOpenTextDocumentParams {
-        text_document: TextDocumentItem { uri, text, .. },
-    } = params;
-    let params = {
-        let text_document = {
-            let uri = uri;
-            let version = None;
-            VersionedTextDocumentIdentifier { uri, version }
+        text_document: TextDocumentItem { uri, .. },
+    } = &params;
+
+    // spawn a parser and try to generate a syntax tree
+    let tree_was_generated = {
+        let task = {
+            let documents = documents.clone();
+            tasks_open_tree(documents, params.clone())
         };
-        let content_changes = vec![{
-            let range = None;
-            let range_length = None;
-            TextDocumentContentChangeEvent {
-                range,
-                range_length,
-                text,
-            }
-        }];
-        DidChangeTextDocumentParams {
-            text_document,
-            content_changes,
-        }
+        tokio::spawn(task).await??
     };
-    self::tasks_did_change(documents, client, params).await
+
+    // on successful generation of a parse tree (which may contain syntax errors)
+    if tree_was_generated {
+        // run the auditor tasks
+        let task = {
+            let documents = documents.clone();
+            let client = client; // FIXME
+            let uri = uri.clone();
+            crate::service::auditor::tree_did_open(documents, client, uri)
+        };
+        tokio::spawn(task).await??;
+
+        // run the elaborator tasks
+        let task = {
+            let documents = documents.clone();
+            let client = client; // FIXME
+            let uri = uri.clone();
+            crate::service::elaborator::tree_did_open(documents, client, uri)
+        };
+        tokio::spawn(task).await??;
+    } else {
+        // TODO: report
+    }
+    Ok(())
 }
 
 // TODO: implement parser cancellation
-async fn tasks_parse_tree(documents: Arc<DashMap<Url, Document>>, uri: Url, text: String) -> bool {
-    let mut success = false;
-    let mut parser = crate::core::parser::wast().expect("parser creation failed");
+async fn tasks_open_tree(documents: Arc<DashMap<Url, Document>>, params: DidOpenTextDocumentParams) -> Fallible<bool> {
+    let DidOpenTextDocumentParams {
+        text_document: TextDocumentItem {
+            language_id, text, uri, ..
+        },
+    } = params;
+
+    let language = crate::core::language::Language::try_from(language_id)?;
+    let mut parser = crate::core::parser::try_from(language)?;
+
     // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
     let old_tree = None;
+
+    let mut success = false;
     if let Some(tree) = parser.parse(&text[..], old_tree) {
-        documents.insert(uri, Document {
-            text,
+        documents.insert(uri.clone(), Document {
+            language,
+            parser: Mutex::new(parser),
+            text: text.clone(),
             tree: Mutex::new(tree),
         });
         success = true;
+    }
+    Ok(success)
+}
+
+// TODO: implement parser cancellation
+async fn tasks_change_tree(documents: Arc<DashMap<Url, Document>>, uri: Url, text: String) -> bool {
+    let mut success = false;
+    if let Some(mut document) = documents.get_mut(&uri) {
+        let tree;
+        {
+            let mut parser = document.parser.lock().await;
+            // FIXME: we reset the parser since we don't handle incremental changes yet
+            parser.reset();
+            // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
+            let old_tree = None;
+            tree = parser.parse(&text[..], old_tree);
+        }
+        if let Some(tree) = tree {
+            document.text = text;
+            document.tree = Mutex::new(tree);
+            success = true;
+        }
     }
     success
 }
@@ -65,12 +110,10 @@ pub(crate) async fn tasks_did_change(
     } = params;
     let TextDocumentContentChangeEvent { text, .. } = content_changes[0].clone();
 
-    // spawn a parser and try to generate a syntax tree
     let tree_was_generated = {
         let task = {
             let documents = documents.clone();
-            let uri = uri.clone();
-            tasks_parse_tree(documents, uri, text)
+            tasks_change_tree(documents, uri.clone(), text)
         };
         tokio::spawn(task).await?
     };

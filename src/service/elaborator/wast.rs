@@ -1,32 +1,8 @@
 /// Elaborates parse trees into structured data to be cached in the database.
 use crate::core::document::Document;
 use dashmap::DashMap;
-use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
-use tower_lsp::Client;
-
-pub(crate) async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, _: &Client, uri: Url) -> Fallible<()> {
-    if let Some(document) = documents.get(&uri) {
-        let tree = document.tree.lock().await.clone();
-        let node = tree.root_node();
-        if !node.has_error() {
-            log::info!("syntax well-formed");
-        }
-        // NOTE: else let auditor handle
-        // TODO: allow partial elaboration in presence of syntax errors
-    }
-    Ok(())
-}
-
-pub(crate) async fn tree_did_close(_: Arc<DashMap<Url, Document>>, _: &Client, _: Url) -> Fallible<()> {
-    Ok(())
-}
-
-#[allow(dead_code)]
-async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
-    self::tree_did_change(documents, client, uri).await
-}
 
 // FIXME: reorganize this to where outline is pulled from database
 pub(crate) async fn document_symbol(
