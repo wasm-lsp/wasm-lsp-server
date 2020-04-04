@@ -16,7 +16,7 @@ pub(crate) async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, clie
             // prepare a query to match tree-sitter ERROR nodes
             let language = tree.language();
             let source = "((ERROR) @error)"; // query the tree for ERROR nodes
-            let query = tree_sitter::Query::new(language, source).map_err(Error::QueryError)?;
+            let query = tree_sitter::Query::new(language, source).map_err(Error::TreeSitterQueryError)?;
 
             // prepare a query cursor
             let mut query_cursor = tree_sitter::QueryCursor::new();
@@ -61,7 +61,6 @@ pub(crate) async fn tree_did_close(_: Arc<DashMap<Url, Document>>, client: &Clie
     Ok(())
 }
 
-#[allow(dead_code)]
-async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
+pub(crate) async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
     self::tree_did_change(documents, client, uri).await
 }

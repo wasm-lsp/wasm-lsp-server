@@ -3,8 +3,10 @@ use tree_sitter;
 
 #[derive(Debug, Fail)]
 pub(crate) enum Error {
+    #[fail(display = "core::InvalidLanguageId: {}", 0)]
+    CoreInvalidLanguageId(String),
     #[fail(display = "tree_sitter::LanguageError: {}", 0)]
-    LanguageError(tree_sitter::LanguageError),
+    TreeSitterLanguageError(tree_sitter::LanguageError),
     #[fail(display = "tree_sitter::QueryError")]
-    QueryError(tree_sitter::QueryError),
+    TreeSitterQueryError(tree_sitter::QueryError),
 }
