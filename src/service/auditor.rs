@@ -1,14 +1,14 @@
 /// Collects diagnostics for documents with syntax errors, etc.
-use crate::core::{document::Document, error::Error};
-use dashmap::DashMap;
+use crate::core::session::Session;
+use crate::core::{error::Error};
 use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
 use tower_lsp::Client;
 use tree_sitter;
 
-pub(crate) async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
-    if let Some(document) = documents.get(&uri) {
+pub(crate) async fn tree_did_change(session: Arc<Session>, client: &Client, uri: Url) -> Fallible<()> {
+    if let Some(document) = session.documents.get(&uri) {
         let tree = document.tree.lock().await.clone();
         let node = tree.root_node();
         let mut diagnostics = vec![];
@@ -52,7 +52,7 @@ pub(crate) async fn tree_did_change(documents: Arc<DashMap<Url, Document>>, clie
     Ok(())
 }
 
-pub(crate) async fn tree_did_close(_: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
+pub(crate) async fn tree_did_close(_: Arc<Session>, client: &Client, uri: Url) -> Fallible<()> {
     // clear diagnostics on tree close
     // FIXME: handle this properly
     let diagnostics = vec![];
@@ -61,6 +61,6 @@ pub(crate) async fn tree_did_close(_: Arc<DashMap<Url, Document>>, client: &Clie
     Ok(())
 }
 
-pub(crate) async fn tree_did_open(documents: Arc<DashMap<Url, Document>>, client: &Client, uri: Url) -> Fallible<()> {
-    self::tree_did_change(documents, client, uri).await
+pub(crate) async fn tree_did_open(session: Arc<Session>, client: &Client, uri: Url) -> Fallible<()> {
+    self::tree_did_change(session, client, uri).await
 }
