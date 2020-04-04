@@ -1,3 +1,5 @@
+//! Core functionality related to the document metadata database.
+
 use failure::Fallible;
 use log;
 use sled;
@@ -13,6 +15,7 @@ pub(crate) struct Database {
 }
 
 impl Database {
+    /// Create a new database.
     pub(crate) fn new() -> Fallible<Self> {
         let uuid = Uuid::new_v4();
         let handle = Database::handle(&uuid);
@@ -26,6 +29,7 @@ impl Database {
         Ok(Database { sled, uuid })
     }
 
+    /// Compute a handle for the database given a uuid.
     fn handle(uuid: &Uuid) -> Box<Path> {
         let mut buf = env::temp_dir();
         buf.push(uuid.to_string());

@@ -1,5 +1,8 @@
+//! Definitions for the server feature capabilities.
+
 use lsp_types::*;
 
+/// Compute the server capabilities.
 pub(crate) fn capabilities() -> ServerCapabilities {
     let document_symbol_provider = Some(true);
 

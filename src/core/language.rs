@@ -1,6 +1,9 @@
+//! Core functionality related to document languages.
+
 use failure::{Error, Fallible};
 use std::convert::TryFrom;
 
+/// Languages supported by the server.
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum Language {
     Wast,

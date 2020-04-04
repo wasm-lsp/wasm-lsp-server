@@ -1,9 +1,11 @@
-/// Elaborates parse trees into structured data to be cached in the database.
+//! Elaborator definitions specific to ".wast" files.
+
 use crate::core::session::Session;
 use lsp_types::*;
 use std::sync::Arc;
 
 // FIXME: reorganize this to where outline is pulled from database
+/// Compute the symbols for a given document.
 pub(crate) async fn document_symbol(
     session: Arc<Session>,
     params: DocumentSymbolParams,
