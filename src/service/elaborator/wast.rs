@@ -4,7 +4,6 @@ use crate::core::session::Session;
 use lsp_types::*;
 use std::sync::Arc;
 
-// FIXME: reorganize this to where outline is pulled from database
 /// Compute the symbols for a given document.
 pub(crate) async fn document_symbol(
     session: Arc<Session>,
