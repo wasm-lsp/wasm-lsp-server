@@ -22,7 +22,7 @@ pub(crate) async fn document_symbol(
     if let Some(document) = session.documents.get(&uri) {
         use crate::{
             service::elaborator::document_symbol::{Data, Work},
-            util::node::NameAndRanges,
+            util::node::SymbolRange,
         };
 
         let mut syms: Vec<DocumentSymbol> = vec![];
@@ -115,11 +115,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_DATA => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<data>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<data>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -131,11 +131,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_ELEM => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<elem>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<elem>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -147,11 +147,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_FUNC => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<func>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<func>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -163,11 +163,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_GLOBAL => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<global>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<global>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -179,11 +179,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_MEMORY => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<memory>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<memory>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -195,11 +195,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_MODULE => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<module>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<module>", &node, field_ID);
                     work.push(Work::Data);
 
                     let mut children_count = 0;
@@ -221,11 +221,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_TABLE => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<table>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<table>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,
@@ -237,11 +237,11 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == kind_TYPE => {
-                    let NameAndRanges {
+                    let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::name_and_ranges(&document.text.as_bytes(), "<type>", &node, field_ID);
+                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<type>", &node, field_ID);
                     work.push(Work::Data);
                     data.push(Data {
                         children_count: 0,

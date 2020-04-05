@@ -24,7 +24,7 @@ pub(crate) mod node {
 
     /// Convenience type for packaging a (symbol) name with an lsp range and selection range.
     #[derive(Clone, Debug)]
-    pub(crate) struct NameAndRanges<'a> {
+    pub(crate) struct SymbolRange<'a> {
         /// The name (identifier) of the symbol.
         pub(crate) name: &'a str,
         /// The (node-enclosing) range of the symbol.
@@ -34,12 +34,12 @@ pub(crate) mod node {
     }
 
     /// Compute the name and ranges for a document symbol given tree-sitter node data.
-    pub(crate) fn name_and_ranges<'a>(
+    pub(crate) fn symbol_range<'a>(
         source: &'a [u8],
         empty_name: &'a str,
         node: &tree_sitter::Node,
         field_id: u16,
-    ) -> NameAndRanges<'a> {
+    ) -> SymbolRange<'a> {
         let name;
         let range = crate::util::node::range(&node);
         let selection_range;
@@ -51,7 +51,7 @@ pub(crate) mod node {
             selection_range = range;
         }
 
-        NameAndRanges {
+        SymbolRange {
             name,
             range,
             selection_range,
