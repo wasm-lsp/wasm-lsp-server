@@ -48,6 +48,7 @@ use std::sync::Arc;
 
 /// Functionality used for computing "textDocument/documentSymbols".
 mod document_symbol {
+    use crate::{core::document::Document, util::node::SymbolRange};
     use lsp_types::{Range, SymbolKind};
 
     /// Encodes data for constructing upcoming DocumentSymbols.
@@ -72,6 +73,28 @@ mod document_symbol {
         Data,
         /// Add a tree-sitter node to remaining nodes to process.
         Node(tree_sitter::Node<'a>),
+    }
+
+    /// Convenience function for processing document symbol nodes.
+    pub(crate) fn push<'a>(
+        document: &'a Document,
+        field_id: u16,
+    ) -> impl FnMut(&mut Vec<Data<'a>>, &mut Vec<Work<'a>>, &tree_sitter::Node<'a>, &'static str, SymbolKind) {
+        move |data, work, node, empty_name, kind| {
+            let SymbolRange {
+                name,
+                range,
+                selection_range,
+            } = crate::util::node::symbol_range(&document.text.as_bytes(), empty_name, &node, field_id);
+            work.push(Work::Data);
+            data.push(Data {
+                children_count: 0,
+                kind,
+                name,
+                range,
+                selection_range,
+            });
+        }
     }
 }
 
