@@ -11,6 +11,10 @@ description = """
 A language server implementation for WebAssembly
 """
 
+[[bin]]
+name = "wasm-language-server"
+path = "src/bin/main.rs"
+
 [badges]
 maintenance = { status = "experimental" }
 
