@@ -48,7 +48,10 @@ use std::sync::Arc;
 
 /// Functionality used for computing "textDocument/documentSymbols".
 mod document_symbol {
-    use crate::{core::document::Document, util::node::{symbol_range, SymbolRange}};
+    use crate::{
+        core::document::Document,
+        util::node::{symbol_range, SymbolRange},
+    };
     use lsp_types::{Range, SymbolKind};
 
     /// Encodes data for constructing upcoming DocumentSymbols.

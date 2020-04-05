@@ -1,11 +1,10 @@
 //! Elaborator definitions specific to ".wast" files.
 
 use crate::{
-    core::language::wast,
+    core::{language::wast, session::Session},
     service::elaborator::document_symbol::{self, Data, Work},
     util::node::{symbol_range, SymbolRange},
 };
-use crate::core::session::Session;
 use lsp_types::*;
 use std::sync::Arc;
 
