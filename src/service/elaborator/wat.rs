@@ -1,11 +1,10 @@
 //! Elaborator definitions specific to ".wat" files.
 
 use crate::{
-    core::language::wat,
+    core::{language::wat, session::Session},
     service::elaborator::document_symbol::{self, Data, Work},
     util::node::{symbol_range, SymbolRange},
 };
-use crate::core::session::Session;
 use lsp_types::*;
 use std::sync::Arc;
 
@@ -102,7 +101,9 @@ pub(crate) async fn document_symbol(
                 },
 
                 Work::Node(node) if node.kind_id() == *wat::kind::ENTRYPOINT => {
-                    let command = node.named_child(0).expect("'ENTRYPOINT' should have a single named child");
+                    let command = node
+                        .named_child(0)
+                        .expect("'ENTRYPOINT' should have a single named child");
                     work.push(Work::Node(command));
                 },
 
