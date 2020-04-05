@@ -48,7 +48,7 @@ use std::sync::Arc;
 
 /// Functionality used for computing "textDocument/documentSymbols".
 mod document_symbol {
-    use crate::{core::document::Document, util::node::SymbolRange};
+    use crate::{core::document::Document, util::node::{symbol_range, SymbolRange}};
     use lsp_types::{Range, SymbolKind};
 
     /// Encodes data for constructing upcoming DocumentSymbols.
@@ -90,7 +90,7 @@ mod document_symbol {
             name,
             range,
             selection_range,
-        } = crate::util::node::symbol_range(&document.text.as_bytes(), empty_name, &node, field_id);
+        } = symbol_range(&document.text.as_bytes(), empty_name, &node, field_id);
         work.push(Work::Data);
         data.push(Data {
             children_count: 0,
