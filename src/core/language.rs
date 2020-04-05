@@ -25,3 +25,58 @@ impl TryFrom<String> for Language {
         }
     }
 }
+
+pub(crate) mod wast {
+    #[allow(unsafe_code)]
+    pub(crate) fn language() -> tree_sitter::Language {
+        unsafe { crate::tree_sitter_wast() }
+    }
+
+    pub(crate) mod field {
+        use lazy_static::lazy_static;
+
+        lazy_static! {
+            pub(crate) static ref COMMAND: u16 = super::language().field_id_for_name("command").unwrap();
+            pub(crate) static ref FIELD: u16 = super::language().field_id_for_name("field").unwrap();
+            pub(crate) static ref ID: u16 = super::language().field_id_for_name("id").unwrap();
+        }
+    }
+
+    pub(crate) mod kind {
+        use lazy_static::lazy_static;
+
+        lazy_static! {
+            pub(crate) static ref COMMAND: u16 = super::language().id_for_node_kind("command", true);
+            pub(crate) static ref DATA: u16 = super::language().id_for_node_kind("data", true);
+            pub(crate) static ref ELEM: u16 = super::language().id_for_node_kind("elem", true);
+            pub(crate) static ref ENTRYPOINT: u16 = super::language().id_for_node_kind("ENTRYPOINT", true);
+            pub(crate) static ref FUNC: u16 = super::language().id_for_node_kind("func", true);
+            pub(crate) static ref GLOBAL: u16 = super::language().id_for_node_kind("global", true);
+            pub(crate) static ref MEMORY: u16 = super::language().id_for_node_kind("mem", true);
+            pub(crate) static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
+            pub(crate) static ref TABLE: u16 = super::language().id_for_node_kind("table", true);
+            pub(crate) static ref TYPE: u16 = super::language().id_for_node_kind("type", true);
+        }
+    }
+}
+
+pub(crate) mod wat {
+    #[allow(unsafe_code)]
+    pub(crate) fn language() -> tree_sitter::Language {
+        unsafe { crate::tree_sitter_wat() }
+    }
+}
+
+pub(crate) mod wit {
+    #[allow(unsafe_code)]
+    pub(crate) fn language() -> tree_sitter::Language {
+        unsafe { crate::tree_sitter_wit() }
+    }
+}
+
+pub(crate) mod witx {
+    #[allow(unsafe_code)]
+    pub(crate) fn language() -> tree_sitter::Language {
+        unsafe { crate::tree_sitter_witx() }
+    }
+}

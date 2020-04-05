@@ -76,25 +76,29 @@ mod document_symbol {
     }
 
     /// Convenience function for processing document symbol nodes.
+    #[allow(clippy::needless_lifetimes)]
     pub(crate) fn push<'a>(
         document: &'a Document,
         field_id: u16,
-    ) -> impl FnMut(&mut Vec<Data<'a>>, &mut Vec<Work<'a>>, &tree_sitter::Node<'a>, &'static str, SymbolKind) {
-        move |data, work, node, empty_name, kind| {
-            let SymbolRange {
-                name,
-                range,
-                selection_range,
-            } = crate::util::node::symbol_range(&document.text.as_bytes(), empty_name, &node, field_id);
-            work.push(Work::Data);
-            data.push(Data {
-                children_count: 0,
-                kind,
-                name,
-                range,
-                selection_range,
-            });
-        }
+        data: &mut Vec<Data<'a>>,
+        work: &mut Vec<Work>,
+        node: &tree_sitter::Node,
+        empty_name: &'static str,
+        kind: SymbolKind,
+    ) {
+        let SymbolRange {
+            name,
+            range,
+            selection_range,
+        } = crate::util::node::symbol_range(&document.text.as_bytes(), empty_name, &node, field_id);
+        work.push(Work::Data);
+        data.push(Data {
+            children_count: 0,
+            kind,
+            name,
+            range,
+            selection_range,
+        });
     }
 }
 
