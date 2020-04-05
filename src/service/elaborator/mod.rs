@@ -46,6 +46,35 @@ use crate::core::{language::Language, session::Session};
 use lsp_types::*;
 use std::sync::Arc;
 
+/// Functionality used for computing "textDocument/documentSymbols".
+mod document_symbol {
+    use lsp_types::{Range, SymbolKind};
+
+    /// Encodes data for constructing upcoming DocumentSymbols.
+    #[derive(Clone, Debug)]
+    pub(crate) struct Data<'a> {
+        /// Number of children to be processed for given symbol.
+        pub(crate) children_count: usize,
+        /// The kind of document entity the symbol represents.
+        pub(crate) kind: SymbolKind,
+        /// The name (identifier) for the symbol.
+        pub(crate) name: &'a str,
+        /// The (node-enclosing) range for the symbol.
+        pub(crate) range: Range,
+        /// The (identifier-enclosing) range for the symbol.
+        pub(crate) selection_range: Range,
+    }
+
+    /// Encodes actions for loop iterations when processing tree-sitter nodes.
+    #[derive(Debug)]
+    pub(crate) enum Work<'a> {
+        /// Construct a DocumentSymbol and pop the data stack.
+        Data,
+        /// Add a tree-sitter node to remaining nodes to process.
+        Node(tree_sitter::Node<'a>),
+    }
+}
+
 // FIXME: reorganize this to where outline is pulled from database
 /// Compute the symbols for a given document.
 pub(crate) async fn document_symbol(

@@ -20,21 +20,10 @@ pub(crate) async fn document_symbol(
 
     // Attempt to obtain the document.
     if let Some(document) = session.documents.get(&uri) {
-        // Define local data structures for the stack machine.
-        #[derive(Clone, Debug)]
-        struct Data<'a> {
-            children_count: usize,
-            kind: SymbolKind,
-            name: &'a str,
-            range: Range,
-            selection_range: Range,
-        }
-        #[derive(Debug)]
-        enum Work<'a> {
-            Data,
-            Node(tree_sitter::Node<'a>),
-        }
-        use crate::util::node::NameAndRanges;
+        use crate::{
+            service::elaborator::document_symbol::{Data, Work},
+            util::node::NameAndRanges,
+        };
 
         let mut syms: Vec<DocumentSymbol> = vec![];
 
