@@ -1,5 +1,10 @@
 //! Elaborator definitions specific to ".wast" files.
 
+use crate::{
+    core::language::wast,
+    service::elaborator::document_symbol::{self, Data, Work},
+    util::node::{symbol_range, SymbolRange},
+};
 use crate::core::session::Session;
 use lsp_types::*;
 use std::sync::Arc;
@@ -9,8 +14,6 @@ pub(crate) async fn document_symbol(
     session: Arc<Session>,
     params: DocumentSymbolParams,
 ) -> jsonrpc_core::Result<Option<DocumentSymbolResponse>> {
-    #![allow(non_snake_case)]
-
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
     } = params;
@@ -20,12 +23,22 @@ pub(crate) async fn document_symbol(
 
     // Attempt to obtain the document.
     if let Some(document) = session.documents.get(&uri) {
-        use crate::{
-            service::elaborator::document_symbol::{self, Data, Work},
-            util::node::SymbolRange,
-        };
-
+        // Vector to collect document symbols into as they are constructed.
         let mut syms: Vec<DocumentSymbol> = vec![];
+
+        // Prepare a filter to discard uninteresting module-child nodes.
+        let modulefield_filter = |node: &tree_sitter::Node| {
+            [
+                *wast::kind::DATA,
+                *wast::kind::ELEM,
+                *wast::kind::FUNC,
+                *wast::kind::GLOBAL,
+                *wast::kind::MEMORY,
+                *wast::kind::TABLE,
+                *wast::kind::TYPE,
+            ]
+            .contains(&node.kind_id())
+        };
 
         // Prepare the syntax tree.
         let tree = document.tree.lock().await.clone();
@@ -38,39 +51,22 @@ pub(crate) async fn document_symbol(
         let mut data = vec![];
         let mut work = vec![Work::Node(node)];
 
-        // Pre-compute ids for names to avoid repeated string matching.
-        let language = tree.language();
+        // Convenience macro for processing document symbol nodes.
+        macro_rules! push {
+            ($empty_name:expr, $kind:expr) => {
+                document_symbol::push(
+                    &document,
+                    *wast::field::ID,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    $empty_name,
+                    $kind,
+                )
+            };
+        }
 
-        let kind_COMMAND = language.id_for_node_kind("command", true);
-        let kind_DATA = language.id_for_node_kind("data", true);
-        let kind_ELEM = language.id_for_node_kind("elem", true);
-        let kind_ENTRYPOINT = language.id_for_node_kind("ENTRYPOINT", true);
-        let kind_FUNC = language.id_for_node_kind("func", true);
-        let kind_GLOBAL = language.id_for_node_kind("global", true);
-        let kind_MEMORY = language.id_for_node_kind("mem", true);
-        let kind_MODULE = language.id_for_node_kind("module", true);
-        let kind_TABLE = language.id_for_node_kind("table", true);
-        let kind_TYPE = language.id_for_node_kind("type", true);
-
-        let field_COMMAND = language.field_id_for_name("command").unwrap();
-        let field_FIELD = language.field_id_for_name("field").unwrap();
-        let field_ID = language.field_id_for_name("id").unwrap();
-
-        let modulefield_filter = |node: &tree_sitter::Node| {
-            [
-                kind_DATA,
-                kind_ELEM,
-                kind_FUNC,
-                kind_GLOBAL,
-                kind_MEMORY,
-                kind_TABLE,
-                kind_TYPE,
-            ]
-            .contains(&node.kind_id())
-        };
-
-        let mut push = document_symbol::push(&document, field_ID);
-
+        // The stack machine work loop.
         while let Some(next) = work.pop() {
             match next {
                 // Construct a DocumentSymbol and pop data stack
@@ -105,28 +101,30 @@ pub(crate) async fn document_symbol(
                     }
                 },
 
-                Work::Node(node) if node.kind_id() == kind_ENTRYPOINT => {
+                Work::Node(node) if node.kind_id() == *wast::kind::ENTRYPOINT => {
                     let mut cursor = node.walk();
-                    let commands = node.children_by_field_id(field_COMMAND, &mut cursor).map(Work::Node);
+                    let commands = node
+                        .children_by_field_id(*wast::field::COMMAND, &mut cursor)
+                        .map(Work::Node);
                     work.extend(commands);
                 },
 
-                Work::Node(node) if node.kind_id() == kind_COMMAND => {
+                Work::Node(node) if node.kind_id() == *wast::kind::COMMAND => {
                     let command = node.named_child(0).expect("'command' should have a single named child");
                     work.push(Work::Node(command));
                 },
 
-                Work::Node(node) if node.kind_id() == kind_MODULE => {
+                Work::Node(node) if node.kind_id() == *wast::kind::MODULE => {
                     let SymbolRange {
                         name,
                         range,
                         selection_range,
-                    } = crate::util::node::symbol_range(&document.text.as_bytes(), "<module>",
-                    &node, field_ID); work.push(Work::Data);
+                    } = symbol_range(&document.text.as_bytes(), "<module>", &node, *wast::field::ID);
+                    work.push(Work::Data);
 
                     let mut children_count = 0;
                     for modulefield in node
-                        .children_by_field_id(field_FIELD, &mut node.walk())
+                        .children_by_field_id(*wast::field::FIELD, &mut node.walk())
                         .filter(modulefield_filter)
                     {
                         work.push(Work::Node(modulefield));
@@ -142,32 +140,32 @@ pub(crate) async fn document_symbol(
                     });
                 },
 
-                Work::Node(node) if node.kind_id() == kind_DATA => {
-                    push(&mut data, &mut work, &node, "<data>", SymbolKind::Key);
+                Work::Node(node) if node.kind_id() == *wast::kind::DATA => {
+                    push!("<data>", SymbolKind::Key);
                 },
 
-                Work::Node(node) if node.kind_id() == kind_ELEM => {
-                    push(&mut data, &mut work, &node, "<elem>", SymbolKind::Field);
+                Work::Node(node) if node.kind_id() == *wast::kind::ELEM => {
+                    push!("<elem>", SymbolKind::Field);
                 },
 
-                Work::Node(node) if node.kind_id() == kind_FUNC => {
-                    push(&mut data, &mut work, &node, "<func>", SymbolKind::Function);
+                Work::Node(node) if node.kind_id() == *wast::kind::FUNC => {
+                    push!("<func>", SymbolKind::Function);
                 },
 
-                Work::Node(node) if node.kind_id() == kind_GLOBAL => {
-                    push(&mut data, &mut work, &node, "<global>", SymbolKind::Event);
+                Work::Node(node) if node.kind_id() == *wast::kind::GLOBAL => {
+                    push!("<global>", SymbolKind::Event);
                 },
 
-                Work::Node(node) if node.kind_id() == kind_MEMORY => {
-                    push(&mut data, &mut work, &node, "<memory>", SymbolKind::Array);
+                Work::Node(node) if node.kind_id() == *wast::kind::MEMORY => {
+                    push!("<memory>", SymbolKind::Array);
                 },
 
-                Work::Node(node) if node.kind_id() == kind_TABLE => {
-                    push(&mut data, &mut work, &node, "<table>", SymbolKind::Interface);
+                Work::Node(node) if node.kind_id() == *wast::kind::TABLE => {
+                    push!("<table>", SymbolKind::Interface);
                 },
 
-                Work::Node(node) if node.kind_id() == kind_TYPE => {
-                    push(&mut data, &mut work, &node, "<type>", SymbolKind::TypeParameter);
+                Work::Node(node) if node.kind_id() == *wast::kind::TYPE => {
+                    push!("<type>", SymbolKind::TypeParameter);
                 },
 
                 _ => {},
