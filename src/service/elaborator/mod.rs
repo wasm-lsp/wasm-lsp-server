@@ -1,5 +1,7 @@
 //! Elaborates parse trees into structured data to be cached in the database.
 
+use crate::core::error::Fallible;
+
 /// Elaborator definitions specific to ".wast" files.
 mod wast;
 /// Elaborator definitions specific to ".wat" files.
@@ -18,7 +20,7 @@ pub(crate) mod tree {
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, _: &Client, uri: Url) -> Fallible<()> {
-        if let Some(document) = session.get_document(&uri).await {
+        if let Some(document) = session.get_document(&uri).await? {
             let tree = document.tree.lock().await.clone();
             let node = tree.root_node();
             if !node.has_error() {
@@ -109,20 +111,21 @@ mod document_symbol {
 pub(crate) async fn document_symbol(
     session: Arc<Session>,
     params: DocumentSymbolParams,
-) -> Option<DocumentSymbolResponse> {
+) -> Fallible<Option<DocumentSymbolResponse>> {
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
     } = &params;
-    if let Some(document) = session.get_document(uri).await {
-        match document.language {
-            Language::Wast => self::wast::document_symbol(session.clone(), params).await,
-            Language::Wat => self::wat::document_symbol(session.clone(), params).await,
-            Language::Wit => self::wit::document_symbol(session.clone(), params).await,
-            Language::Witx => self::witx::document_symbol(session.clone(), params).await,
-        }
+    if let Some(document) = session.get_document(uri).await? {
+        let result = match document.language {
+            Language::Wast => self::wast::document_symbol(&document).await,
+            Language::Wat => self::wat::document_symbol(&document).await,
+            Language::Wit => self::wit::document_symbol(&document).await,
+            Language::Witx => self::witx::document_symbol(&document).await,
+        };
+        Ok(result)
     } else {
         // TODO: report
         log::warn!("documents.get failed for {}", uri);
-        None
+        Ok(None)
     }
 }

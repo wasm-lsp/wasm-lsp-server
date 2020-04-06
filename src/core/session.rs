@@ -53,7 +53,7 @@ impl Session {
     /// Get a document from the session. If the document is not yet open, this function will await
     /// until that happens. This usually occurs by a call to Self::insert_document from another
     /// thread of control.
-    pub(crate) async fn get_document(&'_ self, uri: &Url) -> Option<Ref<'_, Url, Document>> {
+    pub(crate) async fn get_document(&'_ self, uri: &Url) -> Fallible<Option<Ref<'_, Url, Document>>> {
         let mut result = self.documents.get(uri);
         if result.is_none() {
             let subscriber = self.database.trees.documents.watch_prefix(vec![]);
@@ -73,13 +73,13 @@ impl Session {
                 }
             }
         }
-        result
+        Ok(result)
     }
 
     /// Get a mutable document from the session. If the document is not yet open, this function will
     /// await until that happens. This usually occurs by a call to Self::insert_document from
     /// another thread of control.
-    pub(crate) async fn get_mut_document(&'_ self, uri: &Url) -> Option<RefMut<'_, Url, Document>> {
+    pub(crate) async fn get_mut_document(&'_ self, uri: &Url) -> Fallible<Option<RefMut<'_, Url, Document>>> {
         let mut result = self.documents.get_mut(uri);
         if result.is_none() {
             let subscriber = self.database.trees.documents.watch_prefix(vec![]);
@@ -99,6 +99,6 @@ impl Session {
                 }
             }
         }
-        result
+        Ok(result)
     }
 }
