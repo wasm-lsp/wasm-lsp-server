@@ -2,8 +2,7 @@
 
 /// Functions related to processing events for a document.
 pub(crate) mod document {
-    use crate::core::session::Session;
-    use failure::Fallible;
+    use crate::core::{error::Fallible, session::Session};
     use lsp_types::*;
     use std::sync::Arc;
     use tower_lsp::Client;
@@ -80,8 +79,7 @@ pub(crate) mod document {
 
 /// Functions related to processing parse tree events for a document.
 mod tree {
-    use crate::core::{document::Document, session::Session};
-    use failure::Fallible;
+    use crate::core::{document::Document, error::Fallible, session::Session};
     use lsp_types::*;
     use std::{convert::TryFrom, sync::Arc};
     use tokio::sync::Mutex;

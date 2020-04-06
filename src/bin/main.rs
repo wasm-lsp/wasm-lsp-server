@@ -4,11 +4,10 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
-use failure::Fallible;
 use tower_lsp::{LspService, Server};
 
 #[tokio::main]
-async fn main() -> Fallible<()> {
+async fn main() -> anyhow::Result<()> {
     env_logger::try_init()?;
 
     wasm_language_server::cli::cli();

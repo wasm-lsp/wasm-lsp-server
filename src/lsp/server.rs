@@ -1,7 +1,6 @@
 //! Definitions for the server instance.
 
-use crate::core::session::Session;
-use failure::Fallible;
+use crate::core::{error::Fallible, session::Session};
 use std::sync::Arc;
 
 /// The WASM language server instance.

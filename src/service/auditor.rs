@@ -2,8 +2,10 @@
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
-    use crate::core::{error::Error, session::Session};
-    use failure::Fallible;
+    use crate::core::{
+        error::{Error, Fallible},
+        session::Session,
+    };
     use lsp_types::*;
     use std::sync::Arc;
     use tower_lsp::Client;
