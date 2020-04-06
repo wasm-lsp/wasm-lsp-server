@@ -16,7 +16,7 @@ use zerocopy::AsBytes;
 
 /// Represents the current state of the LSP service.
 pub(crate) struct Session {
-    #[allow(dead_code)]
+    /// The document metadata database.
     database: Database,
     /// The store of currently open documents.
     pub(crate) documents: Arc<DashMap<Url, Document>>,
