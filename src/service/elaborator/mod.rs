@@ -11,8 +11,7 @@ mod witx;
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
-    use crate::core::session::Session;
-    use failure::Fallible;
+    use crate::core::{error::Fallible, session::Session};
     use lsp_types::*;
     use std::sync::Arc;
     use tower_lsp::Client;

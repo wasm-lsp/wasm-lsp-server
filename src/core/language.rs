@@ -1,6 +1,6 @@
 //! Core functionality related to document languages.
 
-use failure::{Error, Fallible};
+use crate::core::error::Fallible;
 use std::convert::TryFrom;
 
 /// Languages supported by the server.
@@ -13,7 +13,7 @@ pub(crate) enum Language {
 }
 
 impl TryFrom<String> for Language {
-    type Error = Error;
+    type Error = anyhow::Error;
 
     fn try_from(language_id: String) -> Fallible<Self> {
         match language_id.as_ref() {

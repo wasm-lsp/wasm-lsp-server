@@ -1,8 +1,7 @@
 //! Core functionality related to the LSP server session.
 
-use crate::core::{database::Database, document::Document};
+use crate::core::{database::Database, document::Document, error::Fallible};
 use dashmap::DashMap;
-use failure::Fallible;
 use lsp_types::*;
 use std::sync::Arc;
 

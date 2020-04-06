@@ -3,10 +3,9 @@
 // FIXME: move these to a subcrate
 
 use crate::core::{
-    error::Error,
+    error::{Error, Fallible},
     language::{self, Language},
 };
-use failure::Fallible;
 use tree_sitter;
 
 /// Create a wast parser from the tree-sitter grammar.

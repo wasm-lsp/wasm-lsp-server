@@ -1,6 +1,6 @@
 //! Core functionality related to the document metadata database.
 
-use failure::Fallible;
+use crate::core::error::Fallible;
 use log;
 use sled;
 use std::{env, path::Path};

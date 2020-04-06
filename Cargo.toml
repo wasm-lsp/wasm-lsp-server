@@ -28,16 +28,17 @@ built = { version = "0.4.0", features = ["git2"] }
 cc = "1.0.50"
 
 [dependencies]
+anyhow = "1.0.28"
 clap = "2.33.0"
 dashmap = "3.7.0"
 env_logger = "0.7.1"
-failure = "0.1.7"
 futures = "0.3.4"
 jsonrpc-core = "14.0.5"
 lazy_static = "1.4.0"
 log = "0.4.8"
 lsp-types = "0.73.0"
 sled = "0.31.0"
+thiserror = "1.0.14"
 tokio = { version = "0.2.13", features = ["io-std", "macros", "sync"] }
 tower-lsp = "0.10.0"
 tree-sitter = "0.6.3"
