@@ -21,7 +21,7 @@ pub(crate) async fn document_symbol(
     let mut response = None;
 
     // Attempt to obtain the document.
-    if let Some(document) = session.documents.get(&uri) {
+    if let Some(document) = session.get_document(&uri).await {
         // Vector to collect document symbols into as they are constructed.
         let mut syms: Vec<DocumentSymbol> = vec![];
 

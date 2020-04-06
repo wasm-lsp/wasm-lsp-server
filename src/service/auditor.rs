@@ -13,7 +13,7 @@ pub(crate) mod tree {
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, client: &Client, uri: Url) -> Fallible<()> {
-        if let Some(document) = session.documents.get(&uri) {
+        if let Some(document) = session.get_document(&uri).await {
             let tree = document.tree.lock().await.clone();
             let node = tree.root_node();
             let mut diagnostics = vec![];
