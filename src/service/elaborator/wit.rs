@@ -1,14 +1,10 @@
 //! Elaborator definitions specific to ".wit" files.
 
-use crate::core::session::Session;
+use crate::core::document::Document;
 use lsp_types::*;
-use std::sync::Arc;
 
 /// Compute the symbols for a given document.
-pub(crate) async fn document_symbol(
-    _session: Arc<Session>,
-    _params: DocumentSymbolParams,
-) -> Option<DocumentSymbolResponse> {
+pub(crate) async fn document_symbol(_document: &Document) -> Option<DocumentSymbolResponse> {
     #![allow(non_snake_case)]
     log::info!("unimplemented");
     None

@@ -20,3 +20,14 @@ pub(crate) enum Error {
     #[error("tree_sitter::QueryError")]
     TreeSitterQueryError(tree_sitter::QueryError),
 }
+
+/// Convenience newtype wrapper for convertion to jsonrpc_core::Error.
+pub(crate) struct IntoJsonRpcError(pub(crate) anyhow::Error);
+
+impl From<IntoJsonRpcError> for jsonrpc_core::Error {
+    fn from(error: IntoJsonRpcError) -> Self {
+        let mut rpc_error = jsonrpc_core::error::Error::internal_error();
+        rpc_error.message = format!("{}", error.0);
+        rpc_error
+    }
+}

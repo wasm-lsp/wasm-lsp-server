@@ -19,7 +19,7 @@ pub(crate) mod document {
         } = params;
         let TextDocumentContentChangeEvent { text, .. } = content_changes[0].clone();
 
-        let tree_was_generated = super::tree::change(session.clone(), uri.clone(), text).await;
+        let tree_was_generated = super::tree::change(session.clone(), uri.clone(), text).await?;
 
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
@@ -86,9 +86,9 @@ mod tree {
 
     // TODO: implement parser cancellation
     /// Handle a parse tree "change" event.
-    pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> bool {
+    pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> Fallible<bool> {
         let mut success = false;
-        if let Some(mut document) = session.get_mut_document(&uri).await {
+        if let Some(mut document) = session.get_mut_document(&uri).await? {
             let tree;
             {
                 let mut parser = document.parser.lock().await;
@@ -104,7 +104,7 @@ mod tree {
                 success = true;
             }
         }
-        success
+        Ok(success)
     }
 
     // TODO: implement parser cancellation
