@@ -53,6 +53,6 @@ impl LanguageServer for Server {
     }
 
     async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
-        crate::service::elaborator::document_symbol(self.session.clone(), params).await
+        Ok(crate::service::elaborator::document_symbol(self.session.clone(), params).await)
     }
 }
