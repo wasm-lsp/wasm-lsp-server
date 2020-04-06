@@ -11,7 +11,6 @@ use dashmap::{
 };
 use futures::stream::{self, StreamExt};
 use lsp_types::*;
-use std::sync::Arc;
 use zerocopy::AsBytes;
 
 /// Represents the current state of the LSP service.
@@ -19,14 +18,14 @@ pub(crate) struct Session {
     /// The document metadata database.
     database: Database,
     /// The store of currently open documents.
-    documents: Arc<DashMap<Url, Document>>,
+    documents: DashMap<Url, Document>,
 }
 
 impl Session {
     /// Create a new session.
     pub(crate) fn new() -> Fallible<Self> {
         let database = Database::new()?;
-        let documents = Arc::new(DashMap::new());
+        let documents = DashMap::new();
         Ok(Session { database, documents })
     }
 
