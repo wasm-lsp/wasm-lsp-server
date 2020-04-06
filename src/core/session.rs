@@ -19,7 +19,7 @@ pub(crate) struct Session {
     /// The document metadata database.
     database: Database,
     /// The store of currently open documents.
-    pub(crate) documents: Arc<DashMap<Url, Document>>,
+    documents: Arc<DashMap<Url, Document>>,
 }
 
 impl Session {
