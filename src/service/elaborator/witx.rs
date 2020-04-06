@@ -8,8 +8,8 @@ use std::sync::Arc;
 pub(crate) async fn document_symbol(
     _session: Arc<Session>,
     _params: DocumentSymbolParams,
-) -> jsonrpc_core::Result<Option<DocumentSymbolResponse>> {
+) -> Option<DocumentSymbolResponse> {
     #![allow(non_snake_case)]
     log::info!("unimplemented");
-    Ok(None)
+    None
 }

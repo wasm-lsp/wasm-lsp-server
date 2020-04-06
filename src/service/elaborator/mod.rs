@@ -109,7 +109,7 @@ mod document_symbol {
 pub(crate) async fn document_symbol(
     session: Arc<Session>,
     params: DocumentSymbolParams,
-) -> jsonrpc_core::Result<Option<DocumentSymbolResponse>> {
+) -> Option<DocumentSymbolResponse> {
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
     } = &params;
@@ -123,6 +123,6 @@ pub(crate) async fn document_symbol(
     } else {
         // TODO: report
         log::warn!("documents.get failed for {}", uri);
-        Ok(None)
+        None
     }
 }
