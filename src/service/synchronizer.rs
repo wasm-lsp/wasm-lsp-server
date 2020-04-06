@@ -44,7 +44,7 @@ pub(crate) mod document {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
-        session.documents.remove(uri);
+        session.remove_document(uri)?;
         crate::service::auditor::tree::close(session.clone(), client, uri.clone()).await?;
         crate::service::elaborator::tree::close(session.clone(), client, uri.clone()).await?;
         Ok(())
@@ -88,7 +88,7 @@ mod tree {
     /// Handle a parse tree "change" event.
     pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> bool {
         let mut success = false;
-        if let Some(mut document) = session.documents.get_mut(&uri) {
+        if let Some(mut document) = session.get_mut_document(&uri).await {
             let tree;
             {
                 let mut parser = document.parser.lock().await;
@@ -124,12 +124,12 @@ mod tree {
 
         let mut success = false;
         if let Some(tree) = parser.parse(&text[..], old_tree) {
-            session.documents.insert(uri, Document {
+            session.insert_document(uri, Document {
                 language,
                 parser: Mutex::new(parser),
                 text: text.clone(),
                 tree: Mutex::new(tree),
-            });
+            })?;
             success = true;
         }
         Ok(success)

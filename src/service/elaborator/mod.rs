@@ -18,7 +18,7 @@ pub(crate) mod tree {
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, _: &Client, uri: Url) -> Fallible<()> {
-        if let Some(document) = session.documents.get(&uri) {
+        if let Some(document) = session.get_document(&uri).await {
             let tree = document.tree.lock().await.clone();
             let node = tree.root_node();
             if !node.has_error() {
@@ -113,7 +113,7 @@ pub(crate) async fn document_symbol(
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
     } = &params;
-    if let Some(document) = session.documents.get(uri) {
+    if let Some(document) = session.get_document(uri).await {
         match document.language {
             Language::Wast => self::wast::document_symbol(session.clone(), params).await,
             Language::Wat => self::wat::document_symbol(session.clone(), params).await,
