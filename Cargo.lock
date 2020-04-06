@@ -912,6 +912,7 @@ dependencies = [
  "futures-core",
  "num_cpus",
  "pin-project-lite",
+ "slab",
  "tokio-macros",
 ]
 
