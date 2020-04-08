@@ -9,12 +9,12 @@ pub(crate) fn capabilities() -> ServerCapabilities {
     let text_document_sync = Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
         open_close: Some(true),
         change: Some(TextDocumentSyncKind::Full),
-        ..TextDocumentSyncOptions::default()
+        ..Default::default()
     }));
 
     ServerCapabilities {
         document_symbol_provider,
         text_document_sync,
-        ..ServerCapabilities::default()
+        ..Default::default()
     }
 }
