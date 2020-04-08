@@ -39,13 +39,13 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
 
     // Convenience macro for processing document symbol nodes.
     macro_rules! push {
-        ($empty_name:expr, $kind:expr) => {
+        ($node:expr, $empty_name:expr, $kind:expr) => {
             document_symbol::push(
                 &document,
                 *wast::field::ID,
                 &mut data,
                 &mut work,
-                &node,
+                $node,
                 $empty_name,
                 $kind,
             )
@@ -127,31 +127,31 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::DATA => {
-                push!("<data>", SymbolKind::Key);
+                push!(&node, "<data>", SymbolKind::Key);
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::ELEM => {
-                push!("<elem>", SymbolKind::Field);
+                push!(&node, "<elem>", SymbolKind::Field);
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::FUNC => {
-                push!("<func>", SymbolKind::Function);
+                push!(&node, "<func>", SymbolKind::Function);
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::GLOBAL => {
-                push!("<global>", SymbolKind::Event);
+                push!(&node, "<global>", SymbolKind::Event);
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::MEMORY => {
-                push!("<memory>", SymbolKind::Array);
+                push!(&node, "<memory>", SymbolKind::Array);
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::TABLE => {
-                push!("<table>", SymbolKind::Interface);
+                push!(&node, "<table>", SymbolKind::Interface);
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::TYPE => {
-                push!("<type>", SymbolKind::TypeParameter);
+                push!(&node, "<type>", SymbolKind::TypeParameter);
             },
 
             _ => {},
