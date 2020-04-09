@@ -54,6 +54,7 @@ pub(crate) mod wast {
             pub(crate) static ref GLOBAL: u16 = super::language().id_for_node_kind("global", true);
             pub(crate) static ref MEMORY: u16 = super::language().id_for_node_kind("mem", true);
             pub(crate) static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
+            pub(crate) static ref MODULE_INLINE: u16 = super::language().id_for_node_kind("module_inline", true);
             pub(crate) static ref TABLE: u16 = super::language().id_for_node_kind("table", true);
             pub(crate) static ref TYPE: u16 = super::language().id_for_node_kind("type", true);
         }
@@ -86,6 +87,7 @@ pub(crate) mod wat {
             pub(crate) static ref GLOBAL: u16 = super::language().id_for_node_kind("global", true);
             pub(crate) static ref MEMORY: u16 = super::language().id_for_node_kind("mem", true);
             pub(crate) static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
+            pub(crate) static ref MODULE_INLINE: u16 = super::language().id_for_node_kind("module_inline", true);
             pub(crate) static ref TABLE: u16 = super::language().id_for_node_kind("table", true);
             pub(crate) static ref TYPE: u16 = super::language().id_for_node_kind("type", true);
         }
