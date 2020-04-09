@@ -126,6 +126,15 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 });
             },
 
+            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_INLINE => {
+                for modulefield in node
+                    .children_by_field_id(*wast::field::FIELD, &mut node.walk())
+                    .filter(modulefield_filter)
+                {
+                    work.push(Work::Node(modulefield));
+                }
+            },
+
             Work::Node(node) if node.kind_id() == *wast::kind::DATA => {
                 push!(&node, "<data>", SymbolKind::Key);
             },
