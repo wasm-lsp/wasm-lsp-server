@@ -88,10 +88,10 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::ENTRYPOINT => {
-                let command = node
+                let module = node
                     .named_child(0)
                     .expect("'ENTRYPOINT' should have a single named child");
-                work.push(Work::Node(command));
+                work.push(Work::Node(module));
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE => {
