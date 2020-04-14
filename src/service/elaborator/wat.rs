@@ -15,13 +15,13 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
     // Prepare a filter to discard uninteresting module-child nodes.
     let modulefield_filter = |node: &tree_sitter::Node| {
         [
-            *wat::kind::DATA,
-            *wat::kind::ELEM,
-            *wat::kind::FUNC,
-            *wat::kind::GLOBAL,
-            *wat::kind::MEMORY,
-            *wat::kind::TABLE,
-            *wat::kind::TYPE,
+            *wat::kind::MODULE_FIELD_DATA,
+            *wat::kind::MODULE_FIELD_ELEM,
+            *wat::kind::MODULE_FIELD_FUNC,
+            *wat::kind::MODULE_FIELD_GLOBAL,
+            *wat::kind::MODULE_FIELD_MEMORY,
+            *wat::kind::MODULE_FIELD_TABLE,
+            *wat::kind::MODULE_FIELD_TYPE,
         ]
         .contains(&node.kind_id())
     };
@@ -42,7 +42,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
         ($node:expr, $empty_name:expr, $kind:expr) => {
             document_symbol::push(
                 &document,
-                *wat::field::ID,
+                *wat::field::IDENTIFIER,
                 &mut data,
                 &mut work,
                 $node,
@@ -87,10 +87,10 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 }
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::ENTRYPOINT => {
+            Work::Node(node) if node.kind_id() == *wat::kind::PARSE => {
                 let module = node
                     .named_child(0)
-                    .expect("'ENTRYPOINT' should have a single named child");
+                    .expect("'PARSE' should have a single named child");
                 work.push(Work::Node(module));
             },
 
@@ -99,12 +99,12 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     name,
                     range,
                     selection_range,
-                } = symbol_range(&document.text.as_bytes(), "<module>", &node, *wat::field::ID);
+                } = symbol_range(&document.text.as_bytes(), "<module>", &node, *wat::field::IDENTIFIER);
                 work.push(Work::Data);
 
                 let mut children_count = 0;
                 for modulefield in node
-                    .children_by_field_id(*wat::field::FIELD, &mut node.walk())
+                    .children_by_field_id(*wat::field::MODULE_FIELD, &mut node.walk())
                     .filter(modulefield_filter)
                 {
                     work.push(Work::Node(modulefield));
@@ -120,40 +120,40 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 });
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_INLINE => {
+            Work::Node(node) if node.kind_id() == *wat::kind::INLINE_MODULE => {
                 for modulefield in node
-                    .children_by_field_id(*wat::field::FIELD, &mut node.walk())
+                    .children_by_field_id(*wat::field::MODULE_FIELD, &mut node.walk())
                     .filter(modulefield_filter)
                 {
                     work.push(Work::Node(modulefield));
                 }
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::DATA => {
+            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_DATA => {
                 push!(&node, "<data>", SymbolKind::Key);
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::ELEM => {
+            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_ELEM => {
                 push!(&node, "<elem>", SymbolKind::Field);
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::FUNC => {
+            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_FUNC => {
                 push!(&node, "<func>", SymbolKind::Function);
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::GLOBAL => {
+            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_GLOBAL => {
                 push!(&node, "<global>", SymbolKind::Event);
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::MEMORY => {
+            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_MEMORY => {
                 push!(&node, "<memory>", SymbolKind::Array);
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::TABLE => {
+            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TABLE => {
                 push!(&node, "<table>", SymbolKind::Interface);
             },
 
-            Work::Node(node) if node.kind_id() == *wat::kind::TYPE => {
+            Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TYPE => {
                 push!(&node, "<type>", SymbolKind::TypeParameter);
             },
 
