@@ -47,3 +47,5 @@ The server is still in an early state. It is usable but many advanced features h
 - [ ] references provider
 - [ ] workspace symbol provider
 - [ ] semantic tokens provider
+- [ ] integration with existing wasm toolchains
+- [ ] implementation of the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
