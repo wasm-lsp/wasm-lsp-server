@@ -88,9 +88,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::PARSE => {
-                let module = node
-                    .named_child(0)
-                    .expect("'PARSE' should have a single named child");
+                let module = node.named_child(0).expect("'PARSE' should have a single named child");
                 work.push(Work::Node(module));
             },
 

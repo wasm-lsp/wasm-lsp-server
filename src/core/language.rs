@@ -48,13 +48,20 @@ pub(crate) mod wast {
         lazy_static! {
             pub(crate) static ref COMMAND: u16 = super::language().id_for_node_kind("command", true);
             pub(crate) static ref INLINE_MODULE: u16 = super::language().id_for_node_kind("inline_module", true);
-            pub(crate) static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
-            pub(crate) static ref MODULE_FIELD_ELEM: u16 = super::language().id_for_node_kind("module_field_elem", true);
-            pub(crate) static ref MODULE_FIELD_FUNC: u16 = super::language().id_for_node_kind("module_field_func", true);
-            pub(crate) static ref MODULE_FIELD_GLOBAL: u16 = super::language().id_for_node_kind("module_field_global", true);
-            pub(crate) static ref MODULE_FIELD_MEMORY: u16 = super::language().id_for_node_kind("module_field_memory", true);
-            pub(crate) static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
-            pub(crate) static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
+            pub(crate) static ref MODULE_FIELD_DATA: u16 =
+                super::language().id_for_node_kind("module_field_data", true);
+            pub(crate) static ref MODULE_FIELD_ELEM: u16 =
+                super::language().id_for_node_kind("module_field_elem", true);
+            pub(crate) static ref MODULE_FIELD_FUNC: u16 =
+                super::language().id_for_node_kind("module_field_func", true);
+            pub(crate) static ref MODULE_FIELD_GLOBAL: u16 =
+                super::language().id_for_node_kind("module_field_global", true);
+            pub(crate) static ref MODULE_FIELD_MEMORY: u16 =
+                super::language().id_for_node_kind("module_field_memory", true);
+            pub(crate) static ref MODULE_FIELD_TABLE: u16 =
+                super::language().id_for_node_kind("module_field_table", true);
+            pub(crate) static ref MODULE_FIELD_TYPE: u16 =
+                super::language().id_for_node_kind("module_field_type", true);
             pub(crate) static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub(crate) static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
         }
@@ -81,13 +88,20 @@ pub(crate) mod wat {
 
         lazy_static! {
             pub(crate) static ref INLINE_MODULE: u16 = super::language().id_for_node_kind("inline_module", true);
-            pub(crate) static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
-            pub(crate) static ref MODULE_FIELD_ELEM: u16 = super::language().id_for_node_kind("module_field_elem", true);
-            pub(crate) static ref MODULE_FIELD_FUNC: u16 = super::language().id_for_node_kind("module_field_func", true);
-            pub(crate) static ref MODULE_FIELD_GLOBAL: u16 = super::language().id_for_node_kind("module_field_global", true);
-            pub(crate) static ref MODULE_FIELD_MEMORY: u16 = super::language().id_for_node_kind("module_field_memory", true);
-            pub(crate) static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
-            pub(crate) static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
+            pub(crate) static ref MODULE_FIELD_DATA: u16 =
+                super::language().id_for_node_kind("module_field_data", true);
+            pub(crate) static ref MODULE_FIELD_ELEM: u16 =
+                super::language().id_for_node_kind("module_field_elem", true);
+            pub(crate) static ref MODULE_FIELD_FUNC: u16 =
+                super::language().id_for_node_kind("module_field_func", true);
+            pub(crate) static ref MODULE_FIELD_GLOBAL: u16 =
+                super::language().id_for_node_kind("module_field_global", true);
+            pub(crate) static ref MODULE_FIELD_MEMORY: u16 =
+                super::language().id_for_node_kind("module_field_memory", true);
+            pub(crate) static ref MODULE_FIELD_TABLE: u16 =
+                super::language().id_for_node_kind("module_field_table", true);
+            pub(crate) static ref MODULE_FIELD_TYPE: u16 =
+                super::language().id_for_node_kind("module_field_type", true);
             pub(crate) static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub(crate) static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
         }
