@@ -24,9 +24,9 @@ pub(crate) enum Error {
 /// Convenience newtype wrapper for convertion to jsonrpc_core::Error.
 pub(crate) struct IntoJsonRpcError(pub(crate) anyhow::Error);
 
-impl From<IntoJsonRpcError> for jsonrpc_core::Error {
+impl From<IntoJsonRpcError> for tower_lsp::jsonrpc::Error {
     fn from(error: IntoJsonRpcError) -> Self {
-        let mut rpc_error = jsonrpc_core::error::Error::internal_error();
+        let mut rpc_error = tower_lsp::jsonrpc::Error::internal_error();
         rpc_error.message = format!("{}", error.0);
         rpc_error
     }
