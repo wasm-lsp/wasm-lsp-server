@@ -1077,7 +1077,6 @@ dependencies = [
  "dashmap",
  "env_logger",
  "futures 0.3.4",
- "jsonrpc-core",
  "lazy_static",
  "log",
  "sled",
