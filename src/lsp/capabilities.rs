@@ -1,6 +1,6 @@
 //! Definitions for the server feature capabilities.
 
-use lsp_types::*;
+use tower_lsp::lsp_types::*;
 
 /// Compute the server capabilities.
 pub(crate) fn capabilities() -> ServerCapabilities {

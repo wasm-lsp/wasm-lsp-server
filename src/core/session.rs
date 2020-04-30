@@ -10,9 +10,9 @@ use dashmap::{
     DashMap,
 };
 use futures::stream::{self, StreamExt};
-use lsp_types::*;
 use std::time::Duration;
 use tokio::time::timeout;
+use tower_lsp::lsp_types::*;
 use zerocopy::AsBytes;
 
 /// Represents the current state of the LSP service.
