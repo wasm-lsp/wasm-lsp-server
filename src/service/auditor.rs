@@ -6,9 +6,8 @@ pub(crate) mod tree {
         error::{Error, Fallible},
         session::Session,
     };
-    use lsp_types::*;
     use std::sync::Arc;
-    use tower_lsp::Client;
+    use tower_lsp::{lsp_types::*, Client};
     use tree_sitter;
 
     /// Handle a parse tree "change" event.

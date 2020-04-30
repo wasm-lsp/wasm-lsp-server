@@ -1,7 +1,7 @@
 //! Elaborator definitions specific to ".wit" files.
 
 use crate::core::document::Document;
-use lsp_types::*;
+use tower_lsp::lsp_types::*;
 
 /// Compute the symbols for a given document.
 pub(crate) async fn document_symbol(_document: &Document) -> Option<DocumentSymbolResponse> {
