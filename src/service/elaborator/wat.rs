@@ -5,7 +5,7 @@ use crate::{
     service::elaborator::document_symbol::{self, Data, Work},
     util::node::{symbol_range, SymbolRange},
 };
-use lsp_types::*;
+use tower_lsp::lsp_types::*;
 
 /// Compute the symbols for a given document.
 pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbolResponse> {

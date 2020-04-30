@@ -14,9 +14,8 @@ mod witx;
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
     use crate::core::{error::Fallible, session::Session};
-    use lsp_types::*;
     use std::sync::Arc;
-    use tower_lsp::Client;
+    use tower_lsp::{lsp_types::*, Client};
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, _: &Client, uri: Url) -> Fallible<()> {
@@ -44,8 +43,8 @@ pub(crate) mod tree {
 }
 
 use crate::core::{language::Language, session::Session};
-use lsp_types::*;
 use std::sync::Arc;
+use tower_lsp::lsp_types::*;
 
 /// Functionality used for computing "textDocument/documentSymbols".
 mod document_symbol {
@@ -53,7 +52,7 @@ mod document_symbol {
         core::document::Document,
         util::node::{symbol_range, SymbolRange},
     };
-    use lsp_types::{Range, SymbolKind};
+    use tower_lsp::lsp_types::{Range, SymbolKind};
 
     /// Encodes data for constructing upcoming DocumentSymbols.
     #[derive(Clone, Debug)]
@@ -114,6 +113,7 @@ pub(crate) async fn document_symbol(
 ) -> Fallible<Option<DocumentSymbolResponse>> {
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
+        ..
     } = &params;
     if let Some(document) = session.get_document(uri).await? {
         let result = match document.language {

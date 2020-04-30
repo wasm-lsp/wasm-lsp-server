@@ -3,12 +3,11 @@
 use crate::lsp::server::Server;
 use jsonrpc_core::Result;
 use log;
-use lsp_types::*;
-use tower_lsp::{Client, LanguageServer};
+use tower_lsp::{lsp_types::*, Client, LanguageServer};
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Server {
-    fn initialize(&self, _: &Client, params: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, _: &Client, params: InitializeParams) -> Result<InitializeResult> {
         log::info!("{:?}", params);
         let capabilities = crate::lsp::capabilities::capabilities();
         Ok(InitializeResult {
@@ -25,29 +24,20 @@ impl LanguageServer for Server {
         Ok(())
     }
 
-    // FIXME: remove on next tower-lsp release
-    #[allow(unsafe_code)]
     async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
-        let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::document::open(self.session.clone(), client, params)
+        crate::service::synchronizer::document::open(self.session.clone(), client.clone(), params)
             .await
             .unwrap()
     }
 
-    // FIXME: remove on next tower-lsp release
-    #[allow(unsafe_code)]
     async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
-        let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::document::change(self.session.clone(), client, params)
+        crate::service::synchronizer::document::change(self.session.clone(), client.clone(), params)
             .await
             .unwrap()
     }
 
-    // FIXME: remove on next tower-lsp release
-    #[allow(unsafe_code)]
     async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
-        let client: &'static Client = unsafe { std::mem::transmute(client) };
-        crate::service::synchronizer::document::close(self.session.clone(), client, params)
+        crate::service::synchronizer::document::close(self.session.clone(), client.clone(), params)
             .await
             .unwrap()
     }

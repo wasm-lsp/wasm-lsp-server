@@ -36,11 +36,10 @@ futures = "0.3.4"
 jsonrpc-core = "14.0.5"
 lazy_static = "1.4.0"
 log = "0.4.8"
-lsp-types = "0.73.0"
 sled = "0.31.0"
 thiserror = "1.0.14"
 tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "time"] }
-tower-lsp = "0.10.0"
+tower-lsp = "0.11.0"
 tree-sitter = "0.6.3"
 uuid = { version = "0.8.1", features = ["v4"] }
 zerocopy = "0.3.0"
