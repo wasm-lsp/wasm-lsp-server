@@ -17,6 +17,24 @@
 
 The server is still in an early state. It is usable but many advanced features have not yet been implemented.
 
+## Usage
+
+The server has not yet had a stable release. You can build and install it locally if you would like to experiment with it in the meantime.
+
+### Installing the Server
+
+First ensure you have the [rust toolchain](https://rustup.rs/) installed, then proceed as follows:
+
+```bash
+git clone --recursive https://github.com/wasm-lsp/wasm-language-server
+cd wasm-language-server
+cargo install --path .
+```
+
+### Installing the Client Extension
+
+Once the server is installed you can install the Visual Studio Code [client extension](https://github.com/wasm-lsp/vscode-wasm).
+
 ## Supported Document Types
 
 | supported | extension | kind |
