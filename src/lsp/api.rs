@@ -1,7 +1,6 @@
 //! Definitions for the request handlers.
 
 use crate::lsp::server::Server;
-use log;
 use tower_lsp::{jsonrpc::Result, lsp_types::*, Client, LanguageServer};
 
 #[tower_lsp::async_trait]
