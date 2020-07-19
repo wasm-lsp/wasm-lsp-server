@@ -86,8 +86,8 @@ mod test {
     }
 
     #[tokio::test]
-    async fn exit() {
-        let service = &mut test::service::spawn().unwrap();
+    async fn exit() -> anyhow::Result<()> {
+        let service = &mut test::service::spawn()?;
 
         assert_ready!(service, Ok(()));
         let request = &json!({ "jsonrpc": "2.0", "method": "initialized" });
@@ -103,5 +103,7 @@ mod test {
         let request = &json!({ "jsonrpc": "2.0", "method": "initialized" });
         let error = ExitedError;
         assert_exchange!(service, request, Err(error));
+
+        Ok(())
     }
 }
