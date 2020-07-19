@@ -1,8 +1,6 @@
 //! Core functionality related to the document metadata database.
 
 use crate::core::error::Fallible;
-use log;
-use sled;
 use std::{env, path::Path};
 use uuid::Uuid;
 use zerocopy::{AsBytes, FromBytes};

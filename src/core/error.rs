@@ -1,7 +1,6 @@
 //! Core functionality related to runtime errors.
 
 use thiserror::Error;
-use tree_sitter;
 
 /// Convenience type for computations that may fail with an error.
 pub(crate) type Fallible<T> = anyhow::Result<T>;
