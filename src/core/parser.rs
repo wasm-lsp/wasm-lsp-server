@@ -6,7 +6,6 @@ use crate::core::{
     error::{Error, Fallible},
     language::{self, Language},
 };
-use tree_sitter;
 
 /// Create a wast parser from the tree-sitter grammar.
 pub(crate) fn wast() -> Fallible<tree_sitter::Parser> {

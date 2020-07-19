@@ -8,7 +8,6 @@ pub(crate) mod tree {
     };
     use std::sync::Arc;
     use tower_lsp::{lsp_types::*, Client};
-    use tree_sitter;
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, client: &Client, uri: Url) -> Fallible<()> {
