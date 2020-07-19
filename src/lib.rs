@@ -37,3 +37,25 @@ extern {
     #[doc(hidden)]
     fn tree_sitter_witx() -> Language;
 }
+
+#[cfg(feature = "test")]
+#[doc(hidden)]
+pub mod test {
+    pub mod service {
+        use serde_json::Value;
+        use tower_lsp::{ExitedError, Incoming, LspService};
+        use tower_test::mock::Spawn;
+
+        pub async fn call(service: &mut Spawn<LspService>, request: &Incoming) -> Result<Option<Value>, ExitedError> {
+            let response = service.call(request.clone()).await?;
+            let response = response.and_then(|x| x.parse::<Value>().ok());
+            Ok(response)
+        }
+
+        pub fn spawn() -> anyhow::Result<Spawn<LspService>> {
+            let server = crate::lsp::server::Server::new()?;
+            let (service, _messages) = LspService::new(server);
+            Ok(Spawn::new(service))
+        }
+    }
+}
