@@ -64,8 +64,8 @@ impl Session {
                 let mut stream = stream::iter(subscriber);
                 // FIXME: use a timeout for this in case the event never arrives; should be an error
                 while let Some(event) = stream.next().await {
-                    if let sled::Event::Insert(key, val) = event {
-                        if &*key == uri.as_ref().as_bytes() && val == DocumentStatus::opened().as_bytes() {
+                    if let sled::Event::Insert { key, value } = event {
+                        if &*key == uri.as_ref().as_bytes() && value == DocumentStatus::opened().as_bytes() {
                             if let Some(document) = session.documents.get(uri) {
                                 result = Some(document);
                                 break;
@@ -94,8 +94,8 @@ impl Session {
                 let mut stream = stream::iter(subscriber);
                 // FIXME: use a timeout for this in case the event never arrives; should be an error
                 while let Some(event) = stream.next().await {
-                    if let sled::Event::Insert(key, val) = event {
-                        if &*key == uri.as_ref().as_bytes() && val == DocumentStatus::opened().as_bytes() {
+                    if let sled::Event::Insert { key, value } = event {
+                        if &*key == uri.as_ref().as_bytes() && value == DocumentStatus::opened().as_bytes() {
                             if let Some(document) = session.documents.get_mut(uri) {
                                 result = Some(document);
                                 break;
