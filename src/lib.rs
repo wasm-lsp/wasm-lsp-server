@@ -42,12 +42,13 @@ extern {
 #[doc(hidden)]
 pub mod test {
     pub mod service {
-        use serde_json::Value;
-        use tower_lsp::{ExitedError, Incoming, LspService};
+        use serde_json::{from_value, Value};
+        use tower_lsp::{ExitedError, LspService};
         use tower_test::mock::Spawn;
 
-        pub async fn call(service: &mut Spawn<LspService>, request: &Incoming) -> Result<Option<Value>, ExitedError> {
-            let response = service.call(request.clone()).await?;
+        pub async fn call(service: &mut Spawn<LspService>, request: &Value) -> Result<Option<Value>, ExitedError> {
+            let request = from_value(request.clone()).unwrap();
+            let response = service.call(request).await?;
             let response = response.and_then(|x| x.parse::<Value>().ok());
             Ok(response)
         }

@@ -1,22 +1,22 @@
 #[cfg(feature = "test")]
 mod test {
-    use serde_json::{from_value, json};
+    use serde_json::{json, Value};
     use std::task::Poll;
-    use tower_lsp::{jsonrpc, lsp_types::*, ExitedError, Incoming};
+    use tower_lsp::{jsonrpc, lsp_types::*, ExitedError};
     use wasm_language_server::test;
 
     #[tokio::test]
     async fn initialize_once() -> anyhow::Result<()> {
         let service = &mut test::service::spawn()?;
 
-        let request: &Incoming = &from_value(json!({
+        let request = &json!({
             "jsonrpc": "2.0",
             "method": "initialize",
             "params": {
                 "capabilities":{},
             },
             "id": 1,
-        }))?;
+        });
 
         // expect nominal response for first request
         assert_eq!(service.poll_ready(), Poll::Ready(Ok(())));
@@ -55,14 +55,14 @@ mod test {
         let service = &mut test::service::spawn()?;
 
         assert_eq!(service.poll_ready(), Poll::Ready(Ok(())));
-        let request = &from_value(json!({
+        let request = &json!({
             "jsonrpc": "2.0",
             "method": "initialize",
             "params": {
                 "capabilities":{},
             },
             "id": 1,
-        }))?;
+        });
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": {
@@ -86,17 +86,17 @@ mod test {
         let service = &mut test::service::spawn().unwrap();
 
         assert_eq!(service.poll_ready(), Poll::Ready(Ok(())));
-        let request = &from_value(json!({ "jsonrpc": "2.0", "method": "initialized" })).unwrap();
-        let response = None;
+        let request = &json!({ "jsonrpc": "2.0", "method": "initialized" });
+        let response = None::<Value>;
         assert_eq!(test::service::call(service, request).await, Ok(response));
 
         assert_eq!(service.poll_ready(), Poll::Ready(Ok(())));
-        let request = &from_value(json!({ "jsonrpc": "2.0", "method": "exit" })).unwrap();
-        let response = None;
+        let request = &json!({ "jsonrpc": "2.0", "method": "exit" });
+        let response = None::<Value>;
         assert_eq!(test::service::call(service, request).await, Ok(response));
 
         assert_eq!(service.poll_ready(), Poll::Ready(Err(ExitedError)));
-        let request = &from_value(json!({ "jsonrpc": "2.0", "method": "initialized" })).unwrap();
+        let request = &json!({ "jsonrpc": "2.0", "method": "initialized" });
         let error = ExitedError;
         assert_eq!(test::service::call(service, request).await, Err(error));
     }
