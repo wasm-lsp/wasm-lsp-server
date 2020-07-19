@@ -41,6 +41,22 @@ extern {
 #[cfg(feature = "test")]
 #[doc(hidden)]
 pub mod test {
+    #[macro_export]
+    #[doc(hidden)]
+    macro_rules! assert_ready {
+        ($service:expr, $status:expr) => {
+            assert_eq!($service.poll_ready(), Poll::Ready($status));
+        };
+    }
+
+    #[macro_export]
+    #[doc(hidden)]
+    macro_rules! assert_exchange {
+        ($service:expr, $request:expr, $response:expr) => {
+            assert_eq!(test::service::call($service, $request).await, $response);
+        };
+    }
+
     pub mod service {
         use serde_json::{from_value, Value};
         use tower_lsp::{ExitedError, LspService};
