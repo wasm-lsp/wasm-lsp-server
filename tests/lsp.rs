@@ -86,29 +86,17 @@ mod test {
         let service = &mut test::service::spawn().unwrap();
 
         assert_eq!(service.poll_ready(), Poll::Ready(Ok(())));
-        let request = &from_value(json!({
-            "jsonrpc": "2.0",
-            "method": "initialized",
-        }))
-        .unwrap();
+        let request = &from_value(json!({ "jsonrpc": "2.0", "method": "initialized" })).unwrap();
         let response = None;
         assert_eq!(test::service::call(service, request).await, Ok(response));
 
         assert_eq!(service.poll_ready(), Poll::Ready(Ok(())));
-        let request = &from_value(json!({
-            "jsonrpc": "2.0",
-            "method": "exit",
-        }))
-        .unwrap();
+        let request = &from_value(json!({ "jsonrpc": "2.0", "method": "exit" })).unwrap();
         let response = None;
         assert_eq!(test::service::call(service, request).await, Ok(response));
 
         assert_eq!(service.poll_ready(), Poll::Ready(Err(ExitedError)));
-        let request = &from_value(json!({
-            "jsonrpc": "2.0",
-            "method": "initialized",
-        }))
-        .unwrap();
+        let request = &from_value(json!({ "jsonrpc": "2.0", "method": "initialized" })).unwrap();
         let error = ExitedError;
         assert_eq!(test::service::call(service, request).await, Err(error));
     }
