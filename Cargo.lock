@@ -1164,6 +1164,7 @@ dependencies = [
  "dashmap",
  "env_logger",
  "futures 0.3.5",
+ "glob",
  "lazy_static",
  "log",
  "serde_json",
