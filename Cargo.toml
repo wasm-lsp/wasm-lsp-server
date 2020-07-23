@@ -47,6 +47,7 @@ uuid = { version = "0.8.1", features = ["v4"] }
 zerocopy = "0.3.0"
 
 [dev-dependencies]
+glob = "0.3.0"
 serde_json = "1.0"
 tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "time", "test-util"] }
 tower-test = "0.3.0"
