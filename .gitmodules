@@ -1,3 +1,6 @@
 [submodule "vendor/tree-sitter-wasm"]
 	path = vendor/tree-sitter-wasm
 	url = https://github.com/wasm-lsp/tree-sitter-wasm
+[submodule "vendor/corpus"]
+	path = vendor/corpus
+	url = https://github.com/wasm-lsp/corpus

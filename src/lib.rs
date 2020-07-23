@@ -59,7 +59,7 @@ pub mod test {
 
     pub mod service {
         use serde_json::{from_value, Value};
-        use tower_lsp::{ExitedError, LspService};
+        use tower_lsp::{ExitedError, LspService, MessageStream};
         use tower_test::mock::Spawn;
 
         pub async fn call(service: &mut Spawn<LspService>, request: &Value) -> Result<Option<Value>, ExitedError> {
@@ -69,10 +69,10 @@ pub mod test {
             Ok(response)
         }
 
-        pub fn spawn() -> anyhow::Result<Spawn<LspService>> {
+        pub fn spawn() -> anyhow::Result<(Spawn<LspService>, MessageStream)> {
             let server = crate::lsp::server::Server::new()?;
-            let (service, _messages) = LspService::new(server);
-            Ok(Spawn::new(service))
+            let (service, messages) = LspService::new(server);
+            Ok((Spawn::new(service), messages))
         }
     }
 }
