@@ -99,7 +99,6 @@ mod lsp {
         Ok(())
     }
 
-    #[allow(non_snake_case)]
     #[tokio::test]
     async fn exit() -> anyhow::Result<()> {
         let service = &mut test::service::spawn()?.0;
