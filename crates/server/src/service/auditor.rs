@@ -4,6 +4,7 @@
 pub(crate) mod tree {
     use crate::core::{
         error::{Error, Fallible},
+        language::{wast, wat, Language},
         session::Session,
     };
     use std::sync::Arc;
@@ -28,7 +29,35 @@ pub(crate) mod tree {
 
                 // iterate the query cursor and construct appropriate lsp diagnostics
                 for tree_sitter::QueryMatch { captures, .. } in matches {
-                    for tree_sitter::QueryCapture { node, .. } in captures {
+                    'captures: for tree_sitter::QueryCapture { node, .. } in captures {
+                        // create a cursor node starting from the capture node
+                        let mut cursor = node.clone();
+                        // traverse upward through the parent nodes
+                        'cursor: while let Some(parent) = cursor.parent() {
+                            cursor = parent;
+                            // ignore further processing if the first non-ERROR
+                            // parent node is a comment node
+                            if !cursor.is_error() {
+                                match document.language {
+                                    Language::Wast
+                                        if [*wast::kind::COMMENT_BLOCK, *wast::kind::COMMENT_LINE]
+                                            .contains(&parent.kind_id()) =>
+                                    {
+                                        break 'captures;
+                                    }
+                                    Language::Wat
+                                        if [*wat::kind::COMMENT_BLOCK, *wat::kind::COMMENT_LINE]
+                                            .contains(&parent.kind_id()) =>
+                                    {
+                                        break 'captures;
+                                    }
+
+                                    _ => {
+                                        break 'cursor;
+                                    },
+                                }
+                            }
+                        }
                         let start = node.start_position();
                         let end = node.end_position();
                         diagnostics.push({
