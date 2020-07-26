@@ -36,7 +36,9 @@ pub(crate) mod tree {
                         'cursor: while let Some(parent) = cursor.parent() {
                             cursor = parent;
                             // ignore further processing if the first non-ERROR
-                            // parent node is a comment node
+                            // parent node is a comment node; we do this in
+                            // order to avoid syntax errors due to encoding
+                            // issues (see "comments.wast" and issue #42)
                             if !cursor.is_error() {
                                 match document.language {
                                     Language::Wast
