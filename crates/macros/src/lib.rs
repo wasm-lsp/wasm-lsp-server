@@ -1,3 +1,5 @@
+//! Macros for the WASM language server.
+
 #![deny(clippy::all)]
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
@@ -51,6 +53,23 @@ mod corpus {
     }
 }
 
+/// Generate tests from a corpus of wasm modules on the filesystem.
+///
+/// # Arguments
+///
+/// * `corpus` - name of the generated submodule containing the individual tests
+/// * `include` - glob pattern of files to include for testing
+/// * `exclude` - array of file names to exclude from testing
+///
+/// # Examples
+///
+/// ```
+/// corpus_tests! {
+///     corpus: annotations,
+///     include: "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
+///     exclude: ["annotations.wast"],
+/// }
+/// ```
 #[proc_macro]
 pub fn corpus_tests(input: TokenStream) -> TokenStream {
     let corpus::TestsMacroInput {
@@ -58,17 +77,27 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         include,
         exclude,
     } = syn::parse_macro_input!(input as corpus::TestsMacroInput);
-    let entries = glob(&include).unwrap();
+    // compute the paths from the glob pattern
+    let paths = glob(&include).unwrap();
+
+    // prepare the vector of syntax items; these items are the individual test
+    // functions that will be enclosed in the generated test submodule
     let mut content = Vec::<syn::Item>::new();
-    for entry in entries {
-        let path = entry.unwrap().canonicalize().unwrap();
+
+    for path in paths {
+        // ensure the path is canonicalized and absolute
+        let path = path.unwrap().canonicalize().unwrap();
         let path_name = path.to_str().unwrap();
         let file_name = path.file_name().unwrap().to_str().unwrap();
+
+        // skip the file if contained in the exclude list; otherwise continue
         if !exclude.contains(&String::from(file_name)) {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
             let test_name = str::replace(file_stem, "-", "_");
             let test_name = format!("_{}", test_name);
             let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
+
+            // generate the individual test function for the given file
             let item: syn::Item = syn::parse_quote! {
                 #[tokio::test]
                 async fn #test_name() -> anyhow::Result<()> {
@@ -137,6 +166,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         }
     }
 
+    // generate the enclosing test submodule for the given corpus
     let module: syn::ItemMod = syn::parse_quote! {
         mod #corpus {
             use futures::stream::StreamExt;
@@ -145,8 +175,10 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             use tower_lsp::lsp_types::*;
             use wasm_language_server::test;
 
+            // include the test functions generated from the corpus files
             #(#content)*
         }
     };
+
     module.to_token_stream().into()
 }
