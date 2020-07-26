@@ -25,8 +25,6 @@ mod corpus {
 
     impl Parse for TestsMacroInput {
         fn parse(input: ParseStream) -> syn::parse::Result<Self> {
-            let content;
-
             input.parse::<keyword::corpus>()?;
             input.parse::<syn::Token![:]>()?;
             let corpus = input.parse()?;
@@ -39,8 +37,11 @@ mod corpus {
 
             input.parse::<keyword::exclude>()?;
             input.parse::<syn::Token![:]>()?;
-            syn::bracketed!(content in input);
-            let exclude = content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?;
+            let exclude = {
+                let content;
+                syn::bracketed!(content in input);
+                content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?
+            };
             let exclude = exclude.into_iter().map(|s| s.value()).collect();
             input.parse::<syn::Token![,]>().ok();
 
