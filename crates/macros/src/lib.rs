@@ -66,77 +66,74 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         let file_name = path.file_name().unwrap().to_str().unwrap();
         if !exclude.contains(&String::from(file_name)) {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
-            let extension = path.extension().and_then(std::ffi::OsStr::to_str);
-            if let Some("wast") = extension {
-                let test_name = str::replace(file_stem, "-", "_");
-                let test_name = format!("_{}", test_name);
-                let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
-                let item: syn::Item = syn::parse_quote! {
-                    #[tokio::test]
-                    async fn #test_name() -> anyhow::Result<()> {
-                        let uri = Url::from_file_path(&#path_name).unwrap();
-                        let text = std::fs::read_to_string(#path_name).unwrap();
+            let test_name = str::replace(file_stem, "-", "_");
+            let test_name = format!("_{}", test_name);
+            let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
+            let item: syn::Item = syn::parse_quote! {
+                #[tokio::test]
+                async fn #test_name() -> anyhow::Result<()> {
+                    let uri = Url::from_file_path(&#path_name).unwrap();
+                    let text = std::fs::read_to_string(#path_name).unwrap();
 
-                        let (mut service, mut messages) = test::service::spawn()?;
-                        let service = &mut service;
+                    let (mut service, mut messages) = test::service::spawn()?;
+                    let service = &mut service;
 
-                        assert_ready!(service, Ok(()));
-                        let request = &json!({
-                            "jsonrpc": "2.0",
-                            "method": "initialize",
-                            "params": {
-                                "capabilities":{},
-                            },
-                            "id": 1,
-                        });
-                        let response = Some(json!({
-                            "jsonrpc": "2.0",
-                            "result": {
-                                "capabilities": {
-                                    "documentSymbolProvider": true,
-                                    "textDocumentSync": {
-                                        "change": TextDocumentSyncKind::Full,
-                                        "openClose": true,
-                                    },
+                    assert_ready!(service, Ok(()));
+                    let request = &json!({
+                        "jsonrpc": "2.0",
+                        "method": "initialize",
+                        "params": {
+                            "capabilities":{},
+                        },
+                        "id": 1,
+                    });
+                    let response = Some(json!({
+                        "jsonrpc": "2.0",
+                        "result": {
+                            "capabilities": {
+                                "documentSymbolProvider": true,
+                                "textDocumentSync": {
+                                    "change": TextDocumentSyncKind::Full,
+                                    "openClose": true,
                                 },
                             },
-                            "id": 1,
-                        }));
-                        assert_exchange!(service, request, Ok(response));
+                        },
+                        "id": 1,
+                    }));
+                    assert_exchange!(service, request, Ok(response));
 
-                        assert_ready!(service, Ok(()));
-                        let request = &json!({
-                            "jsonrpc": "2.0",
-                            "method": "textDocument/didOpen",
-                            "params": {
-                                "textDocument": {
-                                    "uri": uri,
-                                    "languageId": "wasm.wast",
-                                    "version": 1,
-                                    "text": text,
-                                },
-                            },
-                        });
-                        let response = None::<Value>;
-                        assert_exchange!(service, request, Ok(response));
-
-                        let message = messages.next().await.unwrap();
-                        let actual = serde_json::from_str::<Value>(&message)?;
-                        let expected = json!({
-                            "jsonrpc": "2.0",
-                            "method": "textDocument/publishDiagnostics",
-                            "params": {
+                    assert_ready!(service, Ok(()));
+                    let request = &json!({
+                        "jsonrpc": "2.0",
+                        "method": "textDocument/didOpen",
+                        "params": {
+                            "textDocument": {
                                 "uri": uri,
-                                "diagnostics": [],
+                                "languageId": "wasm.wast",
+                                "version": 1,
+                                "text": text,
                             },
-                        });
-                        assert_eq!(actual, expected);
+                        },
+                    });
+                    let response = None::<Value>;
+                    assert_exchange!(service, request, Ok(response));
 
-                        Ok(())
-                    }
-                };
-                content.push(item);
-            }
+                    let message = messages.next().await.unwrap();
+                    let actual = serde_json::from_str::<Value>(&message)?;
+                    let expected = json!({
+                        "jsonrpc": "2.0",
+                        "method": "textDocument/publishDiagnostics",
+                        "params": {
+                            "uri": uri,
+                            "diagnostics": [],
+                        },
+                    });
+                    assert_eq!(actual, expected);
+
+                    Ok(())
+                }
+            };
+            content.push(item);
         }
     }
 
