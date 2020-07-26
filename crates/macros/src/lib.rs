@@ -1,3 +1,7 @@
+#![deny(clippy::all)]
+#![deny(missing_docs)]
+#![deny(unsafe_code)]
+
 use glob::glob;
 use proc_macro::TokenStream;
 use quote::ToTokens;
