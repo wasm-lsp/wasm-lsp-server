@@ -18,9 +18,9 @@ jobs:
     needs: [skip-commit]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
       with:
-        submodules: true
+        submodules: recursive
     - name: Fetch latest release version of cargo-audit
       run: |
         mkdir -p .github/caching
@@ -49,9 +49,9 @@ jobs:
       RUSTFLAGS: -Dwarnings
       RUST_TOOLCHAIN: 1.42.0
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
         with:
-          submodules: true
+          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
@@ -70,9 +70,9 @@ jobs:
     env:
       RUST_TOOLCHAIN: 1.42.0
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
         with:
-          submodules: true
+          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
@@ -91,9 +91,9 @@ jobs:
     env:
       RUST_TOOLCHAIN: nightly
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
         with:
-          submodules: true
+          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
@@ -117,9 +117,9 @@ jobs:
     env:
       RUST_TOOLCHAIN: nightly
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
         with:
-          submodules: true
+          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
@@ -139,9 +139,9 @@ jobs:
     env:
       RUST_TOOLCHAIN: 1.42.0
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
         with:
-          submodules: true
+          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
