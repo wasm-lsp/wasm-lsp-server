@@ -118,14 +118,14 @@ mod lsp {
                 [
                     "annotations.wast",
                     "comments.wast",
-                ]
+                ],
             );
 
             corpus_tests!(
                 spec,
                 "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast",
                 // FIXME
-                ["comments.wast"]
+                ["comments.wast"],
             );
         }
     }
