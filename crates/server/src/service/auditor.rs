@@ -51,7 +51,6 @@ pub(crate) mod tree {
                                     {
                                         break 'captures;
                                     }
-
                                     _ => {
                                         break 'cursor;
                                     },
