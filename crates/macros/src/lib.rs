@@ -25,6 +25,7 @@ impl Parse for MacroInput {
         syn::bracketed!(content in input);
         let ignore = content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?;
         let ignore = ignore.into_iter().map(|s| s.value()).collect();
+        input.parse::<syn::Token![,]>().ok();
         Ok(MacroInput {
             corpus,
             pattern,
