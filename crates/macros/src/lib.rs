@@ -3,29 +3,45 @@ use proc_macro::TokenStream;
 use quote::ToTokens;
 
 mod corpus {
+    mod keyword {
+        syn::custom_keyword!(corpus);
+        syn::custom_keyword!(include);
+        syn::custom_keyword!(exclude);
+    }
+
     use syn::parse::{Parse, ParseStream};
 
     pub(crate) struct TestsMacroInput {
         pub(crate) corpus: syn::Ident,
-        pub(crate) pattern: String,
-        pub(crate) ignore: Vec<String>,
+        pub(crate) include: String,
+        pub(crate) exclude: Vec<String>,
     }
 
     impl Parse for TestsMacroInput {
         fn parse(input: ParseStream) -> syn::parse::Result<Self> {
             let content;
+
+            input.parse::<keyword::corpus>()?;
+            input.parse::<syn::Token![:]>()?;
             let corpus = input.parse()?;
             input.parse::<syn::Token![,]>()?;
-            let pattern = input.parse::<syn::LitStr>()?.value();
+
+            input.parse::<keyword::include>()?;
+            input.parse::<syn::Token![:]>()?;
+            let include = input.parse::<syn::LitStr>()?.value();
             input.parse::<syn::Token![,]>()?;
+
+            input.parse::<keyword::exclude>()?;
+            input.parse::<syn::Token![:]>()?;
             syn::bracketed!(content in input);
-            let ignore = content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?;
-            let ignore = ignore.into_iter().map(|s| s.value()).collect();
+            let exclude = content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?;
+            let exclude = exclude.into_iter().map(|s| s.value()).collect();
             input.parse::<syn::Token![,]>().ok();
+
             Ok(TestsMacroInput {
                 corpus,
-                pattern,
-                ignore,
+                include,
+                exclude,
             })
         }
     }
@@ -35,16 +51,16 @@ mod corpus {
 pub fn corpus_tests(input: TokenStream) -> TokenStream {
     let corpus::TestsMacroInput {
         corpus,
-        pattern,
-        ignore,
+        include,
+        exclude,
     } = syn::parse_macro_input!(input as corpus::TestsMacroInput);
-    let entries = glob(&pattern).unwrap();
+    let entries = glob(&include).unwrap();
     let mut content = Vec::<syn::Item>::new();
     for entry in entries {
         let path = entry.unwrap().canonicalize().unwrap();
         let path_name = path.to_str().unwrap();
         let file_name = path.file_name().unwrap().to_str().unwrap();
-        if !ignore.contains(&String::from(file_name)) {
+        if !exclude.contains(&String::from(file_name)) {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
             let extension = path.extension().and_then(std::ffi::OsStr::to_str);
             if let Some("wast") = extension {
