@@ -31,7 +31,7 @@ pub(crate) mod tree {
                 for tree_sitter::QueryMatch { captures, .. } in matches {
                     'captures: for tree_sitter::QueryCapture { node, .. } in captures {
                         // create a cursor node starting from the capture node
-                        let mut cursor = node.clone();
+                        let mut cursor = *node;
                         // traverse upward through the parent nodes
                         'cursor: while let Some(parent) = cursor.parent() {
                             cursor = parent;
