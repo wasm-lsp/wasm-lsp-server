@@ -12,7 +12,7 @@ clippy:
 
 .PHONY: doc
 doc:
-	cargo +nightly doc --all-features --no-deps --package wasm-language-server
+	cargo +nightly doc --all-features --no-deps
 
 .PHONY: fmt
 format:
