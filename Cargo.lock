@@ -29,9 +29,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.31"
+version = "1.0.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85bb70cc08ec97ca5450e6eba421deeea5f172c0fc61f78b5357b2a8e8be195f"
+checksum = "6b602bfe940d21c130f3895acd65221e8a61270debe89d628b9cb4e3ccb8569b"
 
 [[package]]
 name = "async-trait"
@@ -1164,7 +1164,6 @@ dependencies = [
  "dashmap",
  "env_logger",
  "futures 0.3.5",
- "glob",
  "lazy_static",
  "log",
  "serde_json",
@@ -1175,7 +1174,18 @@ dependencies = [
  "tower-test",
  "tree-sitter",
  "uuid",
+ "wasm-language-server-macros",
  "zerocopy",
+]
+
+[[package]]
+name = "wasm-language-server-macros"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
