@@ -28,6 +28,8 @@ First ensure you have the [rust toolchain](https://rustup.rs/) installed, then p
 ```bash
 git clone --recursive https://github.com/wasm-lsp/wasm-language-server
 cd wasm-language-server
+git submodule update --init --recursive
+cd crates/server
 cargo install --path .
 ```
 
