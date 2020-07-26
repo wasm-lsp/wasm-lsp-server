@@ -1,46 +1,43 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-
 use glob::glob;
 use proc_macro::TokenStream;
 use quote::ToTokens;
-use syn::{
-    parse::{Parse, ParseStream},
-    punctuated::Punctuated,
-};
 
-struct CorpusTestsInput {
-    corpus: syn::Ident,
-    pattern: String,
-    ignore: Vec<String>,
-}
+mod corpus {
+    use syn::parse::{Parse, ParseStream};
 
-impl Parse for CorpusTestsInput {
-    fn parse(input: ParseStream) -> syn::parse::Result<Self> {
-        let content;
-        let corpus = input.parse()?;
-        input.parse::<syn::Token![,]>()?;
-        let pattern = input.parse::<syn::LitStr>()?.value();
-        input.parse::<syn::Token![,]>()?;
-        syn::bracketed!(content in input);
-        let ignore = content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?;
-        let ignore = ignore.into_iter().map(|s| s.value()).collect();
-        input.parse::<syn::Token![,]>().ok();
-        Ok(CorpusTestsInput {
-            corpus,
-            pattern,
-            ignore,
-        })
+    pub(crate) struct TestsMacroInput {
+        pub(crate) corpus: syn::Ident,
+        pub(crate) pattern: String,
+        pub(crate) ignore: Vec<String>,
+    }
+
+    impl Parse for TestsMacroInput {
+        fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+            let content;
+            let corpus = input.parse()?;
+            input.parse::<syn::Token![,]>()?;
+            let pattern = input.parse::<syn::LitStr>()?.value();
+            input.parse::<syn::Token![,]>()?;
+            syn::bracketed!(content in input);
+            let ignore = content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?;
+            let ignore = ignore.into_iter().map(|s| s.value()).collect();
+            input.parse::<syn::Token![,]>().ok();
+            Ok(TestsMacroInput {
+                corpus,
+                pattern,
+                ignore,
+            })
+        }
     }
 }
 
 #[proc_macro]
 pub fn corpus_tests(input: TokenStream) -> TokenStream {
-    let CorpusTestsInput {
+    let corpus::TestsMacroInput {
         corpus,
         pattern,
         ignore,
-    } = syn::parse_macro_input!(input as CorpusTestsInput);
+    } = syn::parse_macro_input!(input as corpus::TestsMacroInput);
     let entries = glob(&pattern).unwrap();
     let mut content = Vec::<syn::Item>::new();
     for entry in entries {
