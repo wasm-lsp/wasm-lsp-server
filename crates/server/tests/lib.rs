@@ -111,14 +111,18 @@ mod lsp {
         mod did_open {
             use wasm_language_server_macros::corpus_tests;
 
-            corpus_tests!(
-                annotations,
-                "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
+            corpus_tests! {
+                corpus: annotations,
+                include: "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
                 // FIXME
-                ["annotations.wast"],
-            );
+                exclude: ["annotations.wast"],
+            }
 
-            corpus_tests!(spec, "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast", []);
+            corpus_tests! {
+                corpus: spec,
+                include: "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast",
+                exclude: [],
+            }
         }
     }
 }
