@@ -118,11 +118,6 @@ mod lsp {
                 [
                     "annotations.wast",
                     "comments.wast",
-                    "conversions.wast",
-                    "f32.wast",
-                    "f64.wast",
-                    "float_exprs.wast",
-                    "float_misc.wast"
                 ]
             );
 
