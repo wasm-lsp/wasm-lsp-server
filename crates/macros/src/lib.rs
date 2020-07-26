@@ -9,13 +9,13 @@ use syn::{
     punctuated::Punctuated,
 };
 
-struct MacroInput {
+struct CorpusTestsInput {
     corpus: syn::Ident,
     pattern: String,
     ignore: Vec<String>,
 }
 
-impl Parse for MacroInput {
+impl Parse for CorpusTestsInput {
     fn parse(input: ParseStream) -> syn::parse::Result<Self> {
         let content;
         let corpus = input.parse()?;
@@ -26,7 +26,7 @@ impl Parse for MacroInput {
         let ignore = content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?;
         let ignore = ignore.into_iter().map(|s| s.value()).collect();
         input.parse::<syn::Token![,]>().ok();
-        Ok(MacroInput {
+        Ok(CorpusTestsInput {
             corpus,
             pattern,
             ignore,
@@ -36,11 +36,11 @@ impl Parse for MacroInput {
 
 #[proc_macro]
 pub fn corpus_tests(input: TokenStream) -> TokenStream {
-    let MacroInput {
+    let CorpusTestsInput {
         corpus,
         pattern,
         ignore,
-    } = syn::parse_macro_input!(input as MacroInput);
+    } = syn::parse_macro_input!(input as CorpusTestsInput);
     let entries = glob(&pattern).unwrap();
     let mut content = Vec::<syn::Item>::new();
     for entry in entries {
