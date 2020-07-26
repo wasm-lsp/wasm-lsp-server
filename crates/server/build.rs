@@ -3,7 +3,7 @@ use std::path::Path;
 type Error = Box<dyn std::error::Error + 'static>;
 
 fn compile_tree_sitter_grammars() -> Result<(), Error> {
-    let dir = Path::new("vendor/tree-sitter-wasm");
+    let dir = Path::new("../../vendor/tree-sitter-wasm");
     cc::Build::new()
         .include(dir.join("wast/src"))
         .file(dir.join("wast/src/parser.c"))
