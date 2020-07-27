@@ -47,7 +47,11 @@ pub(crate) mod wast {
 
         lazy_static! {
             pub(crate) static ref COMMAND: u16 = super::language().id_for_node_kind("command", true);
+            pub(crate) static ref COMMENT_BLOCK_ANNOT: u16 =
+                super::language().id_for_node_kind("comment_block_annot", true);
             pub(crate) static ref COMMENT_BLOCK: u16 = super::language().id_for_node_kind("comment_block", true);
+            pub(crate) static ref COMMENT_LINE_ANNOT: u16 =
+                super::language().id_for_node_kind("comment_line_annot", true);
             pub(crate) static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
             pub(crate) static ref INLINE_MODULE: u16 = super::language().id_for_node_kind("inline_module", true);
             pub(crate) static ref MODULE_FIELD_DATA: u16 =
@@ -90,7 +94,11 @@ pub(crate) mod wat {
 
         lazy_static! {
             pub(crate) static ref INLINE_MODULE: u16 = super::language().id_for_node_kind("inline_module", true);
+            pub(crate) static ref COMMENT_BLOCK_ANNOT: u16 =
+                super::language().id_for_node_kind("comment_block_annot", true);
             pub(crate) static ref COMMENT_BLOCK: u16 = super::language().id_for_node_kind("comment_block", true);
+            pub(crate) static ref COMMENT_LINE_ANNOT: u16 =
+                super::language().id_for_node_kind("comment_line_annot", true);
             pub(crate) static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
             pub(crate) static ref MODULE_FIELD_DATA: u16 =
                 super::language().id_for_node_kind("module_field_data", true);
