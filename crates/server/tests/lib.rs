@@ -114,8 +114,7 @@ mod lsp {
             corpus_tests! {
                 corpus: annotations,
                 include: "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
-                // FIXME
-                exclude: ["annotations.wast"],
+                exclude: [],
             }
 
             corpus_tests! {
