@@ -244,13 +244,7 @@ mod lsp {
             corpus_tests! {
                 corpus: threads,
                 include: "vendor/corpus/vendor/WebAssembly/threads/test/core/*.wast",
-                // FIXME
-                exclude: [
-                    "atomic.wast",
-                    "exports.wast",
-                    "imports.wast",
-                    "memory.wast",
-                ],
+                exclude: [],
             }
         }
     }
