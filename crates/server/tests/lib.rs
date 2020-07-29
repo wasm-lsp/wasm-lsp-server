@@ -126,8 +126,6 @@ mod lsp {
                     "data.wast",
                     "elem.wast",
                     "imports.wast",
-                    "memory_copy.wast",
-                    "memory_fill.wast",
                     "memory_init.wast",
                     "table_copy.wast",
                     "table_init.wast",
