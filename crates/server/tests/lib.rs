@@ -121,15 +121,7 @@ mod lsp {
             corpus_tests! {
                 corpus: bulk_memory_operations,
                 include: "vendor/corpus/vendor/WebAssembly/bulk-memory-operations/test/core/*.wast",
-                // FIXME
                 exclude: [
-                    "bulk.wast",
-                    "data.wast",
-                    "elem.wast",
-                    "imports.wast",
-                    "memory_init.wast",
-                    "table_copy.wast",
-                    "table_init.wast",
                 ],
             }
 
