@@ -46,6 +46,33 @@ Once the server is installed you can install the Visual Studio Code [client exte
 | soon | `.wit` | [WebAssembly module type](https://github.com/WebAssembly/module-types/blob/master/proposals/module-types/Overview.md) |
 | soon | `.witx` | [WebAssembly API description](https://github.com/WebAssembly/WASI/blob/57744f48ec7d4e211d1542d1f56746b5cc1cf6a9/meetings/2019/WASI-09-12.md#meeting-notes) |
 
+## Supported WebAssembly Proposals
+
+The server also supports parsing WebAssembly modules that use the following feature proposals:
+
+#### Phase 4 (Standardization)
+
+- 🗹 [bulk-memory-operations](https://github.com/WebAssembly/bulk-memory-operations)
+- 🗹 [reference-types](https://github.com/WebAssembly/reference-types)
+
+#### Phase 3 (Implementation)
+
+- 🗹 [annotations](https://github.com/WebAssembly/annotations)
+- ☐ [simd](https://github.com/WebAssembly/simd) (soon)
+
+#### Phase 2 (Specification)
+
+- 🗹 [exception-handling](https://github.com/WebAssembly/exception-handling)
+- 🗹 [threads](https://github.com/WebAssembly/threads)
+
+#### Phase 1 (Proposal)
+
+Nothing planned.
+
+#### Phase 0 (Pre-Proposal)
+
+Nothing planned.
+
 ## Supported Language Server Features
 
 - 🗹 document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/)
