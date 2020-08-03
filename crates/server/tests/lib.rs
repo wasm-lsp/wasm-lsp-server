@@ -128,31 +128,7 @@ mod lsp {
             corpus_tests! {
                 corpus: exception_handling,
                 include: "vendor/corpus/vendor/WebAssembly/exception-handling/test/core/*.wast",
-                // FIXME
                 exclude: [
-                    "br_table.wast",
-                    "bulk.wast",
-                    "call_indirect.wast",
-                    "data.wast",
-                    "elem.wast",
-                    "global.wast",
-                    "imports.wast",
-                    "linking.wast",
-                    "memory_copy.wast",
-                    "memory_fill.wast",
-                    "memory_init.wast",
-                    "ref_func.wast",
-                    "ref_is_null.wast",
-                    "ref_null.wast",
-                    "select.wast",
-                    "table_copy.wast",
-                    "table_fill.wast",
-                    "table_get.wast",
-                    "table_grow.wast",
-                    "table_init.wast",
-                    "table_set.wast",
-                    "table_size.wast",
-                    "table-sub.wast",
                 ],
             }
 
