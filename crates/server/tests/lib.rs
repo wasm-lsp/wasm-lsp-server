@@ -114,7 +114,8 @@ mod lsp {
             corpus_tests! {
                 corpus: annotations,
                 include: "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
-                exclude: [],
+                exclude: [
+                ],
             }
 
             corpus_tests! {
@@ -236,13 +237,15 @@ mod lsp {
             corpus_tests! {
                 corpus: spec,
                 include: "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast",
-                exclude: [],
+                exclude: [
+                ],
             }
 
             corpus_tests! {
                 corpus: threads,
                 include: "vendor/corpus/vendor/WebAssembly/threads/test/core/*.wast",
-                exclude: [],
+                exclude: [
+                ],
             }
         }
     }
