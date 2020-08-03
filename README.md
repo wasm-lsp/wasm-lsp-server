@@ -73,13 +73,13 @@ Nothing planned.
 
 Nothing planned.
 
-## Supported Language Server Features
+## Language Server Feature Support
 
 - 🗹 document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/)
 - 🗹 document symbol provider
 - 🗹 syntax error diagnostics provider
 
-## Roadmap
+## Language Server Feature Roadmap
 
 - ☐ incremental document synchronization
 - ☐ document validation
