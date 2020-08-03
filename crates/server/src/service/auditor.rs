@@ -32,6 +32,7 @@ pub(crate) mod tree {
                     'captures: for tree_sitter::QueryCapture { node, .. } in captures {
                         // create a cursor node starting from the capture node
                         let mut cursor = *node;
+
                         // traverse upward through the parent nodes
                         'cursor: while let Some(parent) = cursor.parent() {
                             cursor = parent;
@@ -69,6 +70,7 @@ pub(crate) mod tree {
                                 }
                             }
                         }
+
                         let start = node.start_position();
                         let end = node.end_position();
                         diagnostics.push({
