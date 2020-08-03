@@ -48,7 +48,7 @@ Once the server is installed you can install the Visual Studio Code [client exte
 
 ## Supported WebAssembly Proposals
 
-The server also supports parsing WebAssembly modules that use the following feature proposals:
+The server also supports parsing WebAssembly modules that use the following features:
 
 #### Phase 4 (Standardization)
 
