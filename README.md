@@ -41,31 +41,30 @@ Once the server is installed you can install the Visual Studio Code [client exte
 
 | supported | extension | kind |
 |:---------:|-----------|------|
-| ☑ | `.wat` | [WebAssembly module definition](https://github.com/WebAssembly/spec/tree/master/interpreter#s-expression-syntax) |
-| ☑ | `.wast` | [WebAssembly script](https://github.com/WebAssembly/spec/tree/master/interpreter#scripts) |
+| 🗹 | `.wat` | [WebAssembly module definition](https://github.com/WebAssembly/spec/tree/master/interpreter#s-expression-syntax) |
+| 🗹 | `.wast` | [WebAssembly script](https://github.com/WebAssembly/spec/tree/master/interpreter#scripts) |
 | soon | `.wit` | [WebAssembly module type](https://github.com/WebAssembly/module-types/blob/master/proposals/module-types/Overview.md) |
 | soon | `.witx` | [WebAssembly API description](https://github.com/WebAssembly/WASI/blob/57744f48ec7d4e211d1542d1f56746b5cc1cf6a9/meetings/2019/WASI-09-12.md#meeting-notes) |
 
-## Features
+## Supported Language Server Features
 
-- [x] document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/)
-- [x] document symbol provider
-- [x] syntax error diagnostics provider
-
+- 🗹 document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/)
+- 🗹 document symbol provider
+- 🗹 syntax error diagnostics provider
 
 ## Roadmap
 
-- [ ] incremental document synchronization
-- [ ] document validation
-- [ ] code action provider
-- [ ] code lens provider
-- [ ] completion provider
-- [ ] definition provider
-- [ ] document formatting (full and ranged) provider
-- [ ] document highlight provider
-- [ ] hover provider
-- [ ] references provider
-- [ ] workspace symbol provider
-- [ ] semantic tokens provider
-- [ ] integration with existing wasm toolchains
-- [ ] implementation of the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
+- ☐ incremental document synchronization
+- ☐ document validation
+- ☐ code action provider
+- ☐ code lens provider
+- ☐ completion provider
+- ☐ definition provider
+- ☐ document formatting (full and ranged) provider
+- ☐ document highlight provider
+- ☐ hover provider
+- ☐ references provider
+- ☐ workspace symbol provider
+- ☐ semantic tokens provider
+- ☐ integration with existing wasm toolchains
+- ☐ implementation of the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
