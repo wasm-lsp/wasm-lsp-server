@@ -149,7 +149,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                     assert_exchange!(service, request, Ok(response));
 
                     let message = messages.next().await.unwrap();
-                    let actual = serde_json::from_str::<Value>(&message)?;
+                    let actual = serde_json::to_value(&message)?;
                     let expected = json!({
                         "jsonrpc": "2.0",
                         "method": "textDocument/publishDiagnostics",

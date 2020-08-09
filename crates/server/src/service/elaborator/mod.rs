@@ -15,10 +15,10 @@ mod witx;
 pub(crate) mod tree {
     use crate::core::{error::Fallible, session::Session};
     use std::sync::Arc;
-    use tower_lsp::{lsp_types::*, Client};
+    use tower_lsp::lsp_types::*;
 
     /// Handle a parse tree "change" event.
-    pub(crate) async fn change(session: Arc<Session>, _: &Client, uri: Url) -> Fallible<()> {
+    pub(crate) async fn change(session: Arc<Session>, uri: Url) -> Fallible<()> {
         if let Some(document) = session.get_document(&uri).await? {
             let tree = document.tree.lock().await.clone();
             let node = tree.root_node();
@@ -32,13 +32,13 @@ pub(crate) mod tree {
     }
 
     /// Handle a parse tree "close" event.
-    pub(crate) async fn close(_: Arc<Session>, _: &Client, _: Url) -> Fallible<()> {
+    pub(crate) async fn close(_: Arc<Session>, _: Url) -> Fallible<()> {
         Ok(())
     }
 
     /// Handle a parse tree "open" event.
-    pub(crate) async fn open(session: Arc<Session>, client: &Client, uri: Url) -> Fallible<()> {
-        self::change(session, client, uri).await
+    pub(crate) async fn open(session: Arc<Session>, uri: Url) -> Fallible<()> {
+        self::change(session, uri).await
     }
 }
 

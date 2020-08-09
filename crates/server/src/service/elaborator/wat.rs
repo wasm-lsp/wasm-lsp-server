@@ -65,6 +65,8 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     selection_range,
                 }) = data.pop()
                 {
+                    // FIXME
+                    #[allow(deprecated)]
                     let this = DocumentSymbol {
                         children: if syms.is_empty() {
                             None
