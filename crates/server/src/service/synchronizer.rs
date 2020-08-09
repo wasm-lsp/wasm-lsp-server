@@ -4,14 +4,10 @@
 pub(crate) mod document {
     use crate::core::{error::Fallible, session::Session};
     use std::sync::Arc;
-    use tower_lsp::{lsp_types::*, Client};
+    use tower_lsp::lsp_types::*;
 
     /// Handle a document "change" event.
-    pub(crate) async fn change(
-        session: Arc<Session>,
-        client: Client,
-        params: DidChangeTextDocumentParams,
-    ) -> Fallible<()> {
+    pub(crate) async fn change(session: Arc<Session>, params: DidChangeTextDocumentParams) -> Fallible<()> {
         let DidChangeTextDocumentParams {
             text_document: VersionedTextDocumentIdentifier { uri, .. },
             content_changes,
@@ -23,10 +19,10 @@ pub(crate) mod document {
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
             // run the auditor tasks
-            crate::service::auditor::tree::change(session.clone(), &client, uri.clone()).await?;
+            crate::service::auditor::tree::change(session.clone(), uri.clone()).await?;
 
             // run the elaborator tasks
-            crate::service::elaborator::tree::change(session.clone(), &client, uri.clone()).await?;
+            crate::service::elaborator::tree::change(session.clone(), uri.clone()).await?;
         } else {
             // TODO: report
             log::warn!("tree_was_generated == false");
@@ -35,22 +31,18 @@ pub(crate) mod document {
     }
 
     /// Handle a document "close" event.
-    pub(crate) async fn close(
-        session: Arc<Session>,
-        client: Client,
-        params: DidCloseTextDocumentParams,
-    ) -> Fallible<()> {
+    pub(crate) async fn close(session: Arc<Session>, params: DidCloseTextDocumentParams) -> Fallible<()> {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
         session.remove_document(uri)?;
-        crate::service::auditor::tree::close(session.clone(), &client, uri.clone()).await?;
-        crate::service::elaborator::tree::close(session.clone(), &client, uri.clone()).await?;
+        crate::service::auditor::tree::close(session.clone(), uri.clone()).await?;
+        crate::service::elaborator::tree::close(session.clone(), uri.clone()).await?;
         Ok(())
     }
 
     /// Handle a document "open" event.
-    pub(crate) async fn open(session: Arc<Session>, client: Client, params: DidOpenTextDocumentParams) -> Fallible<()> {
+    pub(crate) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> Fallible<()> {
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem { uri, .. },
         } = &params;
@@ -61,9 +53,9 @@ pub(crate) mod document {
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
             // run the auditor tasks
-            crate::service::auditor::tree::open(session.clone(), &client, uri.clone()).await?;
+            crate::service::auditor::tree::open(session.clone(), uri.clone()).await?;
             // run the elaborator tasks
-            crate::service::elaborator::tree::open(session.clone(), &client, uri.clone()).await?;
+            crate::service::elaborator::tree::open(session.clone(), uri.clone()).await?;
         } else {
             // TODO: report
             log::warn!("tree_was_generated == false");

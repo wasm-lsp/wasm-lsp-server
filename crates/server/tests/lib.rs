@@ -90,7 +90,7 @@ mod lsp {
         let service = &mut test::service::spawn()?.0;
 
         assert_ready!(service, Ok(()));
-        let request = &json!({ "jsonrpc": "2.0", "method": "initialized" });
+        let request = &json!({ "jsonrpc": "2.0", "method": "initialized", "params": {} });
         let response = None::<Value>;
         assert_exchange!(service, request, Ok(response));
 

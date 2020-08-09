@@ -12,8 +12,7 @@ async fn main() -> anyhow::Result<()> {
 
     wasm_language_server::cli::cli();
 
-    let server = wasm_language_server::lsp::server::Server::new()?;
-    let (service, messages) = LspService::new(server);
+    let (service, messages) = LspService::new(|client| wasm_language_server::lsp::server::Server::new(client).unwrap());
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
     Server::new(stdin, stdout).interleave(messages).serve(service).await;
