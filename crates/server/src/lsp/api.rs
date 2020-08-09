@@ -1,11 +1,11 @@
 //! Definitions for the request handlers.
 
 use crate::lsp::server::Server;
-use tower_lsp::{jsonrpc::Result, lsp_types::*, Client, LanguageServer};
+use tower_lsp::{jsonrpc::Result, lsp_types::*, LanguageServer};
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Server {
-    async fn initialize(&self, _: &Client, params: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
         log::info!("{:?}", params);
         let capabilities = crate::lsp::capabilities::capabilities();
         Ok(InitializeResult {
@@ -14,28 +14,28 @@ impl LanguageServer for Server {
         })
     }
 
-    async fn initialized(&self, client: &Client, _: InitializedParams) {
-        client.log_message(MessageType::Info, "server initialized!");
+    async fn initialized(&self, _: InitializedParams) {
+        self.client.log_message(MessageType::Info, "server initialized!");
     }
 
     async fn shutdown(&self) -> Result<()> {
         Ok(())
     }
 
-    async fn did_open(&self, client: &Client, params: DidOpenTextDocumentParams) {
-        crate::service::synchronizer::document::open(self.session.clone(), client.clone(), params)
+    async fn did_open(&self, params: DidOpenTextDocumentParams) {
+        crate::service::synchronizer::document::open(self.session.clone(), params)
             .await
             .unwrap()
     }
 
-    async fn did_change(&self, client: &Client, params: DidChangeTextDocumentParams) {
-        crate::service::synchronizer::document::change(self.session.clone(), client.clone(), params)
+    async fn did_change(&self, params: DidChangeTextDocumentParams) {
+        crate::service::synchronizer::document::change(self.session.clone(), params)
             .await
             .unwrap()
     }
 
-    async fn did_close(&self, client: &Client, params: DidCloseTextDocumentParams) {
-        crate::service::synchronizer::document::close(self.session.clone(), client.clone(), params)
+    async fn did_close(&self, params: DidCloseTextDocumentParams) {
+        crate::service::synchronizer::document::close(self.session.clone(), params)
             .await
             .unwrap()
     }

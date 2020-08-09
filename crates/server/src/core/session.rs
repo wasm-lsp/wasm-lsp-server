@@ -10,13 +10,15 @@ use dashmap::{
     DashMap,
 };
 use futures::stream::{self, StreamExt};
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 use tokio::time::timeout;
-use tower_lsp::lsp_types::*;
+use tower_lsp::{lsp_types::*, Client};
 use zerocopy::AsBytes;
 
 /// Represents the current state of the LSP service.
 pub(crate) struct Session {
+    /// The LSP client handle.
+    pub(crate) client: Arc<Client>,
     /// The document metadata database.
     database: Database,
     /// The store of currently open documents.
@@ -25,10 +27,14 @@ pub(crate) struct Session {
 
 impl Session {
     /// Create a new session.
-    pub(crate) fn new() -> Fallible<Self> {
+    pub(crate) fn new(client: Arc<Client>) -> Fallible<Self> {
         let database = Database::new()?;
         let documents = DashMap::new();
-        Ok(Session { database, documents })
+        Ok(Session {
+            client,
+            database,
+            documents,
+        })
     }
 
     /// Insert an opened document into the session. Updates the documents hashmap and sets the
