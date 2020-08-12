@@ -26,11 +26,10 @@ The server has not yet had a stable release. You can build and install it locall
 First ensure you have the [rust toolchain](https://rustup.rs/) installed, then proceed as follows:
 
 ```bash
-git clone --recursive https://github.com/wasm-lsp/wasm-language-server
+git clone https://github.com/wasm-lsp/wasm-language-server
 cd wasm-language-server
 git submodule update --init --recursive
-cd crates/server
-cargo install --path .
+cargo xtask install
 ```
 
 ### Installing the Client Extension
