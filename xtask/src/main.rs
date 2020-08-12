@@ -1,7 +1,10 @@
-mod metadata {
-    #![allow(dead_code)]
-    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+//! Cargo xtask definitions for the wasm-language-server project.
 
+#![deny(clippy::all)]
+#![deny(missing_docs)]
+#![deny(unsafe_code)]
+
+mod metadata {
     pub fn cargo() -> anyhow::Result<String> {
         // NOTE: we use the cargo wrapper rather than the binary reported through the "CARGO" environment
         // variable because we need to be able to invoke cargo with different toolchains (e.g., +nightly)
