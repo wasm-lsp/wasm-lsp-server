@@ -18,18 +18,14 @@ mod metadata {
 }
 
 fn main() -> anyhow::Result<()> {
-    let app = clap::App::new(metadata::PKG_NAME)
-        .author(metadata::PKG_AUTHORS)
-        .version(metadata::PKG_VERSION)
-        .about(metadata::PKG_DESCRIPTION)
-        .subcommands(vec![
-            clap::SubCommand::with_name("check"),
-            clap::SubCommand::with_name("clippy"),
-            clap::SubCommand::with_name("doc"),
-            clap::SubCommand::with_name("format"),
-            clap::SubCommand::with_name("install"),
-            clap::SubCommand::with_name("test"),
-        ]);
+    let app = clap::App::new("xtask").subcommands(vec![
+        clap::SubCommand::with_name("check"),
+        clap::SubCommand::with_name("clippy"),
+        clap::SubCommand::with_name("doc"),
+        clap::SubCommand::with_name("format"),
+        clap::SubCommand::with_name("install"),
+        clap::SubCommand::with_name("test"),
+    ]);
 
     let matches = app.get_matches_safe()?;
 
