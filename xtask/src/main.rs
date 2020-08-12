@@ -33,7 +33,7 @@ fn main() -> anyhow::Result<()> {
 
     let matches = app.get_matches_safe()?;
 
-    if let Some(_check) = matches.subcommand_matches("check") {
+    if matches.subcommand_matches("check").is_some() {
         let cargo = metadata::cargo()?;
         let mut cmd = std::process::Command::new(cargo);
         cmd.current_dir(metadata::project_root());
@@ -51,7 +51,7 @@ fn main() -> anyhow::Result<()> {
         cmd.status()?;
     }
 
-    if let Some(_clippy) = matches.subcommand_matches("clippy") {
+    if matches.subcommand_matches("clippy").is_some() {
         let cargo = metadata::cargo()?;
         let mut cmd = std::process::Command::new(cargo);
         cmd.current_dir(metadata::project_root());
@@ -71,7 +71,7 @@ fn main() -> anyhow::Result<()> {
         cmd.status()?;
     }
 
-    if let Some(_doc) = matches.subcommand_matches("doc") {
+    if matches.subcommand_matches("doc").is_some() {
         let cargo = metadata::cargo()?;
         let mut cmd = std::process::Command::new(cargo);
         cmd.current_dir(metadata::project_root());
@@ -79,7 +79,7 @@ fn main() -> anyhow::Result<()> {
         cmd.status()?;
     }
 
-    if let Some(_format) = matches.subcommand_matches("format") {
+    if matches.subcommand_matches("format").is_some() {
         let cargo = metadata::cargo()?;
         let mut cmd = std::process::Command::new(cargo);
         cmd.current_dir(metadata::project_root());
@@ -87,7 +87,7 @@ fn main() -> anyhow::Result<()> {
         cmd.status()?;
     }
 
-    if let Some(_install) = matches.subcommand_matches("install") {
+    if matches.subcommand_matches("install").is_some() {
         let cargo = metadata::cargo()?;
         let mut cmd = std::process::Command::new(cargo);
         cmd.current_dir(metadata::project_root());
@@ -95,7 +95,7 @@ fn main() -> anyhow::Result<()> {
         cmd.status()?;
     }
 
-    if let Some(_test) = matches.subcommand_matches("test") {
+    if matches.subcommand_matches("test").is_some() {
         let cargo = metadata::cargo()?;
         let mut cmd = std::process::Command::new(cargo);
         cmd.current_dir(metadata::project_root());
