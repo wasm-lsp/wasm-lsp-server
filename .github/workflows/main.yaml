@@ -19,8 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@main
-      with:
-        submodules: recursive
     - name: Fetch latest release version of cargo-audit
       run: |
         mkdir -p .github/caching
@@ -50,17 +48,20 @@ jobs:
       RUST_TOOLCHAIN: 1.42.0
     steps:
       - uses: actions/checkout@main
-        with:
-          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
           rustup toolchain install $RUST_TOOLCHAIN
-      - name: Run cargo check
+      - name: Run cargo xtask init
         uses: actions-rs/cargo@v1
         with:
-          command: check
-          args: --all-features --all-targets --benches --bins --examples --tests --workspace
+          command: xtask
+          args: init
+      - name: Run cargo xtask check
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: check
 
   # verify that project passes clippy lints
   cargo-clippy:
@@ -71,12 +72,15 @@ jobs:
       RUST_TOOLCHAIN: 1.42.0
     steps:
       - uses: actions/checkout@main
-        with:
-          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
           rustup toolchain install $RUST_TOOLCHAIN --component clippy
+      - name: Run cargo xtask init
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: init
       - name: Run cargo clippy
         uses: actions-rs/clippy-check@v1
         with:
@@ -92,18 +96,21 @@ jobs:
       RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@main
-        with:
-          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
           rustup toolchain install $RUST_TOOLCHAIN
-      - name: Run cargo doc
+      - name: Run cargo xtask init
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: init
+      - name: Run cargo xtask doc
         uses: actions-rs/cargo@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-          command: doc
-          args: --all-features --no-deps --package wasm-language-server
+          command: xtask
+          args: doc
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -118,8 +125,6 @@ jobs:
       RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@main
-        with:
-          submodules: recursive
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
@@ -140,14 +145,17 @@ jobs:
       RUST_TOOLCHAIN: 1.42.0
     steps:
       - uses: actions/checkout@main
+      - name: Run cargo xtask init
+        uses: actions-rs/cargo@v1
         with:
-          submodules: recursive
+          command: xtask
+          args: init --with-corpus
       - name: Install Rust toolchain
         run: |
           rustup set profile minimal
           rustup toolchain install $RUST_TOOLCHAIN
-      - name: Run cargo test
+      - name: Run cargo xtask test
         uses: actions-rs/cargo@v1
         with:
-          command: test
-          args: --all-features --all-targets --benches --bins --examples --tests --workspace
+          command: xtask
+          args: test
