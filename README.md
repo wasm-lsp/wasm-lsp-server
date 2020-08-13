@@ -74,7 +74,7 @@ Nothing planned.
 
 ## Language Server Feature Support
 
-- 🗹 document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/)
+- 🗹 document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/tree-sitter-wasm)
 - 🗹 document symbol provider
 - 🗹 syntax error diagnostics provider
 
