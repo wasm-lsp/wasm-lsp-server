@@ -28,7 +28,7 @@ First ensure you have the [rust toolchain](https://rustup.rs/) installed, then p
 ```bash
 git clone https://github.com/wasm-lsp/wasm-language-server
 cd wasm-language-server
-cargo xtask init
+cargo xtask init    # use 'cargo xtask init --with-corpus' to initialize full test suite
 cargo xtask install
 ```
 
