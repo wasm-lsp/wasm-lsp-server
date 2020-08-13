@@ -26,6 +26,7 @@ fn main() -> anyhow::Result<()> {
         clap::SubCommand::with_name("clippy"),
         clap::SubCommand::with_name("doc"),
         clap::SubCommand::with_name("format"),
+        clap::SubCommand::with_name("init"),
         clap::SubCommand::with_name("install"),
         clap::SubCommand::with_name("test"),
     ]);
@@ -83,6 +84,26 @@ fn main() -> anyhow::Result<()> {
         let mut cmd = std::process::Command::new(cargo);
         cmd.current_dir(metadata::project_root());
         cmd.args(&["+nightly", "fmt", "--all"]);
+        cmd.status()?;
+    }
+
+    if matches.subcommand_matches("init").is_some() {
+        let paths = &["vendor/corpus", "vendor/tree-sitter-wasm"];
+
+        for path in paths {
+            let submodule = std::path::Path::new(path).to_str().unwrap();
+            let mut cmd = std::process::Command::new("git");
+            cmd.current_dir(metadata::project_root());
+            cmd.args(&["submodule", "update", "--init", "--depth", "1", "--", submodule]);
+            cmd.status()?;
+        }
+
+        let mut cmd = std::process::Command::new("git");
+        let root = metadata::project_root();
+        let root = root.to_str().unwrap();
+        let path = [root, "vendor", "corpus"].iter().collect::<std::path::PathBuf>();
+        cmd.current_dir(path);
+        cmd.args(&["submodule", "update", "--init", "--depth", "1"]);
         cmd.status()?;
     }
 
