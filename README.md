@@ -28,7 +28,7 @@ First ensure you have the [rust toolchain](https://rustup.rs/) installed, then p
 ```bash
 git clone https://github.com/wasm-lsp/wasm-language-server
 cd wasm-language-server
-git submodule update --init --recursive
+cargo xtask init
 cargo xtask install
 ```
 
