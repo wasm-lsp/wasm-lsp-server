@@ -181,7 +181,7 @@ mod subcommand {
                     for grammar in &["wast", "wat", "wit", "witx"] {
                         // Configure the grammar directory path.
                         let grammar_path = [tree_sitter_path, grammar].iter().collect::<PathBuf>();
-                        let grammar_path = fs::canonicalize(grammar_path)?;
+                        let grammar_path = dunce::canonicalize(grammar_path)?;
                         let grammar_path = grammar_path.to_str().unwrap();
 
                         // Configure the grammar.js tree-sitter grammar definition path.
