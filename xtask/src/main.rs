@@ -22,7 +22,11 @@ fn main() -> anyhow::Result<()> {
                 .long("rebuild-parsers")
                 .help("Rebuild tree-sitter parsers if necessary"),
         ),
-        clap::SubCommand::with_name("test"),
+        clap::SubCommand::with_name("test").arg(
+            clap::Arg::with_name("rebuild-parsers")
+                .long("rebuild-parsers")
+                .help("Rebuild tree-sitter parsers if necessary"),
+        ),
     ]);
 
     let matches = app.get_matches_safe()?;
@@ -34,7 +38,7 @@ fn main() -> anyhow::Result<()> {
         Some("format") => subcommand::cargo::format()?,
         Some("init") => subcommand::init(&matches)?,
         Some("install") => subcommand::cargo::install(&matches)?,
-        Some("test") => subcommand::cargo::test()?,
+        Some("test") => subcommand::cargo::test(&matches)?,
         _ => {},
     }
 
@@ -62,11 +66,7 @@ mod metadata {
 mod subcommand {
     pub mod cargo {
         use crate::metadata;
-        use std::{
-            fs,
-            path::PathBuf,
-            process::{Command, Stdio},
-        };
+        use std::process::Command;
 
         // Run `cargo check` with custom options.
         pub fn check() -> anyhow::Result<()> {
@@ -134,80 +134,7 @@ mod subcommand {
         pub fn install(matches: &clap::ArgMatches) -> anyhow::Result<()> {
             if let Some(matches) = matches.subcommand_matches("install") {
                 if matches.is_present("rebuild-parsers") {
-                    // Configure the project root path.
-                    let root_path = metadata::project_root();
-                    let root_path = root_path.to_str().unwrap();
-
-                    // Configure the tree-sitter directory path.
-                    let tree_sitter_path = [root_path, "vendor", "tree-sitter-wasm"].iter().collect::<PathBuf>();
-                    let tree_sitter_path = tree_sitter_path.to_str().unwrap();
-
-                    // Configure the tree-sitter cli binary path.
-                    let tree_sitter_cli_path = [tree_sitter_path, "node_modules", ".bin", "tree-sitter"]
-                        .iter()
-                        .collect::<PathBuf>();
-                    let tree_sitter_cli_path = tree_sitter_cli_path.to_str().unwrap();
-
-                    // Check if the tree-sitter cli binary is available.
-                    let mut cmd;
-                    if cfg!(target_os = "windows") {
-                        cmd = Command::new("cmd");
-                        cmd.args(&["/C", format!("{} --help", tree_sitter_cli_path).as_ref()]);
-                    } else {
-                        cmd = Command::new("sh");
-                        cmd.args(&["-c", format!("{} --help", tree_sitter_cli_path).as_ref()]);
-                    };
-                    cmd.stdout(Stdio::null());
-                    cmd.stderr(Stdio::null());
-
-                    // Run `npm ci` first if `tree-sitter` binary is not available.
-                    if !cmd.status()?.success() {
-                        log::info!("installing tree-sitter toolchain");
-                        let mut cmd;
-                        if cfg!(target_os = "windows") {
-                            cmd = Command::new("cmd");
-                            cmd.args(&["/C", "npm ci"]);
-                        } else {
-                            cmd = Command::new("sh");
-                            cmd.args(&["-c", "npm ci"]);
-                        }
-                        cmd.current_dir(tree_sitter_path);
-                        cmd.stdout(Stdio::null());
-                        cmd.stderr(Stdio::null());
-                        cmd.status()?;
-                    }
-
-                    // Iterate through the different grammar types.
-                    for grammar in &["wast", "wat", "wit", "witx"] {
-                        // Configure the grammar directory path.
-                        let grammar_path = [tree_sitter_path, grammar].iter().collect::<PathBuf>();
-                        let grammar_path = dunce::canonicalize(grammar_path)?;
-                        let grammar_path = grammar_path.to_str().unwrap();
-
-                        // Configure the grammar.js tree-sitter grammar definition path.
-                        let js_path = [grammar_path, "grammar.js"].iter().collect::<PathBuf>();
-                        let js_date = fs::metadata(js_path)?.modified()?;
-
-                        // Configure the parser.c tree-sitter generated parser path.
-                        let cc_path = [grammar_path, "src", "parser.c"].iter().collect::<PathBuf>();
-                        let cc_date = fs::metadata(cc_path)?.modified()?;
-
-                        // Check if the modification date on the grammar definition is newer than the generated parser.
-                        // If it is, we want to regenerate the parser from the updated grammar.
-                        if cc_date.duration_since(js_date).is_err() {
-                            log::info!("regenerating parser: {}", grammar);
-                            let commands = format!("cd {} && {} generate", grammar_path, tree_sitter_cli_path);
-                            let mut cmd;
-                            if cfg!(target_os = "windows") {
-                                cmd = Command::new("cmd");
-                                cmd.args(&["/C", commands.as_ref()]);
-                            } else {
-                                cmd = Command::new("sh");
-                                cmd.args(&["-c", commands.as_ref()]);
-                            }
-                            cmd.status()?;
-                        }
-                    }
+                    crate::util::tree_sitter::rebuild_parsers()?;
                 }
             }
 
@@ -221,7 +148,13 @@ mod subcommand {
         }
 
         // Run `cargo test` with custom options.
-        pub fn test() -> anyhow::Result<()> {
+        pub fn test(matches: &clap::ArgMatches) -> anyhow::Result<()> {
+            if let Some(matches) = matches.subcommand_matches("test") {
+                if matches.is_present("rebuild-parsers") {
+                    crate::util::tree_sitter::rebuild_parsers()?;
+                }
+            }
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -277,5 +210,96 @@ mod subcommand {
         }
 
         Ok(())
+    }
+}
+
+mod util {
+    pub mod tree_sitter {
+        use crate::metadata;
+        use std::{
+            fs,
+            path::PathBuf,
+            process::{Command, Stdio},
+        };
+
+        // Rebuild tree-sitter parsers if necessary.
+        pub fn rebuild_parsers() -> anyhow::Result<()> {
+            // Configure the project root path.
+            let root_path = metadata::project_root();
+            let root_path = root_path.to_str().unwrap();
+
+            // Configure the tree-sitter directory path.
+            let tree_sitter_path = [root_path, "vendor", "tree-sitter-wasm"].iter().collect::<PathBuf>();
+            let tree_sitter_path = tree_sitter_path.to_str().unwrap();
+
+            // Configure the tree-sitter cli binary path.
+            let tree_sitter_cli_path = [tree_sitter_path, "node_modules", ".bin", "tree-sitter"]
+                .iter()
+                .collect::<PathBuf>();
+            let tree_sitter_cli_path = tree_sitter_cli_path.to_str().unwrap();
+
+            // Check if the tree-sitter cli binary is available.
+            let mut cmd;
+            if cfg!(target_os = "windows") {
+                cmd = Command::new("cmd");
+                cmd.args(&["/C", format!("{} --help", tree_sitter_cli_path).as_ref()]);
+            } else {
+                cmd = Command::new("sh");
+                cmd.args(&["-c", format!("{} --help", tree_sitter_cli_path).as_ref()]);
+            };
+            cmd.stdout(Stdio::null());
+            cmd.stderr(Stdio::null());
+
+            // Run `npm ci` first if `tree-sitter` binary is not available.
+            if !cmd.status()?.success() {
+                log::info!("installing tree-sitter toolchain");
+                let mut cmd;
+                if cfg!(target_os = "windows") {
+                    cmd = Command::new("cmd");
+                    cmd.args(&["/C", "npm ci"]);
+                } else {
+                    cmd = Command::new("sh");
+                    cmd.args(&["-c", "npm ci"]);
+                }
+                cmd.current_dir(tree_sitter_path);
+                cmd.stdout(Stdio::null());
+                cmd.stderr(Stdio::null());
+                cmd.status()?;
+            }
+
+            // Iterate through the different grammar types.
+            for grammar in &["wast", "wat", "wit", "witx"] {
+                // Configure the grammar directory path.
+                let grammar_path = [tree_sitter_path, grammar].iter().collect::<PathBuf>();
+                let grammar_path = dunce::canonicalize(grammar_path)?;
+                let grammar_path = grammar_path.to_str().unwrap();
+
+                // Configure the grammar.js tree-sitter grammar definition path.
+                let js_path = [grammar_path, "grammar.js"].iter().collect::<PathBuf>();
+                let js_date = fs::metadata(js_path)?.modified()?;
+
+                // Configure the parser.c tree-sitter generated parser path.
+                let cc_path = [grammar_path, "src", "parser.c"].iter().collect::<PathBuf>();
+                let cc_date = fs::metadata(cc_path)?.modified()?;
+
+                // Check if the modification date on the grammar definition is newer than the generated parser.
+                // If it is, we want to regenerate the parser from the updated grammar.
+                if cc_date.duration_since(js_date).is_err() {
+                    log::info!("regenerating parser: {}", grammar);
+                    let commands = format!("cd {} && {} generate", grammar_path, tree_sitter_cli_path);
+                    let mut cmd;
+                    if cfg!(target_os = "windows") {
+                        cmd = Command::new("cmd");
+                        cmd.args(&["/C", commands.as_ref()]);
+                    } else {
+                        cmd = Command::new("sh");
+                        cmd.args(&["-c", commands.as_ref()]);
+                    }
+                    cmd.status()?;
+                }
+            }
+
+            Ok(())
+        }
     }
 }
