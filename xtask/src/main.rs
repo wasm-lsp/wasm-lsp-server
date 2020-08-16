@@ -218,7 +218,6 @@ mod util {
     pub mod tree_sitter {
         use crate::metadata;
         use std::{
-            fs,
             path::PathBuf,
             process::{Command, Stdio},
         };
@@ -275,29 +274,17 @@ mod util {
                 let grammar_path = dunce::canonicalize(grammar_path)?;
                 let grammar_path = grammar_path.to_str().unwrap();
 
-                // Configure the grammar.js tree-sitter grammar definition path.
-                let js_path = [grammar_path, "grammar.js"].iter().collect::<PathBuf>();
-                let js_date = fs::metadata(js_path)?.modified()?;
-
-                // Configure the parser.c tree-sitter generated parser path.
-                let cc_path = [grammar_path, "src", "parser.c"].iter().collect::<PathBuf>();
-                let cc_date = fs::metadata(cc_path)?.modified()?;
-
-                // Check if the modification date on the grammar definition is newer than the generated parser.
-                // If it is, we want to regenerate the parser from the updated grammar.
-                if cc_date.duration_since(js_date).is_err() {
-                    log::info!("regenerating parser: {}", grammar);
-                    let commands = format!("cd {} && {} generate", grammar_path, tree_sitter_cli_path);
-                    let mut cmd;
-                    if cfg!(target_os = "windows") {
-                        cmd = Command::new("cmd");
-                        cmd.args(&["/C", commands.as_ref()]);
-                    } else {
-                        cmd = Command::new("sh");
-                        cmd.args(&["-c", commands.as_ref()]);
-                    }
-                    cmd.status()?;
+                log::info!("regenerating parser: {}", grammar);
+                let commands = format!("cd {} && {} generate", grammar_path, tree_sitter_cli_path);
+                let mut cmd;
+                if cfg!(target_os = "windows") {
+                    cmd = Command::new("cmd");
+                    cmd.args(&["/C", commands.as_ref()]);
+                } else {
+                    cmd = Command::new("sh");
+                    cmd.args(&["-c", commands.as_ref()]);
                 }
+                cmd.status()?;
             }
 
             Ok(())
