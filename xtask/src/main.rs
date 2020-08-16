@@ -17,11 +17,17 @@ fn main() -> anyhow::Result<()> {
                 .long("with-corpus")
                 .help("Initialize corpus submodules"),
         ),
-        clap::SubCommand::with_name("install").arg(
-            clap::Arg::with_name("rebuild-parsers")
-                .long("rebuild-parsers")
-                .help("Rebuild tree-sitter parsers if necessary"),
-        ),
+        clap::SubCommand::with_name("install")
+            .arg(
+                clap::Arg::with_name("debug")
+                    .long("debug")
+                    .help("Build language server in debug mode"),
+            )
+            .arg(
+                clap::Arg::with_name("rebuild-parsers")
+                    .long("rebuild-parsers")
+                    .help("Rebuild tree-sitter parsers if necessary"),
+            ),
         clap::SubCommand::with_name("test").arg(
             clap::Arg::with_name("rebuild-parsers")
                 .long("rebuild-parsers")
@@ -132,7 +138,12 @@ mod subcommand {
 
         // Run `cargo install` with custom options.
         pub fn install(matches: &clap::ArgMatches) -> anyhow::Result<()> {
+            let mut build_mode = "--release";
+
             if let Some(matches) = matches.subcommand_matches("install") {
+                if matches.is_present("debug") {
+                    build_mode = "--debug";
+                }
                 if matches.is_present("rebuild-parsers") {
                     crate::util::tree_sitter::rebuild_parsers()?;
                 }
@@ -141,7 +152,7 @@ mod subcommand {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["install", "--path", "crates/server", "--offline"]);
+            cmd.args(&["install", build_mode, "--path", "crates/server", "--offline"]);
             cmd.status()?;
 
             Ok(())
