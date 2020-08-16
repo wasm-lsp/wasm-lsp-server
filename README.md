@@ -57,7 +57,7 @@ The server also supports parsing WebAssembly modules that use the following feat
 #### Phase 3 (Implementation)
 
 - 🗹 [annotations](https://github.com/WebAssembly/annotations)
-- ☐ [simd](https://github.com/WebAssembly/simd) (soon)
+- 🗹 [simd](https://github.com/WebAssembly/simd)
 
 #### Phase 2 (Specification)
 
