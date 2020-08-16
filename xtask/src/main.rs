@@ -295,7 +295,10 @@ mod util {
                     cmd = Command::new("sh");
                     cmd.args(&["-c", commands.as_ref()]);
                 }
-                cmd.status()?;
+                let status = cmd.status()?;
+                if !status.success() {
+                    panic!("failed to regenerate parser: {}", grammar);
+                }
             }
 
             Ok(())
