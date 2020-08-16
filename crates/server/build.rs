@@ -1,8 +1,6 @@
 use std::path::Path;
 
-type Error = Box<dyn std::error::Error + 'static>;
-
-fn compile_tree_sitter_grammars() -> Result<(), Error> {
+fn compile_tree_sitter_grammars() -> anyhow::Result<()> {
     let dir = Path::new("../../vendor/tree-sitter-wasm");
 
     println!("cargo:rerun-if-changed={:?}", dir.join("wast/src/parser.c"));
@@ -36,12 +34,12 @@ fn compile_tree_sitter_grammars() -> Result<(), Error> {
     Ok(())
 }
 
-fn collect_metadata() -> Result<(), Error> {
+fn collect_metadata() -> anyhow::Result<()> {
     built::write_built_file()?;
     Ok(())
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> anyhow::Result<()> {
     compile_tree_sitter_grammars()?;
     collect_metadata()?;
     Ok(())
