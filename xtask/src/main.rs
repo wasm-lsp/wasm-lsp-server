@@ -170,6 +170,7 @@ mod subcommand {
                 "--workspace",
             ]);
             cmd.status()?;
+
             Ok(())
         }
     }
