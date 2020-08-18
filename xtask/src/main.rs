@@ -7,45 +7,48 @@
 fn main() -> anyhow::Result<()> {
     env_logger::try_init()?;
 
-    let app = clap::App::new("xtask").subcommands(vec![
-        clap::SubCommand::with_name("check"),
-        clap::SubCommand::with_name("clippy"),
-        clap::SubCommand::with_name("doc"),
-        clap::SubCommand::with_name("format"),
-        clap::SubCommand::with_name("init").arg(
-            clap::Arg::with_name("with-corpus")
-                .long("with-corpus")
-                .help("Initialize corpus submodules"),
-        ),
-        clap::SubCommand::with_name("install")
-            .arg(
-                clap::Arg::with_name("debug")
-                    .long("debug")
-                    .help("Build language server in debug mode"),
-            )
-            .arg(
-                clap::Arg::with_name("rebuild-parsers")
-                    .long("rebuild-parsers")
-                    .help("Rebuild tree-sitter parsers if necessary"),
-            ),
-        clap::SubCommand::with_name("test").arg(
-            clap::Arg::with_name("rebuild-parsers")
-                .long("rebuild-parsers")
-                .help("Rebuild tree-sitter parsers if necessary"),
-        ),
-    ]);
+    let app = clap::App::new("xtask")
+        .setting(clap::AppSettings::TrailingVarArg)
+        .subcommands({
+            let rest = &clap::Arg::with_name("rest")
+                .help("Extra arguments to pass to the underlying cargo command")
+                .last(true)
+                .multiple(true);
+            let subcommands = vec![
+                clap::SubCommand::with_name("check").arg(rest),
+                clap::SubCommand::with_name("clippy").arg(rest),
+                clap::SubCommand::with_name("doc").arg(rest),
+                clap::SubCommand::with_name("format").arg(rest),
+                clap::SubCommand::with_name("init").arg(
+                    clap::Arg::with_name("with-corpus")
+                        .long("with-corpus")
+                        .help("Initialize corpus submodules"),
+                ),
+                clap::SubCommand::with_name("install").arg(rest).arg(
+                    clap::Arg::with_name("rebuild-parsers")
+                        .long("rebuild-parsers")
+                        .help("Rebuild tree-sitter parsers if necessary"),
+                ),
+                clap::SubCommand::with_name("test").arg(rest).arg(
+                    clap::Arg::with_name("rebuild-parsers")
+                        .long("rebuild-parsers")
+                        .help("Rebuild tree-sitter parsers if necessary"),
+                ),
+            ];
+            subcommands
+        });
 
     let matches = app.get_matches_safe()?;
 
-    match matches.subcommand_name() {
-        Some("check") => subcommand::cargo::check()?,
-        Some("clippy") => subcommand::cargo::clippy()?,
-        Some("doc") => subcommand::cargo::doc()?,
-        Some("format") => subcommand::cargo::format()?,
-        Some("init") => subcommand::init(&matches)?,
-        Some("install") => subcommand::cargo::install(&matches)?,
-        Some("test") => subcommand::cargo::test(&matches)?,
-        _ => {},
+    match matches.subcommand() {
+        ("check", Some(sub_matches)) => subcommand::cargo::check(sub_matches)?,
+        ("clippy", Some(sub_matches)) => subcommand::cargo::clippy(sub_matches)?,
+        ("doc", Some(sub_matches)) => subcommand::cargo::doc(sub_matches)?,
+        ("format", Some(sub_matches)) => subcommand::cargo::format(sub_matches)?,
+        ("init", Some(sub_matches)) => subcommand::init(sub_matches)?,
+        ("install", Some(sub_matches)) => subcommand::cargo::install(sub_matches)?,
+        ("test", Some(sub_matches)) => subcommand::cargo::test(sub_matches)?,
+        _ => {}
     }
 
     Ok(())
@@ -75,7 +78,7 @@ mod subcommand {
         use std::process::Command;
 
         // Run `cargo check` with custom options.
-        pub fn check() -> anyhow::Result<()> {
+        pub fn check(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -90,12 +93,15 @@ mod subcommand {
                 "--tests",
                 "--workspace",
             ]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo clippy` with custom options.
-        pub fn clippy() -> anyhow::Result<()> {
+        pub fn clippy(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -112,58 +118,61 @@ mod subcommand {
                 "-D",
                 "warnings",
             ]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo doc` with custom options.
-        pub fn doc() -> anyhow::Result<()> {
+        pub fn doc(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "doc", "--all-features", "--no-deps"]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo format` with custom options.
-        pub fn format() -> anyhow::Result<()> {
+        pub fn format(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "fmt", "--all"]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo install` with custom options.
-        pub fn install(matches: &clap::ArgMatches) -> anyhow::Result<()> {
-            let mut build_mode = "--release";
-
-            if let Some(matches) = matches.subcommand_matches("install") {
-                if matches.is_present("debug") {
-                    build_mode = "--debug";
-                }
-                if matches.is_present("rebuild-parsers") {
-                    crate::util::tree_sitter::rebuild_parsers()?;
-                }
+        pub fn install(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+            if sub_matches.is_present("rebuild-parsers") {
+                crate::util::tree_sitter::rebuild_parsers()?;
             }
 
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["install", build_mode, "--path", "crates/server", "--offline"]);
+            cmd.args(&["install", "--path", "crates/server"]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
             cmd.status()?;
 
             Ok(())
         }
 
         // Run `cargo test` with custom options.
-        pub fn test(matches: &clap::ArgMatches) -> anyhow::Result<()> {
-            if let Some(matches) = matches.subcommand_matches("test") {
-                if matches.is_present("rebuild-parsers") {
-                    crate::util::tree_sitter::rebuild_parsers()?;
-                }
+        pub fn test(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+            if sub_matches.is_present("rebuild-parsers") {
+                crate::util::tree_sitter::rebuild_parsers()?;
             }
 
             let cargo = metadata::cargo()?;
@@ -180,6 +189,9 @@ mod subcommand {
                 "--tests",
                 "--workspace",
             ]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
             cmd.status()?;
 
             Ok(())
@@ -193,32 +205,30 @@ mod subcommand {
     };
 
     // Initialize submodules (e.g., for tree-sitter grammars and test suites)
-    pub fn init(matches: &clap::ArgMatches) -> anyhow::Result<()> {
-        if let Some(matches) = matches.subcommand_matches("init") {
-            // initialize "vendor/tree-sitter-wasm" submodule
-            let submodule = Path::new("vendor/tree-sitter-wasm").to_str().unwrap();
+    pub fn init(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+        // initialize "vendor/tree-sitter-wasm" submodule
+        let submodule = Path::new("vendor/tree-sitter-wasm").to_str().unwrap();
+        let mut cmd = Command::new("git");
+        cmd.current_dir(metadata::project_root());
+        cmd.args(&["submodule", "update", "--init", "--depth", "1", "--", submodule]);
+        cmd.status()?;
+
+        if sub_matches.is_present("with-corpus") {
+            // initialize "vendor/corpus" submodule
+            let submodule = Path::new("vendor/corpus").to_str().unwrap();
             let mut cmd = Command::new("git");
             cmd.current_dir(metadata::project_root());
             cmd.args(&["submodule", "update", "--init", "--depth", "1", "--", submodule]);
             cmd.status()?;
 
-            if matches.is_present("with-corpus") {
-                // initialize "vendor/corpus" submodule
-                let submodule = Path::new("vendor/corpus").to_str().unwrap();
-                let mut cmd = Command::new("git");
-                cmd.current_dir(metadata::project_root());
-                cmd.args(&["submodule", "update", "--init", "--depth", "1", "--", submodule]);
-                cmd.status()?;
-
-                // initialize "vendor/corpus/..." submodules
-                let mut cmd = Command::new("git");
-                let root = metadata::project_root();
-                let root = root.to_str().unwrap();
-                let path = [root, "vendor", "corpus"].iter().collect::<PathBuf>();
-                cmd.current_dir(path);
-                cmd.args(&["submodule", "update", "--init", "--depth", "1"]);
-                cmd.status()?;
-            }
+            // initialize "vendor/corpus/..." submodules
+            let mut cmd = Command::new("git");
+            let root = metadata::project_root();
+            let root = root.to_str().unwrap();
+            let path = [root, "vendor", "corpus"].iter().collect::<PathBuf>();
+            cmd.current_dir(path);
+            cmd.args(&["submodule", "update", "--init", "--depth", "1"]);
+            cmd.status()?;
         }
 
         Ok(())
