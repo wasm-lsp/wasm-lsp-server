@@ -48,7 +48,7 @@ fn main() -> anyhow::Result<()> {
         ("init", Some(sub_matches)) => subcommand::init(sub_matches)?,
         ("install", Some(sub_matches)) => subcommand::cargo::install(sub_matches)?,
         ("test", Some(sub_matches)) => subcommand::cargo::test(sub_matches)?,
-        _ => {}
+        _ => {},
     }
 
     Ok(())
