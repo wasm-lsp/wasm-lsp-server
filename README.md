@@ -63,6 +63,7 @@ The server also supports parsing WebAssembly modules that use the following feat
 #### Phase 2 (Specification)
 
 - 🗹 [exception-handling](https://github.com/WebAssembly/exception-handling)
+- 🗹 [function-references](https://github.com/WebAssembly/function-references)
 - 🗹 [threads](https://github.com/WebAssembly/threads)
 
 #### Phase 1 (Proposal)
