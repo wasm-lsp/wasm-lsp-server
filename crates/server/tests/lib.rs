@@ -133,6 +133,13 @@ mod lsp {
             }
 
             corpus_tests! {
+                corpus: multi_memory,
+                include: "vendor/corpus/vendor/WebAssembly/multi-memory/test/core/*.wast",
+                exclude: [
+                ],
+            }
+
+            corpus_tests! {
                 corpus: reference_types,
                 include: "vendor/corpus/vendor/WebAssembly/reference-types/test/core/*.wast",
                 exclude: [
