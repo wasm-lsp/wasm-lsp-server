@@ -1051,9 +1051,9 @@ checksum = "a35d656f2638b288b33495d1053ea74c40dc05ec0b92084dd71ca5566c4ed1dc"
 
 [[package]]
 name = "tower-lsp"
-version = "0.12.1"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fffe96b81d118354ffb5605a1defab5178dd6255250a371bbb81d53bc1f8644"
+checksum = "5d4af561060ca4fb5c6f10ff1c8bcd1bc95ee957211ee3e8e1a7a4a43abd49fa"
 dependencies = [
  "async-trait",
  "auto_impl",
@@ -1073,9 +1073,9 @@ dependencies = [
 
 [[package]]
 name = "tower-lsp-macros"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "822fa97904c3983765a6e8ecc5ee943e7d0f98bb19023696791f16152447946a"
+checksum = "5c51c24e3b5909be30d6ed472f934aa9b7d91abf2688013956b296b1d1e7b186"
 dependencies = [
  "heck",
  "proc-macro2",
