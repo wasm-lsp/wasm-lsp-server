@@ -92,7 +92,7 @@ pub(crate) mod tree {
             }
             // NOTE: else let elaborator handle
             let version = None;
-            session.client.publish_diagnostics(uri.clone(), diagnostics, version);
+            session.client.publish_diagnostics(uri, diagnostics, version).await;
         }
         Ok(())
     }
@@ -103,7 +103,7 @@ pub(crate) mod tree {
         // FIXME: handle this properly
         let diagnostics = vec![];
         let version = None;
-        session.client.publish_diagnostics(uri, diagnostics, version);
+        session.client.publish_diagnostics(uri, diagnostics, version).await;
         Ok(())
     }
 
