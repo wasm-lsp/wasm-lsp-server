@@ -130,7 +130,7 @@ mod subcommand {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["+nightly", "doc", "--all-features", "--no-deps"]);
+            cmd.args(&["+nightly", "doc"]);
             if let Some(values) = sub_matches.values_of("rest") {
                 cmd.args(values);
             }
