@@ -115,7 +115,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: doc
+          args: doc -- --all-features --no-deps --package wasm-language-server
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
