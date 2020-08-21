@@ -1,5 +1,11 @@
 name: main
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   # skip ci if the last commit contains the appropriate tag
   skip-commit:
@@ -114,6 +120,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/doc
+        if: github.event_name == 'push'
 
   # verify that code is formatted
   cargo-fmt:
