@@ -43,31 +43,15 @@ pub(crate) mod tree {
                                 // issues (see "comments.wast" and issue #42)
                                 if !cursor.is_error() {
                                     match document.language {
-                                        Language::Wast
-                                            if [
-                                                *wast::kind::COMMENT_BLOCK_ANNOT,
-                                                *wast::kind::COMMENT_BLOCK,
-                                                *wast::kind::COMMENT_LINE_ANNOT,
-                                                *wast::kind::COMMENT_LINE,
-                                            ]
-                                            .contains(&parent.kind_id()) =>
-                                        {
+                                        Language::Wast if wast::kind::is_comment(&parent.kind_id()) => {
                                             break 'captures;
                                         }
-                                        Language::Wat
-                                            if [
-                                                *wat::kind::COMMENT_BLOCK_ANNOT,
-                                                *wat::kind::COMMENT_BLOCK,
-                                                *wat::kind::COMMENT_LINE_ANNOT,
-                                                *wat::kind::COMMENT_LINE,
-                                            ]
-                                            .contains(&parent.kind_id()) =>
-                                        {
+                                        Language::Wat if wat::kind::is_comment(&parent.kind_id()) => {
                                             break 'captures;
                                         }
                                         _ => {
                                             break 'cursor;
-                                        },
+                                        }
                                     }
                                 }
                             }
