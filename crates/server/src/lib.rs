@@ -68,9 +68,7 @@ pub mod test {
         use tower_test::mock::Spawn;
 
         pub async fn call(service: &mut Spawn<LspService>, request: &Value) -> Result<Option<Value>, ExitedError> {
-            println!("before serde: {:#?}", request);
             let request = serde_json::from_value(request.clone()).unwrap();
-            println!(" after serde: {:#?}", request);
             let response = service.call(request).await?;
             let response = response.and_then(|x| serde_json::to_value(x).ok());
             Ok(response)
