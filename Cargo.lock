@@ -1223,10 +1223,12 @@ dependencies = [
 name = "wasm-language-server-macros"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "glob",
  "proc-macro2",
  "quote",
  "syn",
+ "thiserror",
 ]
 
 [[package]]
