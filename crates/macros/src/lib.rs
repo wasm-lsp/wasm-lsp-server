@@ -13,9 +13,7 @@ mod util {
         #[derive(thiserror::Error, Debug)]
         pub(crate) enum Error {
             #[error("Failed to compute language id for extension: {ext:?}")]
-            LanguageId {
-                ext: String,
-            },
+            LanguageId { ext: String },
         }
 
         pub(crate) fn from_ext(ext: &str) -> anyhow::Result<&str> {
