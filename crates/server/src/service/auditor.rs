@@ -47,13 +47,13 @@ pub(crate) mod tree {
                             match document.language {
                                 Language::Wast if wast::kind::is_comment(&parent.kind_id()) => {
                                     break 'captures;
-                                }
+                                },
                                 Language::Wat if wat::kind::is_comment(&parent.kind_id()) => {
                                     break 'captures;
-                                }
+                                },
                                 _ => {
                                     break 'cursor;
-                                }
+                                },
                             }
                         }
                     }
