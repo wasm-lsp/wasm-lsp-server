@@ -71,6 +71,10 @@ pub(crate) mod wast {
             pub(crate) static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub(crate) static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
         }
+
+        pub(crate) fn is_comment(kind_id: &u16) -> bool {
+            [*COMMENT_BLOCK_ANNOT, *COMMENT_BLOCK, *COMMENT_LINE_ANNOT, *COMMENT_LINE].contains(kind_id)
+        }
     }
 }
 
@@ -116,6 +120,10 @@ pub(crate) mod wat {
                 super::language().id_for_node_kind("module_field_type", true);
             pub(crate) static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub(crate) static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
+        }
+
+        pub(crate) fn is_comment(kind_id: &u16) -> bool {
+            [*COMMENT_BLOCK_ANNOT, *COMMENT_BLOCK, *COMMENT_LINE_ANNOT, *COMMENT_LINE].contains(kind_id)
         }
     }
 }
