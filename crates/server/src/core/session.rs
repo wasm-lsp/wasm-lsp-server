@@ -62,7 +62,7 @@ impl Session {
     /// until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call to
     /// Self::insert_document from another thread of control.
     pub(crate) async fn get_document(&self, uri: &Url) -> Fallible<Option<Ref<'_, Url, Document>>> {
-        #![allow(clippy::needless_lifetimes)]
+        #[allow(clippy::needless_lifetimes)]
         async fn future<'a>(session: &'a Session, uri: &Url) -> Fallible<Option<Ref<'a, Url, Document>>> {
             let mut result = session.documents.get(uri);
             if result.is_none() {
@@ -92,7 +92,7 @@ impl Session {
     /// await until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call
     /// to Self::insert_document from another thread of control.
     pub(crate) async fn get_mut_document(&self, uri: &Url) -> Fallible<Option<RefMut<'_, Url, Document>>> {
-        #![allow(clippy::needless_lifetimes)]
+        #[allow(clippy::needless_lifetimes)]
         async fn future<'a>(session: &'a Session, uri: &Url) -> Fallible<Option<RefMut<'a, Url, Document>>> {
             let mut result = session.documents.get_mut(uri);
             if result.is_none() {
