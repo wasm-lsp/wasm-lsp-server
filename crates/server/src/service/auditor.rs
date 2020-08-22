@@ -58,9 +58,9 @@ pub(crate) mod tree {
                         }
                     }
 
-                    let start = node.start_position();
-                    let end = node.end_position();
                     diagnostics.push({
+                        let start = node.start_position();
+                        let end = node.end_position();
                         let range = {
                             let start = Position::new(start.row as u64, start.column as u64);
                             let end = Position::new(end.row as u64, end.column as u64);
