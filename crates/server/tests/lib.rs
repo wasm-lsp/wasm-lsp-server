@@ -140,6 +140,21 @@ mod lsp {
             }
 
             corpus_tests! {
+                corpus: interface_types,
+                include: "vendor/corpus/vendor/bytecodealliance/wasm-interface-types/tests/*.wat",
+                exclude: [
+                    // FIXME: fails because language id should be wasm.wast not wasm.wat
+                    "bad-schema.wat",
+                    // FIXME: fails because language id should be wasm.wast not wasm.wat
+                    "bad-section.wat",
+                    // NOTE: true positive; fails due to syntax error
+                    "not-interface.wat",
+                    // FIXME: fails because language id should be wasm.wast not wasm.wat
+                    "two-sections.wat",
+                ],
+            }
+
+            corpus_tests! {
                 corpus: multi_memory,
                 include: "vendor/corpus/vendor/WebAssembly/multi-memory/test/core/*.wast",
                 exclude: [
