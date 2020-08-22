@@ -22,7 +22,7 @@ mod util {
                 "wat" => Ok("wasm.wat"),
                 "wit" => Ok("wasm.wit"),
                 "witx" => Ok("wasm.witx"),
-                ext => Err(Error::LanguageId { ext: ext.to_owned() })?,
+                ext => Err(Error::LanguageId { ext: ext.to_owned() }.into()),
             }
         }
     }
