@@ -2,6 +2,7 @@
 members = [
   "crates/macros",
   "crates/server",
+  "fuzz",
   "xtask"
 ]
 
