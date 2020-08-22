@@ -134,6 +134,14 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core functionality related to document languages.</span>
 
@@ -208,6 +216,10 @@
             <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">MODULE</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">language</span>().<span class="ident">id_for_node_kind</span>(<span class="string">&quot;module&quot;</span>, <span class="bool-val">true</span>);
             <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PARSE</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">language</span>().<span class="ident">id_for_node_kind</span>(<span class="string">&quot;PARSE&quot;</span>, <span class="bool-val">true</span>);
         }
+
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_comment</span>(<span class="ident">kind_id</span>: <span class="kw-2">&amp;</span><span class="ident">u16</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+            [<span class="kw-2">*</span><span class="ident">COMMENT_BLOCK_ANNOT</span>, <span class="kw-2">*</span><span class="ident">COMMENT_BLOCK</span>, <span class="kw-2">*</span><span class="ident">COMMENT_LINE_ANNOT</span>, <span class="kw-2">*</span><span class="ident">COMMENT_LINE</span>].<span class="ident">contains</span>(<span class="ident">kind_id</span>)
+        }
     }
 }
 
@@ -253,6 +265,10 @@
                 <span class="kw">super</span>::<span class="ident">language</span>().<span class="ident">id_for_node_kind</span>(<span class="string">&quot;module_field_type&quot;</span>, <span class="bool-val">true</span>);
             <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">MODULE</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">language</span>().<span class="ident">id_for_node_kind</span>(<span class="string">&quot;module&quot;</span>, <span class="bool-val">true</span>);
             <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PARSE</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">language</span>().<span class="ident">id_for_node_kind</span>(<span class="string">&quot;PARSE&quot;</span>, <span class="bool-val">true</span>);
+        }
+
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_comment</span>(<span class="ident">kind_id</span>: <span class="kw-2">&amp;</span><span class="ident">u16</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+            [<span class="kw-2">*</span><span class="ident">COMMENT_BLOCK_ANNOT</span>, <span class="kw-2">*</span><span class="ident">COMMENT_BLOCK</span>, <span class="kw-2">*</span><span class="ident">COMMENT_LINE_ANNOT</span>, <span class="kw-2">*</span><span class="ident">COMMENT_LINE</span>].<span class="ident">contains</span>(<span class="ident">kind_id</span>)
         }
     }
 }
