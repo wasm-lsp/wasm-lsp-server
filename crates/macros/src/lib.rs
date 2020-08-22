@@ -8,6 +8,28 @@ use glob::glob;
 use proc_macro::TokenStream;
 use quote::ToTokens;
 
+mod util {
+    pub(crate) mod language_id {
+        #[derive(thiserror::Error, Debug)]
+        pub(crate) enum Error {
+            #[error("Failed to compute language id for extension: {ext:?}")]
+            LanguageId {
+                ext: String,
+            },
+        }
+
+        pub(crate) fn from_ext(ext: &str) -> anyhow::Result<&str> {
+            match ext {
+                "wast" => Ok("wasm.wast"),
+                "wat" => Ok("wasm.wat"),
+                "wit" => Ok("wasm.wit"),
+                "witx" => Ok("wasm.witx"),
+                ext => Err(Error::LanguageId { ext: ext.to_owned() })?,
+            }
+        }
+    }
+}
+
 mod corpus {
     mod keyword {
         syn::custom_keyword!(corpus);
@@ -94,9 +116,13 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         // skip the file if contained in the exclude list; otherwise continue
         if !exclude.contains(&String::from(file_name)) {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
+            let file_ext = path.extension().unwrap().to_str().unwrap();
+
             let test_name = str::replace(file_stem, "-", "_");
             let test_name = format!("_{}", test_name);
             let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
+
+            let language_id = crate::util::language_id::from_ext(file_ext).unwrap();
 
             // generate the individual test function for the given file
             let item: syn::Item = syn::parse_quote! {
@@ -139,7 +165,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                         "params": {
                             "textDocument": {
                                 "uri": uri,
-                                "languageId": "wasm.wast",
+                                "languageId": #language_id,
                                 "version": 1,
                                 "text": text,
                             },
