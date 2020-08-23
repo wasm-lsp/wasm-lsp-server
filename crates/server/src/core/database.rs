@@ -1,8 +1,8 @@
 //! Core functionality related to the document metadata database.
 
-use crate::core::error::Fallible;
 use std::{env, path::Path};
 use uuid::Uuid;
+use wasm_language_server_shared::core::error::Fallible;
 use zerocopy::{AsBytes, FromBytes};
 
 /// Enum encoding the individual document status kinds.
