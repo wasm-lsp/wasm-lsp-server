@@ -76,9 +76,9 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core functionality related to the document metadata database.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">path</span>::<span class="ident">Path</span>};
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
+<span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 <span class="kw">use</span> <span class="ident">zerocopy</span>::{<span class="ident">AsBytes</span>, <span class="ident">FromBytes</span>};
 
 <span class="doccomment">/// Enum encoding the individual document status kinds.</span>

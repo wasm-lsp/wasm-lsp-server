@@ -20,12 +20,14 @@
 <span id="19">19</span>
 <span id="20">20</span>
 <span id="21">21</span>
+<span id="22">22</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Definitions for the server instance.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">error</span>::<span class="ident">Fallible</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">Client</span>;
+<span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 
 <span class="doccomment">/// The WASM language server instance.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Server</span> {

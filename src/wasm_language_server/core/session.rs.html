@@ -125,7 +125,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{
     <span class="ident">database</span>::{<span class="ident">Database</span>, <span class="ident">DocumentStatus</span>},
     <span class="ident">document</span>::<span class="ident">Document</span>,
-    <span class="ident">error</span>::<span class="ident">Fallible</span>,
 };
 <span class="kw">use</span> <span class="ident">dashmap</span>::{
     <span class="ident">mapref</span>::<span class="ident">one</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
@@ -135,6 +134,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">time</span>::<span class="ident">timeout</span>;
 <span class="kw">use</span> <span class="ident">tower_lsp</span>::{<span class="ident">lsp_types</span>::<span class="kw-2">*</span>, <span class="ident">Client</span>};
+<span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 <span class="kw">use</span> <span class="ident">zerocopy</span>::<span class="ident">AsBytes</span>;
 
 <span class="doccomment">/// Represents the current state of the LSP service.</span>

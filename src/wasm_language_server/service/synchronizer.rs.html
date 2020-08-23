@@ -123,14 +123,18 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Synchronizes document changes between editor and server</span>
 
 <span class="doccomment">/// Functions related to processing events for a document.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">document</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">error</span>::<span class="ident">Fallible</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
     <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 
     <span class="doccomment">/// Handle a document &quot;change&quot; event.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">DidChangeTextDocumentParams</span>) <span class="op">-&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -192,10 +196,12 @@
 
 <span class="doccomment">/// Functions related to processing parse tree events for a document.</span>
 <span class="kw">mod</span> <span class="ident">tree</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">error</span>::<span class="ident">Fallible</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
     <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
     <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
     <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">wasm_language_server_parsers</span>::<span class="ident">core</span>::{<span class="ident">language</span>, <span class="ident">parser</span>};
+    <span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 
     <span class="comment">// TODO: implement parser cancellation</span>
     <span class="doccomment">/// Handle a parse tree &quot;change&quot; event.</span>
@@ -229,8 +235,8 @@
             },
         } <span class="op">=</span> <span class="ident">params</span>;
 
-        <span class="kw">let</span> <span class="ident">language</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">language</span>::<span class="ident">Language</span>::<span class="ident">try_from</span>(<span class="ident">language_id</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">parser</span>::<span class="ident">try_from</span>(<span class="ident">language</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">language</span> <span class="op">=</span> <span class="ident">language</span>::<span class="ident">Language</span>::<span class="ident">try_from</span>(<span class="ident">language_id</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">parser</span>::<span class="ident">try_from</span>(<span class="ident">language</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.</span>
         <span class="kw">let</span> <span class="ident">old_tree</span> <span class="op">=</span> <span class="prelude-val">None</span>;

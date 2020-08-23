@@ -130,10 +130,12 @@
 <span id="129">129</span>
 <span id="130">130</span>
 <span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Elaborates parse trees into structured data to be cached in the database.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
+<span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 
 <span class="doccomment">/// Elaborator definitions specific to &quot;.wast&quot; files.</span>
 <span class="kw">mod</span> <span class="ident">wast</span>;
@@ -146,9 +148,10 @@
 
 <span class="doccomment">/// Functions related to processing parse tree events for a document.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">tree</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">error</span>::<span class="ident">Fallible</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
     <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 
     <span class="doccomment">/// Handle a parse tree &quot;change&quot; event.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -175,9 +178,10 @@
     }
 }
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">language</span>::<span class="ident">Language</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">wasm_language_server_parsers</span>::<span class="ident">core</span>::<span class="ident">language</span>::<span class="ident">Language</span>;
 
 <span class="doccomment">/// Functionality used for computing &quot;textDocument/documentSymbols&quot;.</span>
 <span class="kw">mod</span> <span class="ident">document_symbol</span> {
