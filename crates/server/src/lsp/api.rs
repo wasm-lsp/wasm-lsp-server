@@ -2,6 +2,7 @@
 
 use crate::lsp::server::Server;
 use tower_lsp::{jsonrpc::Result, lsp_types::*, LanguageServer};
+use wasm_language_server_shared::core::error;
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Server {
@@ -42,6 +43,6 @@ impl LanguageServer for Server {
 
     async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
         let result = crate::service::elaborator::document_symbol(self.session.clone(), params).await;
-        Ok(result.map_err(crate::core::error::IntoJsonRpcError)?)
+        Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 }

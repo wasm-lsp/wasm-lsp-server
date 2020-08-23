@@ -198,7 +198,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             use serde_json::{json, Value};
             use std::task::Poll;
             use tower_lsp::lsp_types::*;
-            use wasm_language_server::test;
+            use wasm_language_server_testing::test;
 
             // include the test functions generated from the corpus files
             #(#content)*

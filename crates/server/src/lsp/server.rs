@@ -1,8 +1,9 @@
 //! Definitions for the server instance.
 
-use crate::core::{error::Fallible, session::Session};
+use crate::core::session::Session;
 use std::sync::Arc;
 use tower_lsp::Client;
+use wasm_language_server_shared::core::error::Fallible;
 
 /// The WASM language server instance.
 pub struct Server {

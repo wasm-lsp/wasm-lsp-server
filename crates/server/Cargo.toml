@@ -21,13 +21,11 @@ maintenance = { status = "experimental" }
 [features]
 default = ["compression", "threaded"]
 compression = ["sled/compression"]
-test = ["serde_json", "tower-test"]
 threaded = ["tokio/rt-threaded"]
 
 [build-dependencies]
 anyhow = "1.0.28"
 built = { version = "0.4.0", features = ["git2"] }
-cc = "1.0.50"
 
 [dependencies]
 anyhow = "1.0.28"
@@ -35,20 +33,12 @@ clap = "2.33.0"
 dashmap = "3.7.0"
 env_logger = "0.7.1"
 futures = "0.3.4"
-lazy_static = "1.4.0"
 log = "0.4.8"
-serde_json = { version = "1.0", optional = true }
 sled = "0.34.0"
-thiserror = "1.0.14"
 tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "time"] }
 tower-lsp = "0.13.0"
-tower-test = { version = "0.3.0", optional = true }
 tree-sitter = "0.16.1"
 uuid = { version = "0.8.1", features = ["v4"] }
+wasm-language-server-parsers = { path = "../parsers" }
+wasm-language-server-shared = { path = "../shared" }
 zerocopy = "0.3.0"
-
-[dev-dependencies]
-serde_json = "1.0"
-tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "time", "test-util"] }
-tower-test = "0.3.0"
-wasm-language-server-macros = { path = "../macros" }

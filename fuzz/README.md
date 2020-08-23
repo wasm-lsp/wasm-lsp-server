@@ -15,7 +15,7 @@ cargo fuzz list
 Run the fuzz target with the following command:
 
 ```bash
-cargo +nightly fuzz run FUZZ_TARGET_NAME 1> /dev/null
+cargo +nightly fuzz run --features "fuzz" FUZZ_TARGET_NAME 1> /dev/null
 ```
 
 Currently this only works on linux targets.

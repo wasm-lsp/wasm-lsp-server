@@ -1,7 +1,9 @@
 [workspace]
 members = [
   "crates/macros",
+  "crates/parsers",
   "crates/server",
+  "crates/testing",
   "fuzz",
   "xtask"
 ]
