@@ -20,7 +20,8 @@ fuzz_target!(|module: Module| {
             let mut features = wabt::Features::new();
             features.enable_all();
             features
-        }).unwrap();
+        })
+        .unwrap();
 
         println!("{}", text);
 
