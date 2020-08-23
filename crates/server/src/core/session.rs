@@ -3,7 +3,6 @@
 use crate::core::{
     database::{Database, DocumentStatus},
     document::Document,
-    error::Fallible,
 };
 use dashmap::{
     mapref::one::{Ref, RefMut},
@@ -13,6 +12,7 @@ use futures::stream::{self, StreamExt};
 use std::time::Duration;
 use tokio::time::timeout;
 use tower_lsp::{lsp_types::*, Client};
+use wasm_language_server_shared::core::error::Fallible;
 use zerocopy::AsBytes;
 
 /// Represents the current state of the LSP service.

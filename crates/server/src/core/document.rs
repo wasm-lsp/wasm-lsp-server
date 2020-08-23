@@ -1,8 +1,8 @@
 //! Core functionality related to documents.
 
-use crate::core::language::Language;
 use tokio::sync::Mutex;
 use tree_sitter::{Parser, Tree};
+use wasm_language_server_parsers::core::language::Language;
 
 /// The current state of a document.
 pub(crate) struct Document {

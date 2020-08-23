@@ -3,12 +3,12 @@
 use thiserror::Error;
 
 /// Convenience type for computations that may fail with an error.
-pub(crate) type Fallible<T> = anyhow::Result<T>;
+pub type Fallible<T> = anyhow::Result<T>;
 
-/// Runtime errors for the WASM language server.
+/// Runtime errors for the WebAssembly language server.
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Error)]
-pub(crate) enum Error {
+pub enum Error {
     /// Error that occurs when parsing an invalid language-id string.
     #[error("core::InvalidLanguageId: {0}")]
     CoreInvalidLanguageId(String),
@@ -21,7 +21,7 @@ pub(crate) enum Error {
 }
 
 /// Convenience newtype wrapper for convertion to jsonrpc_core::Error.
-pub(crate) struct IntoJsonRpcError(pub(crate) anyhow::Error);
+pub struct IntoJsonRpcError(pub anyhow::Error);
 
 impl From<IntoJsonRpcError> for tower_lsp::jsonrpc::Error {
     fn from(error: IntoJsonRpcError) -> Self {

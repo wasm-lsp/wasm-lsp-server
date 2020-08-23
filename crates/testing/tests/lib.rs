@@ -1,13 +1,13 @@
 #[allow(unused_imports)]
 #[macro_use]
-extern crate wasm_language_server;
+extern crate wasm_language_server_testing;
 
 #[cfg(feature = "test")]
 mod lsp {
     use serde_json::{json, Value};
     use std::task::Poll;
     use tower_lsp::{jsonrpc, lsp_types::*, ExitedError};
-    use wasm_language_server::test;
+    use wasm_language_server_testing::test;
 
     #[tokio::test]
     async fn initialize_once() -> anyhow::Result<()> {

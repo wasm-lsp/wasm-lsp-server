@@ -1,6 +1,6 @@
 //! Elaborates parse trees into structured data to be cached in the database.
 
-use crate::core::error::Fallible;
+use wasm_language_server_shared::core::error::Fallible;
 
 /// Elaborator definitions specific to ".wast" files.
 mod wast;
@@ -13,9 +13,10 @@ mod witx;
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
-    use crate::core::{error::Fallible, session::Session};
+    use crate::core::session::Session;
     use std::sync::Arc;
     use tower_lsp::lsp_types::*;
+    use wasm_language_server_shared::core::error::Fallible;
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, uri: Url) -> Fallible<()> {
@@ -42,9 +43,10 @@ pub(crate) mod tree {
     }
 }
 
-use crate::core::{language::Language, session::Session};
+use crate::core::session::Session;
 use std::sync::Arc;
 use tower_lsp::lsp_types::*;
+use wasm_language_server_parsers::core::language::Language;
 
 /// Functionality used for computing "textDocument/documentSymbols".
 mod document_symbol {
