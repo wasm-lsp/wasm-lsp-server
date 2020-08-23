@@ -1,11 +1,12 @@
 //! Elaborator definitions specific to ".wat" files.
 
 use crate::{
-    core::{document::Document, language::wat},
+    core::document::Document,
     service::elaborator::document_symbol::{self, Data, Work},
     util::node::{symbol_range, SymbolRange},
 };
 use tower_lsp::lsp_types::*;
+use wasm_language_server_parsers::core::language::wat;
 
 /// Compute the symbols for a given document.
 pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbolResponse> {

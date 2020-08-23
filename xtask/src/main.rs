@@ -83,16 +83,16 @@ mod subcommand {
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.env("RUSTFLAGS", "-Dwarnings");
-            cmd.args(&[
-                "check",
-                "--all-features",
-                "--all-targets",
-                "--benches",
-                "--bins",
-                "--examples",
-                "--tests",
-                "--workspace",
-            ]);
+            cmd.args(&["check", "--all-targets"]);
+            cmd.args(&["--package", "xtask"]);
+            cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-macros"]);
+            cmd.args(&["--package", "wasm-language-server-parsers"]);
+            cmd.args(&["--package", "wasm-language-server-shared"]);
+            cmd.args(&["--package", "wasm-language-server-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-language-server-fuzz"]);
+            }
             if let Some(values) = sub_matches.values_of("rest") {
                 cmd.args(values);
             }
@@ -105,19 +105,17 @@ mod subcommand {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&[
-                "clippy",
-                "--all-features",
-                "--all-targets",
-                "--benches",
-                "--bins",
-                "--examples",
-                "--tests",
-                "--workspace",
-                "--",
-                "-D",
-                "warnings",
-            ]);
+            cmd.args(&["clippy", "--all-targets"]);
+            cmd.args(&["--package", "xtask"]);
+            cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-macros"]);
+            cmd.args(&["--package", "wasm-language-server-parsers"]);
+            cmd.args(&["--package", "wasm-language-server-shared"]);
+            cmd.args(&["--package", "wasm-language-server-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-language-server-fuzz"]);
+            }
+            cmd.args(&["--", "-D", "warnings"]);
             if let Some(values) = sub_matches.values_of("rest") {
                 cmd.args(values);
             }
@@ -179,16 +177,16 @@ mod subcommand {
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.env("RUSTFLAGS", "-Dwarnings");
-            cmd.args(&[
-                "test",
-                "--all-features",
-                "--all-targets",
-                "--benches",
-                "--bins",
-                "--examples",
-                "--tests",
-                "--workspace",
-            ]);
+            cmd.args(&["test", "--all-features", "--benches", "--examples", "--lib", "--tests"]);
+            cmd.args(&["--package", "xtask"]);
+            cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-macros"]);
+            cmd.args(&["--package", "wasm-language-server-parsers"]);
+            cmd.args(&["--package", "wasm-language-server-shared"]);
+            cmd.args(&["--package", "wasm-language-server-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-language-server-fuzz"]);
+            }
             if let Some(values) = sub_matches.values_of("rest") {
                 cmd.args(values);
             }

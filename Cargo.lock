@@ -1274,22 +1274,18 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "built",
- "cc",
  "clap",
  "dashmap",
  "env_logger",
  "futures",
- "lazy_static",
  "log",
- "serde_json",
  "sled",
- "thiserror",
  "tokio",
  "tower-lsp",
- "tower-test",
  "tree-sitter",
  "uuid",
- "wasm-language-server-macros",
+ "wasm-language-server-parsers",
+ "wasm-language-server-shared",
  "zerocopy",
 ]
 
@@ -1303,7 +1299,7 @@ dependencies = [
  "tokio",
  "tower-lsp",
  "wabt",
- "wasm-language-server",
+ "wasm-language-server-testing",
  "wasm-smith",
 ]
 
@@ -1317,6 +1313,41 @@ dependencies = [
  "quote",
  "syn",
  "thiserror",
+]
+
+[[package]]
+name = "wasm-language-server-parsers"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "cc",
+ "lazy_static",
+ "tree-sitter",
+ "wasm-language-server-shared",
+]
+
+[[package]]
+name = "wasm-language-server-shared"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "thiserror",
+ "tower-lsp",
+ "tree-sitter",
+]
+
+[[package]]
+name = "wasm-language-server-testing"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "futures",
+ "serde_json",
+ "tokio",
+ "tower-lsp",
+ "tower-test",
+ "wasm-language-server",
+ "wasm-language-server-macros",
 ]
 
 [[package]]

@@ -1,0 +1,21 @@
+[package]
+edition = "2018"
+name = "wasm-language-server-shared"
+version = "0.0.0"
+authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
+license = "Apache-2.0 WITH LLVM-exception"
+readme = "README.md"
+repository = "https://github.com/wasm-lsp/wasm-language-server"
+keywords = ["lsp", "wasm"]
+description = """
+Shared code for the WebAssembly Language Server
+"""
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+anyhow = "1.0.28"
+thiserror = "1.0.14"
+tower-lsp = "0.13.0"
+tree-sitter = "0.16.1"

@@ -1,0 +1,25 @@
+[package]
+edition = "2018"
+name = "wasm-language-server-parsers"
+version = "0.0.0"
+authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
+license = "Apache-2.0 WITH LLVM-exception"
+readme = "README.md"
+repository = "https://github.com/wasm-lsp/wasm-language-server"
+keywords = ["lsp", "wasm"]
+description = """
+Parsers for the WebAssembly language server
+"""
+
+[badges]
+maintenance = { status = "experimental" }
+
+[build-dependencies]
+anyhow = "1.0.28"
+cc = "1.0.50"
+
+[dependencies]
+anyhow = "1.0.28"
+lazy_static = "1.4.0"
+tree-sitter = "0.16.1"
+wasm-language-server-shared = { path = "../shared" }
