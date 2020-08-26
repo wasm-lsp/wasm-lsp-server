@@ -41,4 +41,5 @@ tree-sitter = "0.16.1"
 uuid = { version = "0.8.1", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
 wasm-language-server-shared = { path = "../shared" }
+wast = { git = "https://github.com/darinmorrison/wasm-tools", branch = "expose-wast-error" }
 zerocopy = "0.3.0"
