@@ -1286,6 +1286,7 @@ dependencies = [
  "uuid",
  "wasm-language-server-parsers",
  "wasm-language-server-shared",
+ "wast",
  "zerocopy",
 ]
 
@@ -1357,6 +1358,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf5e063d2d4005da9a9c87a0244940df26a20f2dfb7b62e45dc96766948b0ea7"
 dependencies = [
  "arbitrary",
+ "leb128",
+]
+
+[[package]]
+name = "wast"
+version = "23.0.0"
+source = "git+https://github.com/darinmorrison/wasm-tools?branch=expose-wast-error#919f25f7999acae8c32b516024244e6e7c61d5ce"
+dependencies = [
  "leb128",
 ]
 
