@@ -1,7 +1,7 @@
 //! Services (components) of the WASM language server.
 
 // Computes queries about documents.
-mod analyzer;
+pub(crate) mod analyzer;
 
 // Collects diagnostics for documents with syntax and validation errors.
 mod auditor;
