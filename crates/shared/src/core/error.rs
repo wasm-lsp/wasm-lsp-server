@@ -1,6 +1,7 @@
 //! Core functionality related to runtime errors.
 
 use thiserror::Error;
+use tower_lsp::lsp_types::*;
 
 /// Convenience type for computations that may fail with an error.
 pub type Fallible<T> = anyhow::Result<T>;
@@ -12,6 +13,21 @@ pub enum Error {
     /// Error that occurs when parsing an invalid language-id string.
     #[error("core::InvalidLanguageId: {0}")]
     CoreInvalidLanguageId(String),
+    /// Error that a given document could not be found.
+    #[error("core::DocumentNotFound: {0}")]
+    DocumentNotFound(Url),
+    /// Error that end of token intersecting the position could not be found.
+    #[error("core::TokenPositionStartNotFound")]
+    TokenPositionEnd,
+    /// Error that start of token intersecting the position could not be found.
+    #[error("core::TokenPositionEndNotFound")]
+    TokenPositionStart,
+    /// Error parsing the syntax tree for given token range.
+    #[error("core::TreeForTokenRangeFailed")]
+    TreeForTokenRange,
+    /// Error that occurs when set a parser to invalid included ranges.
+    #[error("tree_sitter::IncludedRangesError")]
+    TreeSitterIncludedRangesError(tree_sitter::IncludedRangesError),
     /// Error that occurs when attempting to set an invalid language for a tree-sitter parser.
     #[error("tree_sitter::LanguageError: {0}")]
     TreeSitterLanguageError(tree_sitter::LanguageError),

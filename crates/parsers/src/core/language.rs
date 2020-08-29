@@ -62,6 +62,8 @@ pub mod wast {
             pub static ref COMMENT_LINE_ANNOT: u16 = super::language().id_for_node_kind("comment_line_annot", true);
             pub static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
             pub static ref INLINE_MODULE: u16 = super::language().id_for_node_kind("inline_module", true);
+            pub static ref INSTR: u16 = super::language().id_for_node_kind("instr", true);
+            pub static ref INSTR_PLAIN: u16 = super::language().id_for_node_kind("instr_plain", true);
             pub static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
             pub static ref MODULE_FIELD_ELEM: u16 = super::language().id_for_node_kind("module_field_elem", true);
             pub static ref MODULE_FIELD_FUNC: u16 = super::language().id_for_node_kind("module_field_func", true);
@@ -69,6 +71,7 @@ pub mod wast {
             pub static ref MODULE_FIELD_MEMORY: u16 = super::language().id_for_node_kind("module_field_memory", true);
             pub static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
+            pub static ref MODULE_FIELD: u16 = super::language().id_for_node_kind("module_field", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
         }
@@ -104,11 +107,13 @@ pub mod wat {
         use lazy_static::lazy_static;
 
         lazy_static! {
-            pub static ref INLINE_MODULE: u16 = super::language().id_for_node_kind("inline_module", true);
             pub static ref COMMENT_BLOCK_ANNOT: u16 = super::language().id_for_node_kind("comment_block_annot", true);
             pub static ref COMMENT_BLOCK: u16 = super::language().id_for_node_kind("comment_block", true);
             pub static ref COMMENT_LINE_ANNOT: u16 = super::language().id_for_node_kind("comment_line_annot", true);
             pub static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
+            pub static ref INLINE_MODULE: u16 = super::language().id_for_node_kind("inline_module", true);
+            pub static ref INSTR: u16 = super::language().id_for_node_kind("instr", true);
+            pub static ref INSTR_PLAIN: u16 = super::language().id_for_node_kind("instr_plain", true);
             pub static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
             pub static ref MODULE_FIELD_ELEM: u16 = super::language().id_for_node_kind("module_field_elem", true);
             pub static ref MODULE_FIELD_FUNC: u16 = super::language().id_for_node_kind("module_field_func", true);
@@ -116,6 +121,7 @@ pub mod wat {
             pub static ref MODULE_FIELD_MEMORY: u16 = super::language().id_for_node_kind("module_field_memory", true);
             pub static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
+            pub static ref MODULE_FIELD: u16 = super::language().id_for_node_kind("module_field", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
         }

@@ -45,4 +45,9 @@ impl LanguageServer for Server {
         let result = crate::service::elaborator::document_symbol(self.session.clone(), params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
+
+    async fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
+        let result = crate::service::analyzer::hover(self.session.clone(), params).await;
+        Ok(result.map_err(error::IntoJsonRpcError)?)
+    }
 }
