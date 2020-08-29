@@ -29,6 +29,7 @@ mod lsp {
             "result": {
                 "capabilities": {
                     "documentSymbolProvider": true,
+                    "hoverProvider": true,
                     "textDocumentSync": {
                         "change": TextDocumentSyncKind::Full,
                         "openClose": true,
@@ -72,6 +73,7 @@ mod lsp {
             "result": {
                 "capabilities": {
                     "documentSymbolProvider": true,
+                    "hoverProvider": true,
                     "textDocumentSync": {
                         "change": TextDocumentSyncKind::Full,
                         "openClose": true,

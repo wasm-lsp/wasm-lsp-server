@@ -146,6 +146,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                         "result": {
                             "capabilities": {
                                 "documentSymbolProvider": true,
+                                "hoverProvider": true,
                                 "textDocumentSync": {
                                     "change": TextDocumentSyncKind::Full,
                                     "openClose": true,
