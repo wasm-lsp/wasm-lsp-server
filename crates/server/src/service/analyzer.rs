@@ -6,6 +6,12 @@ use tower_lsp::lsp_types::*;
 use wasm_language_server_parsers::core::language::{wast, wat};
 use wasm_language_server_shared::core::error::{Error, Fallible};
 
+#[derive(Copy, Clone, Debug)]
+enum HoverComputeStatus {
+    Done,
+    Next,
+}
+
 // FIXME
 pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> Fallible<Option<Hover>> {
     let HoverParams {
@@ -40,25 +46,17 @@ async fn hover_for_token_range(uri: &Url, document: &Document, range: Range) -> 
     let node = tree.root_node();
 
     if let Some(mut child) = node.descendant_for_byte_range(start, end) {
+        use self::HoverComputeStatus::*;
         loop {
-            if [*wat::kind::INSTR_PLAIN, *wast::kind::INSTR_PLAIN].contains(&child.kind_id()) {
-                let text = child.utf8_text(&document.text.as_bytes())?;
-                contents.push(MarkedString::String(String::from(text)));
-                range = Some(crate::util::node::range(&child));
+            if let Done = try_hover_for_instr_plain(&document, &child, &mut contents, &mut range)? {
                 break;
             }
 
-            if [*wat::kind::INSTR, *wast::kind::INSTR].contains(&child.kind_id()) {
-                let text = child.utf8_text(&document.text.as_bytes())?;
-                contents.push(MarkedString::String(String::from(text)));
-                range = Some(crate::util::node::range(&child));
+            if let Done = try_hover_for_instr(&document, &child, &mut contents, &mut range)? {
                 break;
             }
 
-            if [*wat::kind::MODULE_FIELD, *wast::kind::MODULE_FIELD].contains(&child.kind_id()) {
-                let text = child.utf8_text(&document.text.as_bytes())?;
-                contents.push(MarkedString::String(String::from(text)));
-                range = Some(crate::util::node::range(&child));
+            if let Done = try_hover_for_module_field(&document, &child, &mut contents, &mut range)? {
                 break;
             }
 
@@ -77,5 +75,53 @@ async fn hover_for_token_range(uri: &Url, document: &Document, range: Range) -> 
             contents: HoverContents::Array(contents),
             range,
         }))
+    }
+}
+
+fn try_hover_for_instr(
+    document: &Document,
+    child: &tree_sitter::Node<'_>,
+    contents: &mut Vec<MarkedString>,
+    range: &mut Option<Range>,
+) -> Fallible<HoverComputeStatus> {
+    if [*wat::kind::INSTR, *wast::kind::INSTR].contains(&child.kind_id()) {
+        let text = child.utf8_text(&document.text.as_bytes())?;
+        contents.push(MarkedString::String(String::from(text)));
+        *range = Some(crate::util::node::range(&child));
+        Ok(HoverComputeStatus::Done)
+    } else {
+        Ok(HoverComputeStatus::Next)
+    }
+}
+
+fn try_hover_for_instr_plain(
+    document: &Document,
+    child: &tree_sitter::Node<'_>,
+    contents: &mut Vec<MarkedString>,
+    range: &mut Option<Range>,
+) -> Fallible<HoverComputeStatus> {
+    if [*wat::kind::INSTR_PLAIN, *wast::kind::INSTR_PLAIN].contains(&child.kind_id()) {
+        let text = child.utf8_text(&document.text.as_bytes())?;
+        contents.push(MarkedString::String(String::from(text)));
+        *range = Some(crate::util::node::range(&child));
+        Ok(HoverComputeStatus::Done)
+    } else {
+        Ok(HoverComputeStatus::Next)
+    }
+}
+
+fn try_hover_for_module_field(
+    document: &Document,
+    child: &tree_sitter::Node<'_>,
+    contents: &mut Vec<MarkedString>,
+    range: &mut Option<Range>,
+) -> Fallible<HoverComputeStatus> {
+    if [*wat::kind::MODULE_FIELD, *wast::kind::MODULE_FIELD].contains(&child.kind_id()) {
+        let text = child.utf8_text(&document.text.as_bytes())?;
+        contents.push(MarkedString::String(String::from(text)));
+        *range = Some(crate::util::node::range(&child));
+        Ok(HoverComputeStatus::Done)
+    } else {
+        Ok(HoverComputeStatus::Next)
     }
 }
