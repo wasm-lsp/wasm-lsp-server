@@ -18,7 +18,7 @@ pub(crate) mod node {
     }
 
     /// Creates an lsp range from the range of a tree-sitter node.
-    fn range(node: &tree_sitter::Node) -> tower_lsp::lsp_types::Range {
+    pub(crate) fn range(node: &tree_sitter::Node) -> tower_lsp::lsp_types::Range {
         tower_lsp::lsp_types::Range::new(position::start(node), position::end(node))
     }
 
