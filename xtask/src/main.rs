@@ -4,9 +4,9 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
-fn main() -> anyhow::Result<()> {
-    env_logger::try_init()?;
+type Fallible<T> = Result<T, Box<dyn std::error::Error>>;
 
+fn main() -> Fallible<()> {
     let app = clap::App::new("xtask")
         .setting(clap::AppSettings::TrailingVarArg)
         .subcommands({
@@ -57,7 +57,7 @@ fn main() -> anyhow::Result<()> {
 mod metadata {
     use std::path::{Path, PathBuf};
 
-    pub fn cargo() -> anyhow::Result<String> {
+    pub fn cargo() -> crate::Fallible<String> {
         // NOTE: we use the cargo wrapper rather than the binary reported through the "CARGO" environment
         // variable because we need to be able to invoke cargo with different toolchains (e.g., +nightly)
         Ok(String::from("cargo"))
@@ -78,7 +78,7 @@ mod subcommand {
         use std::process::Command;
 
         // Run `cargo check` with custom options.
-        pub fn check(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+        pub fn check(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -101,7 +101,7 @@ mod subcommand {
         }
 
         // Run `cargo clippy` with custom options.
-        pub fn clippy(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+        pub fn clippy(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -124,7 +124,7 @@ mod subcommand {
         }
 
         // Run `cargo doc` with custom options.
-        pub fn doc(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+        pub fn doc(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -137,7 +137,7 @@ mod subcommand {
         }
 
         // Run `cargo format` with custom options.
-        pub fn format(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+        pub fn format(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -150,7 +150,7 @@ mod subcommand {
         }
 
         // Run `cargo install` with custom options.
-        pub fn install(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+        pub fn install(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
             if sub_matches.is_present("rebuild-parsers") {
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
@@ -168,7 +168,7 @@ mod subcommand {
         }
 
         // Run `cargo test` with custom options.
-        pub fn test(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+        pub fn test(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
             if sub_matches.is_present("rebuild-parsers") {
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
@@ -203,7 +203,7 @@ mod subcommand {
     };
 
     // Initialize submodules (e.g., for tree-sitter grammars and test suites)
-    pub fn init(sub_matches: &clap::ArgMatches) -> anyhow::Result<()> {
+    pub fn init(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
         // initialize "vendor/tree-sitter-wasm" submodule
         let submodule = Path::new("vendor/tree-sitter-wasm").to_str().unwrap();
         let mut cmd = Command::new("git");
@@ -242,7 +242,7 @@ mod util {
         };
 
         // Rebuild tree-sitter parsers if necessary.
-        pub fn rebuild_parsers() -> anyhow::Result<()> {
+        pub fn rebuild_parsers() -> crate::Fallible<()> {
             // Configure the project root path.
             let root_path = metadata::project_root();
             let root_path = root_path.to_str().unwrap();
@@ -271,7 +271,6 @@ mod util {
 
             // Run `npm ci` first if `tree-sitter` binary is not available.
             if !cmd.status()?.success() {
-                log::info!("installing tree-sitter toolchain");
                 let mut cmd;
                 if cfg!(target_os = "windows") {
                     cmd = Command::new("cmd");
@@ -293,7 +292,6 @@ mod util {
                 let grammar_path = dunce::canonicalize(grammar_path)?;
                 let grammar_path = grammar_path.to_str().unwrap();
 
-                log::info!("regenerating parser: {}", grammar);
                 let commands = format!("cd {} && {} generate", grammar_path, tree_sitter_cli_path);
                 let mut cmd;
                 if cfg!(target_os = "windows") {
