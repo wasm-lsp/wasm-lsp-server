@@ -18,7 +18,7 @@ pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> Fallibl
         ..
     } = &params;
     if let Some(document) = session.get_document(uri).await? {
-        let range = Range::new(position.clone(), position.clone());
+        let range = Range::new(*position, *position);
         let hover = hover_for_token_range(&uri, &document, range).await?;
         Ok(hover)
     } else {
