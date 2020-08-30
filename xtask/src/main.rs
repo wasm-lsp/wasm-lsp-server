@@ -38,9 +38,7 @@ fn main() -> Fallible<()> {
             subcommands
         });
 
-    let matches = app.get_matches_safe()?;
-
-    match matches.subcommand() {
+    match app.get_matches().subcommand() {
         ("check", Some(sub_matches)) => subcommand::cargo::check(sub_matches)?,
         ("clippy", Some(sub_matches)) => subcommand::cargo::clippy(sub_matches)?,
         ("doc", Some(sub_matches)) => subcommand::cargo::doc(sub_matches)?,
