@@ -155,9 +155,9 @@ jobs:
           command: fmt
           args: --all -- --check
 
-  # verify that tests pass and calculate coverage
+  # verify that tests pass and calculate coverage with tarpaulin
   cargo-test-coverage:
-    name: Run cargo test
+    name: Run cargo tarpaulin
     needs: [skip-commit]
     runs-on: ubuntu-latest
     steps:
