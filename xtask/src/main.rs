@@ -29,6 +29,11 @@ fn main() -> Fallible<()> {
                         .long("rebuild-parsers")
                         .help("Rebuild tree-sitter parsers if necessary"),
                 ),
+                clap::SubCommand::with_name("tarpaulin").arg(rest).arg(
+                    clap::Arg::with_name("rebuild-parsers")
+                        .long("rebuild-parsers")
+                        .help("Rebuild tree-sitter parsers if necessary"),
+                ),
                 clap::SubCommand::with_name("test").arg(rest).arg(
                     clap::Arg::with_name("rebuild-parsers")
                         .long("rebuild-parsers")
@@ -45,6 +50,7 @@ fn main() -> Fallible<()> {
         ("format", Some(sub_matches)) => subcommand::cargo::format(sub_matches)?,
         ("init", Some(sub_matches)) => subcommand::init(sub_matches)?,
         ("install", Some(sub_matches)) => subcommand::cargo::install(sub_matches)?,
+        ("tarpaulin", Some(sub_matches)) => subcommand::cargo::tarpaulin(sub_matches)?,
         ("test", Some(sub_matches)) => subcommand::cargo::test(sub_matches)?,
         _ => {},
     }
@@ -157,6 +163,49 @@ mod subcommand {
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["install", "--path", "crates/server"]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
+            cmd.status()?;
+
+            Ok(())
+        }
+
+        // Run `cargo tarpaulin` with custom options.
+        pub fn tarpaulin(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+            if sub_matches.is_present("rebuild-parsers") {
+                crate::util::tree_sitter::rebuild_parsers()?;
+            }
+
+            let cargo = metadata::cargo()?;
+            let mut cmd = Command::new(cargo);
+            cmd.current_dir(metadata::project_root());
+            cmd.args(&[
+                "tarpaulin",
+                "--all-features",
+                "--benches",
+                "--examples",
+                "--lib",
+                "--tests",
+            ]);
+            cmd.args(&["--out", "Xml"]);
+            cmd.args(&[
+                "--packages",
+                "xtask",
+                "wasm-language-server",
+                "wasm-language-server-macros",
+                "wasm-language-server-parsers",
+                "wasm-language-server-shared",
+                "wasm-language-server-testing",
+            ]);
+            cmd.args(&[
+                "--exclude-files",
+                "xtask",
+                "crates/macros",
+                "vendor",
+                "**/stdio2.h",
+                "**/string_fortified.h",
+            ]);
             if let Some(values) = sub_matches.values_of("rest") {
                 cmd.args(values);
             }
