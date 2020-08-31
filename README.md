@@ -10,6 +10,9 @@
     <a href="https://github.com/wasm-lsp/wasm-language-server/actions"><img
         src="https://github.com/wasm-lsp/wasm-language-server/workflows/main/badge.svg"
         /></a>
+    <a href="https://codecov.io/gh/wasm-lsp/wasm-language-server"><img
+        src="https://codecov.io/gh/wasm-lsp/wasm-language-server/branches/main/graph/badge.svg"
+        /></a>
   </p>
 </div>
 
