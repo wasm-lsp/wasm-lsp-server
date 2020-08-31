@@ -155,13 +155,59 @@ jobs:
           command: fmt
           args: --all -- --check
 
+  # verify that tests pass and calculate coverage
+  cargo-test-coverage:
+    name: Run cargo test
+    needs: [skip-commit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Run cargo xtask init
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: init --with-corpus
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+      - name: Fetch latest release version of cargo-tarpaulin
+        run: |
+          mkdir -p .github/caching
+          curl -sL https://api.github.com/repos/xd009642/tarpaulin/releases/latest | jq -r '.name' > .github/caching/cargo-tarpaulin.lock
+      - name: Cache cargo-tarpaulin/bin
+        id: cache-cargo-tarpaulin
+        uses: actions/cache@v1
+        with:
+          path: ${{ runner.tool_cache }}/cargo-tarpaulin/bin
+          key: cargo-tarpaulin-bin-${{ hashFiles('.github/caching/cargo-tarpaulin.lock') }}
+      - name: Install cargo-tarpaulin
+        if: "steps.cache-cargo-tarpaulin.outputs.cache-hit != 'true'"
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --root ${{ runner.tool_cache }}/cargo-tarpaulin --force cargo-tarpaulin
+      - run: echo "::add-path::${{ runner.tool_cache }}/cargo-tarpaulin/bin"
+      - name: Run cargo xtask tarpaulin
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: tarpaulin
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
   # verify that tests pass
   cargo-test:
     name: Run cargo test
     needs: [skip-commit]
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
