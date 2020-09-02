@@ -1382,6 +1382,7 @@ dependencies = [
  "tower-test",
  "wasm-language-server",
  "wasm-language-server-macros",
+ "wasm-language-server-shared",
 ]
 
 [[package]]

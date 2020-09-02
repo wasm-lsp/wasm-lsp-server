@@ -1,14 +1,13 @@
 //! Definitions for the request handlers.
 
-use crate::lsp::server::Server;
+use crate::{core::error, lsp::server::Server};
 use tower_lsp::{jsonrpc::Result, lsp_types::*, LanguageServer};
-use wasm_language_server_shared::core::error;
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Server {
     async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
         log::info!("{:?}", params);
-        let capabilities = crate::lsp::capabilities::capabilities();
+        let capabilities = crate::lsp::cfg::capabilities();
         Ok(InitializeResult {
             capabilities,
             ..InitializeResult::default()

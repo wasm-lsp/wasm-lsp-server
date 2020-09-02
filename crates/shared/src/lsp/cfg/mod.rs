@@ -1,9 +1,9 @@
-//! Definitions for the server feature capabilities.
+//! LSP-related definitions for configuration for the WebAssembly language server.
 
 use tower_lsp::lsp_types::*;
 
 /// Compute the server capabilities.
-pub(crate) fn capabilities() -> ServerCapabilities {
+pub fn capabilities() -> ServerCapabilities {
     let document_symbol_provider = Some(true);
 
     let hover_provider = Some(HoverProviderCapability::Simple(true));

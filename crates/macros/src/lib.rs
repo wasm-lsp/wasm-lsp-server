@@ -4,10 +4,6 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
-use glob::glob;
-use proc_macro::TokenStream;
-use quote::ToTokens;
-
 mod util {
     pub(crate) mod language_id {
         #[derive(thiserror::Error, Debug)]
@@ -74,6 +70,10 @@ mod corpus {
     }
 }
 
+use glob::glob;
+use proc_macro::TokenStream;
+use quote::ToTokens;
+
 /// Generate tests from a corpus of wasm modules on the filesystem.
 ///
 /// # Arguments
@@ -117,7 +117,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             let file_ext = path.extension().unwrap().to_str().unwrap();
 
             let test_name = str::replace(file_stem, "-", "_");
-            let test_name = format!("_{}", test_name);
+            let test_name = format!("r#{}", test_name);
             let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
 
             let language_id = crate::util::language_id::from_ext(file_ext).unwrap();
@@ -144,14 +144,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                     let response = Some(json!({
                         "jsonrpc": "2.0",
                         "result": {
-                            "capabilities": {
-                                "documentSymbolProvider": true,
-                                "hoverProvider": true,
-                                "textDocumentSync": {
-                                    "change": TextDocumentSyncKind::Full,
-                                    "openClose": true,
-                                },
-                            },
+                            "capabilities": shared::lsp::cfg::capabilities(),
                         },
                         "id": 1,
                     }));
@@ -199,6 +192,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             use serde_json::{json, Value};
             use std::task::Poll;
             use tower_lsp::lsp_types::*;
+            use wasm_language_server_shared as shared;
             use wasm_language_server_testing::test;
 
             // include the test functions generated from the corpus files

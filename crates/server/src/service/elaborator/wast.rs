@@ -1,12 +1,11 @@
 //! Elaborator definitions specific to ".wast" files.
 
 use crate::{
-    core::document::Document,
+    core::{document::Document, language::wast},
     service::elaborator::document_symbol::{self, Data, Work},
     util::node::{symbol_range, SymbolRange},
 };
 use tower_lsp::lsp_types::*;
-use wasm_language_server_parsers::core::language::wast;
 
 /// Compute the symbols for a given document.
 pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbolResponse> {
