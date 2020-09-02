@@ -1,4 +1,4 @@
-//! Core functionality for the WebAssembly language server.
+//! Core definitions for the WebAssembly language server.
 
-/// Core functionality related to runtime errors.
+/// Core definitions related to runtime errors.
 pub mod error;

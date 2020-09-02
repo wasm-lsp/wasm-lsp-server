@@ -2,10 +2,9 @@
 
 /// Functions related to processing events for a document.
 pub(crate) mod document {
-    use crate::core::session::Session;
+    use crate::core::{error::Fallible, session::Session};
     use std::sync::Arc;
     use tower_lsp::lsp_types::*;
-    use wasm_language_server_shared::core::error::Fallible;
 
     /// Handle a document "change" event.
     pub(crate) async fn change(session: Arc<Session>, params: DidChangeTextDocumentParams) -> Fallible<()> {
@@ -67,12 +66,10 @@ pub(crate) mod document {
 
 /// Functions related to processing parse tree events for a document.
 mod tree {
-    use crate::core::{document::Document, session::Session};
+    use crate::core::{document::Document, error::Fallible, language, parser, session::Session};
     use std::{convert::TryFrom, sync::Arc};
     use tokio::sync::Mutex;
     use tower_lsp::lsp_types::*;
-    use wasm_language_server_parsers::core::{language, parser};
-    use wasm_language_server_shared::core::error::Fallible;
 
     // TODO: implement parser cancellation
     /// Handle a parse tree "change" event.

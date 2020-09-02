@@ -6,7 +6,8 @@ extern crate wasm_language_server_testing;
 mod lsp {
     use serde_json::{json, Value};
     use std::task::Poll;
-    use tower_lsp::{jsonrpc, lsp_types::*, ExitedError};
+    use tower_lsp::{jsonrpc, ExitedError};
+    use wasm_language_server_shared as shared;
     use wasm_language_server_testing::test;
 
     #[tokio::test]
@@ -27,14 +28,7 @@ mod lsp {
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": {
-                "capabilities": {
-                    "documentSymbolProvider": true,
-                    "hoverProvider": true,
-                    "textDocumentSync": {
-                        "change": TextDocumentSyncKind::Full,
-                        "openClose": true,
-                    },
-                },
+                "capabilities": shared::lsp::cfg::capabilities(),
             },
             "id": 1,
         }));
@@ -71,14 +65,7 @@ mod lsp {
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": {
-                "capabilities": {
-                    "documentSymbolProvider": true,
-                    "hoverProvider": true,
-                    "textDocumentSync": {
-                        "change": TextDocumentSyncKind::Full,
-                        "openClose": true,
-                    },
-                },
+                "capabilities": shared::lsp::cfg::capabilities(),
             },
             "id": 1,
         }));
