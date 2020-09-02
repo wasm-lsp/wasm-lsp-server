@@ -167,20 +167,18 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-<span id="169">169</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Elaborator definitions specific to &quot;.wat&quot; files.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">core</span>::<span class="ident">document</span>::<span class="ident">Document</span>,
+    <span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">language</span>::<span class="ident">wat</span>},
     <span class="ident">service</span>::<span class="ident">elaborator</span>::<span class="ident">document_symbol</span>::{<span class="self">self</span>, <span class="ident">Data</span>, <span class="ident">Work</span>},
     <span class="ident">util</span>::<span class="ident">node</span>::{<span class="ident">symbol_range</span>, <span class="ident">SymbolRange</span>},
 };
 <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">wasm_language_server_parsers</span>::<span class="ident">core</span>::<span class="ident">language</span>::<span class="ident">wat</span>;
 
 <span class="doccomment">/// Compute the symbols for a given document.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentSymbolResponse</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentSymbolResponse</span><span class="op">&gt;</span> {
     <span class="comment">// Vector to collect document symbols into as they are constructed.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">syms</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DocumentSymbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 
@@ -199,7 +197,7 @@
     };
 
     <span class="comment">// Prepare the syntax tree.</span>
-    <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">tree</span>.<span class="ident">lock</span>().<span class="kw">await</span>.<span class="ident">clone</span>();
+    <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">tree</span>.<span class="ident">lock</span>().<span class="ident">await</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">tree</span>.<span class="ident">root_node</span>();
 
     <span class="comment">// Prepare the stack machine:</span>
@@ -211,7 +209,7 @@
 
     <span class="comment">// Convenience macro for processing document symbol nodes.</span>
     <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">push</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">node</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">empty_name</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> {
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">node</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">empty_name</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">document_symbol</span>::<span class="ident">push</span>(
                 <span class="kw-2">&amp;</span><span class="ident">document</span>,
                 <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">field</span>::<span class="ident">IDENTIFIER</span>,
@@ -228,7 +226,7 @@
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">work</span>.<span class="ident">pop</span>() {
         <span class="kw">match</span> <span class="ident">next</span> {
             <span class="comment">// Construct a DocumentSymbol and pop data stack</span>
-            <span class="ident">Work</span>::<span class="ident">Data</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Data</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Data</span> {
                     <span class="ident">children_count</span>,
                     <span class="ident">kind</span>,
@@ -261,12 +259,12 @@
                 }
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">PARSE</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">PARSE</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">module</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">named_child</span>(<span class="number">0</span>).<span class="ident">expect</span>(<span class="string">&quot;&#39;PARSE&#39; should have a single named child&quot;</span>);
                 <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">module</span>));
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">SymbolRange</span> {
                     <span class="ident">name</span>,
                     <span class="ident">range</span>,
@@ -280,7 +278,7 @@
                     .<span class="ident">filter</span>(<span class="ident">modulefield_filter</span>)
                 {
                     <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">modulefield</span>));
-                    <span class="ident">children_count</span> <span class="op">+=</span> <span class="number">1</span>;
+                    <span class="ident">children_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
 
                 <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">Data</span> {
@@ -292,7 +290,7 @@
                 });
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">INLINE_MODULE</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">INLINE_MODULE</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">for</span> <span class="ident">modulefield</span> <span class="kw">in</span> <span class="ident">node</span>
                     .<span class="ident">children_by_field_id</span>(<span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">field</span>::<span class="ident">MODULE_FIELD</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">node</span>.<span class="ident">walk</span>())
                     .<span class="ident">filter</span>(<span class="ident">modulefield_filter</span>)
@@ -301,35 +299,35 @@
                 }
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_DATA</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_DATA</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">push</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="string">&quot;&lt;data&gt;&quot;</span>, <span class="ident">SymbolKind</span>::<span class="ident">Key</span>);
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_ELEM</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_ELEM</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">push</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="string">&quot;&lt;elem&gt;&quot;</span>, <span class="ident">SymbolKind</span>::<span class="ident">Field</span>);
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_FUNC</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_FUNC</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">push</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="string">&quot;&lt;func&gt;&quot;</span>, <span class="ident">SymbolKind</span>::<span class="ident">Function</span>);
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_GLOBAL</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_GLOBAL</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">push</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="string">&quot;&lt;global&gt;&quot;</span>, <span class="ident">SymbolKind</span>::<span class="ident">Event</span>);
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_MEMORY</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_MEMORY</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">push</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="string">&quot;&lt;memory&gt;&quot;</span>, <span class="ident">SymbolKind</span>::<span class="ident">Array</span>);
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TABLE</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TABLE</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">push</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="string">&quot;&lt;table&gt;&quot;</span>, <span class="ident">SymbolKind</span>::<span class="ident">Interface</span>);
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TYPE</span> <span class="op">=&gt;</span> {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TYPE</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">push</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="string">&quot;&lt;type&gt;&quot;</span>, <span class="ident">SymbolKind</span>::<span class="ident">TypeParameter</span>);
             },
 
-            <span class="kw">_</span> <span class="op">=&gt;</span> {},
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {},
         }
     }
     <span class="comment">// Collect the syms vec into a new vec in reverse so that document symbols are returned in the</span>

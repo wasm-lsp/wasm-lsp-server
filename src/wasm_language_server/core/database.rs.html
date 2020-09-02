@@ -76,9 +76,9 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core functionality related to the document metadata database.</span>
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">path</span>::<span class="ident">Path</span>};
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
-<span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Fallible</span>;
 <span class="kw">use</span> <span class="ident">zerocopy</span>::{<span class="ident">AsBytes</span>, <span class="ident">FromBytes</span>};
 
 <span class="doccomment">/// Enum encoding the individual document status kinds.</span>
@@ -94,11 +94,11 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">DocumentStatus</span>(<span class="ident">u8</span>);
 
 <span class="kw">impl</span> <span class="ident">DocumentStatus</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">closed</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">closed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">DocumentStatus</span>(<span class="ident">DocumentStatusKind</span>::<span class="ident">Closed</span> <span class="kw">as</span> <span class="ident">u8</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">opened</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">opened</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">DocumentStatus</span>(<span class="ident">DocumentStatusKind</span>::<span class="ident">Opened</span> <span class="kw">as</span> <span class="ident">u8</span>)
     }
 }
@@ -109,7 +109,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Trees</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sled</span>: <span class="kw-2">&amp;</span><span class="ident">sled</span>::<span class="ident">Db</span>) <span class="op">-&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span><span class="ident">Trees</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sled</span>: <span class="kw-2">&amp;</span><span class="ident">sled</span>::<span class="ident">Db</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span><span class="ident">Trees</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">documents</span> <span class="op">=</span> <span class="ident">sled</span>.<span class="ident">open_tree</span>(<span class="string">&quot;documents&quot;</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">Trees</span> { <span class="ident">documents</span> })
     }
@@ -126,7 +126,7 @@
 
 <span class="kw">impl</span> <span class="ident">Database</span> {
     <span class="doccomment">/// Create a new database.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">Uuid</span>::<span class="ident">new_v4</span>();
         <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">Database</span>::<span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="ident">uuid</span>);
         <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">handle</span>);
@@ -141,7 +141,7 @@
     }
 
     <span class="doccomment">/// Compute a handle for the database given a uuid.</span>
-    <span class="kw">fn</span> <span class="ident">handle</span>(<span class="ident">uuid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">handle</span>(<span class="ident">uuid</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">temp_dir</span>();
         <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">uuid</span>.<span class="ident">to_string</span>());
         <span class="ident">buf</span>.<span class="ident">set_extension</span>(<span class="string">&quot;sled&quot;</span>);
