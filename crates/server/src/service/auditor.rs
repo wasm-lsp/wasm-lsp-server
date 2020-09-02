@@ -2,10 +2,9 @@
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
-    use crate::core::{document::Document, session::Session};
+    use crate::core::{document::Document, error::Fallible, session::Session};
     use std::sync::Arc;
     use tower_lsp::lsp_types::*;
-    use wasm_language_server_shared::core::error::Fallible;
 
     // Compute diagnostics for a change event given a `document` and `tree`.
     // NOTE: Currently we only use the tree-sitter grammar to check for the

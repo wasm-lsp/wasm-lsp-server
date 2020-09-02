@@ -1,10 +1,13 @@
 //! Computes queries about documents.
 
-use crate::core::{document::Document, session::Session};
+use crate::core::{
+    document::Document,
+    error::{Error, Fallible},
+    language::{wast, wat},
+    session::Session,
+};
 use std::sync::Arc;
 use tower_lsp::lsp_types::*;
-use wasm_language_server_parsers::core::language::{wast, wat};
-use wasm_language_server_shared::core::error::{Error, Fallible};
 
 #[derive(Copy, Clone, Debug)]
 enum HoverComputeStatus {

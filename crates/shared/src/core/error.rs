@@ -1,4 +1,4 @@
-//! Core functionality related to runtime errors.
+//! Core definitions related to runtime errors.
 
 use thiserror::Error;
 use tower_lsp::lsp_types::*;
