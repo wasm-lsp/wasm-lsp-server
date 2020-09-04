@@ -1,7 +1,5 @@
 //! Elaborates parse trees into structured data to be cached in the database.
 
-use crate::core::error::Fallible;
-
 /// Elaborator definitions specific to ".wast" files.
 mod wast;
 /// Elaborator definitions specific to ".wat" files.
@@ -13,12 +11,12 @@ mod witx;
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
-    use crate::core::{error::Fallible, session::Session};
+    use crate::core::session::Session;
     use std::sync::Arc;
     use tower_lsp::lsp_types::*;
 
     /// Handle a parse tree "change" event.
-    pub(crate) async fn change(session: Arc<Session>, uri: Url) -> Fallible<()> {
+    pub(crate) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {
         if let Some(document) = session.get_document(&uri).await? {
             let tree = document.tree.lock().await.clone();
             let node = tree.root_node();
@@ -32,12 +30,12 @@ pub(crate) mod tree {
     }
 
     /// Handle a parse tree "close" event.
-    pub(crate) async fn close(_: Arc<Session>, _: Url) -> Fallible<()> {
+    pub(crate) async fn close(_: Arc<Session>, _: Url) -> anyhow::Result<()> {
         Ok(())
     }
 
     /// Handle a parse tree "open" event.
-    pub(crate) async fn open(session: Arc<Session>, uri: Url) -> Fallible<()> {
+    pub(crate) async fn open(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {
         self::change(session, uri).await
     }
 }
@@ -110,7 +108,7 @@ mod document_symbol {
 pub(crate) async fn document_symbol(
     session: Arc<Session>,
     params: DocumentSymbolParams,
-) -> Fallible<Option<DocumentSymbolResponse>> {
+) -> anyhow::Result<Option<DocumentSymbolResponse>> {
     let DocumentSymbolParams {
         text_document: TextDocumentIdentifier { uri },
         ..

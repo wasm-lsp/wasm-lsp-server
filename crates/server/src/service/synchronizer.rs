@@ -2,12 +2,12 @@
 
 /// Functions related to processing events for a document.
 pub(crate) mod document {
-    use crate::core::{error::Fallible, session::Session};
+    use crate::core::session::Session;
     use std::sync::Arc;
     use tower_lsp::lsp_types::*;
 
     /// Handle a document "change" event.
-    pub(crate) async fn change(session: Arc<Session>, params: DidChangeTextDocumentParams) -> Fallible<()> {
+    pub(crate) async fn change(session: Arc<Session>, params: DidChangeTextDocumentParams) -> anyhow::Result<()> {
         let DidChangeTextDocumentParams {
             text_document: VersionedTextDocumentIdentifier { uri, .. },
             content_changes,
@@ -31,7 +31,7 @@ pub(crate) mod document {
     }
 
     /// Handle a document "close" event.
-    pub(crate) async fn close(session: Arc<Session>, params: DidCloseTextDocumentParams) -> Fallible<()> {
+    pub(crate) async fn close(session: Arc<Session>, params: DidCloseTextDocumentParams) -> anyhow::Result<()> {
         let DidCloseTextDocumentParams {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
@@ -42,7 +42,7 @@ pub(crate) mod document {
     }
 
     /// Handle a document "open" event.
-    pub(crate) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> Fallible<()> {
+    pub(crate) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> anyhow::Result<()> {
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem { uri, .. },
         } = &params;
@@ -66,14 +66,14 @@ pub(crate) mod document {
 
 /// Functions related to processing parse tree events for a document.
 mod tree {
-    use crate::core::{document::Document, error::Fallible, language, parser, session::Session};
+    use crate::core::{document::Document, language, parser, session::Session};
     use std::{convert::TryFrom, sync::Arc};
     use tokio::sync::Mutex;
     use tower_lsp::lsp_types::*;
 
     // TODO: implement parser cancellation
     /// Handle a parse tree "change" event.
-    pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> Fallible<bool> {
+    pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> anyhow::Result<bool> {
         let mut success = false;
         if let Some(mut document) = session.get_mut_document(&uri).await? {
             let tree;
@@ -96,7 +96,7 @@ mod tree {
 
     // TODO: implement parser cancellation
     /// Handle a parse tree "open" event.
-    pub(super) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> Fallible<bool> {
+    pub(super) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> anyhow::Result<bool> {
         let DidOpenTextDocumentParams {
             text_document: TextDocumentItem {
                 language_id, text, uri, ..

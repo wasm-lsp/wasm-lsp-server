@@ -3,7 +3,6 @@
 use crate::core::{
     database::{Database, DocumentStatus},
     document::Document,
-    error::Fallible,
 };
 use dashmap::{
     mapref::one::{Ref, RefMut},
@@ -27,7 +26,7 @@ pub(crate) struct Session {
 
 impl Session {
     /// Create a new session.
-    pub(crate) fn new(client: Client) -> Fallible<Self> {
+    pub(crate) fn new(client: Client) -> anyhow::Result<Self> {
         let database = Database::new()?;
         let documents = DashMap::new();
         Ok(Session {
@@ -39,7 +38,7 @@ impl Session {
 
     /// Insert an opened document into the session. Updates the documents hashmap and sets the
     /// document status in the database to "opened". Notifies subscribers to the document status.
-    pub(crate) fn insert_document(&self, uri: Url, document: Document) -> Fallible<Option<Document>> {
+    pub(crate) fn insert_document(&self, uri: Url, document: Document) -> anyhow::Result<Option<Document>> {
         let result = self.documents.insert(uri.clone(), document);
         self.database
             .trees
@@ -49,7 +48,7 @@ impl Session {
     }
 
     /// Remove a closed document from the session.
-    pub(crate) fn remove_document(&self, uri: &Url) -> Fallible<Option<(Url, Document)>> {
+    pub(crate) fn remove_document(&self, uri: &Url) -> anyhow::Result<Option<(Url, Document)>> {
         let result = self.documents.remove(uri);
         self.database
             .trees
@@ -61,9 +60,9 @@ impl Session {
     /// Get a document from the session. If the document is not yet open, this function will await
     /// until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call to
     /// Self::insert_document from another thread of control.
-    pub(crate) async fn get_document(&self, uri: &Url) -> Fallible<Option<Ref<'_, Url, Document>>> {
+    pub(crate) async fn get_document(&self, uri: &Url) -> anyhow::Result<Option<Ref<'_, Url, Document>>> {
         #[allow(clippy::needless_lifetimes)]
-        async fn future<'a>(session: &'a Session, uri: &Url) -> Fallible<Option<Ref<'a, Url, Document>>> {
+        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<Option<Ref<'a, Url, Document>>> {
             let mut result = session.documents.get(uri);
             if result.is_none() {
                 let subscriber = session.database.trees.documents.watch_prefix(vec![]);
@@ -91,9 +90,9 @@ impl Session {
     /// Get a mutable document from the session. If the document is not yet open, this function will
     /// await until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call
     /// to Self::insert_document from another thread of control.
-    pub(crate) async fn get_mut_document(&self, uri: &Url) -> Fallible<Option<RefMut<'_, Url, Document>>> {
+    pub(crate) async fn get_mut_document(&self, uri: &Url) -> anyhow::Result<Option<RefMut<'_, Url, Document>>> {
         #[allow(clippy::needless_lifetimes)]
-        async fn future<'a>(session: &'a Session, uri: &Url) -> Fallible<Option<RefMut<'a, Url, Document>>> {
+        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<Option<RefMut<'a, Url, Document>>> {
             let mut result = session.documents.get_mut(uri);
             if result.is_none() {
                 let subscriber = session.database.trees.documents.watch_prefix(vec![]);

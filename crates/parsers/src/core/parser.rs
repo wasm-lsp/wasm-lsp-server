@@ -2,11 +2,13 @@
 
 // FIXME: move these to a subcrate
 
-use crate::core::language::{self, Language};
-use wasm_language_server_shared::core::error::{Error, Fallible};
+use crate::core::{
+    error::Error,
+    language::{self, Language},
+};
 
 /// Create a wast parser from the tree-sitter grammar.
-pub fn wast() -> Fallible<tree_sitter::Parser> {
+pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::wast::language();
     let mut parser = tree_sitter::Parser::new();
     parser.set_language(language).map_err(Error::TreeSitterLanguageError)?;
@@ -14,7 +16,7 @@ pub fn wast() -> Fallible<tree_sitter::Parser> {
 }
 
 /// Create a wat parser from the tree-sitter grammar.
-pub fn wat() -> Fallible<tree_sitter::Parser> {
+pub fn wat() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::wat::language();
     let mut parser = tree_sitter::Parser::new();
     parser.set_language(language).map_err(Error::TreeSitterLanguageError)?;
@@ -22,7 +24,7 @@ pub fn wat() -> Fallible<tree_sitter::Parser> {
 }
 
 /// Create a wit parser from the tree-sitter grammar.
-pub fn wit() -> Fallible<tree_sitter::Parser> {
+pub fn wit() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::wit::language();
     let mut parser = tree_sitter::Parser::new();
     parser.set_language(language).map_err(Error::TreeSitterLanguageError)?;
@@ -30,7 +32,7 @@ pub fn wit() -> Fallible<tree_sitter::Parser> {
 }
 
 /// Create a witx parser from the tree-sitter grammar.
-pub fn witx() -> Fallible<tree_sitter::Parser> {
+pub fn witx() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::witx::language();
     let mut parser = tree_sitter::Parser::new();
     parser.set_language(language).map_err(Error::TreeSitterLanguageError)?;
@@ -38,7 +40,7 @@ pub fn witx() -> Fallible<tree_sitter::Parser> {
 }
 
 /// Create a parser for the given `language`.
-pub fn try_from(language: Language) -> Fallible<tree_sitter::Parser> {
+pub fn try_from(language: Language) -> anyhow::Result<tree_sitter::Parser> {
     match language {
         Language::Wast => wast(),
         Language::Wat => wat(),

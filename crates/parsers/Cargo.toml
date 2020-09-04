@@ -20,6 +20,6 @@ cc = "1.0.50"
 
 [dependencies]
 anyhow = "1.0.28"
+thiserror = "1.0.14"
 lazy_static = "1.4.0"
 tree-sitter = "0.16.1"
-wasm-language-server-shared = { path = "../shared" }
