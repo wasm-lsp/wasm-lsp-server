@@ -15,7 +15,7 @@ pub struct Server {
 impl Server {
     /// Create a new server.
     pub fn new(client: Client) -> anyhow::Result<Self> {
-        let session = Arc::new(Session::new(client.clone())?);
+        let session = Arc::new(Session::new(Some(client.clone()))?);
         Ok(Server { client, session })
     }
 }

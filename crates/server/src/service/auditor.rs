@@ -71,7 +71,7 @@ pub(crate) mod tree {
         let tree = document.tree.lock().await.clone();
         let diagnostics = diagnostics_for_change(&document, tree)?;
         let version = Default::default();
-        session.client.publish_diagnostics(uri, diagnostics, version).await;
+        session.client()?.publish_diagnostics(uri, diagnostics, version).await;
         Ok(())
     }
 
@@ -81,7 +81,7 @@ pub(crate) mod tree {
         // FIXME: handle this properly
         let diagnostics = Default::default();
         let version = Default::default();
-        session.client.publish_diagnostics(uri, diagnostics, version).await;
+        session.client()?.publish_diagnostics(uri, diagnostics, version).await;
         Ok(())
     }
 
