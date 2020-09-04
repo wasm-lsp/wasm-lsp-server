@@ -75,21 +75,20 @@ mod tree {
     /// Handle a parse tree "change" event.
     pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> anyhow::Result<bool> {
         let mut success = false;
-        if let Some(mut document) = session.get_mut_document(&uri).await? {
-            let tree;
-            {
-                let mut parser = document.parser.lock().await;
-                // FIXME: we reset the parser since we don't handle incremental changes yet
-                parser.reset();
-                // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
-                let old_tree = None;
-                tree = parser.parse(&text[..], old_tree);
-            }
-            if let Some(tree) = tree {
-                document.text = text;
-                document.tree = Mutex::new(tree);
-                success = true;
-            }
+        let mut document = session.get_mut_document(&uri).await?;
+        let tree;
+        {
+            let mut parser = document.parser.lock().await;
+            // FIXME: we reset the parser since we don't handle incremental changes yet
+            parser.reset();
+            // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
+            let old_tree = None;
+            tree = parser.parse(&text[..], old_tree);
+        }
+        if let Some(tree) = tree {
+            document.text = text;
+            document.tree = Mutex::new(tree);
+            success = true;
         }
         Ok(success)
     }

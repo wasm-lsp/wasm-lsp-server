@@ -17,14 +17,11 @@ pub(crate) mod tree {
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {
-        if let Some(document) = session.get_document(&uri).await? {
-            let tree = document.tree.lock().await.clone();
-            let node = tree.root_node();
-            if !node.has_error() {
-                log::info!("syntax well-formed");
-            }
-            // NOTE: else let auditor handle
-            // TODO: allow partial elaboration in presence of syntax errors
+        let document = session.get_document(&uri).await?;
+        let tree = document.tree.lock().await.clone();
+        let node = tree.root_node();
+        if !node.has_error() {
+            log::info!("syntax well-formed");
         }
         Ok(())
     }
@@ -113,17 +110,12 @@ pub(crate) async fn document_symbol(
         text_document: TextDocumentIdentifier { uri },
         ..
     } = &params;
-    if let Some(document) = session.get_document(uri).await? {
-        let result = match document.language {
-            Language::Wast => self::wast::document_symbol(&document).await,
-            Language::Wat => self::wat::document_symbol(&document).await,
-            Language::Wit => self::wit::document_symbol(&document).await,
-            Language::Witx => self::witx::document_symbol(&document).await,
-        };
-        Ok(result)
-    } else {
-        // TODO: report
-        log::warn!("documents.get failed for {}", uri);
-        Ok(None)
-    }
+    let document = session.get_document(uri).await?;
+    let result = match document.language {
+        Language::Wast => self::wast::document_symbol(&document).await,
+        Language::Wat => self::wat::document_symbol(&document).await,
+        Language::Wit => self::wit::document_symbol(&document).await,
+        Language::Witx => self::witx::document_symbol(&document).await,
+    };
+    Ok(result)
 }
