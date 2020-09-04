@@ -8,6 +8,9 @@ use tower_lsp::lsp_types::*;
 #[derive(Debug, Error)]
 pub(crate) enum Error {
     /// Error that a given document could not be found.
+    #[error("ClientNotInitialzed")]
+    ClientNotInitialized,
+    /// Error that a given document could not be found.
     #[error("core::DocumentNotFound: {0}")]
     DocumentNotFound(Url),
 }
