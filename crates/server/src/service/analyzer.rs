@@ -2,7 +2,6 @@
 
 use crate::core::{
     document::Document,
-    error::Error,
     language::{wast, wat},
     session::Session,
 };
@@ -26,13 +25,10 @@ pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> anyhow:
             },
         ..
     } = &params;
-    if let Some(document) = session.get_document(uri).await? {
-        let range = Range::new(*position, *position);
-        let hover = hover_for_token_range(&uri, &document, range).await?;
-        Ok(hover)
-    } else {
-        Err(Error::DocumentNotFound(uri.clone()).into())
-    }
+    let document = session.get_document(uri).await?;
+    let range = Range::new(*position, *position);
+    let hover = hover_for_token_range(&uri, &document, range).await?;
+    Ok(hover)
 }
 
 // FIXME

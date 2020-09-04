@@ -3,6 +3,7 @@
 use crate::core::{
     database::{Database, DocumentStatus},
     document::Document,
+    error::Error,
 };
 use dashmap::{
     mapref::one::{Ref, RefMut},
@@ -60,9 +61,9 @@ impl Session {
     /// Get a document from the session. If the document is not yet open, this function will await
     /// until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call to
     /// Self::insert_document from another thread of control.
-    pub(crate) async fn get_document(&self, uri: &Url) -> anyhow::Result<Option<Ref<'_, Url, Document>>> {
+    pub(crate) async fn get_document(&self, uri: &Url) -> anyhow::Result<Ref<'_, Url, Document>> {
         #[allow(clippy::needless_lifetimes)]
-        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<Option<Ref<'a, Url, Document>>> {
+        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<Ref<'a, Url, Document>> {
             let mut result = session.documents.get(uri);
             if result.is_none() {
                 let subscriber = session.database.trees.documents.watch_prefix(vec![]);
@@ -82,7 +83,7 @@ impl Session {
                     }
                 }
             }
-            Ok(result)
+            result.ok_or_else(|| Error::DocumentNotFound(uri.clone()).into())
         }
         timeout(Duration::from_secs(5), future(self, uri)).await?
     }
@@ -90,9 +91,9 @@ impl Session {
     /// Get a mutable document from the session. If the document is not yet open, this function will
     /// await until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call
     /// to Self::insert_document from another thread of control.
-    pub(crate) async fn get_mut_document(&self, uri: &Url) -> anyhow::Result<Option<RefMut<'_, Url, Document>>> {
+    pub(crate) async fn get_mut_document(&self, uri: &Url) -> anyhow::Result<RefMut<'_, Url, Document>> {
         #[allow(clippy::needless_lifetimes)]
-        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<Option<RefMut<'a, Url, Document>>> {
+        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<RefMut<'a, Url, Document>> {
             let mut result = session.documents.get_mut(uri);
             if result.is_none() {
                 let subscriber = session.database.trees.documents.watch_prefix(vec![]);
@@ -112,7 +113,7 @@ impl Session {
                     }
                 }
             }
-            Ok(result)
+            result.ok_or_else(|| Error::DocumentNotFound(uri.clone()).into())
         }
         timeout(Duration::from_secs(5), future(self, uri)).await?
     }
