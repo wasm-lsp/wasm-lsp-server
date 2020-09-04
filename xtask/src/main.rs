@@ -39,6 +39,7 @@ fn main() -> Fallible<()> {
                         .long("rebuild-parsers")
                         .help("Rebuild tree-sitter parsers if necessary"),
                 ),
+                clap::SubCommand::with_name("udeps").arg(rest),
             ];
             subcommands
         });
@@ -52,6 +53,7 @@ fn main() -> Fallible<()> {
         ("install", Some(sub_matches)) => subcommand::cargo::install(sub_matches)?,
         ("tarpaulin", Some(sub_matches)) => subcommand::cargo::tarpaulin(sub_matches)?,
         ("test", Some(sub_matches)) => subcommand::cargo::test(sub_matches)?,
+        ("udeps", Some(sub_matches)) => subcommand::cargo::udeps(sub_matches)?,
         _ => {},
     }
 
@@ -239,6 +241,28 @@ mod subcommand {
             }
             cmd.status()?;
 
+            Ok(())
+        }
+
+        // Run `cargo udeps` with custom options.
+        pub fn udeps(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+            let cargo = metadata::cargo()?;
+            let mut cmd = Command::new(cargo);
+            cmd.current_dir(metadata::project_root());
+            cmd.args(&["+nightly", "udeps", "--all-targets", "--all-features"]);
+            cmd.args(&["--package", "xtask"]);
+            cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-macros"]);
+            cmd.args(&["--package", "wasm-language-server-parsers"]);
+            cmd.args(&["--package", "wasm-language-server-shared"]);
+            cmd.args(&["--package", "wasm-language-server-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-language-server-fuzz"]);
+            }
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
+            cmd.status()?;
             Ok(())
         }
     }
