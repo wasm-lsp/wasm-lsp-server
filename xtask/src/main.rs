@@ -89,7 +89,7 @@ mod subcommand {
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.env("RUSTFLAGS", "-Dwarnings");
-            cmd.args(&["check", "--all-targets"]);
+            cmd.args(&["check", "--all-targets", "--all-features"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
@@ -111,7 +111,7 @@ mod subcommand {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["clippy", "--all-targets"]);
+            cmd.args(&["clippy", "--all-targets", "--all-features"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
