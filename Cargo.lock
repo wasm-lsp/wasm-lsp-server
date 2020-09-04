@@ -177,20 +177,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "codespan"
-version = "0.9.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ebaf6bb6a863ad6aa3a18729e9710c53d75df03306714d9cc1f7357a00cd789"
-dependencies = [
- "codespan-reporting 0.9.5 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "codespan-lsp"
 version = "0.10.2-alpha.0"
 source = "git+https://github.com/brendanzab/codespan#131b3bd16bc70897a8895186cb2a904c712db5aa"
 dependencies = [
- "codespan-reporting 0.9.5 (git+https://github.com/brendanzab/codespan)",
+ "codespan-reporting",
  "lsp-types",
  "url",
 ]
@@ -199,16 +190,6 @@ dependencies = [
 name = "codespan-reporting"
 version = "0.9.5"
 source = "git+https://github.com/brendanzab/codespan#131b3bd16bc70897a8895186cb2a904c712db5aa"
-dependencies = [
- "termcolor",
- "unicode-width",
-]
-
-[[package]]
-name = "codespan-reporting"
-version = "0.9.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e0762455306b1ed42bc651ef6a2197aabda5e1d4a43c34d5eab5c1a3634e81d"
 dependencies = [
  "termcolor",
  "unicode-width",
@@ -1313,9 +1294,8 @@ dependencies = [
  "anyhow",
  "built",
  "clap",
- "codespan",
  "codespan-lsp",
- "codespan-reporting 0.9.5 (git+https://github.com/brendanzab/codespan)",
+ "codespan-reporting",
  "dashmap",
  "env_logger",
  "futures",
@@ -1374,7 +1354,6 @@ name = "wasm-language-server-shared"
 version = "0.0.0"
 dependencies = [
  "tower-lsp",
- "tree-sitter",
 ]
 
 [[package]]
