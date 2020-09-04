@@ -67,12 +67,11 @@ pub(crate) mod tree {
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {
-        if let Some(document) = session.get_document(&uri).await? {
-            let tree = document.tree.lock().await.clone();
-            let diagnostics = diagnostics_for_change(&document, tree)?;
-            let version = Default::default();
-            session.client.publish_diagnostics(uri, diagnostics, version).await;
-        }
+        let document = session.get_document(&uri).await?;
+        let tree = document.tree.lock().await.clone();
+        let diagnostics = diagnostics_for_change(&document, tree)?;
+        let version = Default::default();
+        session.client.publish_diagnostics(uri, diagnostics, version).await;
         Ok(())
     }
 
