@@ -6,3 +6,6 @@
 
 /// LSP-related definitions.
 pub mod lsp;
+
+/// JSON-RPC-related definitions.
+pub mod jsonrpc;
