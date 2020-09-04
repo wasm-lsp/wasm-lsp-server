@@ -97,7 +97,7 @@
 
 <span class="doccomment">/// Functions related to processing parse tree events for a document.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">tree</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">error</span>::<span class="ident">Fallible</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
     <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
 
@@ -105,7 +105,7 @@
     <span class="comment">// NOTE: Currently we only use the tree-sitter grammar to check for the</span>
     <span class="comment">// presence of errors and then use the `wast` crate for the actual error</span>
     <span class="comment">// reporting (because tree-sitter does not provide detailed errors yet).</span>
-    <span class="kw">fn</span> <span class="ident">diagnostics_for_change</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">tree</span>: <span class="ident">tree_sitter</span>::<span class="ident">Tree</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Diagnostic</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">diagnostics_for_change</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">tree</span>: <span class="ident">tree_sitter</span>::<span class="ident">Tree</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Diagnostic</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diagnostics</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
         <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">tree</span>.<span class="ident">root_node</span>();
 
@@ -161,7 +161,7 @@
     }
 
     <span class="doccomment">/// Handle a parse tree &quot;change&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">document</span>) <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="ident">await</span><span class="question-mark">?</span> {
             <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">tree</span>.<span class="ident">lock</span>().<span class="ident">await</span>.<span class="ident">clone</span>();
             <span class="kw">let</span> <span class="ident">diagnostics</span> <span class="op">=</span> <span class="ident">diagnostics_for_change</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">tree</span>)<span class="question-mark">?</span>;
@@ -172,7 +172,7 @@
     }
 
     <span class="doccomment">/// Handle a parse tree &quot;close&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// clear diagnostics on tree close</span>
         <span class="comment">// FIXME: handle this properly</span>
         <span class="kw">let</span> <span class="ident">diagnostics</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
@@ -182,7 +182,7 @@
     }
 
     <span class="doccomment">/// Handle a parse tree &quot;open&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>::<span class="ident">change</span>(<span class="ident">session</span>, <span class="ident">uri</span>).<span class="ident">await</span>
     }
 }

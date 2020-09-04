@@ -24,11 +24,11 @@
 <span class="comment">// Core functionality related to documents.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">document</span>;
 
+<span class="comment">// Core functionality related to runtime errors.</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">error</span>;
+
 <span class="comment">// Core functionality related to parsers.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">wasm_language_server_parsers</span>::<span class="ident">core</span>::<span class="kw-2">*</span>;
-
-<span class="comment">// Core definitions shared between server crates.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">wasm_language_server_shared</span>::<span class="ident">core</span>::<span class="kw-2">*</span>;
 
 <span class="comment">// Core functionality related to the LSP server session.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">session</span>;
