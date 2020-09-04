@@ -18,7 +18,7 @@ use zerocopy::AsBytes;
 /// Represents the current state of the LSP service.
 pub(crate) struct Session {
     /// The LSP client handle.
-    pub(crate) client: Client,
+    client: Option<Client>,
     /// The document metadata database.
     database: Database,
     /// The store of currently open documents.
@@ -27,7 +27,7 @@ pub(crate) struct Session {
 
 impl Session {
     /// Create a new session.
-    pub(crate) fn new(client: Client) -> anyhow::Result<Self> {
+    pub(crate) fn new(client: Option<Client>) -> anyhow::Result<Self> {
         let database = Database::new()?;
         let documents = DashMap::new();
         Ok(Session {
@@ -35,6 +35,10 @@ impl Session {
             database,
             documents,
         })
+    }
+
+    pub(crate) fn client(&self) -> anyhow::Result<&Client> {
+        self.client.as_ref().ok_or(Error::ClientNotInitialized.into())
     }
 
     /// Insert an opened document into the session. Updates the documents hashmap and sets the
