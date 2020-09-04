@@ -179,7 +179,7 @@ dependencies = [
 [[package]]
 name = "codespan-lsp"
 version = "0.10.2-alpha.0"
-source = "git+https://github.com/brendanzab/codespan#131b3bd16bc70897a8895186cb2a904c712db5aa"
+source = "git+https://github.com/brendanzab/codespan#148eb4f87078411b9c7dca403e6cb12f705f3e48"
 dependencies = [
  "codespan-reporting",
  "lsp-types",
@@ -189,7 +189,7 @@ dependencies = [
 [[package]]
 name = "codespan-reporting"
 version = "0.9.5"
-source = "git+https://github.com/brendanzab/codespan#131b3bd16bc70897a8895186cb2a904c712db5aa"
+source = "git+https://github.com/brendanzab/codespan#148eb4f87078411b9c7dca403e6cb12f705f3e48"
 dependencies = [
  "termcolor",
  "unicode-width",
@@ -563,9 +563,9 @@ dependencies = [
 
 [[package]]
 name = "libz-sys"
-version = "1.1.1"
+version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23b34178653005c1181711c333f0e5604a14a1b5115c814fd42304bdd16245e0"
+checksum = "602113192b08db8f38796c4e85c39e960c145965140e918018bcde1952429655"
 dependencies = [
  "cc",
  "libc",
@@ -774,9 +774,9 @@ checksum = "eba180dafb9038b050a4c280019bbedf9f2467b61e5d892dcad585bb57aadc5a"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.19"
+version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04f5f085b5d71e2188cb8271e5da0161ad52c3f227a661a3c135fdf28e258b12"
+checksum = "175c513d55719db99da20232b06cda8bab6b83ec2d04e3283edf0213c37c1a29"
 dependencies = [
  "unicode-xid",
 ]
@@ -1373,9 +1373,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-smith"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "282c6162f6e30c663bf473bba323950eb494d7de1899e259024ffeb127cf5733"
+checksum = "50dc43f9441f75bdd9f3589af437d164f880b6261a4dc3bf1e8ecff63704469e"
 dependencies = [
  "arbitrary",
  "leb128",
