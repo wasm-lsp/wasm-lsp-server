@@ -1322,6 +1322,7 @@ dependencies = [
  "tokio",
  "tower-lsp",
  "wabt",
+ "wasm-language-server-shared",
  "wasm-language-server-testing",
  "wasm-smith",
 ]
@@ -1353,6 +1354,7 @@ dependencies = [
 name = "wasm-language-server-shared"
 version = "0.0.0"
 dependencies = [
+ "serde_json",
  "tower-lsp",
 ]
 
