@@ -15,4 +15,5 @@ Shared code for the WebAssembly Language Server
 maintenance = { status = "experimental" }
 
 [dependencies]
+serde_json = "1.0"
 tower-lsp = "0.13.0"

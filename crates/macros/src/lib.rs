@@ -133,49 +133,18 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                     let service = &mut service;
 
                     assert_ready!(service, Ok(()));
-                    let request = &json!({
-                        "jsonrpc": "2.0",
-                        "method": "initialize",
-                        "params": {
-                            "capabilities":{},
-                        },
-                        "id": 1,
-                    });
-                    let response = Some(json!({
-                        "jsonrpc": "2.0",
-                        "result": {
-                            "capabilities": shared::lsp::cfg::capabilities(),
-                        },
-                        "id": 1,
-                    }));
+                    let request = &shared::lsp::initialize::request();
+                    let response = Some(shared::lsp::initialize::response());
                     assert_exchange!(service, request, Ok(response));
 
                     assert_ready!(service, Ok(()));
-                    let request = &json!({
-                        "jsonrpc": "2.0",
-                        "method": "textDocument/didOpen",
-                        "params": {
-                            "textDocument": {
-                                "uri": uri,
-                                "languageId": #language_id,
-                                "version": 1,
-                                "text": text,
-                            },
-                        },
-                    });
-                    let response = None::<Value>;
-                    assert_exchange!(service, request, Ok(response));
+                    let notification = &shared::lsp::text_document::did_open::notification(&uri, #language_id, 1, text);
+                    let status = None::<Value>;
+                    assert_exchange!(service, notification, Ok(status));
 
                     let message = messages.next().await.unwrap();
                     let actual = serde_json::to_value(&message)?;
-                    let expected = json!({
-                        "jsonrpc": "2.0",
-                        "method": "textDocument/publishDiagnostics",
-                        "params": {
-                            "uri": uri,
-                            "diagnostics": [],
-                        },
-                    });
+                    let expected = shared::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
                     assert_eq!(actual, expected);
 
                     Ok(())

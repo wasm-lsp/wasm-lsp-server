@@ -4,9 +4,9 @@ extern crate wasm_language_server_testing;
 
 #[cfg(feature = "test")]
 mod lsp {
-    use serde_json::{json, Value};
+    use serde_json::Value;
     use std::task::Poll;
-    use tower_lsp::{jsonrpc, ExitedError};
+    use tower_lsp::ExitedError;
     use wasm_language_server_shared as shared;
     use wasm_language_server_testing::test;
 
@@ -14,36 +14,15 @@ mod lsp {
     async fn initialize_once() -> anyhow::Result<()> {
         let service = &mut test::service::spawn()?.0;
 
-        let request = &json!({
-            "jsonrpc": "2.0",
-            "method": "initialize",
-            "params": {
-                "capabilities":{},
-            },
-            "id": 1,
-        });
-
         // expect nominal response for first request
         assert_ready!(service, Ok(()));
-        let response = Some(json!({
-            "jsonrpc": "2.0",
-            "result": {
-                "capabilities": shared::lsp::cfg::capabilities(),
-            },
-            "id": 1,
-        }));
+        let request = &shared::lsp::initialize::request();
+        let response = Some(shared::lsp::initialize::response());
         assert_exchange!(service, request, Ok(response));
 
         // expect error response for second request
         assert_ready!(service, Ok(()));
-        let response = Some(json!({
-            "jsonrpc": "2.0",
-            "error": {
-                "code": jsonrpc::ErrorCode::InvalidRequest.code(),
-                "message": "Invalid request",
-            },
-            "id": 1,
-        }));
+        let response = Some(shared::jsonrpc::error::invalid_request());
         assert_exchange!(service, request, Ok(response));
 
         Ok(())
@@ -54,21 +33,8 @@ mod lsp {
         let service = &mut test::service::spawn()?.0;
 
         assert_ready!(service, Ok(()));
-        let request = &json!({
-            "jsonrpc": "2.0",
-            "method": "initialize",
-            "params": {
-                "capabilities":{},
-            },
-            "id": 1,
-        });
-        let response = Some(json!({
-            "jsonrpc": "2.0",
-            "result": {
-                "capabilities": shared::lsp::cfg::capabilities(),
-            },
-            "id": 1,
-        }));
+        let request = &shared::lsp::initialize::request();
+        let response = Some(shared::lsp::initialize::response());
         assert_exchange!(service, request, Ok(response));
 
         Ok(())
@@ -79,19 +45,19 @@ mod lsp {
         let service = &mut test::service::spawn()?.0;
 
         assert_ready!(service, Ok(()));
-        let request = &json!({ "jsonrpc": "2.0", "method": "initialized", "params": {} });
-        let response = None::<Value>;
-        assert_exchange!(service, request, Ok(response));
+        let notification = &shared::lsp::initialized::notification();
+        let status = None::<Value>;
+        assert_exchange!(service, notification, Ok(status));
 
         assert_ready!(service, Ok(()));
-        let request = &json!({ "jsonrpc": "2.0", "method": "exit" });
-        let response = None::<Value>;
-        assert_exchange!(service, request, Ok(response));
+        let notification = &shared::lsp::exit::notification();
+        let status = None::<Value>;
+        assert_exchange!(service, notification, Ok(status));
 
         assert_ready!(service, Err(ExitedError));
-        let request = &json!({ "jsonrpc": "2.0", "method": "initialized" });
-        let error = ExitedError;
-        assert_exchange!(service, request, Err(error));
+        let notification = &shared::lsp::initialized::notification();
+        let status = ExitedError;
+        assert_exchange!(service, notification, Err(status));
 
         Ok(())
     }
