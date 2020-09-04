@@ -1,7 +1,7 @@
 //! Core functionality related to document languages.
 
+use crate::core::error::Error;
 use std::convert::TryFrom;
-use wasm_language_server_shared::core::error::{Error, Fallible};
 
 /// Languages supported by the server.
 #[derive(Clone, Copy, Debug)]
@@ -19,13 +19,13 @@ pub enum Language {
 impl TryFrom<String> for Language {
     type Error = anyhow::Error;
 
-    fn try_from(language_id: String) -> Fallible<Self> {
+    fn try_from(language_id: String) -> anyhow::Result<Self> {
         match language_id.as_ref() {
             "wasm.wast" => Ok(Language::Wast),
             "wasm.wat" => Ok(Language::Wat),
             "wasm.wit" => Ok(Language::Wit),
             "wasm.witx" => Ok(Language::Witx),
-            _ => Err(Error::CoreInvalidLanguageId(language_id).into()),
+            _ => Err(Error::InvalidLanguageId(language_id).into()),
         }
     }
 }

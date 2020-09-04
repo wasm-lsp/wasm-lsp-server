@@ -1321,6 +1321,7 @@ dependencies = [
  "futures",
  "log",
  "sled",
+ "thiserror",
  "tokio",
  "tower-lsp",
  "tree-sitter",
@@ -1364,16 +1365,14 @@ dependencies = [
  "anyhow",
  "cc",
  "lazy_static",
+ "thiserror",
  "tree-sitter",
- "wasm-language-server-shared",
 ]
 
 [[package]]
 name = "wasm-language-server-shared"
 version = "0.0.0"
 dependencies = [
- "anyhow",
- "thiserror",
  "tower-lsp",
  "tree-sitter",
 ]

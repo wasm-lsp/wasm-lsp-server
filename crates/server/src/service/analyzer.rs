@@ -2,7 +2,7 @@
 
 use crate::core::{
     document::Document,
-    error::{Error, Fallible},
+    error::Error,
     language::{wast, wat},
     session::Session,
 };
@@ -16,7 +16,7 @@ enum HoverComputeStatus {
 }
 
 // FIXME
-pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> Fallible<Option<Hover>> {
+pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> anyhow::Result<Option<Hover>> {
     let HoverParams {
         text_document_position_params:
             TextDocumentPositionParams {
@@ -36,7 +36,7 @@ pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> Fallibl
 }
 
 // FIXME
-async fn hover_for_token_range(uri: &Url, document: &Document, range: Range) -> Fallible<Option<Hover>> {
+async fn hover_for_token_range(uri: &Url, document: &Document, range: Range) -> anyhow::Result<Option<Hover>> {
     let files = codespan_reporting::files::SimpleFile::new(uri, &document.text);
     let file_id = ();
     let start = codespan_lsp::position_to_byte_index(&files, file_id, &range.start)?;
@@ -86,7 +86,7 @@ fn try_hover_for_instr(
     child: &tree_sitter::Node<'_>,
     contents: &mut Vec<MarkedString>,
     range: &mut Option<Range>,
-) -> Fallible<HoverComputeStatus> {
+) -> anyhow::Result<HoverComputeStatus> {
     if [*wat::kind::INSTR, *wast::kind::INSTR].contains(&child.kind_id()) {
         let text = child.utf8_text(&document.text.as_bytes())?;
         contents.push(MarkedString::String(String::from(text)));
@@ -102,7 +102,7 @@ fn try_hover_for_instr_plain(
     child: &tree_sitter::Node<'_>,
     contents: &mut Vec<MarkedString>,
     range: &mut Option<Range>,
-) -> Fallible<HoverComputeStatus> {
+) -> anyhow::Result<HoverComputeStatus> {
     if [*wat::kind::INSTR_PLAIN, *wast::kind::INSTR_PLAIN].contains(&child.kind_id()) {
         let text = child.utf8_text(&document.text.as_bytes())?;
         contents.push(MarkedString::String(String::from(text)));
@@ -118,7 +118,7 @@ fn try_hover_for_module_field(
     child: &tree_sitter::Node<'_>,
     contents: &mut Vec<MarkedString>,
     range: &mut Option<Range>,
-) -> Fallible<HoverComputeStatus> {
+) -> anyhow::Result<HoverComputeStatus> {
     if [*wat::kind::MODULE_FIELD, *wast::kind::MODULE_FIELD].contains(&child.kind_id()) {
         let text = child.utf8_text(&document.text.as_bytes())?;
         contents.push(MarkedString::String(String::from(text)));
