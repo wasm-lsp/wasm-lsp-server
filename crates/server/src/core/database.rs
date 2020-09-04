@@ -1,6 +1,5 @@
 //! Core functionality related to the document metadata database.
 
-use crate::core::error::Fallible;
 use std::{env, path::Path};
 use uuid::Uuid;
 use zerocopy::{AsBytes, FromBytes};
@@ -33,7 +32,7 @@ pub(crate) struct Trees {
 }
 
 impl Trees {
-    fn new(sled: &sled::Db) -> Fallible<Trees> {
+    fn new(sled: &sled::Db) -> anyhow::Result<Trees> {
         let documents = sled.open_tree("documents")?;
         Ok(Trees { documents })
     }
@@ -50,7 +49,7 @@ pub(crate) struct Database {
 
 impl Database {
     /// Create a new database.
-    pub(crate) fn new() -> Fallible<Self> {
+    pub(crate) fn new() -> anyhow::Result<Self> {
         let uuid = Uuid::new_v4();
         let handle = Database::handle(&uuid);
         log::info!("{:?}", handle);

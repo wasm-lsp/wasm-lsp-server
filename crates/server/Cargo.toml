@@ -38,6 +38,7 @@ env_logger = "0.7.1"
 futures = "0.3.4"
 log = "0.4.8"
 sled = "0.34.0"
+thiserror = "1.0.14"
 tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "time"] }
 tower-lsp = "0.13.0"
 tree-sitter = "0.16.1"

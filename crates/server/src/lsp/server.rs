@@ -1,6 +1,6 @@
 //! Definitions for the server instance.
 
-use crate::core::{error::Fallible, session::Session};
+use crate::core::session::Session;
 use std::sync::Arc;
 use tower_lsp::Client;
 
@@ -14,7 +14,7 @@ pub struct Server {
 
 impl Server {
     /// Create a new server.
-    pub fn new(client: Client) -> Fallible<Self> {
+    pub fn new(client: Client) -> anyhow::Result<Self> {
         let session = Arc::new(Session::new(client.clone())?);
         Ok(Server { client, session })
     }
