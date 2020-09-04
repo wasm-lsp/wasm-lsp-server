@@ -16,4 +16,3 @@ maintenance = { status = "experimental" }
 
 [dependencies]
 tower-lsp = "0.13.0"
-tree-sitter = "0.16.1"
