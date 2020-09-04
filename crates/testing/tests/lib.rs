@@ -11,36 +11,6 @@ mod lsp {
     use wasm_language_server_testing::test;
 
     #[tokio::test]
-    async fn initialize_once() -> anyhow::Result<()> {
-        let service = &mut test::service::spawn()?.0;
-
-        // expect nominal response for first request
-        assert_ready!(service, Ok(()));
-        let request = &shared::lsp::initialize::request();
-        let response = Some(shared::lsp::initialize::response());
-        assert_exchange!(service, request, Ok(response));
-
-        // expect error response for second request
-        assert_ready!(service, Ok(()));
-        let response = Some(shared::jsonrpc::error::invalid_request());
-        assert_exchange!(service, request, Ok(response));
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn initialize() -> anyhow::Result<()> {
-        let service = &mut test::service::spawn()?.0;
-
-        assert_ready!(service, Ok(()));
-        let request = &shared::lsp::initialize::request();
-        let response = Some(shared::lsp::initialize::response());
-        assert_exchange!(service, request, Ok(response));
-
-        Ok(())
-    }
-
-    #[tokio::test]
     async fn exit() -> anyhow::Result<()> {
         let service = &mut test::service::spawn()?.0;
 
@@ -58,6 +28,36 @@ mod lsp {
         let notification = &shared::lsp::initialized::notification();
         let status = ExitedError;
         assert_exchange!(service, notification, Err(status));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn initialize() -> anyhow::Result<()> {
+        let service = &mut test::service::spawn()?.0;
+
+        assert_ready!(service, Ok(()));
+        let request = &shared::lsp::initialize::request();
+        let response = Some(shared::lsp::initialize::response());
+        assert_exchange!(service, request, Ok(response));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn initialize_once() -> anyhow::Result<()> {
+        let service = &mut test::service::spawn()?.0;
+
+        // expect nominal response for first request
+        assert_ready!(service, Ok(()));
+        let request = &shared::lsp::initialize::request();
+        let response = Some(shared::lsp::initialize::response());
+        assert_exchange!(service, request, Ok(response));
+
+        // expect error response for second request
+        assert_ready!(service, Ok(()));
+        let response = Some(shared::jsonrpc::error::invalid_request());
+        assert_exchange!(service, request, Ok(response));
 
         Ok(())
     }
