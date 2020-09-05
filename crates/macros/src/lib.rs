@@ -129,22 +129,23 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                     let uri = Url::from_file_path(&#path_name).unwrap();
                     let text = std::fs::read_to_string(#path_name).unwrap();
 
-                    let (mut service, mut messages) = test::service::spawn()?;
+                    let (mut service, mut messages) = testing::service::spawn()?;
                     let service = &mut service;
 
-                    assert_ready!(service, Ok(()));
-                    let request = &shared::lsp::initialize::request();
-                    let response = Some(shared::lsp::initialize::response());
-                    assert_exchange!(service, request, Ok(response));
+                    testing::assert_status!(service, Ok(()));
+                    let request = &testing::lsp::initialize::request();
+                    let response = Some(testing::lsp::initialize::response());
+                    testing::assert_exchange!(service, request, Ok(response));
 
-                    assert_ready!(service, Ok(()));
-                    let notification = &shared::lsp::text_document::did_open::notification(&uri, #language_id, 1, text);
+                    testing::assert_status!(service, Ok(()));
+                    let notification =
+                        &testing::lsp::text_document::did_open::notification(&uri, #language_id, 1, text);
                     let status = None::<Value>;
-                    assert_exchange!(service, notification, Ok(status));
+                    testing::assert_exchange!(service, notification, Ok(status));
 
                     let message = messages.next().await.unwrap();
                     let actual = serde_json::to_value(&message)?;
-                    let expected = shared::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+                    let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
                     assert_eq!(actual, expected);
 
                     Ok(())
@@ -161,8 +162,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             use serde_json::{json, Value};
             use std::task::Poll;
             use tower_lsp::lsp_types::*;
-            use wasm_language_server_shared as shared;
-            use wasm_language_server_testing::test;
+            use wasm_language_server_testing as testing;
 
             // include the test functions generated from the corpus files
             #(#content)*

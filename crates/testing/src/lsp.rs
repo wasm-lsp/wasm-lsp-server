@@ -1,8 +1,5 @@
 //! LSP-related definitions.
 
-/// LSP-related definitions for configuration.
-pub mod cfg;
-
 /// Definitions for constructing `exit` messages.
 pub mod exit {
     use serde_json::{json, Value};
@@ -19,6 +16,7 @@ pub mod exit {
 /// Definitions for constructing `initialize` messages.
 pub mod initialize {
     use serde_json::{json, Value};
+    use wasm_language_server as server;
 
     /// Construct an `initialize` request.
     pub fn request() -> Value {
@@ -37,7 +35,7 @@ pub mod initialize {
         json!({
             "jsonrpc": "2.0",
             "result": {
-                "capabilities": crate::lsp::cfg::capabilities(),
+                "capabilities": server::lsp::server::capabilities(),
             },
             "id": 1,
         })

@@ -1307,8 +1307,9 @@ dependencies = [
  "tower-lsp",
  "tree-sitter",
  "uuid",
+ "wasm-language-server-macros",
  "wasm-language-server-parsers",
- "wasm-language-server-shared",
+ "wasm-language-server-testing",
  "wast",
  "zerocopy",
 ]
@@ -1323,7 +1324,6 @@ dependencies = [
  "tokio",
  "tower-lsp",
  "wabt",
- "wasm-language-server-shared",
  "wasm-language-server-testing",
  "wasm-smith",
 ]
@@ -1352,26 +1352,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "wasm-language-server-shared"
-version = "0.0.0"
-dependencies = [
- "serde_json",
- "tower-lsp",
-]
-
-[[package]]
 name = "wasm-language-server-testing"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "futures",
  "serde_json",
- "tokio",
  "tower-lsp",
  "tower-test",
  "wasm-language-server",
- "wasm-language-server-macros",
- "wasm-language-server-shared",
 ]
 
 [[package]]
