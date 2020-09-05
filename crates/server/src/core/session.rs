@@ -72,3 +72,49 @@ impl Session {
             .ok_or_else(|| Error::DocumentNotFound(uri.clone()).into())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Session;
+    use crate::core::error::Error;
+    use tower_lsp::lsp_types::*;
+
+    #[tokio::test]
+    async fn client_not_initialized() -> anyhow::Result<()> {
+        let client = None;
+        let session = Session::new(client)?;
+        let result = session.client();
+
+        assert!(result.is_err());
+        if let Err(error) = result {
+            let expected = &Error::ClientNotInitialized;
+            let actual = error.root_cause().downcast_ref::<Error>();
+            assert!(actual.is_some());
+            if let Some(actual) = actual {
+                assert_eq!(expected, actual);
+            }
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn document_not_found() -> anyhow::Result<()> {
+        let client = None;
+        let session = Session::new(client)?;
+        let uri = Url::parse("inmemory:///test")?;
+        let result = session.get_document(&uri).await;
+
+        assert!(result.is_err());
+        if let Err(error) = result {
+            let expected = &Error::DocumentNotFound(uri.clone());
+            let actual = error.root_cause().downcast_ref::<Error>();
+            assert!(actual.is_some());
+            if let Some(actual) = actual {
+                assert_eq!(expected, actual);
+            }
+        }
+
+        Ok(())
+    }
+}
