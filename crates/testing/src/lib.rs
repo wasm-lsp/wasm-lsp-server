@@ -1,4 +1,4 @@
-//! The WebAssembly language server.
+//! Testing functionality for the WebAssembly language server.
 
 #![deny(clippy::all)]
 #![deny(missing_docs)]
