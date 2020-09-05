@@ -58,6 +58,29 @@ pub mod initialized {
     }
 }
 
+/// Definitions for constructing `shutdown` messages.
+pub mod shutdown {
+    use serde_json::{json, Value};
+
+    /// Construct an `shutdown` request.
+    pub fn request() -> Value {
+        json!({
+            "jsonrpc": "2.0",
+            "method": "shutdown",
+            "id": 1,
+        })
+    }
+
+    /// Construct an `shutdown` response.
+    pub fn response() -> Value {
+        json!({
+            "jsonrpc": "2.0",
+            "result": null,
+            "id": 1,
+        })
+    }
+}
+
 /// Definitions for constructing `textDocument/*` messages.
 pub mod text_document {
     /// Definitions for constructing `textDocument/didOpen` messages.
