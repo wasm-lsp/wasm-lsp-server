@@ -17,19 +17,11 @@ maintenance = { status = "experimental" }
 [features]
 default = ["compression", "threaded"]
 compression = ["wasm-language-server/compression"]
-test = ["serde_json", "tower-test"]
 threaded = ["wasm-language-server/threaded"]
 
 [dependencies]
 anyhow = "1.0.28"
-serde_json = { version = "1.0", optional = true }
+serde_json = "1.0"
 tower-lsp = "0.13.0"
-tower-test = { version = "0.3.0", optional = true }
+tower-test = "0.3.0"
 wasm-language-server = { path = "../server" }
-
-[dev-dependencies]
-futures = "0.3.4"
-tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "time", "test-util"] }
-tower-lsp = "0.13.0"
-wasm-language-server-macros = { path = "../macros" }
-wasm-language-server-shared = { path = "../shared" }

@@ -3,8 +3,5 @@
 // Definitions for the request handlers.
 mod api;
 
-// LSP related definitions shared between server crates.
-pub(crate) use wasm_language_server_shared::lsp::*;
-
 // Definitions for the server instance.
 pub mod server;
