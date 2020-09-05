@@ -52,7 +52,8 @@ impl Session {
         Ok(result)
     }
 
-    /// Remove a closed document from the session.
+    /// Remove a closed document from the session. Updates the documents hashmap and sets the
+    /// document status in the database to "closed". Notifies subscribers to the document status.
     pub(crate) fn remove_document(&self, uri: &Url) -> anyhow::Result<Option<(Url, Document)>> {
         let result = self.documents.remove(uri);
         self.database
