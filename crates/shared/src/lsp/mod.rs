@@ -105,6 +105,25 @@ pub mod text_document {
         }
     }
 
+    /// Definitions for constructing `textDocument/didClose` messages.
+    pub mod did_close {
+        use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
+
+        /// Construct a `textDocument/didClose` notification.
+        pub fn notification(uri: &Url) -> Value {
+            json!({
+                "jsonrpc": "2.0",
+                "method": "textDocument/didClose",
+                "params": {
+                    "textDocument": {
+                        "uri": uri,
+                    },
+                },
+            })
+        }
+    }
+
     /// Definitions for constructing `textDocument/publishDiagnostics` messages.
     pub mod publish_diagnostics {
         use serde_json::{json, Value};
