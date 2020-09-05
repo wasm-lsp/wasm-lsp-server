@@ -9,9 +9,6 @@ use dashmap::{
     mapref::one::{Ref, RefMut},
     DashMap,
 };
-use futures::stream::{self, StreamExt};
-use std::time::Duration;
-use tokio::time::timeout;
 use tower_lsp::{lsp_types::*, Client};
 use zerocopy::AsBytes;
 
@@ -63,63 +60,15 @@ impl Session {
         Ok(result)
     }
 
-    /// Get a document from the session. If the document is not yet open, this function will await
-    /// until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call to
-    /// Self::insert_document from another thread of control.
     pub(crate) async fn get_document(&self, uri: &Url) -> anyhow::Result<Ref<'_, Url, Document>> {
-        #[allow(clippy::needless_lifetimes)]
-        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<Ref<'a, Url, Document>> {
-            let mut result = session.documents.get(uri);
-            if result.is_none() {
-                let subscriber = session.database.trees.documents.watch_prefix(vec![]);
-                let mut stream = stream::iter(subscriber);
-                // FIXME: use a timeout for this in case the event never arrives; should be an error
-                while let Some(event) = stream.next().await {
-                    if let sled::Event::Insert { key, value } = event {
-                        if &*key == uri.as_ref().as_bytes() && value == DocumentStatus::opened().as_bytes() {
-                            if let Some(document) = session.documents.get(uri) {
-                                result = Some(document);
-                                break;
-                            } else {
-                                // FIXME
-                                unreachable!()
-                            }
-                        }
-                    }
-                }
-            }
-            result.ok_or_else(|| Error::DocumentNotFound(uri.clone()).into())
-        }
-        timeout(Duration::from_secs(5), future(self, uri)).await?
+        self.documents
+            .get(uri)
+            .ok_or_else(|| Error::DocumentNotFound(uri.clone()).into())
     }
 
-    /// Get a mutable document from the session. If the document is not yet open, this function will
-    /// await until that happens (up to 5 seconds, otherwise failing). This usually occurs by a call
-    /// to Self::insert_document from another thread of control.
     pub(crate) async fn get_mut_document(&self, uri: &Url) -> anyhow::Result<RefMut<'_, Url, Document>> {
-        #[allow(clippy::needless_lifetimes)]
-        async fn future<'a>(session: &'a Session, uri: &Url) -> anyhow::Result<RefMut<'a, Url, Document>> {
-            let mut result = session.documents.get_mut(uri);
-            if result.is_none() {
-                let subscriber = session.database.trees.documents.watch_prefix(vec![]);
-                let mut stream = stream::iter(subscriber);
-                // FIXME: use a timeout for this in case the event never arrives; should be an error
-                while let Some(event) = stream.next().await {
-                    if let sled::Event::Insert { key, value } = event {
-                        if &*key == uri.as_ref().as_bytes() && value == DocumentStatus::opened().as_bytes() {
-                            if let Some(document) = session.documents.get_mut(uri) {
-                                result = Some(document);
-                                break;
-                            } else {
-                                // FIXME
-                                unreachable!()
-                            }
-                        }
-                    }
-                }
-            }
-            result.ok_or_else(|| Error::DocumentNotFound(uri.clone()).into())
-        }
-        timeout(Duration::from_secs(5), future(self, uri)).await?
+        self.documents
+            .get_mut(uri)
+            .ok_or_else(|| Error::DocumentNotFound(uri.clone()).into())
     }
 }
