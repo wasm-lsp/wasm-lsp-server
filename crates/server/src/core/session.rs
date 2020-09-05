@@ -76,7 +76,11 @@ impl Session {
 #[cfg(test)]
 mod tests {
     use super::Session;
-    use crate::core::error::Error;
+    use crate::core::{database::DocumentStatus, document::Document, error::Error, language, parser};
+    use std::convert::TryFrom;
+    use tokio::sync::Mutex;
+    use tower_lsp::lsp_types::*;
+    use zerocopy::AsBytes;
 
     #[tokio::test]
     async fn client_not_initialized() -> anyhow::Result<()> {
@@ -141,5 +145,94 @@ mod tests {
 
             Ok(())
         }
+    }
+
+    #[tokio::test]
+    async fn insert_document() -> anyhow::Result<()> {
+        let client = None;
+        let session = Session::new(client)?;
+
+        let mut subscriber = session.database.trees.documents.watch_prefix(vec![]);
+
+        let language_id = String::from("wasm.wast");
+        let text = String::from("");
+        let uri = Url::parse("inmemory:///test")?;
+
+        let language = language::Language::try_from(language_id)?;
+        let mut parser = parser::try_from(language)?;
+        let old_tree = None;
+
+        let mut success = false;
+        if let Some(tree) = parser.parse(&text[..], old_tree) {
+            session.insert_document(uri.clone(), Document {
+                language,
+                parser: Mutex::new(parser),
+                text: text.clone(),
+                tree: Mutex::new(tree),
+            })?;
+            success = true;
+        }
+        assert!(success);
+
+        while let Some(event) = (&mut subscriber).await {
+            if let sled::Event::Insert { key, value } = event {
+                if &*key == uri.as_ref().as_bytes() && value == DocumentStatus::opened().as_bytes() {
+                    assert!(session.documents.get(&uri).is_some());
+                    return Ok(());
+                }
+            }
+        }
+
+        unreachable!()
+    }
+
+    #[tokio::test]
+    async fn remove_document() -> anyhow::Result<()> {
+        let client = None;
+        let session = Session::new(client)?;
+
+        let mut subscriber = session.database.trees.documents.watch_prefix(vec![]);
+
+        let language_id = String::from("wasm.wast");
+        let text = String::from("");
+        let uri = Url::parse("inmemory:///test")?;
+
+        let language = language::Language::try_from(language_id)?;
+        let mut parser = parser::try_from(language)?;
+        let old_tree = None;
+
+        let mut success = false;
+        if let Some(tree) = parser.parse(&text[..], old_tree) {
+            session.insert_document(uri.clone(), Document {
+                language,
+                parser: Mutex::new(parser),
+                text: text.clone(),
+                tree: Mutex::new(tree),
+            })?;
+            success = true;
+        }
+        assert!(success);
+
+        while let Some(event) = (&mut subscriber).await {
+            if let sled::Event::Insert { key, value } = event {
+                if &*key == uri.as_ref().as_bytes() && value == DocumentStatus::opened().as_bytes() {
+                    assert!(session.documents.get(&uri).is_some());
+                    break;
+                }
+            }
+        }
+
+        session.remove_document(&uri)?;
+
+        while let Some(event) = (&mut subscriber).await {
+            if let sled::Event::Insert { key, value } = event {
+                if &*key == uri.as_ref().as_bytes() && value == DocumentStatus::closed().as_bytes() {
+                    assert!(session.documents.get(&uri).is_none());
+                    return Ok(());
+                }
+            }
+        }
+
+        unreachable!()
     }
 }
