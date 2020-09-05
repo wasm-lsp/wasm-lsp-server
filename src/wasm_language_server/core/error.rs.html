@@ -45,11 +45,6 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core definitions related to runtime errors.</span>
 
@@ -73,9 +68,8 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">IntoJsonRpcError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">tower_lsp</span>::<span class="ident">jsonrpc</span>::<span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">error</span>: <span class="ident">IntoJsonRpcError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">error</span>.<span class="number">0</span>)).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rpc_error</span> <span class="op">=</span> <span class="ident">tower_lsp</span>::<span class="ident">jsonrpc</span>::<span class="ident">Error</span>::<span class="ident">internal_error</span>();
-        <span class="ident">rpc_error</span>.<span class="ident">data</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
+        <span class="ident">rpc_error</span>.<span class="ident">data</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">error</span>.<span class="number">0</span>)).<span class="ident">unwrap</span>());
         <span class="ident">rpc_error</span>
     }
 }
@@ -90,16 +84,12 @@
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">ClientNotInitialized</span>;
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">into</span>();
 
-        <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">jsonrpc</span>::<span class="ident">ErrorCode</span>::<span class="ident">InternalError</span>;
-        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">code</span>.<span class="ident">description</span>().<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">error</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">jsonrpc</span>::<span class="ident">Error</span>::<span class="ident">internal_error</span>();
+        <span class="ident">expected</span>.<span class="ident">data</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">error</span>)).<span class="ident">unwrap</span>());
 
-        <span class="kw">let</span> <span class="ident">error</span>: <span class="ident">tower_lsp</span>::<span class="ident">jsonrpc</span>::<span class="ident">Error</span> <span class="op">=</span> <span class="ident">IntoJsonRpcError</span>(<span class="ident">error</span>).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">actual</span>: <span class="ident">tower_lsp</span>::<span class="ident">jsonrpc</span>::<span class="ident">Error</span> <span class="op">=</span> <span class="ident">IntoJsonRpcError</span>(<span class="ident">error</span>).<span class="ident">into</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">code</span>, <span class="ident">code</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">message</span>, <span class="ident">message</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">error</span>.<span class="ident">data</span>, <span class="ident">data</span>)
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>);
     }
 }
 </pre></div>
