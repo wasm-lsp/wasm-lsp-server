@@ -35,7 +35,7 @@ impl Session {
     }
 
     pub(crate) fn client(&self) -> anyhow::Result<&Client> {
-        self.client.as_ref().ok_or(Error::ClientNotInitialized.into())
+        self.client.as_ref().ok_or_else(|| Error::ClientNotInitialized.into())
     }
 
     /// Insert an opened document into the session. Updates the documents hashmap and sets the
