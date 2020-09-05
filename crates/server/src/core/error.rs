@@ -20,9 +20,8 @@ pub(crate) struct IntoJsonRpcError(pub(crate) anyhow::Error);
 
 impl From<IntoJsonRpcError> for tower_lsp::jsonrpc::Error {
     fn from(error: IntoJsonRpcError) -> Self {
-        let value = serde_json::to_value(format!("{}", error.0)).unwrap();
         let mut rpc_error = tower_lsp::jsonrpc::Error::internal_error();
-        rpc_error.data = Some(value);
+        rpc_error.data = Some(serde_json::to_value(format!("{}", error.0)).unwrap());
         rpc_error
     }
 }
@@ -37,15 +36,11 @@ mod tests {
         let error = Error::ClientNotInitialized;
         let error = error.into();
 
-        let code = jsonrpc::ErrorCode::InternalError;
-        let message = code.description().to_string();
-        let value = serde_json::to_value(format!("{}", error)).unwrap();
-        let data = Some(value);
+        let mut expected = jsonrpc::Error::internal_error();
+        expected.data = Some(serde_json::to_value(format!("{}", error)).unwrap());
 
-        let error: tower_lsp::jsonrpc::Error = IntoJsonRpcError(error).into();
+        let actual: tower_lsp::jsonrpc::Error = IntoJsonRpcError(error).into();
 
-        assert_eq!(error.code, code);
-        assert_eq!(error.message, message);
-        assert_eq!(error.data, data)
+        assert_eq!(expected, actual);
     }
 }
