@@ -44,9 +44,15 @@ tower-lsp = "0.13.0"
 tree-sitter = "0.16.1"
 uuid = { version = "0.8.1", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
-wasm-language-server-shared = { path = "../shared" }
 wast = { git = "https://github.com/bytecodealliance/wasm-tools", rev = "b761e7cd38295c486f483e63ba6c3fbe7f45edf8" }
 zerocopy = "0.3.0"
+
+[dev-dependencies]
+futures = "0.3.4"
+tokio = { version = "0.2.13", features = ["io-std", "macros", "sync", "time", "test-util"] }
+tower-lsp = "0.13.0"
+wasm-language-server-macros = { path = "../macros" }
+wasm-language-server-testing = { path = "../testing" }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["env_logger"]

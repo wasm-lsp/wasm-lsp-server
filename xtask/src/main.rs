@@ -94,7 +94,6 @@ mod subcommand {
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-shared"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
@@ -116,7 +115,6 @@ mod subcommand {
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-shared"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
@@ -197,7 +195,6 @@ mod subcommand {
                 "wasm-language-server",
                 "wasm-language-server-macros",
                 "wasm-language-server-parsers",
-                "wasm-language-server-shared",
                 "wasm-language-server-testing",
             ]);
             cmd.args(&[
@@ -231,7 +228,6 @@ mod subcommand {
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-shared"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
@@ -254,7 +250,6 @@ mod subcommand {
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-shared"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
