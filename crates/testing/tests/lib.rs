@@ -62,6 +62,38 @@ mod lsp {
         Ok(())
     }
 
+    #[tokio::test]
+    async fn shutdown() -> anyhow::Result<()> {
+        let service = &mut test::service::spawn()?.0;
+
+        assert_ready!(service, Ok(()));
+        let request = &shared::lsp::initialize::request();
+        let response = Some(shared::lsp::initialize::response());
+        assert_exchange!(service, request, Ok(response));
+
+        assert_ready!(service, Ok(()));
+        let request = &shared::lsp::shutdown::request();
+        let response = Some(shared::lsp::shutdown::response());
+        assert_exchange!(service, request, Ok(response));
+
+        assert_ready!(service, Ok(()));
+        let request = &shared::lsp::shutdown::request();
+        let response = Some(shared::jsonrpc::error::invalid_request());
+        assert_exchange!(service, request, Ok(response));
+
+        assert_ready!(service, Ok(()));
+        let notification = &shared::lsp::exit::notification();
+        let status = None::<Value>;
+        assert_exchange!(service, notification, Ok(status));
+
+        assert_ready!(service, Err(ExitedError));
+        let notification = &shared::lsp::initialized::notification();
+        let status = ExitedError;
+        assert_exchange!(service, notification, Err(status));
+
+        Ok(())
+    }
+
     mod text_document {
         mod did_open {
             use wasm_language_server_macros::corpus_tests;
