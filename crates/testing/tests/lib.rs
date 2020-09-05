@@ -95,6 +95,72 @@ mod lsp {
     }
 
     mod text_document {
+        use futures::stream::StreamExt;
+        use serde_json::Value;
+        use std::task::Poll;
+        use tower_lsp::lsp_types::*;
+        use wasm_language_server_shared as shared;
+        use wasm_language_server_testing::test;
+
+        #[tokio::test]
+        async fn did_open() -> anyhow::Result<()> {
+            let uri = Url::parse("inmemory:///test")?;
+            let language_id = "wasm.wast";
+            let text = String::new();
+
+            let (mut service, mut messages) = test::service::spawn()?;
+            let service = &mut service;
+
+            assert_ready!(service, Ok(()));
+            let request = &shared::lsp::initialize::request();
+            let response = Some(shared::lsp::initialize::response());
+            assert_exchange!(service, request, Ok(response));
+
+            assert_ready!(service, Ok(()));
+            let notification = &shared::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+            let status = None::<Value>;
+            assert_exchange!(service, notification, Ok(status));
+
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = shared::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+            assert_eq!(actual, expected);
+
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn did_close() -> anyhow::Result<()> {
+            let uri = Url::parse("inmemory:///test")?;
+            let language_id = "wasm.wast";
+            let text = String::new();
+
+            let (mut service, mut messages) = test::service::spawn()?;
+            let service = &mut service;
+
+            assert_ready!(service, Ok(()));
+            let request = &shared::lsp::initialize::request();
+            let response = Some(shared::lsp::initialize::response());
+            assert_exchange!(service, request, Ok(response));
+
+            assert_ready!(service, Ok(()));
+            let notification = &shared::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+            let status = None::<Value>;
+            assert_exchange!(service, notification, Ok(status));
+
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = shared::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+            assert_eq!(actual, expected);
+
+            assert_ready!(service, Ok(()));
+            let notification = &shared::lsp::text_document::did_close::notification(&uri);
+            let status = None::<Value>;
+            assert_exchange!(service, notification, Ok(status));
+
+            Ok(())
+        }
+
         mod did_open {
             use wasm_language_server_macros::corpus_tests;
 
