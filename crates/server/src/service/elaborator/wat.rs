@@ -105,12 +105,14 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 work.push(Work::Data);
 
                 let mut children_count = 0;
-                for module_field in node.children_by_field_id(*wat::field::MODULE_FIELD, &mut node.walk()) {
-                    debug_assert!(module_field.child_count() == 1);
-                    if let Some(module_field) = module_field.named_child(0) {
-                        if module_field_filter(&module_field) {
-                            work.push(Work::Node(module_field));
-                            children_count += 1;
+                for child in node.children(&mut node.walk()) {
+                    if child.kind_id() == *wat::kind::MODULE_FIELD {
+                        debug_assert!(child.child_count() == 1);
+                        if let Some(module_field) = child.named_child(0) {
+                            if module_field_filter(&module_field) {
+                                work.push(Work::Node(module_field));
+                                children_count += 1;
+                            }
                         }
                     }
                 }
@@ -122,14 +124,6 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     range,
                     selection_range,
                 });
-            },
-
-            Work::Node(node) if node.kind_id() == *wat::kind::INLINE_MODULE => {
-                for module_field in node.children_by_field_id(*wat::field::MODULE_FIELD, &mut node.walk()) {
-                    if module_field_filter(&module_field) {
-                        work.push(Work::Node(module_field));
-                    }
-                }
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_DATA => {
