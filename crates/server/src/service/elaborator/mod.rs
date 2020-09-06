@@ -47,6 +47,7 @@ mod document_symbol {
         core::document::Document,
         util::node::{symbol_range, SymbolRange},
     };
+    use std::borrow::Cow;
     use tower_lsp::lsp_types::{Range, SymbolKind};
 
     /// Encodes data for constructing upcoming DocumentSymbols.
@@ -57,7 +58,7 @@ mod document_symbol {
         /// The kind of document entity the symbol represents.
         pub(crate) kind: SymbolKind,
         /// The name (identifier) for the symbol.
-        pub(crate) name: &'a str,
+        pub(crate) name: Cow<'a, str>,
         /// The (node-enclosing) range for the symbol.
         pub(crate) range: Range,
         /// The (identifier-enclosing) range for the symbol.
