@@ -66,7 +66,7 @@ pub(crate) mod document {
 
 /// Functions related to processing parse tree events for a document.
 mod tree {
-    use crate::core::{document::Document, language, parser, session::Session};
+    use crate::core::{document::Document, language, session::Session};
     use std::{convert::TryFrom, sync::Arc};
     use tokio::sync::Mutex;
     use tower_lsp::lsp_types::*;
@@ -103,7 +103,7 @@ mod tree {
         } = params;
 
         let language = language::Language::try_from(language_id)?;
-        let mut parser = parser::try_from(language)?;
+        let mut parser = tree_sitter::Parser::try_from(language)?;
 
         // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
         let old_tree = None;

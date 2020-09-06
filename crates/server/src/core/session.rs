@@ -76,7 +76,7 @@ impl Session {
 #[cfg(test)]
 mod tests {
     use super::Session;
-    use crate::core::{database::DocumentStatus, document::Document, error::Error, language, parser};
+    use crate::core::{database::DocumentStatus, document::Document, error::Error, language};
     use std::convert::TryFrom;
     use tokio::sync::Mutex;
     use tower_lsp::lsp_types::*;
@@ -159,7 +159,7 @@ mod tests {
         let uri = Url::parse("inmemory:///test")?;
 
         let language = language::Language::try_from(language_id)?;
-        let mut parser = parser::try_from(language)?;
+        let mut parser = tree_sitter::Parser::try_from(language)?;
         let old_tree = None;
 
         let mut success = false;
@@ -198,7 +198,7 @@ mod tests {
         let uri = Url::parse("inmemory:///test")?;
 
         let language = language::Language::try_from(language_id)?;
-        let mut parser = parser::try_from(language)?;
+        let mut parser = tree_sitter::Parser::try_from(language)?;
         let old_tree = None;
 
         let mut success = false;
