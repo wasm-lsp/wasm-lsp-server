@@ -92,7 +92,8 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             Work::Node(node) if node.kind_id() == *wast::kind::PARSE => {
                 let mut cursor = node.walk();
                 let commands = node
-                    .children_by_field_id(*wast::field::COMMAND, &mut cursor)
+                    .children(&mut cursor)
+                    .filter(|it| [*wast::kind::COMMAND, *wast::kind::MODULE_FIELD].contains(&it.kind_id()))
                     .map(Work::Node);
                 work.extend(commands);
             },
