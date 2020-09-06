@@ -178,6 +178,10 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Elaborator definitions specific to &quot;.wast&quot; files.</span>
 
@@ -273,7 +277,8 @@
             <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">PARSE</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">walk</span>();
                 <span class="kw">let</span> <span class="ident">commands</span> <span class="op">=</span> <span class="ident">node</span>
-                    .<span class="ident">children_by_field_id</span>(<span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">field</span>::<span class="ident">COMMAND</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cursor</span>)
+                    .<span class="ident">children</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cursor</span>)
+                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> [<span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMAND</span>, <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">it</span>.<span class="ident">kind_id</span>()))
                     .<span class="ident">map</span>(<span class="ident">Work</span>::<span class="ident">Node</span>);
                 <span class="ident">work</span>.<span class="ident">extend</span>(<span class="ident">commands</span>);
             },
@@ -294,12 +299,14 @@
                 <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work</span>::<span class="ident">Data</span>);
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">children_count</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">for</span> <span class="ident">module_field</span> <span class="kw">in</span> <span class="ident">node</span>.<span class="ident">children_by_field_id</span>(<span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">field</span>::<span class="ident">MODULE_FIELD</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">node</span>.<span class="ident">walk</span>()) {
-                    <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">module_field</span>.<span class="ident">child_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">module_field</span>) <span class="op">=</span> <span class="ident">module_field</span>.<span class="ident">named_child</span>(<span class="number">0</span>) {
-                        <span class="kw">if</span> <span class="ident">module_field_filter</span>(<span class="kw-2">&amp;</span><span class="ident">module_field</span>) {
-                            <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">module_field</span>));
-                            <span class="ident">children_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">for</span> <span class="ident">child</span> <span class="kw">in</span> <span class="ident">node</span>.<span class="ident">children</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">node</span>.<span class="ident">walk</span>()) {
+                    <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD</span> {
+                        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">child</span>.<span class="ident">child_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">module_field</span>) <span class="op">=</span> <span class="ident">child</span>.<span class="ident">named_child</span>(<span class="number">0</span>) {
+                            <span class="kw">if</span> <span class="ident">module_field_filter</span>(<span class="kw-2">&amp;</span><span class="ident">module_field</span>) {
+                                <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">module_field</span>));
+                                <span class="ident">children_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                            }
                         }
                     }
                 }
@@ -313,8 +320,9 @@
                 });
             },
 
-            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">INLINE_MODULE</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">for</span> <span class="ident">module_field</span> <span class="kw">in</span> <span class="ident">node</span>.<span class="ident">children_by_field_id</span>(<span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">field</span>::<span class="ident">MODULE_FIELD</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">node</span>.<span class="ident">walk</span>()) {
+            <span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">kind_id</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">node</span>.<span class="ident">child_count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">module_field</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">named_child</span>(<span class="number">0</span>) {
                     <span class="kw">if</span> <span class="ident">module_field_filter</span>(<span class="kw-2">&amp;</span><span class="ident">module_field</span>) {
                         <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work</span>::<span class="ident">Node</span>(<span class="ident">module_field</span>));
                     }
