@@ -19,6 +19,11 @@ fn main() -> Fallible<()> {
                 clap::SubCommand::with_name("clippy").arg(rest),
                 clap::SubCommand::with_name("doc").arg(rest),
                 clap::SubCommand::with_name("format").arg(rest),
+                clap::SubCommand::with_name("grcov").arg(rest).arg(
+                    clap::Arg::with_name("rebuild-parsers")
+                        .long("rebuild-parsers")
+                        .help("Rebuild tree-sitter parsers if necessary"),
+                ),
                 clap::SubCommand::with_name("init").arg(
                     clap::Arg::with_name("with-corpus")
                         .long("with-corpus")
@@ -49,6 +54,7 @@ fn main() -> Fallible<()> {
         ("clippy", Some(sub_matches)) => subcommand::cargo::clippy(sub_matches)?,
         ("doc", Some(sub_matches)) => subcommand::cargo::doc(sub_matches)?,
         ("format", Some(sub_matches)) => subcommand::cargo::format(sub_matches)?,
+        ("grcov", Some(sub_matches)) => subcommand::cargo::grcov(sub_matches)?,
         ("init", Some(sub_matches)) => subcommand::init(sub_matches)?,
         ("install", Some(sub_matches)) => subcommand::cargo::install(sub_matches)?,
         ("tarpaulin", Some(sub_matches)) => subcommand::cargo::tarpaulin(sub_matches)?,
@@ -150,6 +156,49 @@ mod subcommand {
                 cmd.args(values);
             }
             cmd.status()?;
+            Ok(())
+        }
+
+        // Run `cargo grcov` with custom options.
+        pub fn grcov(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+            if sub_matches.is_present("rebuild-parsers") {
+                crate::util::tree_sitter::rebuild_parsers()?;
+            }
+
+            let cargo = metadata::cargo()?;
+            let mut cmd = Command::new(cargo);
+            cmd.current_dir(metadata::project_root());
+            cmd.env("CARGO_INCREMENTAL", "0");
+            #[rustfmt::skip]
+            cmd.env("RUSTFLAGS", "-Dwarnings -Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort");
+            cmd.env("RUSTDOCFLAGS", "-Cpanic=abort");
+            cmd.args(&[
+                "+nightly",
+                "test",
+                "--all-features",
+                "--benches",
+                "--examples",
+                "--lib",
+                "--tests",
+            ]);
+            cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-parsers"]);
+            if let Some(values) = sub_matches.values_of("rest") {
+                cmd.args(values);
+            }
+            cmd.status()?;
+
+            let mut cmd = Command::new("grcov");
+            cmd.current_dir(metadata::project_root());
+            cmd.arg("./target/debug/");
+            cmd.args(&["--source-dir", "."]);
+            cmd.args(&["--output-type", "html"]);
+            cmd.args(&["--output-path", "./target/debug/coverage/"]);
+            cmd.args(&["--llvm", "--branch", "--ignore-not-existing"]);
+            cmd.args(&["--ignore", "crates/testing"]);
+            cmd.args(&["--ignore", "xpath"]);
+            cmd.status()?;
+
             Ok(())
         }
 
