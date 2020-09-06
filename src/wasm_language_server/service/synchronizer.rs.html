@@ -191,7 +191,7 @@
 
 <span class="doccomment">/// Functions related to processing parse tree events for a document.</span>
 <span class="kw">mod</span> <span class="ident">tree</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">language</span>, <span class="ident">parser</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">language</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
     <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
     <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
     <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
@@ -228,7 +228,7 @@
         } <span class="op">=</span> <span class="ident">params</span>;
 
         <span class="kw">let</span> <span class="ident">language</span> <span class="op">=</span> <span class="ident">language</span>::<span class="ident">Language</span>::<span class="ident">try_from</span>(<span class="ident">language_id</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">parser</span>::<span class="ident">try_from</span>(<span class="ident">language</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">tree_sitter</span>::<span class="ident">Parser</span>::<span class="ident">try_from</span>(<span class="ident">language</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.</span>
         <span class="kw">let</span> <span class="ident">old_tree</span> <span class="op">=</span> <span class="prelude-val">None</span>;

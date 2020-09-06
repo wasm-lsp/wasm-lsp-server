@@ -20,12 +20,32 @@
 <span id="19">19</span>
 <span id="20">20</span>
 <span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Definitions for the server instance.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
-<span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">Client</span>;
+<span class="kw">use</span> <span class="ident">tower_lsp</span>::{<span class="ident">lsp_types</span>::<span class="kw-2">*</span>, <span class="ident">Client</span>};
 
 <span class="doccomment">/// The WASM language server instance.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Server</span> {
@@ -40,6 +60,26 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="ident">Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">Session</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="ident">client</span>.<span class="ident">clone</span>()))<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">Server</span> { <span class="ident">client</span>, <span class="ident">session</span> })
+    }
+}
+
+<span class="doccomment">/// Compute the server capabilities.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capabilities</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ServerCapabilities</span> {
+    <span class="kw">let</span> <span class="ident">document_symbol_provider</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>);
+
+    <span class="kw">let</span> <span class="ident">hover_provider</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">HoverProviderCapability</span>::<span class="ident">Simple</span>(<span class="bool-val">true</span>));
+
+    <span class="kw">let</span> <span class="ident">text_document_sync</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TextDocumentSyncCapability</span>::<span class="ident">Options</span>(<span class="ident">TextDocumentSyncOptions</span> {
+        <span class="ident">open_close</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
+        <span class="ident">change</span>: <span class="prelude-val">Some</span>(<span class="ident">TextDocumentSyncKind</span>::<span class="ident">Full</span>),
+        ..<span class="ident">Default</span>::<span class="ident">default</span>()
+    }));
+
+    <span class="ident">ServerCapabilities</span> {
+        <span class="ident">document_symbol_provider</span>,
+        <span class="ident">hover_provider</span>,
+        <span class="ident">text_document_sync</span>,
+        ..<span class="ident">Default</span>::<span class="ident">default</span>()
     }
 }
 </pre></div>
