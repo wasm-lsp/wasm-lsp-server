@@ -52,7 +52,6 @@ impl Database {
     pub(crate) fn new() -> anyhow::Result<Self> {
         let uuid = Uuid::new_v4();
         let handle = Database::handle(&uuid);
-        log::info!("{:?}", handle);
         let sled = sled::Config::default()
             .create_new(true)
             .temporary(true)

@@ -25,7 +25,6 @@ pub(crate) mod document {
             crate::service::elaborator::tree::change(session.clone(), uri.clone()).await?;
         } else {
             // TODO: report
-            log::warn!("tree_was_generated == false");
         }
         Ok(())
     }
@@ -58,7 +57,6 @@ pub(crate) mod document {
             crate::service::elaborator::tree::open(session.clone(), uri.clone()).await?;
         } else {
             // TODO: report
-            log::warn!("tree_was_generated == false");
         }
         Ok(())
     }
