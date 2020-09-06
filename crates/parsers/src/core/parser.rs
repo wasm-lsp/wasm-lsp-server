@@ -6,6 +6,7 @@ use crate::core::{
     error::Error,
     language::{self, Language},
 };
+use std::convert::TryFrom;
 
 /// Create a wast parser from the tree-sitter grammar.
 pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
@@ -39,12 +40,15 @@ pub fn witx() -> anyhow::Result<tree_sitter::Parser> {
     Ok(parser)
 }
 
-/// Create a parser for the given `language`.
-pub fn try_from(language: Language) -> anyhow::Result<tree_sitter::Parser> {
-    match language {
-        Language::Wast => wast(),
-        Language::Wat => wat(),
-        Language::Wit => wit(),
-        Language::Witx => witx(),
+impl TryFrom<Language> for tree_sitter::Parser {
+    type Error = anyhow::Error;
+
+    fn try_from(language: Language) -> anyhow::Result<tree_sitter::Parser> {
+        match language {
+            Language::Wast => wast(),
+            Language::Wat => wat(),
+            Language::Wit => wit(),
+            Language::Witx => witx(),
+        }
     }
 }
