@@ -101,7 +101,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     name,
                     range,
                     selection_range,
-                } = symbol_range(&document.text.as_bytes(), "<module>", &node, *wat::field::IDENTIFIER);
+                } = symbol_range(&document.text.as_bytes(), "module", &node, *wat::field::IDENTIFIER);
                 work.push(Work::Data);
 
                 let mut children_count = 0;
@@ -133,31 +133,31 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_DATA => {
-                push!(&node, "<data>", SymbolKind::Key);
+                push!(&node, "data", SymbolKind::Key);
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_ELEM => {
-                push!(&node, "<elem>", SymbolKind::Field);
+                push!(&node, "elem", SymbolKind::Field);
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_FUNC => {
-                push!(&node, "<func>", SymbolKind::Function);
+                push!(&node, "func", SymbolKind::Function);
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_GLOBAL => {
-                push!(&node, "<global>", SymbolKind::Event);
+                push!(&node, "global", SymbolKind::Event);
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_MEMORY => {
-                push!(&node, "<memory>", SymbolKind::Array);
+                push!(&node, "memory", SymbolKind::Array);
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TABLE => {
-                push!(&node, "<table>", SymbolKind::Interface);
+                push!(&node, "table", SymbolKind::Interface);
             },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TYPE => {
-                push!(&node, "<type>", SymbolKind::TypeParameter);
+                push!(&node, "type", SymbolKind::TypeParameter);
             },
 
             _ => {},
