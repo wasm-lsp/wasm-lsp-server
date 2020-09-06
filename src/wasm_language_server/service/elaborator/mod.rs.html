@@ -120,6 +120,7 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
+<span id="122">122</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Elaborates parse trees into structured data to be cached in the database.</span>
 
@@ -170,6 +171,7 @@
         <span class="ident">core</span>::<span class="ident">document</span>::<span class="ident">Document</span>,
         <span class="ident">util</span>::<span class="ident">node</span>::{<span class="ident">symbol_range</span>, <span class="ident">SymbolRange</span>},
     };
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
     <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::{<span class="ident">Range</span>, <span class="ident">SymbolKind</span>};
 
     <span class="doccomment">/// Encodes data for constructing upcoming DocumentSymbols.</span>
@@ -180,7 +182,7 @@
         <span class="doccomment">/// The kind of document entity the symbol represents.</span>
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">kind</span>: <span class="ident">SymbolKind</span>,
         <span class="doccomment">/// The name (identifier) for the symbol.</span>
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>,
         <span class="doccomment">/// The (node-enclosing) range for the symbol.</span>
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">range</span>: <span class="ident">Range</span>,
         <span class="doccomment">/// The (identifier-enclosing) range for the symbol.</span>
