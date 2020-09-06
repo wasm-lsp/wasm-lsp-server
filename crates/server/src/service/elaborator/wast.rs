@@ -13,7 +13,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
     let mut syms: Vec<DocumentSymbol> = vec![];
 
     // Prepare a filter to discard uninteresting module-child nodes.
-    let modulefield_filter = |node: &tree_sitter::Node| {
+    let module_field_filter = |node: &tree_sitter::Node| {
         [
             *wast::kind::MODULE_FIELD_DATA,
             *wast::kind::MODULE_FIELD_ELEM,
@@ -98,8 +98,10 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::COMMAND => {
-                let command = node.named_child(0).expect("'command' should have a single named child");
-                work.push(Work::Node(command));
+                debug_assert!(node.child_count() == 1);
+                if let Some(command) = node.named_child(0) {
+                    work.push(Work::Node(command));
+                }
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::MODULE => {
@@ -111,12 +113,14 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 work.push(Work::Data);
 
                 let mut children_count = 0;
-                for modulefield in node
-                    .children_by_field_id(*wast::field::MODULE_FIELD, &mut node.walk())
-                    .filter(modulefield_filter)
-                {
-                    work.push(Work::Node(modulefield));
-                    children_count += 1;
+                for module_field in node.children_by_field_id(*wast::field::MODULE_FIELD, &mut node.walk()) {
+                    debug_assert!(module_field.child_count() == 1);
+                    if let Some(module_field) = module_field.named_child(0) {
+                        if module_field_filter(&module_field) {
+                            work.push(Work::Node(module_field));
+                            children_count += 1;
+                        }
+                    }
                 }
 
                 data.push(Data {
@@ -129,11 +133,10 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             },
 
             Work::Node(node) if node.kind_id() == *wast::kind::INLINE_MODULE => {
-                for modulefield in node
-                    .children_by_field_id(*wast::field::MODULE_FIELD, &mut node.walk())
-                    .filter(modulefield_filter)
-                {
-                    work.push(Work::Node(modulefield));
+                for module_field in node.children_by_field_id(*wast::field::MODULE_FIELD, &mut node.walk()) {
+                    if module_field_filter(&module_field) {
+                        work.push(Work::Node(module_field));
+                    }
                 }
             },
 
