@@ -21,7 +21,7 @@ threaded = ["wasm-language-server/threaded"]
 
 [dependencies]
 anyhow = "1.0.28"
-serde_json = "1.0"
+serde_json = { version = "1.0", features = ["preserve_order"] }
 tower-lsp = "0.13.0"
 tower-test = "0.3.0"
 wasm-language-server = { path = "../server" }
