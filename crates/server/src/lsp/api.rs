@@ -5,8 +5,7 @@ use tower_lsp::{jsonrpc::Result, lsp_types::*, LanguageServer};
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Server {
-    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
-        log::info!("{:?}", params);
+    async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
         let capabilities = crate::lsp::server::capabilities();
         Ok(InitializeResult {
             capabilities,

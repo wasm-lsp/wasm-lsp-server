@@ -21,7 +21,7 @@ pub(crate) mod tree {
         let tree = document.tree.lock().await.clone();
         let node = tree.root_node();
         if !node.has_error() {
-            log::info!("syntax well-formed");
+            // TODO: elaborate
         }
         Ok(())
     }
