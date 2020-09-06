@@ -2,6 +2,8 @@
 
 /// Functions for creation of lsp data from tree-sitter nodes.
 pub(crate) mod node {
+    use std::borrow::Cow;
+
     /// Functions for creation of lsp position data from tree-sitter nodes.
     mod position {
         /// Creates an lsp position from the starting position of a tree-sitter node.
@@ -26,7 +28,7 @@ pub(crate) mod node {
     #[derive(Clone, Debug)]
     pub(crate) struct SymbolRange<'a> {
         /// The name (identifier) of the symbol.
-        pub(crate) name: &'a str,
+        pub(crate) name: Cow<'a, str>,
         /// The (node-enclosing) range of the symbol.
         pub(crate) range: tower_lsp::lsp_types::Range,
         /// The (identifier-enclosing) range of the symbol.
@@ -44,10 +46,16 @@ pub(crate) mod node {
         let range = crate::util::node::range(&node);
         let selection_range;
         if let Some(inner_node) = node.child_by_field_id(field_id) {
-            name = inner_node.utf8_text(source).unwrap();
+            name = inner_node.utf8_text(source).unwrap().into();
             selection_range = crate::util::node::range(&inner_node);
         } else {
-            name = empty_name;
+            name = format!(
+                "<{}@{}:{}>",
+                empty_name,
+                range.start.line + 1,
+                range.start.character + 1
+            )
+            .into();
             selection_range = range;
         }
 
