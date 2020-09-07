@@ -1,9 +1,7 @@
 //! Elaborates parse trees into structured data to be cached in the database.
 
-/// Elaborator definitions specific to ".wast" files.
+/// Elaborator definitions specific to ".wat" and ".wast" files.
 mod wast;
-/// Elaborator definitions specific to ".wat" files.
-mod wat;
 /// Elaborator definitions specific to ".wit" files.
 mod wit;
 /// Elaborator definitions specific to ".witx" files.
@@ -117,7 +115,7 @@ pub(crate) async fn document_symbol(
     let document = session.get_document(uri).await?;
     let result = match document.language {
         Language::Wast => self::wast::document_symbol(&document).await,
-        Language::Wat => self::wat::document_symbol(&document).await,
+        Language::Wat => self::wast::document_symbol(&document).await,
         Language::Wit => self::wit::document_symbol(&document).await,
         Language::Witx => self::witx::document_symbol(&document).await,
     };
