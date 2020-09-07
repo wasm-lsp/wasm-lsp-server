@@ -121,13 +121,12 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Elaborates parse trees into structured data to be cached in the database.</span>
 
-<span class="doccomment">/// Elaborator definitions specific to &quot;.wast&quot; files.</span>
+<span class="doccomment">/// Elaborator definitions specific to &quot;.wat&quot; and &quot;.wast&quot; files.</span>
 <span class="kw">mod</span> <span class="ident">wast</span>;
-<span class="doccomment">/// Elaborator definitions specific to &quot;.wat&quot; files.</span>
-<span class="kw">mod</span> <span class="ident">wat</span>;
 <span class="doccomment">/// Elaborator definitions specific to &quot;.wit&quot; files.</span>
 <span class="kw">mod</span> <span class="ident">wit</span>;
 <span class="doccomment">/// Elaborator definitions specific to &quot;.witx&quot; files.</span>
@@ -167,26 +166,19 @@
 
 <span class="doccomment">/// Functionality used for computing &quot;textDocument/documentSymbols&quot;.</span>
 <span class="kw">mod</span> <span class="ident">document_symbol</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">core</span>::<span class="ident">document</span>::<span class="ident">Document</span>,
-        <span class="ident">util</span>::<span class="ident">node</span>::{<span class="ident">symbol_range</span>, <span class="ident">SymbolRange</span>},
-    };
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
-    <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::{<span class="ident">Range</span>, <span class="ident">SymbolKind</span>};
+    <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="ident">SymbolKind</span>;
 
     <span class="doccomment">/// Encodes data for constructing upcoming DocumentSymbols.</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Data</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="doccomment">/// Number of children to be processed for given symbol.</span>
+        <span class="doccomment">/// The tree-sitter Node to be processed as a symbol.</span>
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">node</span>: <span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// Number of (possibly filtered) children to be processed for the symbol.</span>
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">children_count</span>: <span class="ident">usize</span>,
         <span class="doccomment">/// The kind of document entity the symbol represents.</span>
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">kind</span>: <span class="ident">SymbolKind</span>,
-        <span class="doccomment">/// The name (identifier) for the symbol.</span>
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The (node-enclosing) range for the symbol.</span>
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">range</span>: <span class="ident">Range</span>,
-        <span class="doccomment">/// The (identifier-enclosing) range for the symbol.</span>
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">selection_range</span>: <span class="ident">Range</span>,
+        <span class="doccomment">/// The name hint for the symbol (used for anonymous entities).</span>
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_hint</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
     }
 
     <span class="doccomment">/// Encodes actions for loop iterations when processing tree-sitter nodes.</span>
@@ -198,30 +190,40 @@
         <span class="ident">Node</span>(<span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     }
 
-    <span class="doccomment">/// Convenience function for processing document symbol nodes.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">needless_lifetimes</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Document</span>,
+    <span class="doccomment">/// Convenience type for packaging a (symbol) name with an lsp range and selection range.</span>
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">SymbolRange</span> {
+        <span class="doccomment">/// The name (identifier) of the symbol.</span>
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name</span>: <span class="ident">String</span>,
+        <span class="doccomment">/// The (node-enclosing) range of the symbol.</span>
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">range</span>: <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="ident">Range</span>,
+        <span class="doccomment">/// The (identifier-enclosing) range of the symbol.</span>
+        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">selection_range</span>: <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="ident">Range</span>,
+    }
+
+    <span class="doccomment">/// Compute the name and ranges for a document symbol given tree-sitter node data.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">symbol_range</span>(
+        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+        <span class="ident">node</span>: <span class="ident">tree_sitter</span>::<span class="ident">Node</span>,
+        <span class="ident">name_hint</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">field_id</span>: <span class="ident">u16</span>,
-        <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Data</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">work</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Work</span><span class="op">&gt;</span>,
-        <span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span>,
-        <span class="ident">empty_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">kind</span>: <span class="ident">SymbolKind</span>,
-    ) {
-        <span class="kw">let</span> <span class="ident">SymbolRange</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SymbolRange</span> {
+        <span class="kw">let</span> <span class="ident">name</span>;
+        <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>);
+        <span class="kw">let</span> <span class="ident">selection_range</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner_node</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">child_by_field_id</span>(<span class="ident">field_id</span>) {
+            <span class="ident">name</span> <span class="op">=</span> <span class="ident">inner_node</span>.<span class="ident">utf8_text</span>(<span class="ident">source</span>).<span class="ident">unwrap</span>().<span class="ident">into</span>();
+            <span class="ident">selection_range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">inner_node</span>);
+        } <span class="kw">else</span> {
+            <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&lt;{}@{}:{}&gt;&quot;</span>, <span class="ident">name_hint</span>, <span class="ident">range</span>.<span class="ident">start</span>.<span class="ident">line</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">range</span>.<span class="ident">start</span>.<span class="ident">character</span> <span class="op">+</span> <span class="number">1</span>);
+            <span class="ident">selection_range</span> <span class="op">=</span> <span class="ident">range</span>;
+        }
+
+        <span class="ident">SymbolRange</span> {
             <span class="ident">name</span>,
             <span class="ident">range</span>,
             <span class="ident">selection_range</span>,
-        } <span class="op">=</span> <span class="ident">symbol_range</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>.<span class="ident">text</span>.<span class="ident">as_bytes</span>(), <span class="ident">empty_name</span>, <span class="kw-2">&amp;</span><span class="ident">node</span>, <span class="ident">field_id</span>);
-        <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work</span>::<span class="ident">Data</span>);
-        <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">Data</span> {
-            <span class="ident">children_count</span>: <span class="number">0</span>,
-            <span class="ident">kind</span>,
-            <span class="ident">name</span>,
-            <span class="ident">range</span>,
-            <span class="ident">selection_range</span>,
-        });
+        }
     }
 }
 
@@ -238,7 +240,7 @@
     <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="ident">uri</span>).<span class="ident">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">document</span>.<span class="ident">language</span> {
         <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>::<span class="ident">wast</span>::<span class="ident">document_symbol</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="ident">await</span>,
-        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>::<span class="ident">wat</span>::<span class="ident">document_symbol</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="ident">await</span>,
+        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>::<span class="ident">wast</span>::<span class="ident">document_symbol</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="ident">await</span>,
         <span class="ident">Language</span>::<span class="ident">Wit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>::<span class="ident">wit</span>::<span class="ident">document_symbol</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="ident">await</span>,
         <span class="ident">Language</span>::<span class="ident">Witx</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>::<span class="ident">witx</span>::<span class="ident">document_symbol</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="ident">await</span>,
     };
