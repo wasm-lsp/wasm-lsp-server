@@ -36,21 +36,6 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
     let mut data = vec![];
     let mut work = vec![Work::Node(node)];
 
-    // Convenience macro for processing document symbol nodes.
-    macro_rules! push {
-        ($node:expr, $empty_name:expr, $kind:expr) => {
-            document_symbol::push(
-                &document,
-                *wat::field::IDENTIFIER,
-                &mut data,
-                &mut work,
-                $node,
-                $empty_name,
-                $kind,
-            )
-        };
-    }
-
     // The stack machine work loop.
     while let Some(next) = work.pop() {
         match next {
@@ -72,7 +57,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                         } else {
                             // Drain the syms array by the number of children nodes we counted for this
                             // DocumentSymbol. This allows us to properly reconstruct symbol nesting.
-                            let children = syms.drain(syms.len() - children_count ..);
+                            let children = syms.drain(syms.len() - children_count..);
                             // Process the nodes in reverse (because tree-sitter returns later nodes first).
                             let children = children.rev();
                             Some(children.collect())
@@ -86,14 +71,14 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     };
                     syms.push(this);
                 }
-            },
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::PARSE => {
                 debug_assert!(node.child_count() == 1);
                 if let Some(module) = node.named_child(0) {
                     work.push(Work::Node(module));
                 }
-            },
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE => {
                 let SymbolRange {
@@ -123,37 +108,93 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     range,
                     selection_range,
                 });
-            },
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_DATA => {
-                push!(&node, "data", SymbolKind::Key);
-            },
+                document_symbol::push(
+                    &document,
+                    *wat::field::IDENTIFIER,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    "data",
+                    SymbolKind::Key,
+                );
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_ELEM => {
-                push!(&node, "elem", SymbolKind::Field);
-            },
+                document_symbol::push(
+                    &document,
+                    *wat::field::IDENTIFIER,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    "elem",
+                    SymbolKind::Field,
+                );
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_FUNC => {
-                push!(&node, "func", SymbolKind::Function);
-            },
+                document_symbol::push(
+                    &document,
+                    *wat::field::IDENTIFIER,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    "func",
+                    SymbolKind::Function,
+                );
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_GLOBAL => {
-                push!(&node, "global", SymbolKind::Event);
-            },
+                document_symbol::push(
+                    &document,
+                    *wat::field::IDENTIFIER,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    "global",
+                    SymbolKind::Event,
+                );
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_MEMORY => {
-                push!(&node, "memory", SymbolKind::Array);
-            },
+                document_symbol::push(
+                    &document,
+                    *wat::field::IDENTIFIER,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    "memory",
+                    SymbolKind::Array,
+                );
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TABLE => {
-                push!(&node, "table", SymbolKind::Interface);
-            },
+                document_symbol::push(
+                    &document,
+                    *wat::field::IDENTIFIER,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    "table",
+                    SymbolKind::Interface,
+                );
+            }
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TYPE => {
-                push!(&node, "type", SymbolKind::TypeParameter);
-            },
+                document_symbol::push(
+                    &document,
+                    *wat::field::IDENTIFIER,
+                    &mut data,
+                    &mut work,
+                    &node,
+                    "type",
+                    SymbolKind::TypeParameter,
+                );
+            }
 
-            _ => {},
+            _ => {}
         }
     }
     // Collect the syms vec into a new vec in reverse so that document symbols are returned in the
