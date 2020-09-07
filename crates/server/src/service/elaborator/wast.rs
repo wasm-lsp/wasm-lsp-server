@@ -1,7 +1,10 @@
-//! Elaborator definitions specific to ".wast" files.
+//! Elaborator definitions specific to ".wat" and ".wast" files.
 
 use crate::{
-    core::{document::Document, language::wast},
+    core::{
+        document::Document,
+        language::{wast, wat, Language},
+    },
     service::elaborator::document_symbol::{symbol_range, Data, SymbolRange, Work},
 };
 use tower_lsp::lsp_types::*;
@@ -21,8 +24,22 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             *wast::kind::MODULE_FIELD_MEMORY,
             *wast::kind::MODULE_FIELD_TABLE,
             *wast::kind::MODULE_FIELD_TYPE,
+            *wat::kind::MODULE_FIELD_DATA,
+            *wat::kind::MODULE_FIELD_ELEM,
+            *wat::kind::MODULE_FIELD_FUNC,
+            *wat::kind::MODULE_FIELD_GLOBAL,
+            *wat::kind::MODULE_FIELD_MEMORY,
+            *wat::kind::MODULE_FIELD_TABLE,
+            *wat::kind::MODULE_FIELD_TYPE,
         ]
         .contains(&node.kind_id())
+    };
+
+    // Configure the identifier field id according to the document language.
+    let identifier_field_id = match document.language {
+        Language::Wast => *wast::field::IDENTIFIER,
+        Language::Wat => *wat::field::IDENTIFIER,
+        _ => unreachable!(),
     };
 
     // Prepare the syntax tree.
@@ -52,7 +69,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                         name,
                         range,
                         selection_range,
-                    } = symbol_range(&document.text.as_bytes(), node, name_hint, *wast::field::IDENTIFIER);
+                    } = symbol_range(&document.text.as_bytes(), node, name_hint, identifier_field_id);
 
                     // FIXME
                     #[allow(deprecated)]
@@ -78,28 +95,36 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 }
             },
 
-            Work::Node(node) if node.kind_id() == *wast::kind::PARSE => {
+            Work::Node(node) if [*wast::kind::PARSE, *wat::kind::PARSE].contains(&node.kind_id()) => {
                 let mut cursor = node.walk();
                 let commands = node
                     .children(&mut cursor)
-                    .filter(|it| [*wast::kind::COMMAND, *wast::kind::MODULE_FIELD].contains(&it.kind_id()))
+                    .filter(|it| {
+                        [
+                            *wast::kind::COMMAND,
+                            *wast::kind::MODULE_FIELD,
+                            *wat::kind::MODULE,
+                            *wat::kind::MODULE_FIELD,
+                        ]
+                        .contains(&it.kind_id())
+                    })
                     .map(Work::Node);
                 work.extend(commands);
             },
 
-            Work::Node(node) if node.kind_id() == *wast::kind::COMMAND => {
+            Work::Node(node) if [*wast::kind::COMMAND].contains(&node.kind_id()) => {
                 debug_assert!(node.child_count() == 1);
                 if let Some(command) = node.named_child(0) {
                     work.push(Work::Node(command));
                 }
             },
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE => {
+            Work::Node(node) if [*wast::kind::MODULE, *wat::kind::MODULE].contains(&node.kind_id()) => {
                 work.push(Work::Data);
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if child.kind_id() == *wast::kind::MODULE_FIELD {
+                    if [*wast::kind::MODULE_FIELD, *wat::kind::MODULE_FIELD].contains(&child.kind_id()) {
                         debug_assert!(child.child_count() == 1);
                         if let Some(module_field) = child.named_child(0) {
                             if module_field_filter(&module_field) {
@@ -118,7 +143,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 });
             },
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD => {
+            Work::Node(node) if [*wast::kind::MODULE_FIELD, *wat::kind::MODULE_FIELD].contains(&node.kind_id()) => {
                 debug_assert!(node.child_count() == 1);
                 if let Some(module_field) = node.named_child(0) {
                     if module_field_filter(&module_field) {
@@ -127,7 +152,9 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 }
             },
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD_DATA => {
+            Work::Node(node)
+                if [*wast::kind::MODULE_FIELD_DATA, *wat::kind::MODULE_FIELD_DATA].contains(&node.kind_id()) =>
+            {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -135,9 +162,11 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     kind: SymbolKind::Key,
                     name_hint: "data",
                 });
-            },
+            }
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD_ELEM => {
+            Work::Node(node)
+                if [*wast::kind::MODULE_FIELD_ELEM, *wat::kind::MODULE_FIELD_ELEM].contains(&node.kind_id()) =>
+            {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -145,9 +174,11 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     kind: SymbolKind::Field,
                     name_hint: "elem",
                 });
-            },
+            }
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD_FUNC => {
+            Work::Node(node)
+                if [*wast::kind::MODULE_FIELD_FUNC, *wat::kind::MODULE_FIELD_FUNC].contains(&node.kind_id()) =>
+            {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -155,9 +186,11 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     kind: SymbolKind::Function,
                     name_hint: "func",
                 });
-            },
+            }
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD_GLOBAL => {
+            Work::Node(node)
+                if [*wast::kind::MODULE_FIELD_GLOBAL, *wat::kind::MODULE_FIELD_GLOBAL].contains(&node.kind_id()) =>
+            {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -165,9 +198,11 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     kind: SymbolKind::Event,
                     name_hint: "global",
                 });
-            },
+            }
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD_MEMORY => {
+            Work::Node(node)
+                if [*wast::kind::MODULE_FIELD_MEMORY, *wat::kind::MODULE_FIELD_MEMORY].contains(&node.kind_id()) =>
+            {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -175,9 +210,11 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     kind: SymbolKind::Array,
                     name_hint: "memory",
                 });
-            },
+            }
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD_TABLE => {
+            Work::Node(node)
+                if [*wast::kind::MODULE_FIELD_TABLE, *wat::kind::MODULE_FIELD_TABLE].contains(&node.kind_id()) =>
+            {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -185,9 +222,11 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     kind: SymbolKind::Interface,
                     name_hint: "table",
                 });
-            },
+            }
 
-            Work::Node(node) if node.kind_id() == *wast::kind::MODULE_FIELD_TYPE => {
+            Work::Node(node)
+                if [*wast::kind::MODULE_FIELD_TYPE, *wat::kind::MODULE_FIELD_TYPE].contains(&node.kind_id()) =>
+            {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -195,7 +234,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     kind: SymbolKind::TypeParameter,
                     name_hint: "type",
                 });
-            },
+            }
 
             _ => {},
         }
