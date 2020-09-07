@@ -43,23 +43,19 @@ use tower_lsp::lsp_types::*;
 
 /// Functionality used for computing "textDocument/documentSymbols".
 mod document_symbol {
-    use crate::core::document::Document;
-    use std::borrow::Cow;
-    use tower_lsp::lsp_types::{Range, SymbolKind};
+    use tower_lsp::lsp_types::SymbolKind;
 
     /// Encodes data for constructing upcoming DocumentSymbols.
     #[derive(Clone, Debug)]
     pub(crate) struct Data<'a> {
-        /// Number of children to be processed for given symbol.
+        /// The tree-sitter Node to be processed as a symbol.
+        pub(crate) node: tree_sitter::Node<'a>,
+        /// Number of (possibly filtered) children to be processed for the symbol.
         pub(crate) children_count: usize,
         /// The kind of document entity the symbol represents.
         pub(crate) kind: SymbolKind,
-        /// The name (identifier) for the symbol.
-        pub(crate) name: Cow<'a, str>,
-        /// The (node-enclosing) range for the symbol.
-        pub(crate) range: Range,
-        /// The (identifier-enclosing) range for the symbol.
-        pub(crate) selection_range: Range,
+        /// The name hint for the symbol (used for anonymous entities).
+        pub(crate) name_hint: &'static str,
     }
 
     /// Encodes actions for loop iterations when processing tree-sitter nodes.
@@ -71,37 +67,11 @@ mod document_symbol {
         Node(tree_sitter::Node<'a>),
     }
 
-    /// Convenience function for processing document symbol nodes.
-    #[allow(clippy::needless_lifetimes)]
-    pub(crate) fn push<'a>(
-        document: &'a Document,
-        field_id: u16,
-        data: &mut Vec<Data<'a>>,
-        work: &mut Vec<Work>,
-        node: &tree_sitter::Node,
-        empty_name: &'static str,
-        kind: SymbolKind,
-    ) {
-        let SymbolRange {
-            name,
-            range,
-            selection_range,
-        } = symbol_range(&document.text.as_bytes(), empty_name, &node, field_id);
-        work.push(Work::Data);
-        data.push(Data {
-            children_count: 0,
-            kind,
-            name,
-            range,
-            selection_range,
-        });
-    }
-
     /// Convenience type for packaging a (symbol) name with an lsp range and selection range.
     #[derive(Clone, Debug)]
-    pub(crate) struct SymbolRange<'a> {
+    pub(crate) struct SymbolRange {
         /// The name (identifier) of the symbol.
-        pub(crate) name: Cow<'a, str>,
+        pub(crate) name: String,
         /// The (node-enclosing) range of the symbol.
         pub(crate) range: tower_lsp::lsp_types::Range,
         /// The (identifier-enclosing) range of the symbol.
@@ -109,12 +79,12 @@ mod document_symbol {
     }
 
     /// Compute the name and ranges for a document symbol given tree-sitter node data.
-    pub(crate) fn symbol_range<'a>(
-        source: &'a [u8],
-        empty_name: &'a str,
-        node: &tree_sitter::Node,
+    pub(crate) fn symbol_range(
+        source: &[u8],
+        node: tree_sitter::Node,
+        name_hint: &'static str,
         field_id: u16,
-    ) -> SymbolRange<'a> {
+    ) -> SymbolRange {
         let name;
         let range = crate::util::node::range(&node);
         let selection_range;
@@ -122,13 +92,7 @@ mod document_symbol {
             name = inner_node.utf8_text(source).unwrap().into();
             selection_range = crate::util::node::range(&inner_node);
         } else {
-            name = format!(
-                "<{}@{}:{}>",
-                empty_name,
-                range.start.line + 1,
-                range.start.character + 1
-            )
-            .into();
+            name = format!("<{}@{}:{}>", name_hint, range.start.line + 1, range.start.character + 1);
             selection_range = range;
         }
 
