@@ -2,7 +2,7 @@
 
 use crate::{
     core::{document::Document, language::wat},
-    service::elaborator::document_symbol::{self, symbol_range, Data, SymbolRange, Work},
+    service::elaborator::document_symbol::{symbol_range, Data, SymbolRange, Work},
 };
 use tower_lsp::lsp_types::*;
 
@@ -42,13 +42,18 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
             // Construct a DocumentSymbol and pop data stack
             Work::Data => {
                 if let Some(Data {
+                    node,
                     children_count,
                     kind,
-                    name,
-                    range,
-                    selection_range,
+                    name_hint,
                 }) = data.pop()
                 {
+                    let SymbolRange {
+                        name,
+                        range,
+                        selection_range,
+                    } = symbol_range(&document.text.as_bytes(), node, name_hint, *wat::field::IDENTIFIER);
+
                     // FIXME
                     #[allow(deprecated)]
                     let this = DocumentSymbol {
@@ -57,7 +62,7 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                         } else {
                             // Drain the syms array by the number of children nodes we counted for this
                             // DocumentSymbol. This allows us to properly reconstruct symbol nesting.
-                            let children = syms.drain(syms.len() - children_count..);
+                            let children = syms.drain(syms.len() - children_count ..);
                             // Process the nodes in reverse (because tree-sitter returns later nodes first).
                             let children = children.rev();
                             Some(children.collect())
@@ -71,21 +76,16 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                     };
                     syms.push(this);
                 }
-            }
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::PARSE => {
                 debug_assert!(node.child_count() == 1);
                 if let Some(module) = node.named_child(0) {
                     work.push(Work::Node(module));
                 }
-            }
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE => {
-                let SymbolRange {
-                    name,
-                    range,
-                    selection_range,
-                } = symbol_range(&document.text.as_bytes(), "module", &node, *wat::field::IDENTIFIER);
                 work.push(Work::Data);
 
                 let mut children_count = 0;
@@ -102,99 +102,84 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
                 }
 
                 data.push(Data {
+                    node,
                     children_count,
                     kind: SymbolKind::Module,
-                    name,
-                    range,
-                    selection_range,
+                    name_hint: "module",
                 });
-            }
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_DATA => {
-                document_symbol::push(
-                    &document,
-                    *wat::field::IDENTIFIER,
-                    &mut data,
-                    &mut work,
-                    &node,
-                    "data",
-                    SymbolKind::Key,
-                );
-            }
+                work.push(Work::Data);
+                data.push(Data {
+                    node,
+                    children_count: 0,
+                    kind: SymbolKind::Key,
+                    name_hint: "data",
+                });
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_ELEM => {
-                document_symbol::push(
-                    &document,
-                    *wat::field::IDENTIFIER,
-                    &mut data,
-                    &mut work,
-                    &node,
-                    "elem",
-                    SymbolKind::Field,
-                );
-            }
+                work.push(Work::Data);
+                data.push(Data {
+                    node,
+                    children_count: 0,
+                    kind: SymbolKind::Field,
+                    name_hint: "elem",
+                });
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_FUNC => {
-                document_symbol::push(
-                    &document,
-                    *wat::field::IDENTIFIER,
-                    &mut data,
-                    &mut work,
-                    &node,
-                    "func",
-                    SymbolKind::Function,
-                );
-            }
+                work.push(Work::Data);
+                data.push(Data {
+                    node,
+                    children_count: 0,
+                    kind: SymbolKind::Function,
+                    name_hint: "func",
+                });
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_GLOBAL => {
-                document_symbol::push(
-                    &document,
-                    *wat::field::IDENTIFIER,
-                    &mut data,
-                    &mut work,
-                    &node,
-                    "global",
-                    SymbolKind::Event,
-                );
-            }
+                work.push(Work::Data);
+                data.push(Data {
+                    node,
+                    children_count: 0,
+                    kind: SymbolKind::Event,
+                    name_hint: "global",
+                });
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_MEMORY => {
-                document_symbol::push(
-                    &document,
-                    *wat::field::IDENTIFIER,
-                    &mut data,
-                    &mut work,
-                    &node,
-                    "memory",
-                    SymbolKind::Array,
-                );
-            }
+                work.push(Work::Data);
+                data.push(Data {
+                    node,
+                    children_count: 0,
+                    kind: SymbolKind::Array,
+                    name_hint: "memory",
+                });
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TABLE => {
-                document_symbol::push(
-                    &document,
-                    *wat::field::IDENTIFIER,
-                    &mut data,
-                    &mut work,
-                    &node,
-                    "table",
-                    SymbolKind::Interface,
-                );
-            }
+                work.push(Work::Data);
+                data.push(Data {
+                    node,
+                    children_count: 0,
+                    kind: SymbolKind::Interface,
+                    name_hint: "table",
+                });
+            },
 
             Work::Node(node) if node.kind_id() == *wat::kind::MODULE_FIELD_TYPE => {
-                document_symbol::push(
-                    &document,
-                    *wat::field::IDENTIFIER,
-                    &mut data,
-                    &mut work,
-                    &node,
-                    "type",
-                    SymbolKind::TypeParameter,
-                );
-            }
+                work.push(Work::Data);
+                data.push(Data {
+                    node,
+                    children_count: 0,
+                    kind: SymbolKind::TypeParameter,
+                    name_hint: "type",
+                });
+            },
 
-            _ => {}
+            _ => {},
         }
     }
     // Collect the syms vec into a new vec in reverse so that document symbols are returned in the
