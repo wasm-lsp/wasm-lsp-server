@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/wasm-lsp/wasm-language-server"
 keywords = ["lsp", "wasm"]
 description = """
-A language server implementation for WebAssembly
+A language server implementation for WebAssembly.
 """
 
 [[bin]]
