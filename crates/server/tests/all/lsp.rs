@@ -466,183 +466,257 @@ mod text_document {
         Ok(())
     }
 
-    #[tokio::test]
-    async fn document_symbol() -> anyhow::Result<()> {
-        let uri = Url::parse("inmemory:///test")?;
-        let language_id = "wasm.wast";
-        #[rustfmt::skip]
-        let text = String::from(r#"
-            (type $a (func))
-            (global $g i32 (i32.const 0))
-            (memory $m 1)
-            (data (i32.const 0))
-            (table $t 10 funcref)
-            (func $f)
-            (elem (i32.const 0))
-        "#);
+    mod document_symbol {
+        use futures::stream::StreamExt;
+        use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
+        use wasm_language_server_testing as testing;
 
-        let (ref mut service, ref mut messages) = testing::service::spawn()?;
+        #[tokio::test]
+        async fn wat() -> anyhow::Result<()> {
+            let uri = Url::parse("inmemory:///test")?;
+            let language_id = "wasm.wat";
+            #[rustfmt::skip]
+            let text = String::from(r#"
+                (type $a (func))
+                (global $g i32 (i32.const 0))
+                (memory $m 1)
+                (data (i32.const 0))
+                (table $t 10 funcref)
+                (func $f)
+                (elem (i32.const 0))
+            "#);
 
-        // send "initialize" request
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::initialize::request();
-        let response = Some(testing::lsp::initialize::response());
-        testing::assert_exchange!(service, request, Ok(response));
+            let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
-        // send "initialized" notification
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::initialized::notification();
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
-        // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
-        messages.next().await.unwrap();
+            // send "initialize" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::initialize::request();
+            let response = Some(testing::lsp::initialize::response());
+            testing::assert_exchange!(service, request, Ok(response));
 
-        // send "textDocument/didOpen" notification for `uri`
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
+            // send "initialized" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::initialized::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+            // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
+            messages.next().await.unwrap();
 
-        // receive "textDocument/publishDiagnostics" notification for `uri`
-        let message = messages.next().await.unwrap();
-        let actual = serde_json::to_value(&message)?;
-        let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
-        assert_eq!(actual, expected);
+            // send "textDocument/didOpen" notification for `uri`
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
 
-        // send "textDocument/documentSymbol" request for `uri`
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::text_document::document_symbol::request(&uri);
-        #[rustfmt::skip]
-        let response = Some(json!({
-            "jsonrpc": "2.0",
-            "result": [
-                {
-                    "name": "$a",
-                    "kind": SymbolKind::TypeParameter,
-                    "range": { "start": { "line": 1, "character": 12 }, "end": { "line": 1, "character": 28 } },
-                    "selectionRange": { "start": { "line": 1, "character": 18 }, "end": { "line": 1, "character": 20 } },
-                    "children": [],
-                },
-                {
-                    "name": "$g",
-                    "kind": SymbolKind::Event,
-                    "range": { "start": { "line": 2, "character": 12 }, "end": { "line": 2, "character": 41 } },
-                    "selectionRange": { "start": { "line": 2, "character": 20 }, "end": { "line": 2, "character": 22 } },
-                    "children": [],
-                },
-                {
-                    "name": "$m",
-                    "kind": SymbolKind::Array,
-                    "range": { "start": { "line": 3, "character": 12 }, "end": { "line": 3, "character": 25 } },
-                    "selectionRange": { "start": { "line": 3, "character": 20 }, "end": { "line": 3, "character": 22 } },
-                    "children": [],
-                },
-                {
-                    "name": "<data@5:13>",
-                    "kind": SymbolKind::Key,
-                    "range": { "start": { "line": 4, "character": 12 }, "end": { "line": 4, "character": 32 } },
-                    "selectionRange": { "start": { "line": 4, "character": 12 }, "end": { "line": 4, "character": 32 } },
-                    "children": [],
-                },
-                {
-                    "name": "$t",
-                    "kind": SymbolKind::Interface,
-                    "range": { "start": { "line": 5, "character": 12 }, "end": { "line": 5, "character": 33 } },
-                    "selectionRange": { "start": { "line": 5, "character": 19 }, "end": { "line": 5, "character": 21 } },
-                    "children": [],
-                },
-                {
-                    "name": "$f",
-                    "kind": SymbolKind::Function,
-                    "range": { "start": { "line": 6, "character": 12 }, "end": { "line": 6, "character": 21 } },
-                    "selectionRange": { "start": { "line": 6, "character": 18 }, "end": { "line": 6, "character": 20 } },
-                    "children": [],
-                },
-                {
-                    "name": "<elem@8:13>",
-                    "kind": SymbolKind::Field,
-                    "range": { "start": { "line": 7, "character": 12 }, "end": { "line": 7, "character": 32 } },
-                    "selectionRange": { "start": { "line": 7, "character": 12 }, "end": { "line": 7, "character": 32 } },
-                },
-            ],
-            "id": 1,
-        }));
-        testing::assert_exchange!(service, request, Ok(response));
+            // receive "textDocument/publishDiagnostics" notification for `uri`
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+            assert_eq!(actual, expected);
 
-        // send "shutdown" request
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::shutdown::request();
-        let response = Some(testing::lsp::shutdown::response());
-        testing::assert_exchange!(service, request, Ok(response));
+            // send "textDocument/documentSymbol" request for `uri`
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::text_document::document_symbol::request(&uri);
+            #[rustfmt::skip]
+            let response = Some(json!({
+                "jsonrpc": "2.0",
+                "result": [
+                    {
+                        "name": "$a",
+                        "kind": SymbolKind::TypeParameter,
+                        "range": { "start": { "line": 1, "character": 16 }, "end": { "line": 1, "character": 32 } },
+                        "selectionRange": { "start": { "line": 1, "character": 22 }, "end": { "line": 1, "character": 24 } },
+                        "children": [],
+                    },
+                    {
+                        "name": "$g",
+                        "kind": SymbolKind::Event,
+                        "range": { "start": { "line": 2, "character": 16 }, "end": { "line": 2, "character": 45 } },
+                        "selectionRange": { "start": { "line": 2, "character": 24 }, "end": { "line": 2, "character": 26 } },
+                        "children": [],
+                    },
+                    {
+                        "name": "$m",
+                        "kind": SymbolKind::Array,
+                        "range": { "start": { "line": 3, "character": 16 }, "end": { "line": 3, "character": 29 } },
+                        "selectionRange": { "start": { "line": 3, "character": 24 }, "end": { "line": 3, "character": 26 } },
+                        "children": [],
+                    },
+                    {
+                        "name": "<data@5:17>",
+                        "kind": SymbolKind::Key,
+                        "range": { "start": { "line": 4, "character": 16 }, "end": { "line": 4, "character": 36 } },
+                        "selectionRange": { "start": { "line": 4, "character": 16 }, "end": { "line": 4, "character": 36 } },
+                        "children": [],
+                    },
+                    {
+                        "name": "$t",
+                        "kind": SymbolKind::Interface,
+                        "range": { "start": { "line": 5, "character": 16 }, "end": { "line": 5, "character": 37 } },
+                        "selectionRange": { "start": { "line": 5, "character": 23 }, "end": { "line": 5, "character": 25 } },
+                        "children": [],
+                    },
+                    {
+                        "name": "$f",
+                        "kind": SymbolKind::Function,
+                        "range": { "start": { "line": 6, "character": 16 }, "end": { "line": 6, "character": 25 } },
+                        "selectionRange": { "start": { "line": 6, "character": 22 }, "end": { "line": 6, "character": 24 } },
+                        "children": [],
+                    },
+                    {
+                        "name": "<elem@8:17>",
+                        "kind": SymbolKind::Field,
+                        "range": { "start": { "line": 7, "character": 16 }, "end": { "line": 7, "character": 36 } },
+                        "selectionRange": { "start": { "line": 7, "character": 16 }, "end": { "line": 7, "character": 36 } },
+                    },
+                ],
+                "id": 1,
+            }));
+            testing::assert_exchange!(service, request, Ok(response));
 
-        // send "exit" notification
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::exit::notification();
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
+            // send "shutdown" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::shutdown::request();
+            let response = Some(testing::lsp::shutdown::response());
+            testing::assert_exchange!(service, request, Ok(response));
 
-        Ok(())
-    }
+            // send "exit" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::exit::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
 
-    #[tokio::test]
-    async fn document_symbol_command() -> anyhow::Result<()> {
-        let uri = Url::parse("inmemory:///test")?;
-        let language_id = "wasm.wast";
-        #[rustfmt::skip]
-        let text = String::from(r#"(assert_return (invoke "empty"))"#);
+            Ok(())
+        }
 
-        let (ref mut service, ref mut messages) = testing::service::spawn()?;
+        #[tokio::test]
+        async fn wast() -> anyhow::Result<()> {
+            let uri = Url::parse("inmemory:///test")?;
+            let language_id = "wasm.wast";
+            #[rustfmt::skip]
+            let text = String::from(r#"
+                (module $m
+                  (type $a (func))
+                  (global $g i32 (i32.const 0))
+                  (memory $m 1)
+                  (data (i32.const 0))
+                  (table $t 10 funcref)
+                  (func $f)
+                  (elem (i32.const 0)))
+                (assert_return (invoke "empty"))
+            "#);
 
-        // send "initialize" request
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::initialize::request();
-        let response = Some(testing::lsp::initialize::response());
-        testing::assert_exchange!(service, request, Ok(response));
+            let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
-        // send "initialized" notification
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::initialized::notification();
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
-        // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
-        messages.next().await.unwrap();
+            // send "initialize" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::initialize::request();
+            let response = Some(testing::lsp::initialize::response());
+            testing::assert_exchange!(service, request, Ok(response));
 
-        // send "textDocument/didOpen" notification for `uri`
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
+            // send "initialized" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::initialized::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+            // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
+            messages.next().await.unwrap();
 
-        // receive "textDocument/publishDiagnostics" notification for `uri`
-        let message = messages.next().await.unwrap();
-        let actual = serde_json::to_value(&message)?;
-        let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
-        assert_eq!(actual, expected);
+            // send "textDocument/didOpen" notification for `uri`
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
 
-        // send "textDocument/documentSymbol" request for `uri`
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::text_document::document_symbol::request(&uri);
-        #[rustfmt::skip]
-        let response = Some(json!({
-            "jsonrpc": "2.0",
-            "result": [],
-            "id": 1,
-        }));
-        testing::assert_exchange!(service, request, Ok(response));
+            // receive "textDocument/publishDiagnostics" notification for `uri`
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+            assert_eq!(actual, expected);
 
-        // send "shutdown" request
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::shutdown::request();
-        let response = Some(testing::lsp::shutdown::response());
-        testing::assert_exchange!(service, request, Ok(response));
+            // send "textDocument/documentSymbol" request for `uri`
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::text_document::document_symbol::request(&uri);
+            #[rustfmt::skip]
+            let response = Some(json!({
+                "jsonrpc": "2.0",
+                "result": [
+                    {
+                        "name": "$m",
+                        "kind": SymbolKind::Module,
+                        "range": { "start": { "line": 1, "character": 16 }, "end": { "line": 8, "character": 39 } },
+                        "selectionRange": { "start": { "line": 1, "character": 24 }, "end": { "line": 1, "character": 26 } },
+                        "children": [
+                            {
+                                "name": "$a",
+                                "kind": SymbolKind::TypeParameter,
+                                "range": { "start": { "line": 2, "character": 18 }, "end": { "line": 2, "character": 34 } },
+                                "selectionRange": { "start": { "line": 2, "character": 24 }, "end": { "line": 2, "character": 26 } },
+                                "children": [],
+                            },
+                            {
+                                "name": "$g",
+                                "kind": SymbolKind::Event,
+                                "range": { "start": { "line": 3, "character": 18 }, "end": { "line": 3, "character": 47 } },
+                                "selectionRange": { "start": { "line": 3, "character": 26 }, "end": { "line": 3, "character": 28 } },
+                                "children": [],
+                            },
+                            {
+                                "name": "$m",
+                                "kind": SymbolKind::Array,
+                                "range": { "start": { "line": 4, "character": 18 }, "end": { "line": 4, "character": 31 } },
+                                "selectionRange": { "start": { "line": 4, "character": 26 }, "end": { "line": 4, "character": 28 } },
+                                "children": [],
+                            },
+                            {
+                                "name": "<data@6:19>",
+                                "kind": SymbolKind::Key,
+                                "range": { "start": { "line": 5, "character": 18 }, "end": { "line": 5, "character": 38 } },
+                                "selectionRange": { "start": { "line": 5, "character": 18 }, "end": { "line": 5, "character": 38 } },
+                                "children": [],
+                            },
+                            {
+                                "name": "$t",
+                                "kind": SymbolKind::Interface,
+                                "range": { "start": { "line": 6, "character": 18 }, "end": { "line": 6, "character": 39 } },
+                                "selectionRange": { "start": { "line": 6, "character": 25 }, "end": { "line": 6, "character": 27 } },
+                                "children": [],
+                            },
+                            {
+                                "name": "$f",
+                                "kind": SymbolKind::Function,
+                                "range": { "start": { "line": 7, "character": 18 }, "end": { "line": 7, "character": 27 } },
+                                "selectionRange": { "start": { "line": 7, "character": 24 }, "end": { "line": 7, "character": 26 } },
+                                "children": [],
+                            },
+                            {
+                                "name": "<elem@9:19>",
+                                "kind": SymbolKind::Field,
+                                "range": { "start": { "line": 8, "character": 18 }, "end": { "line": 8, "character": 38 } },
+                                "selectionRange": { "start": { "line": 8, "character": 18 }, "end": { "line": 8, "character": 38 } },
+                            },
+                        ],
+                    },
+                ],
+                "id": 1,
+            }));
+            testing::assert_exchange!(service, request, Ok(response));
 
-        // send "exit" notification
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::exit::notification();
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
+            // send "shutdown" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::shutdown::request();
+            let response = Some(testing::lsp::shutdown::response());
+            testing::assert_exchange!(service, request, Ok(response));
 
-        Ok(())
+            // send "exit" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::exit::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+
+            Ok(())
+        }
     }
 
     #[tokio::test]
