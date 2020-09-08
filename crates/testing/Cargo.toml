@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/wasm-lsp/wasm-language-server"
 keywords = ["lsp", "wasm"]
 description = """
-Tests and testing support code for the WebAssembly language server
+Testing support framework for the WebAssembly language server.
 """
 
 [badges]
