@@ -81,6 +81,25 @@ pub mod shutdown {
 
 /// Definitions for constructing `textDocument/*` messages.
 pub mod text_document {
+    /// Definitions for constructing `textDocument/didClose` messages.
+    pub mod did_close {
+        use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
+
+        /// Construct a `textDocument/didClose` notification.
+        pub fn notification(uri: &Url) -> Value {
+            json!({
+                "jsonrpc": "2.0",
+                "method": "textDocument/didClose",
+                "params": {
+                    "textDocument": {
+                        "uri": uri,
+                    },
+                },
+            })
+        }
+    }
+
     /// Definitions for constructing `textDocument/didOpen` messages.
     pub mod did_open {
         use serde_json::{json, Value};
@@ -97,25 +116,6 @@ pub mod text_document {
                         "languageId": language_id.as_ref(),
                         "version": version,
                         "text": text.as_ref(),
-                    },
-                },
-            })
-        }
-    }
-
-    /// Definitions for constructing `textDocument/didClose` messages.
-    pub mod did_close {
-        use serde_json::{json, Value};
-        use tower_lsp::lsp_types::*;
-
-        /// Construct a `textDocument/didClose` notification.
-        pub fn notification(uri: &Url) -> Value {
-            json!({
-                "jsonrpc": "2.0",
-                "method": "textDocument/didClose",
-                "params": {
-                    "textDocument": {
-                        "uri": uri,
                     },
                 },
             })
