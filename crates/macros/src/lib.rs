@@ -114,7 +114,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
             let file_ext = path.extension().unwrap().to_str().unwrap();
 
-            let test_name = str::replace(file_stem, "-", "_");
+            let test_name = heck::SnakeCase::to_snake_case(file_stem);
             let test_name = format!("r#{}", test_name);
             let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
 
