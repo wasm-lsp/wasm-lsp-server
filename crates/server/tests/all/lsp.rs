@@ -172,7 +172,7 @@ mod text_document {
         let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
         assert_eq!(actual, expected);
 
-        // send "textDocument/didOpen" notification for `uri`
+        // send "textDocument/didClose" notification for `uri`
         testing::assert_status!(service, Ok(()));
         let notification = &testing::lsp::text_document::did_close::notification(&uri);
         let status = None::<Value>;
