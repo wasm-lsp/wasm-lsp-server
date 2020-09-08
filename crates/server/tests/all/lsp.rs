@@ -37,6 +37,23 @@ async fn initialize() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
+async fn initialized() -> anyhow::Result<()> {
+    let service = &mut testing::service::spawn()?.0;
+
+    testing::assert_status!(service, Ok(()));
+    let request = &testing::lsp::initialize::request();
+    let response = Some(testing::lsp::initialize::response());
+    testing::assert_exchange!(service, request, Ok(response));
+
+    testing::assert_status!(service, Ok(()));
+    let notification = &testing::lsp::initialized::notification();
+    let status = None;
+    testing::assert_exchange!(service, notification, Ok(status));
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn initialize_once() -> anyhow::Result<()> {
     let service = &mut testing::service::spawn()?.0;
 
