@@ -49,10 +49,6 @@ pub mod wast {
 
         lazy_static! {
             pub static ref COMMAND: u16 = super::language().id_for_node_kind("command", true);
-            pub static ref COMMENT_BLOCK_ANNOT: u16 = super::language().id_for_node_kind("comment_block_annot", true);
-            pub static ref COMMENT_BLOCK: u16 = super::language().id_for_node_kind("comment_block", true);
-            pub static ref COMMENT_LINE_ANNOT: u16 = super::language().id_for_node_kind("comment_line_annot", true);
-            pub static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
             pub static ref INSTR_PLAIN: u16 = super::language().id_for_node_kind("instr_plain", true);
             pub static ref INSTR: u16 = super::language().id_for_node_kind("instr", true);
             pub static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
@@ -65,10 +61,6 @@ pub mod wast {
             pub static ref MODULE_FIELD: u16 = super::language().id_for_node_kind("module_field", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
-        }
-
-        pub fn is_comment(kind_id: &u16) -> bool {
-            [*COMMENT_BLOCK_ANNOT, *COMMENT_BLOCK, *COMMENT_LINE_ANNOT, *COMMENT_LINE].contains(kind_id)
         }
     }
 }
@@ -97,10 +89,6 @@ pub mod wat {
         use lazy_static::lazy_static;
 
         lazy_static! {
-            pub static ref COMMENT_BLOCK_ANNOT: u16 = super::language().id_for_node_kind("comment_block_annot", true);
-            pub static ref COMMENT_BLOCK: u16 = super::language().id_for_node_kind("comment_block", true);
-            pub static ref COMMENT_LINE_ANNOT: u16 = super::language().id_for_node_kind("comment_line_annot", true);
-            pub static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
             pub static ref INSTR_PLAIN: u16 = super::language().id_for_node_kind("instr_plain", true);
             pub static ref INSTR: u16 = super::language().id_for_node_kind("instr", true);
             pub static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
@@ -113,10 +101,6 @@ pub mod wat {
             pub static ref MODULE_FIELD: u16 = super::language().id_for_node_kind("module_field", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
-        }
-
-        pub fn is_comment(kind_id: &u16) -> bool {
-            [*COMMENT_BLOCK_ANNOT, *COMMENT_BLOCK, *COMMENT_LINE_ANNOT, *COMMENT_LINE].contains(kind_id)
         }
     }
 }
