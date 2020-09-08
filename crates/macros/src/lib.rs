@@ -16,8 +16,6 @@ mod util {
             match ext {
                 "wast" => Ok("wasm.wast"),
                 "wat" => Ok("wasm.wat"),
-                "wit" => Ok("wasm.wit"),
-                "witx" => Ok("wasm.witx"),
                 ext => Err(Error::LanguageId { ext: ext.to_owned() }.into()),
             }
         }

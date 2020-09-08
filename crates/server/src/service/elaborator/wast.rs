@@ -39,7 +39,6 @@ pub(crate) async fn document_symbol(document: &Document) -> Option<DocumentSymbo
     let identifier_field_id = match document.language {
         Language::Wast => *wast::field::IDENTIFIER,
         Language::Wat => *wat::field::IDENTIFIER,
-        _ => unreachable!(),
     };
 
     // Prepare the syntax tree.
