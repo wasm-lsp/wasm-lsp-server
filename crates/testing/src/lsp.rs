@@ -179,6 +179,37 @@ pub mod text_document {
         }
     }
 
+    /// Definitions for constructing `textDocument/hover` messages.
+    pub mod hover {
+        use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
+
+        /// Construct a `textDocument/hover` request.
+        pub fn request(uri: &Url, position: Position) -> Value {
+            json!({
+                "jsonrpc": "2.0",
+                "method": "textDocument/hover",
+                "params": {
+                    "textDocument": {
+                        "uri": uri,
+                    },
+                    "position": position,
+                },
+                "id": 1,
+            })
+        }
+
+        /// Construct a `textDocument/hover` response.
+        pub fn response() -> Value {
+            json!({
+                "jsonrpc": "2.0",
+                "result": {
+                },
+                "id": 1,
+            })
+        }
+    }
+
     /// Definitions for constructing `textDocument/publishDiagnostics` messages.
     pub mod publish_diagnostics {
         use serde_json::{json, Value};
