@@ -42,10 +42,9 @@ impl Session {
     /// document status in the database to "opened". Notifies subscribers to the document status.
     pub(crate) fn insert_document(&self, uri: Url, document: Document) -> anyhow::Result<Option<Document>> {
         let result = self.documents.insert(uri.clone(), document);
-        self.database
-            .trees
-            .documents
-            .insert(&uri[..], DocumentStatus::opened().as_bytes())?;
+        let status = DocumentStatus::opened();
+        let status = status.as_bytes();
+        self.database.trees.documents.insert(&uri[..], status)?;
         Ok(result)
     }
 
@@ -53,10 +52,9 @@ impl Session {
     /// document status in the database to "closed". Notifies subscribers to the document status.
     pub(crate) fn remove_document(&self, uri: &Url) -> anyhow::Result<Option<(Url, Document)>> {
         let result = self.documents.remove(uri);
-        self.database
-            .trees
-            .documents
-            .insert(&uri[..], DocumentStatus::closed().as_bytes())?;
+        let status = DocumentStatus::closed();
+        let status = status.as_bytes();
+        self.database.trees.documents.insert(&uri[..], status)?;
         Ok(result)
     }
 
