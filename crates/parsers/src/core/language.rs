@@ -10,10 +10,6 @@ pub enum Language {
     Wast,
     /// The `.wat` language.
     Wat,
-    /// The `.witx` language.
-    Wit,
-    /// The `.witx` language.
-    Witx,
 }
 
 impl TryFrom<String> for Language {
@@ -23,8 +19,6 @@ impl TryFrom<String> for Language {
         match language_id.as_ref() {
             "wasm.wast" => Ok(Language::Wast),
             "wasm.wat" => Ok(Language::Wat),
-            "wasm.wit" => Ok(Language::Wit),
-            "wasm.witx" => Ok(Language::Witx),
             _ => Err(Error::InvalidLanguageId(language_id).into()),
         }
     }
@@ -124,23 +118,5 @@ pub mod wat {
         pub fn is_comment(kind_id: &u16) -> bool {
             [*COMMENT_BLOCK_ANNOT, *COMMENT_BLOCK, *COMMENT_LINE_ANNOT, *COMMENT_LINE].contains(kind_id)
         }
-    }
-}
-
-/// Functions for working with the `.wit` grammar.
-pub mod wit {
-    /// Tree-sitter language for the `.wit` grammar.
-    #[allow(unsafe_code)]
-    pub fn language() -> tree_sitter::Language {
-        unsafe { crate::tree_sitter_wit() }
-    }
-}
-
-/// Functions for working with the `.witx` grammar.
-pub mod witx {
-    /// Tree-sitter language for the `.witx` grammar.
-    #[allow(unsafe_code)]
-    pub fn language() -> tree_sitter::Language {
-        unsafe { crate::tree_sitter_witx() }
     }
 }
