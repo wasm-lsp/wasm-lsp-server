@@ -1,6 +1,10 @@
 //! Definitions for the request handlers.
 
-use crate::{core::error, lsp::server::Server};
+use crate::{
+    core::error,
+    lsp::server::Server,
+    service::{analyzer, elaborator, synchronizer},
+};
 use tower_lsp::{jsonrpc::Result, lsp_types::*, LanguageServer};
 
 #[tower_lsp::async_trait]
@@ -14,9 +18,9 @@ impl LanguageServer for Server {
     }
 
     async fn initialized(&self, _: InitializedParams) {
-        self.client
-            .log_message(MessageType::Info, "WebAssembly language server initialized!")
-            .await;
+        let typ = MessageType::Info;
+        let message = "WebAssembly language server initialized!";
+        self.client.log_message(typ, message).await;
     }
 
     async fn shutdown(&self) -> Result<()> {
@@ -24,30 +28,29 @@ impl LanguageServer for Server {
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        crate::service::synchronizer::document::open(self.session.clone(), params)
-            .await
-            .unwrap()
+        let session = self.session.clone();
+        synchronizer::document::open(session, params).await.unwrap()
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
-        crate::service::synchronizer::document::change(self.session.clone(), params)
-            .await
-            .unwrap()
+        let session = self.session.clone();
+        synchronizer::document::change(session, params).await.unwrap()
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
-        crate::service::synchronizer::document::close(self.session.clone(), params)
-            .await
-            .unwrap()
+        let session = self.session.clone();
+        synchronizer::document::close(session, params).await.unwrap()
     }
 
     async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
-        let result = crate::service::elaborator::document_symbol(self.session.clone(), params).await;
+        let session = self.session.clone();
+        let result = elaborator::document_symbol(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 
     async fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
-        let result = crate::service::analyzer::hover(self.session.clone(), params).await;
+        let session = self.session.clone();
+        let result = analyzer::hover(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 }
