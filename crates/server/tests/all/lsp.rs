@@ -201,81 +201,165 @@ mod text_document {
         Ok(())
     }
 
-    #[tokio::test]
-    async fn did_change_with_diagnostics() -> anyhow::Result<()> {
-        let uri = Url::parse("inmemory:///test")?;
-        let language_id = "wasm.wat";
+    mod did_change {
+        use futures::stream::StreamExt;
+        use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
+        use wasm_language_server_testing as testing;
 
-        let old_text = String::from("");
-        let new_text = String::from("(modu)");
+        #[tokio::test]
+        async fn lexer_error() -> anyhow::Result<()> {
+            let uri = Url::parse("inmemory:///test")?;
+            let language_id = "wasm.wat";
 
-        let (ref mut service, ref mut messages) = testing::service::spawn()?;
+            let old_text = String::from("");
+            let new_text = String::from("(module (func (export \"\\x\"))");
 
-        // send "initialize" request
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::initialize::request();
-        let response = Some(testing::lsp::initialize::response());
-        testing::assert_exchange!(service, request, Ok(response));
+            let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
-        // send "initialized" notification
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::initialized::notification();
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
-        // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
-        messages.next().await.unwrap();
+            // send "initialize" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::initialize::request();
+            let response = Some(testing::lsp::initialize::response());
+            testing::assert_exchange!(service, request, Ok(response));
 
-        // send "textDocument/didOpen" notification for `uri`
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, old_text);
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
+            // send "initialized" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::initialized::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+            // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
+            messages.next().await.unwrap();
 
-        // receive "textDocument/publishDiagnostics" notification for `uri`
-        let message = messages.next().await.unwrap();
-        let actual = serde_json::to_value(&message)?;
-        let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
-        assert_eq!(actual, expected);
+            // send "textDocument/didOpen" notification for `uri`
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, old_text);
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
 
-        // send "textDocument/didChange" notification for `uri`
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::text_document::did_change::notification::entire(&uri, new_text);
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
+            // receive "textDocument/publishDiagnostics" notification for `uri`
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+            assert_eq!(actual, expected);
 
-        // receive "textDocument/publishDiagnostics" notification for `uri`
-        let message = messages.next().await.unwrap();
-        let actual = serde_json::to_value(&message)?;
-        let expected = json!({
-            "jsonrpc": "2.0",
-            "method": "textDocument/publishDiagnostics",
-            "params": {
-                "uri": uri,
-                "diagnostics": [
-                    {
-                        "range": { "start": { "line": 0, "character": 1 }, "end": { "line": 0, "character": 1 } },
-                        "severity": 1,
-                        "source": "wast",
-                        "message": "expected valid module field",
-                    },
-                ],
-            },
-        });
-        assert_eq!(actual, expected);
+            // send "textDocument/didChange" notification for `uri`
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::text_document::did_change::notification::entire(&uri, new_text);
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
 
-        // send "shutdown" request
-        testing::assert_status!(service, Ok(()));
-        let request = &testing::lsp::shutdown::request();
-        let response = Some(testing::lsp::shutdown::response());
-        testing::assert_exchange!(service, request, Ok(response));
+            // receive "textDocument/publishDiagnostics" notification for `uri`
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = json!({
+                "jsonrpc": "2.0",
+                "method": "textDocument/publishDiagnostics",
+                "params": {
+                    "uri": uri,
+                    "diagnostics": [
+                        {
+                            "range": { "start": { "line": 0, "character": 24 }, "end": { "line": 0, "character": 24 } },
+                            "severity": 1,
+                            "source": "wast",
+                            "message": "invalid string escape \'x\'",
+                        },
+                    ],
+                },
+            });
+            assert_eq!(actual, expected);
 
-        // send "exit" notification
-        testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::exit::notification();
-        let status = None::<Value>;
-        testing::assert_exchange!(service, notification, Ok(status));
+            // send "shutdown" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::shutdown::request();
+            let response = Some(testing::lsp::shutdown::response());
+            testing::assert_exchange!(service, request, Ok(response));
 
-        Ok(())
+            // send "exit" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::exit::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+
+            Ok(())
+        }
+
+        #[tokio::test]
+        async fn parser_error() -> anyhow::Result<()> {
+            let uri = Url::parse("inmemory:///test")?;
+            let language_id = "wasm.wat";
+
+            let old_text = String::from("");
+            let new_text = String::from("(modu)");
+
+            let (ref mut service, ref mut messages) = testing::service::spawn()?;
+
+            // send "initialize" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::initialize::request();
+            let response = Some(testing::lsp::initialize::response());
+            testing::assert_exchange!(service, request, Ok(response));
+
+            // send "initialized" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::initialized::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+            // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
+            messages.next().await.unwrap();
+
+            // send "textDocument/didOpen" notification for `uri`
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, old_text);
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+
+            // receive "textDocument/publishDiagnostics" notification for `uri`
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+            assert_eq!(actual, expected);
+
+            // send "textDocument/didChange" notification for `uri`
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::text_document::did_change::notification::entire(&uri, new_text);
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+
+            // receive "textDocument/publishDiagnostics" notification for `uri`
+            let message = messages.next().await.unwrap();
+            let actual = serde_json::to_value(&message)?;
+            let expected = json!({
+                "jsonrpc": "2.0",
+                "method": "textDocument/publishDiagnostics",
+                "params": {
+                    "uri": uri,
+                    "diagnostics": [
+                        {
+                            "range": { "start": { "line": 0, "character": 1 }, "end": { "line": 0, "character": 1 } },
+                            "severity": 1,
+                            "source": "wast",
+                            "message": "expected valid module field",
+                        },
+                    ],
+                },
+            });
+            assert_eq!(actual, expected);
+
+            // send "shutdown" request
+            testing::assert_status!(service, Ok(()));
+            let request = &testing::lsp::shutdown::request();
+            let response = Some(testing::lsp::shutdown::response());
+            testing::assert_exchange!(service, request, Ok(response));
+
+            // send "exit" notification
+            testing::assert_status!(service, Ok(()));
+            let notification = &testing::lsp::exit::notification();
+            let status = None::<Value>;
+            testing::assert_exchange!(service, notification, Ok(status));
+
+            Ok(())
+        }
     }
 
     #[tokio::test]
