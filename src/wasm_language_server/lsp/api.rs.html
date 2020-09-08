@@ -52,10 +52,17 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Definitions for the request handlers.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core</span>::<span class="ident">error</span>, <span class="ident">lsp</span>::<span class="ident">server</span>::<span class="ident">Server</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">core</span>::<span class="ident">error</span>,
+    <span class="ident">lsp</span>::<span class="ident">server</span>::<span class="ident">Server</span>,
+    <span class="ident">service</span>::{<span class="ident">analyzer</span>, <span class="ident">elaborator</span>, <span class="ident">synchronizer</span>},
+};
 <span class="kw">use</span> <span class="ident">tower_lsp</span>::{<span class="ident">jsonrpc</span>::<span class="prelude-ty">Result</span>, <span class="ident">lsp_types</span>::<span class="kw-2">*</span>, <span class="ident">LanguageServer</span>};
 
 <span class="attribute">#[<span class="ident">tower_lsp</span>::<span class="ident">async_trait</span>]</span>
@@ -69,9 +76,9 @@
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">initialized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">InitializedParams</span>) {
-        <span class="self">self</span>.<span class="ident">client</span>
-            .<span class="ident">log_message</span>(<span class="ident">MessageType</span>::<span class="ident">Info</span>, <span class="string">&quot;WebAssembly language server initialized!&quot;</span>)
-            .<span class="ident">await</span>;
+        <span class="kw">let</span> <span class="ident">typ</span> <span class="op">=</span> <span class="ident">MessageType</span>::<span class="ident">Info</span>;
+        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;WebAssembly language server initialized!&quot;</span>;
+        <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">log_message</span>(<span class="ident">typ</span>, <span class="ident">message</span>).<span class="ident">await</span>;
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">shutdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -79,30 +86,29 @@
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">did_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="ident">DidOpenTextDocumentParams</span>) {
-        <span class="kw">crate</span>::<span class="ident">service</span>::<span class="ident">synchronizer</span>::<span class="ident">document</span>::<span class="ident">open</span>(<span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>)
-            .<span class="ident">await</span>
-            .<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
+        <span class="ident">synchronizer</span>::<span class="ident">document</span>::<span class="ident">open</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>.<span class="ident">unwrap</span>()
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">did_change</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="ident">DidChangeTextDocumentParams</span>) {
-        <span class="kw">crate</span>::<span class="ident">service</span>::<span class="ident">synchronizer</span>::<span class="ident">document</span>::<span class="ident">change</span>(<span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>)
-            .<span class="ident">await</span>
-            .<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
+        <span class="ident">synchronizer</span>::<span class="ident">document</span>::<span class="ident">change</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>.<span class="ident">unwrap</span>()
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">did_close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="ident">DidCloseTextDocumentParams</span>) {
-        <span class="kw">crate</span>::<span class="ident">service</span>::<span class="ident">synchronizer</span>::<span class="ident">document</span>::<span class="ident">close</span>(<span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>)
-            .<span class="ident">await</span>
-            .<span class="ident">unwrap</span>()
+        <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
+        <span class="ident">synchronizer</span>::<span class="ident">document</span>::<span class="ident">close</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>.<span class="ident">unwrap</span>()
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="ident">DocumentSymbolParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentSymbolResponse</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">service</span>::<span class="ident">elaborator</span>::<span class="ident">document_symbol</span>(<span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>).<span class="ident">await</span>;
+        <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">elaborator</span>::<span class="ident">document_symbol</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">error</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">hover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="ident">HoverParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">service</span>::<span class="ident">analyzer</span>::<span class="ident">hover</span>(<span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>).<span class="ident">await</span>;
+        <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">analyzer</span>::<span class="ident">hover</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">error</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
     }
 }
