@@ -229,14 +229,7 @@ mod subcommand {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&[
-                "tarpaulin",
-                "--all-features",
-                "--benches",
-                "--examples",
-                "--lib",
-                "--tests",
-            ]);
+            cmd.args(&["tarpaulin", "--benches", "--examples", "--lib", "--tests"]);
             cmd.args(&["--out", "Xml"]);
             cmd.args(&[
                 "--packages",
