@@ -81,6 +81,34 @@ pub mod shutdown {
 
 /// Definitions for constructing `textDocument/*` messages.
 pub mod text_document {
+    /// Definitions for constructing `textDocument/didChange` messages.
+    pub mod did_change {
+
+        /// Definitions for constructing a `textDocument/didChange` notification.
+        pub mod notification {
+            use serde_json::{json, Value};
+            use tower_lsp::lsp_types::*;
+
+            /// Construct a `textDocument/didChange` notification with entire new text.
+            pub fn entire<S: AsRef<str>>(uri: &Url, text: S) -> Value {
+                json!({
+                    "jsonrpc": "2.0",
+                    "method": "textDocument/didChange",
+                    "params": {
+                        "textDocument": {
+                            "uri": uri,
+                        },
+                        "contentChanges": [
+                            {
+                                "text": text.as_ref(),
+                            }
+                        ],
+                    },
+                })
+            }
+        }
+    }
+
     /// Definitions for constructing `textDocument/didClose` messages.
     pub mod did_close {
         use serde_json::{json, Value};
