@@ -125,10 +125,10 @@ mod subcommand {
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            cmd.args(&["--", "-D", "warnings"]);
             if let Some(values) = sub_matches.values_of("rest") {
                 cmd.args(values);
             }
+            cmd.args(&["--", "-D", "warnings"]);
             cmd.status()?;
             Ok(())
         }
