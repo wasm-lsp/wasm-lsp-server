@@ -308,8 +308,18 @@ mod text_document {
     #[tokio::test]
     async fn document_symbol() -> anyhow::Result<()> {
         let uri = Url::parse("inmemory:///test")?;
-        let language_id = "wasm.wast";
-        let text = String::from("(module $m (func $f))");
+        let language_id = "wasm.wat";
+        #[rustfmt::skip]
+        let text = String::from(r#"
+            (module $m
+              (type $a (func))
+              (global $g i32 (i32.const 0))
+              (memory $m 1)
+              (data (i32.const 0))
+              (table $t 10 funcref)
+              (func $f)
+              (elem (i32.const 0)))
+        "#);
 
         let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
@@ -344,24 +354,66 @@ mod text_document {
         let request = &testing::lsp::text_document::document_symbol::request(&uri);
         #[rustfmt::skip]
         let response = Some(json!({
-          "jsonrpc": "2.0",
-          "result": [
-            {
-                "name": "$m",
-                "kind": SymbolKind::Module,
-                "range": { "start": { "line": 0, "character": 0 }, "end": { "line": 0, "character": 21 } },
-                "selectionRange": { "start": { "line": 0, "character": 8 }, "end": { "line": 0, "character": 10 } },
-                "children": [
-                    {
-                        "name": "$f",
-                        "kind": SymbolKind::Function,
-                        "range": { "start": { "line": 0, "character": 11 }, "end": { "line": 0, "character": 20 } },
-                        "selectionRange": { "start": { "line": 0, "character": 17 }, "end": { "line": 0, "character": 19 } },
-                    },
-                ],
-            },
-          ],
-          "id": 1,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "name": "$m",
+                    "kind": SymbolKind::Module,
+                    "range": { "start": { "line": 1, "character": 12 }, "end": { "line": 8, "character": 35 } },
+                    "selectionRange": { "start": { "line": 1, "character": 20 }, "end": { "line": 1, "character": 22 } },
+                    "children": [
+                        {
+                            "name": "$a",
+                            "kind": SymbolKind::TypeParameter,
+                            "range": { "start": { "line": 2, "character": 14 }, "end": { "line": 2, "character": 30 } },
+                            "selectionRange": { "start": { "line": 2, "character": 20 }, "end": { "line": 2, "character": 22 } },
+                            "children": [],
+                        },
+                        {
+                            "name": "$g",
+                            "kind": SymbolKind::Event,
+                            "range": { "start": { "line": 3, "character": 14 }, "end": { "line": 3, "character": 43 } },
+                            "selectionRange": { "start": { "line": 3, "character": 22 }, "end": { "line": 3, "character": 24 } },
+                            "children": [],
+                        },
+                        {
+                            "name": "$m",
+                            "kind": SymbolKind::Array,
+                            "range": { "start": { "line": 4, "character": 14 }, "end": { "line": 4, "character": 27 } },
+                            "selectionRange": { "start": { "line": 4, "character": 22 }, "end": { "line": 4, "character": 24 } },
+                            "children": [],
+                        },
+                        {
+                            "name": "<data@6:15>",
+                            "kind": SymbolKind::Key,
+                            "range": { "start": { "line": 5, "character": 14 }, "end": { "line": 5, "character": 34 } },
+                            "selectionRange": { "start": { "line": 5, "character": 14 }, "end": { "line": 5, "character": 34 } },
+                            "children": [],
+                        },
+                        {
+                            "name": "$t",
+                            "kind": SymbolKind::Interface,
+                            "range": { "start": { "line": 6, "character": 14 }, "end": { "line": 6, "character": 35 } },
+                            "selectionRange": { "start": { "line": 6, "character": 21 }, "end": { "line": 6, "character": 23 } },
+                            "children": [],
+                        },
+                        {
+                            "name": "$f",
+                            "kind": SymbolKind::Function,
+                            "range": { "start": { "line": 7, "character": 14 }, "end": { "line": 7, "character": 23 } },
+                            "selectionRange": { "start": { "line": 7, "character": 20 }, "end": { "line": 7, "character": 22 } },
+                            "children": [],
+                        },
+                        {
+                            "name": "<elem@9:15>",
+                            "kind": SymbolKind::Field,
+                            "range": { "start": { "line": 8, "character": 14 }, "end": { "line": 8, "character": 34 } },
+                            "selectionRange": { "start": { "line": 8, "character": 14 }, "end": { "line": 8, "character": 34 } },
+                        },
+                    ],
+                },
+            ],
+            "id": 1,
         }));
         testing::assert_exchange!(service, request, Ok(response));
 
