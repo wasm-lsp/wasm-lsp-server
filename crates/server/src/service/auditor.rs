@@ -6,55 +6,41 @@ pub(crate) mod tree {
     use std::sync::Arc;
     use tower_lsp::lsp_types::*;
 
+    fn diagnostics_for_error(document: &Document, diagnostics: &mut Vec<Diagnostic>, error: wast::Error) {
+        let input = &document.text;
+        diagnostics.push({
+            let span = error.span();
+            let (line, col) = span.linecol_in(input);
+            let range = {
+                let start = Position::new(line as u64, col as u64);
+                let end = Position::new(line as u64, col as u64);
+                Range::new(start, end)
+            };
+            let severity = Some(DiagnosticSeverity::Error);
+            let code = Default::default();
+            let source = Some(String::from("wast"));
+            let message = error.message();
+            let related_information = Default::default();
+            let tags = Default::default();
+            Diagnostic::new(range, severity, code, source, message, related_information, tags)
+        });
+    }
+
     // Compute diagnostics for a change event given a `document` and `tree`.
     // NOTE: Currently we only use the tree-sitter grammar to check for the
     // presence of errors and then use the `wast` crate for the actual error
     // reporting (because tree-sitter does not provide detailed errors yet).
     fn diagnostics_for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<Diagnostic>> {
         let mut diagnostics = vec![];
-        let node = tree.root_node();
 
-        if node.has_error() {
-            let source = &document.text;
-            let result = ::wast::parser::ParseBuffer::new(source);
-
-            match result {
-                Err(error) => diagnostics.push({
-                    let span = error.span();
-                    let (line, col) = span.linecol_in(source);
-                    let range = {
-                        let start = Position::new(line as u64, col as u64);
-                        let end = Position::new(line as u64, col as u64);
-                        Range::new(start, end)
-                    };
-                    let severity = Some(DiagnosticSeverity::Error);
-                    let code = Default::default();
-                    let source = Some(String::from("wast"));
-                    let message = error.message();
-                    let related_information = Default::default();
-                    let tags = Default::default();
-                    Diagnostic::new(range, severity, code, source, message, related_information, tags)
-                }),
+        if tree.root_node().has_error() {
+            match ::wast::parser::ParseBuffer::new(&document.text) {
+                Err(error) => {
+                    diagnostics_for_error(document, &mut diagnostics, error);
+                },
                 Ok(buffer) => {
-                    let result = ::wast::parser::parse::<::wast::Wast>(&buffer);
-
-                    if let Err(error) = result {
-                        diagnostics.push({
-                            let span = error.span();
-                            let (line, col) = span.linecol_in(source);
-                            let range = {
-                                let start = Position::new(line as u64, col as u64);
-                                let end = Position::new(line as u64, col as u64);
-                                Range::new(start, end)
-                            };
-                            let severity = Some(DiagnosticSeverity::Error);
-                            let code = Default::default();
-                            let source = Some(String::from("wast"));
-                            let message = error.message();
-                            let related_information = Default::default();
-                            let tags = Default::default();
-                            Diagnostic::new(range, severity, code, source, message, related_information, tags)
-                        })
+                    if let Err(error) = ::wast::parser::parse::<::wast::Wast>(&buffer) {
+                        diagnostics_for_error(document, &mut diagnostics, error);
                     }
                 },
             }
