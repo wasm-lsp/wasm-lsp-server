@@ -168,7 +168,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: tarpaulin
+          args: tarpaulin -- --all-features
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
