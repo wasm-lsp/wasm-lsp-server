@@ -150,6 +150,35 @@ pub mod text_document {
         }
     }
 
+    /// Definitions for constructing `textDocument/documentSymbol` messages.
+    pub mod document_symbol {
+        use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
+
+        /// Construct a `textDocument/documentSymbol` request.
+        pub fn request(uri: &Url) -> Value {
+            json!({
+                "jsonrpc": "2.0",
+                "method": "textDocument/documentSymbol",
+                "params": {
+                    "textDocument": {
+                        "uri": uri,
+                    },
+                },
+                "id": 1,
+            })
+        }
+
+        /// Construct a `textDocument/documentSymbol` request.
+        pub fn response(response: DocumentSymbolResponse) -> Value {
+            json!({
+                "jsonrpc": "2.0",
+                "result": response,
+                "id": 1,
+            })
+        }
+    }
+
     /// Definitions for constructing `textDocument/publishDiagnostics` messages.
     pub mod publish_diagnostics {
         use serde_json::{json, Value};
