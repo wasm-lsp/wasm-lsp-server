@@ -436,7 +436,7 @@ mod text_document {
     async fn hover() -> anyhow::Result<()> {
         let uri = Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
-        let text = String::from("(module $m (func $f))");
+        let text = String::from("(module $m (func $f (call_indirect (i32.const 0))))");
 
         let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
@@ -476,8 +476,42 @@ mod text_document {
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": {
-                "contents": [ "(func $f)" ],
-                "range": { "start": { "line": 0, "character": 11 }, "end": { "line": 0, "character":  20 } },
+                "contents": [ "(func $f (call_indirect (i32.const 0)))" ],
+                "range": { "start": { "line": 0, "character": 11 }, "end": { "line": 0, "character":  50 } },
+            },
+            "id": 1,
+        }));
+        testing::assert_exchange!(service, request, Ok(response));
+
+        // send "textDocument/hover" request for `uri`
+        testing::assert_status!(service, Ok(()));
+        let request = &{
+            let position = Position { line: 0, character: 23 };
+            testing::lsp::text_document::hover::request(&uri, position)
+        };
+        #[rustfmt::skip]
+        let response = Some(json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "contents": [ "(call_indirect (i32.const 0))" ],
+                "range": { "start": { "line": 0, "character": 20 }, "end": { "line": 0, "character":  49 } },
+            },
+            "id": 1,
+        }));
+        testing::assert_exchange!(service, request, Ok(response));
+
+        // send "textDocument/hover" request for `uri`
+        testing::assert_status!(service, Ok(()));
+        let request = &{
+            let position = Position { line: 0, character: 39 };
+            testing::lsp::text_document::hover::request(&uri, position)
+        };
+        #[rustfmt::skip]
+        let response = Some(json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "contents": [ "i32.const 0" ],
+                "range": { "start": { "line": 0, "character": 36 }, "end": { "line": 0, "character":  47 } },
             },
             "id": 1,
         }));
