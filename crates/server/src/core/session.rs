@@ -158,7 +158,7 @@ mod tests {
         let text = String::from("");
         let uri = Url::parse("inmemory:///test")?;
 
-        let language = language::Language::try_from(language_id)?;
+        let language = language::Language::try_from(language_id.as_ref())?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
         let old_tree = None;
 
@@ -197,7 +197,7 @@ mod tests {
         let text = String::from("");
         let uri = Url::parse("inmemory:///test")?;
 
-        let language = language::Language::try_from(language_id)?;
+        let language = language::Language::try_from(language_id.as_ref())?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
         let old_tree = None;
 
