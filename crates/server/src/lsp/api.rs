@@ -14,7 +14,9 @@ impl LanguageServer for Server {
     }
 
     async fn initialized(&self, _: InitializedParams) {
-        self.client.log_message(MessageType::Info, "server initialized!").await;
+        self.client
+            .log_message(MessageType::Info, "WebAssembly language server initialized!")
+            .await;
     }
 
     async fn shutdown(&self) -> Result<()> {
