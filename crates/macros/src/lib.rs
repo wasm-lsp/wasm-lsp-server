@@ -130,21 +130,44 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                     let (mut service, mut messages) = testing::service::spawn()?;
                     let service = &mut service;
 
+                    // send "initialize" request
                     testing::assert_status!(service, Ok(()));
                     let request = &testing::lsp::initialize::request();
                     let response = Some(testing::lsp::initialize::response());
                     testing::assert_exchange!(service, request, Ok(response));
 
+                    // send "initialized" notification
+                    testing::assert_status!(service, Ok(()));
+                    let notification = &testing::lsp::initialized::notification();
+                    let status = None::<Value>;
+                    testing::assert_exchange!(service, notification, Ok(status));
+                    // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
+                    messages.next().await.unwrap();
+
+                    // send "textDocument/didOpen" notification for `uri`
                     testing::assert_status!(service, Ok(()));
                     let notification =
                         &testing::lsp::text_document::did_open::notification(&uri, #language_id, 1, text);
                     let status = None::<Value>;
                     testing::assert_exchange!(service, notification, Ok(status));
 
+                    // receive "textDocument/publishDiagnostics" notification for `uri`
                     let message = messages.next().await.unwrap();
                     let actual = serde_json::to_value(&message)?;
                     let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
                     assert_eq!(actual, expected);
+
+                    // send "shutdown" request
+                    testing::assert_status!(service, Ok(()));
+                    let request = &testing::lsp::shutdown::request();
+                    let response = Some(testing::lsp::shutdown::response());
+                    testing::assert_exchange!(service, request, Ok(response));
+
+                    // send "exit" notification
+                    testing::assert_status!(service, Ok(()));
+                    let notification = &testing::lsp::exit::notification();
+                    let status = None::<Value>;
+                    testing::assert_exchange!(service, notification, Ok(status));
 
                     Ok(())
                 }
