@@ -4,7 +4,7 @@ use wasm_language_server_testing as testing;
 
 #[tokio::test]
 async fn exit() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let ref mut service = testing::service::spawn()?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -40,7 +40,7 @@ async fn exit() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn initialize() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let ref mut service = testing::service::spawn()?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -53,7 +53,7 @@ async fn initialize() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn initialized() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let ref mut service = testing::service::spawn()?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -72,7 +72,7 @@ async fn initialized() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn initialize_once() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let ref mut service = testing::service::spawn()?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -97,7 +97,7 @@ async fn initialize_once() -> anyhow::Result<()> {
 
 #[tokio::test]
 async fn shutdown() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let ref mut service = testing::service::spawn()?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -144,8 +144,7 @@ mod text_document {
         let language_id = "wasm.wast";
         let text = String::new();
 
-        let (mut service, mut messages) = testing::service::spawn()?;
-        let service = &mut service;
+        let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
         // send "initialize" request
         testing::assert_status!(service, Ok(()));
@@ -200,8 +199,7 @@ mod text_document {
         let language_id = "wasm.wast";
         let text = String::new();
 
-        let (mut service, mut messages) = testing::service::spawn()?;
-        let service = &mut service;
+        let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
         // send "initialize" request
         testing::assert_status!(service, Ok(()));
