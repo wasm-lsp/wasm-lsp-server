@@ -21,6 +21,7 @@ maintenance = { status = "experimental" }
 [features]
 default = ["compression", "threaded"]
 compression = ["sled/compression"]
+corpus = []
 threaded = ["tokio/rt-threaded"]
 
 [build-dependencies]
