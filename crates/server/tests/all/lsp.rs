@@ -540,7 +540,6 @@ mod text_document {
             let position = Position { line: 0, character: 15 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
-        #[rustfmt::skip]
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": {
@@ -557,7 +556,6 @@ mod text_document {
             let position = Position { line: 0, character: 23 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
-        #[rustfmt::skip]
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": {
@@ -574,7 +572,6 @@ mod text_document {
             let position = Position { line: 0, character: 39 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
-        #[rustfmt::skip]
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": {
@@ -591,7 +588,6 @@ mod text_document {
             let position = Position { line: 0, character: 50 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
-        #[rustfmt::skip]
         let response = Some(json!({
             "jsonrpc": "2.0",
             "result": null,
