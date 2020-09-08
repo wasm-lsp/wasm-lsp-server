@@ -127,8 +127,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
                     let uri = Url::from_file_path(&#path_name).unwrap();
                     let text = std::fs::read_to_string(#path_name).unwrap();
 
-                    let (mut service, mut messages) = testing::service::spawn()?;
-                    let service = &mut service;
+                    let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
                     // send "initialize" request
                     testing::assert_status!(service, Ok(()));
