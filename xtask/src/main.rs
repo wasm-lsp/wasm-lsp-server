@@ -405,7 +405,7 @@ mod util {
             }
 
             // Iterate through the different grammar types.
-            for grammar in &["wast", "wat", "wit", "witx"] {
+            for grammar in &["wast", "wat"] {
                 // Configure the grammar directory path.
                 let grammar_path = [tree_sitter_path, grammar].iter().collect::<PathBuf>();
                 let grammar_path = dunce::canonicalize(grammar_path)?;

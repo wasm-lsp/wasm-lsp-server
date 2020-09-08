@@ -2,10 +2,6 @@
 
 /// Elaborator definitions specific to ".wat" and ".wast" files.
 mod wast;
-/// Elaborator definitions specific to ".wit" files.
-mod wit;
-/// Elaborator definitions specific to ".witx" files.
-mod witx;
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
@@ -116,8 +112,6 @@ pub(crate) async fn document_symbol(
     let result = match document.language {
         Language::Wast => self::wast::document_symbol(&document).await,
         Language::Wat => self::wast::document_symbol(&document).await,
-        Language::Wit => self::wit::document_symbol(&document).await,
-        Language::Witx => self::witx::document_symbol(&document).await,
     };
     Ok(result)
 }
