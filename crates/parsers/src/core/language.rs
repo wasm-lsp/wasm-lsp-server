@@ -104,3 +104,15 @@ pub mod wat {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn try_from_invalid_language_id() {
+        use std::convert::TryInto;
+        let result: anyhow::Result<Language> = "".try_into();
+        assert!(result.is_err());
+    }
+}
