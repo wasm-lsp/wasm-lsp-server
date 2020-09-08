@@ -12,14 +12,14 @@ pub enum Language {
     Wat,
 }
 
-impl TryFrom<String> for Language {
+impl TryFrom<&str> for Language {
     type Error = anyhow::Error;
 
-    fn try_from(language_id: String) -> anyhow::Result<Self> {
-        match language_id.as_ref() {
+    fn try_from(language_id: &str) -> anyhow::Result<Self> {
+        match language_id {
             "wasm.wast" => Ok(Language::Wast),
             "wasm.wat" => Ok(Language::Wat),
-            _ => Err(Error::InvalidLanguageId(language_id).into()),
+            _ => Err(Error::InvalidLanguageId(language_id.into()).into()),
         }
     }
 }
