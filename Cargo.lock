@@ -1446,6 +1446,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "glob 0.3.0",
+ "heck",
  "proc-macro2",
  "quote",
  "syn",
