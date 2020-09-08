@@ -380,6 +380,72 @@ mod text_document {
         Ok(())
     }
 
+    #[tokio::test]
+    async fn hover() -> anyhow::Result<()> {
+        let uri = Url::parse("inmemory:///test")?;
+        let language_id = "wasm.wast";
+        let text = String::from("(module $m (func $f))");
+
+        let (ref mut service, ref mut messages) = testing::service::spawn()?;
+
+        // send "initialize" request
+        testing::assert_status!(service, Ok(()));
+        let request = &testing::lsp::initialize::request();
+        let response = Some(testing::lsp::initialize::response());
+        testing::assert_exchange!(service, request, Ok(response));
+
+        // send "initialized" notification
+        testing::assert_status!(service, Ok(()));
+        let notification = &testing::lsp::initialized::notification();
+        let status = None::<Value>;
+        testing::assert_exchange!(service, notification, Ok(status));
+        // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
+        messages.next().await.unwrap();
+
+        // send "textDocument/didOpen" notification for `uri`
+        testing::assert_status!(service, Ok(()));
+        let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+        let status = None::<Value>;
+        testing::assert_exchange!(service, notification, Ok(status));
+
+        // receive "textDocument/publishDiagnostics" notification for `uri`
+        let message = messages.next().await.unwrap();
+        let actual = serde_json::to_value(&message)?;
+        let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+        assert_eq!(actual, expected);
+
+        // send "textDocument/hover" request for `uri`
+        testing::assert_status!(service, Ok(()));
+        let request = &{
+            let position = Position { line: 0, character: 15 };
+            testing::lsp::text_document::hover::request(&uri, position)
+        };
+        #[rustfmt::skip]
+        let response = Some(json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "contents": [ "(func $f)" ],
+                "range": { "start": { "line": 0, "character": 11 }, "end": { "line": 0, "character":  20 } },
+            },
+            "id": 1,
+        }));
+        testing::assert_exchange!(service, request, Ok(response));
+
+        // send "shutdown" request
+        testing::assert_status!(service, Ok(()));
+        let request = &testing::lsp::shutdown::request();
+        let response = Some(testing::lsp::shutdown::response());
+        testing::assert_exchange!(service, request, Ok(response));
+
+        // send "exit" notification
+        testing::assert_status!(service, Ok(()));
+        let notification = &testing::lsp::exit::notification();
+        let status = None::<Value>;
+        testing::assert_exchange!(service, notification, Ok(status));
+
+        Ok(())
+    }
+
     mod did_open {
         use wasm_language_server_macros::corpus_tests;
 
