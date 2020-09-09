@@ -466,9 +466,9 @@ dependencies = [
 
 [[package]]
 name = "git2"
-version = "0.13.10"
+version = "0.13.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86d97249f21e9542caeee9f8e1d150905cd875bf723f5ff771bdb4852eb83a24"
+checksum = "1e094214efbc7fdbbdee952147e493b00e99a4e52817492277e98967ae918165"
 dependencies = [
  "bitflags",
  "libc",
@@ -612,9 +612,9 @@ dependencies = [
 
 [[package]]
 name = "libgit2-sys"
-version = "0.12.12+1.0.1"
+version = "0.12.13+1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0100ae90655025134424939f1f60e27e879460d451dff6afedde4f8226cbebfc"
+checksum = "069eea34f76ec15f2822ccf78fe0cdb8c9016764d0a12865278585a74dbdeae5"
 dependencies = [
  "cc",
  "libc",
@@ -879,9 +879,9 @@ checksum = "eba180dafb9038b050a4c280019bbedf9f2467b61e5d892dcad585bb57aadc5a"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.20"
+version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "175c513d55719db99da20232b06cda8bab6b83ec2d04e3283edf0213c37c1a29"
+checksum = "36e28516df94f3dd551a587da5357459d9b36d945a7c37c3557928c1c2ff2a2c"
 dependencies = [
  "unicode-xid",
 ]

@@ -15,11 +15,11 @@ Tree-sitter parsers for the WebAssembly language server.
 maintenance = { status = "experimental" }
 
 [build-dependencies]
-anyhow = "1.0.28"
-cc = "1.0.50"
+anyhow = "1.0"
+cc = "1.0"
 
 [dependencies]
-anyhow = "1.0.28"
-thiserror = "1.0.14"
-lazy_static = "1.4.0"
-tree-sitter = "0.16.1"
+anyhow = "1.0"
+thiserror = "1.0"
+lazy_static = "1.4"
+tree-sitter = "0.16"
