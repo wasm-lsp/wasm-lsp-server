@@ -477,7 +477,7 @@ mod text_document {
             let uri = Url::parse("inmemory:///test")?;
             let language_id = "wasm.wat";
             #[rustfmt::skip]
-            let text = String::from(r#"
+            let text = String::from(indoc::indoc! {r#"
                 (type $a (func))
                 (global $g i32 (i32.const 0))
                 (memory $m 1)
@@ -485,7 +485,7 @@ mod text_document {
                 (table $t 10 funcref)
                 (func $f)
                 (elem (i32.const 0))
-            "#);
+            "#});
 
             let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
@@ -525,50 +525,50 @@ mod text_document {
                     {
                         "name": "$a",
                         "kind": SymbolKind::TypeParameter,
-                        "range": { "start": { "line": 1, "character": 16 }, "end": { "line": 1, "character": 32 } },
-                        "selectionRange": { "start": { "line": 1, "character": 22 }, "end": { "line": 1, "character": 24 } },
+                        "range": { "start": { "line": 0, "character": 0 }, "end": { "line": 0, "character": 16 } },
+                        "selectionRange": { "start": { "line": 0, "character": 6 }, "end": { "line": 0, "character": 8 } },
                         "children": [],
                     },
                     {
                         "name": "$g",
                         "kind": SymbolKind::Event,
-                        "range": { "start": { "line": 2, "character": 16 }, "end": { "line": 2, "character": 45 } },
-                        "selectionRange": { "start": { "line": 2, "character": 24 }, "end": { "line": 2, "character": 26 } },
+                        "range": { "start": { "line": 1, "character": 0 }, "end": { "line": 1, "character": 29 } },
+                        "selectionRange": { "start": { "line": 1, "character": 8 }, "end": { "line": 1, "character": 10 } },
                         "children": [],
                     },
                     {
                         "name": "$m",
                         "kind": SymbolKind::Array,
-                        "range": { "start": { "line": 3, "character": 16 }, "end": { "line": 3, "character": 29 } },
-                        "selectionRange": { "start": { "line": 3, "character": 24 }, "end": { "line": 3, "character": 26 } },
+                        "range": { "start": { "line": 2, "character": 0 }, "end": { "line": 2, "character": 13 } },
+                        "selectionRange": { "start": { "line": 2, "character": 8 }, "end": { "line": 2, "character": 10 } },
                         "children": [],
                     },
                     {
-                        "name": "<data@5:17>",
+                        "name": "<data@4:1>",
                         "kind": SymbolKind::Key,
-                        "range": { "start": { "line": 4, "character": 16 }, "end": { "line": 4, "character": 36 } },
-                        "selectionRange": { "start": { "line": 4, "character": 16 }, "end": { "line": 4, "character": 36 } },
+                        "range": { "start": { "line": 3, "character": 0 }, "end": { "line": 3, "character": 20 } },
+                        "selectionRange": { "start": { "line": 3, "character": 0 }, "end": { "line": 3, "character": 20 } },
                         "children": [],
                     },
                     {
                         "name": "$t",
                         "kind": SymbolKind::Interface,
-                        "range": { "start": { "line": 5, "character": 16 }, "end": { "line": 5, "character": 37 } },
-                        "selectionRange": { "start": { "line": 5, "character": 23 }, "end": { "line": 5, "character": 25 } },
+                        "range": { "start": { "line": 4, "character": 0 }, "end": { "line": 4, "character": 21 } },
+                        "selectionRange": { "start": { "line": 4, "character": 7 }, "end": { "line": 4, "character": 9 } },
                         "children": [],
                     },
                     {
                         "name": "$f",
                         "kind": SymbolKind::Function,
-                        "range": { "start": { "line": 6, "character": 16 }, "end": { "line": 6, "character": 25 } },
-                        "selectionRange": { "start": { "line": 6, "character": 22 }, "end": { "line": 6, "character": 24 } },
+                        "range": { "start": { "line": 5, "character": 0 }, "end": { "line": 5, "character": 9 } },
+                        "selectionRange": { "start": { "line": 5, "character": 6 }, "end": { "line": 5, "character": 8 } },
                         "children": [],
                     },
                     {
-                        "name": "<elem@8:17>",
+                        "name": "<elem@7:1>",
                         "kind": SymbolKind::Field,
-                        "range": { "start": { "line": 7, "character": 16 }, "end": { "line": 7, "character": 36 } },
-                        "selectionRange": { "start": { "line": 7, "character": 16 }, "end": { "line": 7, "character": 36 } },
+                        "range": { "start": { "line": 6, "character": 0 }, "end": { "line": 6, "character": 20 } },
+                        "selectionRange": { "start": { "line": 6, "character": 0 }, "end": { "line": 6, "character": 20 } },
                     },
                 ],
                 "id": 1,
@@ -595,7 +595,7 @@ mod text_document {
             let uri = Url::parse("inmemory:///test")?;
             let language_id = "wasm.wast";
             #[rustfmt::skip]
-            let text = String::from(r#"
+            let text = String::from(indoc::indoc! {r#"
                 (module $m
                   (type $a (func))
                   (global $g i32 (i32.const 0))
@@ -605,7 +605,7 @@ mod text_document {
                   (func $f)
                   (elem (i32.const 0)))
                 (assert_return (invoke "empty"))
-            "#);
+            "#});
 
             let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
@@ -645,56 +645,56 @@ mod text_document {
                     {
                         "name": "$m",
                         "kind": SymbolKind::Module,
-                        "range": { "start": { "line": 1, "character": 16 }, "end": { "line": 8, "character": 39 } },
-                        "selectionRange": { "start": { "line": 1, "character": 24 }, "end": { "line": 1, "character": 26 } },
+                        "range": { "start": { "line": 0, "character": 0 }, "end": { "line": 7, "character": 23 } },
+                        "selectionRange": { "start": { "line": 0, "character": 8 }, "end": { "line": 0, "character": 10 } },
                         "children": [
                             {
                                 "name": "$a",
                                 "kind": SymbolKind::TypeParameter,
-                                "range": { "start": { "line": 2, "character": 18 }, "end": { "line": 2, "character": 34 } },
-                                "selectionRange": { "start": { "line": 2, "character": 24 }, "end": { "line": 2, "character": 26 } },
+                                "range": { "start": { "line": 1, "character": 2 }, "end": { "line": 1, "character": 18 } },
+                                "selectionRange": { "start": { "line": 1, "character": 8 }, "end": { "line": 1, "character": 10 } },
                                 "children": [],
                             },
                             {
                                 "name": "$g",
                                 "kind": SymbolKind::Event,
-                                "range": { "start": { "line": 3, "character": 18 }, "end": { "line": 3, "character": 47 } },
-                                "selectionRange": { "start": { "line": 3, "character": 26 }, "end": { "line": 3, "character": 28 } },
+                                "range": { "start": { "line": 2, "character": 2 }, "end": { "line": 2, "character": 31 } },
+                                "selectionRange": { "start": { "line": 2, "character": 10 }, "end": { "line": 2, "character": 12 } },
                                 "children": [],
                             },
                             {
                                 "name": "$m",
                                 "kind": SymbolKind::Array,
-                                "range": { "start": { "line": 4, "character": 18 }, "end": { "line": 4, "character": 31 } },
-                                "selectionRange": { "start": { "line": 4, "character": 26 }, "end": { "line": 4, "character": 28 } },
+                                "range": { "start": { "line": 3, "character": 2 }, "end": { "line": 3, "character": 15 } },
+                                "selectionRange": { "start": { "line": 3, "character": 10 }, "end": { "line": 3, "character": 12 } },
                                 "children": [],
                             },
                             {
-                                "name": "<data@6:19>",
+                                "name": "<data@5:3>",
                                 "kind": SymbolKind::Key,
-                                "range": { "start": { "line": 5, "character": 18 }, "end": { "line": 5, "character": 38 } },
-                                "selectionRange": { "start": { "line": 5, "character": 18 }, "end": { "line": 5, "character": 38 } },
+                                "range": { "start": { "line": 4, "character": 2 }, "end": { "line": 4, "character": 22 } },
+                                "selectionRange": { "start": { "line": 4, "character": 2 }, "end": { "line": 4, "character": 22 } },
                                 "children": [],
                             },
                             {
                                 "name": "$t",
                                 "kind": SymbolKind::Interface,
-                                "range": { "start": { "line": 6, "character": 18 }, "end": { "line": 6, "character": 39 } },
-                                "selectionRange": { "start": { "line": 6, "character": 25 }, "end": { "line": 6, "character": 27 } },
+                                "range": { "start": { "line": 5, "character": 2 }, "end": { "line": 5, "character": 23 } },
+                                "selectionRange": { "start": { "line": 5, "character": 9 }, "end": { "line": 5, "character": 11 } },
                                 "children": [],
                             },
                             {
                                 "name": "$f",
                                 "kind": SymbolKind::Function,
-                                "range": { "start": { "line": 7, "character": 18 }, "end": { "line": 7, "character": 27 } },
-                                "selectionRange": { "start": { "line": 7, "character": 24 }, "end": { "line": 7, "character": 26 } },
+                                "range": { "start": { "line": 6, "character": 2 }, "end": { "line": 6, "character": 11 } },
+                                "selectionRange": { "start": { "line": 6, "character": 8 }, "end": { "line": 6, "character": 10 } },
                                 "children": [],
                             },
                             {
-                                "name": "<elem@9:19>",
+                                "name": "<elem@8:3>",
                                 "kind": SymbolKind::Field,
-                                "range": { "start": { "line": 8, "character": 18 }, "end": { "line": 8, "character": 38 } },
-                                "selectionRange": { "start": { "line": 8, "character": 18 }, "end": { "line": 8, "character": 38 } },
+                                "range": { "start": { "line": 7, "character": 2 }, "end": { "line": 7, "character": 22 } },
+                                "selectionRange": { "start": { "line": 7, "character": 2 }, "end": { "line": 7, "character": 22 } },
                             },
                         ],
                     },
