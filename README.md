@@ -80,6 +80,7 @@ Nothing planned.
 - 🗹 document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/tree-sitter-wasm)
 - 🗹 document symbol provider
 - 🗹 syntax error diagnostics provider
+- 🗹 hover provider
 
 ## Language Server Feature Roadmap
 
@@ -91,9 +92,9 @@ Nothing planned.
 - ☐ definition provider
 - ☐ document formatting (full and ranged) provider
 - ☐ document highlight provider
-- ☐ hover provider
 - ☐ references provider
 - ☐ workspace symbol provider
 - ☐ semantic tokens provider
+- ☐ signature help provider
 - ☐ integration with existing wasm toolchains
 - ☐ implementation of the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
