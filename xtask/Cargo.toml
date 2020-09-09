@@ -5,5 +5,5 @@ authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
 edition = "2018"
 
 [dependencies]
-clap = "2.33.0"
+clap = "2.33"
 dunce = "1.0"
