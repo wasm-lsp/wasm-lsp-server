@@ -191,8 +191,9 @@ dependencies = [
 
 [[package]]
 name = "codespan-lsp"
-version = "0.10.2-alpha.0"
-source = "git+https://github.com/brendanzab/codespan#1d7a556789c325a3c2f48e2899dbdf6a2d9a4764"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd2a7c4491d90cd55cd2004e76883c8782179485917e491651b72ea231b75aae"
 dependencies = [
  "codespan-reporting",
  "lsp-types",
@@ -202,7 +203,8 @@ dependencies = [
 [[package]]
 name = "codespan-reporting"
 version = "0.9.5"
-source = "git+https://github.com/brendanzab/codespan#1d7a556789c325a3c2f48e2899dbdf6a2d9a4764"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e0762455306b1ed42bc651ef6a2197aabda5e1d4a43c34d5eab5c1a3634e81d"
 dependencies = [
  "termcolor",
  "unicode-width",
@@ -652,9 +654,9 @@ dependencies = [
 
 [[package]]
 name = "lsp-types"
-version = "0.80.0"
+version = "0.79.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4265e2715bdacbb4dad029fce525e420cd66dc0af24ff9cb996a8ab48ac92ef"
+checksum = "7f1f86677fdbe8df5f88b99131b1424e50aad27bbe3e5900d221bc414bd72e9b"
 dependencies = [
  "base64",
  "bitflags",
@@ -1225,9 +1227,9 @@ checksum = "a35d656f2638b288b33495d1053ea74c40dc05ec0b92084dd71ca5566c4ed1dc"
 
 [[package]]
 name = "tower-lsp"
-version = "0.13.2"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94690cc9badadd86d7a9dc6326c74e88a95be6d7fba2aadd72657fbc97bee5a3"
+checksum = "a17297f73c118d71cde4c823100ec63fa0477fbd4e565a7e2ffd4d4f1c1fafda"
 dependencies = [
  "async-trait",
  "auto_impl",
