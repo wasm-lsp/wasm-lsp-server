@@ -28,7 +28,7 @@ impl Document {
         Ok(Document {
             language,
             parser: Mutex::new(parser),
-            text: text.clone(),
+            text,
             tree: Mutex::new(tree),
         })
     }
