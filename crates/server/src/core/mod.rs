@@ -4,7 +4,7 @@
 pub(crate) mod database;
 
 // Core functionality related to documents.
-pub(crate) mod document;
+pub mod document;
 
 // Core functionality related to runtime errors.
 pub(crate) mod error;
@@ -13,4 +13,4 @@ pub(crate) mod error;
 pub(crate) use wasm_language_server_parsers::core::*;
 
 // Core functionality related to the LSP server session.
-pub(crate) mod session;
+pub mod session;
