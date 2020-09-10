@@ -74,9 +74,7 @@ impl Session {
 #[cfg(test)]
 mod tests {
     use super::Session;
-    use crate::core::{database::DocumentStatus, document::Document, error::Error, language};
-    use std::convert::TryFrom;
-    use tokio::sync::Mutex;
+    use crate::core::{database::DocumentStatus, document::Document, error::Error};
     use tower_lsp::lsp_types::*;
     use zerocopy::AsBytes;
 
@@ -150,27 +148,15 @@ mod tests {
         let client = None;
         let session = Session::new(client)?;
 
-        let mut subscriber = session.database.trees.documents.watch_prefix(vec![]);
+        let prefix = vec![];
+        let mut subscriber = session.database.trees.documents.watch_prefix(prefix);
 
-        let language_id = String::from("wasm.wast");
-        let text = String::from("");
         let uri = Url::parse("inmemory:///test")?;
+        let language_id = "wasm.wast";
+        let text = String::new();
+        let document = Document::new(language_id, text)?;
 
-        let language = language::Language::try_from(language_id.as_ref())?;
-        let mut parser = tree_sitter::Parser::try_from(language)?;
-        let old_tree = None;
-
-        let mut success = false;
-        if let Some(tree) = parser.parse(&text[..], old_tree) {
-            session.insert_document(uri.clone(), Document {
-                language,
-                parser: Mutex::new(parser),
-                text: text.clone(),
-                tree: Mutex::new(tree),
-            })?;
-            success = true;
-        }
-        assert!(success);
+        session.insert_document(uri.clone(), document)?;
 
         while let Some(event) = (&mut subscriber).await {
             if let sled::Event::Insert { key, value } = event {
@@ -189,27 +175,15 @@ mod tests {
         let client = None;
         let session = Session::new(client)?;
 
-        let mut subscriber = session.database.trees.documents.watch_prefix(vec![]);
+        let prefix = vec![];
+        let mut subscriber = session.database.trees.documents.watch_prefix(prefix);
 
-        let language_id = String::from("wasm.wast");
-        let text = String::from("");
         let uri = Url::parse("inmemory:///test")?;
+        let language_id = "wasm.wast";
+        let text = String::new();
+        let document = Document::new(language_id, text)?;
 
-        let language = language::Language::try_from(language_id.as_ref())?;
-        let mut parser = tree_sitter::Parser::try_from(language)?;
-        let old_tree = None;
-
-        let mut success = false;
-        if let Some(tree) = parser.parse(&text[..], old_tree) {
-            session.insert_document(uri.clone(), Document {
-                language,
-                parser: Mutex::new(parser),
-                text: text.clone(),
-                tree: Mutex::new(tree),
-            })?;
-            success = true;
-        }
-        assert!(success);
+        session.insert_document(uri.clone(), document)?;
 
         while let Some(event) = (&mut subscriber).await {
             if let sled::Event::Insert { key, value } = event {
