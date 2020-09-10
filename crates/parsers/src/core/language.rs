@@ -12,6 +12,16 @@ pub enum Language {
     Wat,
 }
 
+impl Language {
+    /// Compute the language id string for the given language.
+    pub fn id(&self) -> &str {
+        match self {
+            Language::Wast => "wasm.wast",
+            Language::Wat => "wasm.wat",
+        }
+    }
+}
+
 impl TryFrom<&str> for Language {
     type Error = anyhow::Error;
 

@@ -1469,6 +1469,7 @@ dependencies = [
  "quote",
  "syn",
  "thiserror",
+ "wasm-language-server-parsers",
 ]
 
 [[package]]

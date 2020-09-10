@@ -4,24 +4,6 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
-mod util {
-    pub(crate) mod language_id {
-        #[derive(thiserror::Error, Debug)]
-        pub(crate) enum Error {
-            #[error("Failed to compute language id for extension: {ext:?}")]
-            LanguageId { ext: String },
-        }
-
-        pub(crate) fn from_ext(ext: &str) -> anyhow::Result<&str> {
-            match ext {
-                "wast" => Ok("wasm.wast"),
-                "wat" => Ok("wasm.wat"),
-                ext => Err(Error::LanguageId { ext: ext.to_owned() }.into()),
-            }
-        }
-    }
-}
-
 mod corpus {
     mod keyword {
         syn::custom_keyword!(corpus);
@@ -71,6 +53,8 @@ mod corpus {
 use glob::glob;
 use proc_macro::TokenStream;
 use quote::ToTokens;
+use std::convert::TryInto;
+use wasm_language_server_parsers::core::language::Language;
 
 /// Generate tests from a corpus of wasm modules on the filesystem.
 ///
@@ -118,7 +102,8 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             let test_name = format!("r#{}", test_name);
             let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
 
-            let language_id = crate::util::language_id::from_ext(file_ext).unwrap();
+            let language: Language = format!("wasm.{}", file_ext).as_str().try_into().unwrap();
+            let language_id = language.id();
 
             // generate the individual test function for the given file
             let item: syn::Item = syn::parse_quote! {
