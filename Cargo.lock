@@ -1227,9 +1227,9 @@ checksum = "a35d656f2638b288b33495d1053ea74c40dc05ec0b92084dd71ca5566c4ed1dc"
 
 [[package]]
 name = "tower-lsp"
-version = "0.13.1"
+version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a17297f73c118d71cde4c823100ec63fa0477fbd4e565a7e2ffd4d4f1c1fafda"
+checksum = "94690cc9badadd86d7a9dc6326c74e88a95be6d7fba2aadd72657fbc97bee5a3"
 dependencies = [
  "async-trait",
  "auto_impl",
