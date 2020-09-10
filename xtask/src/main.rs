@@ -229,7 +229,7 @@ mod subcommand {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["tarpaulin", "--benches", "--examples", "--lib", "--tests"]);
+            cmd.args(&["tarpaulin", "--examples", "--lib", "--tests"]);
             cmd.args(&["--out", "Xml"]);
             cmd.args(&[
                 "--packages",
@@ -269,7 +269,7 @@ mod subcommand {
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.env("RUSTFLAGS", "-Dwarnings");
-            cmd.args(&["test", "--benches", "--examples", "--lib", "--tests"]);
+            cmd.args(&["test", "--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
