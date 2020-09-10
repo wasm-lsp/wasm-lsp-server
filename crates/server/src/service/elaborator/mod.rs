@@ -1,7 +1,7 @@
 //! Elaborates parse trees into structured data to be cached in the database.
 
 /// Elaborator definitions specific to ".wat" and ".wast" files.
-mod wast;
+pub mod wast;
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
@@ -100,7 +100,7 @@ mod document_symbol {
 
 // FIXME: reorganize this to where outline is pulled from database
 /// Compute the symbols for a given document.
-pub(crate) async fn document_symbol(
+pub async fn document_symbol(
     session: Arc<Session>,
     params: DocumentSymbolParams,
 ) -> anyhow::Result<Option<DocumentSymbolResponse>> {
