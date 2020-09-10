@@ -8,7 +8,7 @@
 pub mod cli;
 
 // Core functionality for the WASM language server.
-mod core;
+pub mod core;
 
 // Functionality related to implementation of the Language Server Protocol (LSP).
 pub mod lsp;
@@ -17,7 +17,7 @@ pub mod lsp;
 mod package;
 
 // Services (components) of the WASM language server.
-mod service;
+pub mod service;
 
 // Various utility functionality, e.g., for handling lsp or tree-sitter data.
 mod util;

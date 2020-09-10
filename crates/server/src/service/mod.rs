@@ -7,7 +7,7 @@ pub(crate) mod analyzer;
 mod auditor;
 
 // Elaborates parse trees into structured data to be cached in the database.
-pub(crate) mod elaborator;
+pub mod elaborator;
 
 // Computes highlights for documents.
 mod highlighter;
