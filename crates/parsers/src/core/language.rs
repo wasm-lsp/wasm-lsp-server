@@ -124,4 +124,11 @@ mod tests {
         let result = Language::try_from("");
         assert!(result.is_err());
     }
+
+    #[test]
+    fn try_from_then_id() -> anyhow::Result<()> {
+        assert_eq!("wasm.wast", Language::try_from("wasm.wast")?.id());
+        assert_eq!("wasm.wat", Language::try_from("wasm.wat")?.id());
+        Ok(())
+    }
 }
