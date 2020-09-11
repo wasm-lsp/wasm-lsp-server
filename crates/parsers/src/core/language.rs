@@ -121,8 +121,7 @@ mod tests {
 
     #[test]
     fn try_from_invalid_language_id() {
-        use std::convert::TryInto;
-        let result: anyhow::Result<Language> = "".try_into();
+        let result = Language::try_from("");
         assert!(result.is_err());
     }
 }
