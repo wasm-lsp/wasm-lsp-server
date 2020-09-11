@@ -156,7 +156,7 @@ mod tests {
         let uri = Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
         let text = String::new();
-        let document = Document::new(language_id, text)?;
+        let document = Document::new(language_id, text)?.unwrap();
 
         session.insert_document(uri.clone(), document)?;
 
@@ -183,7 +183,7 @@ mod tests {
         let uri = Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
         let text = String::new();
-        let document = Document::new(language_id, text)?;
+        let document = Document::new(language_id, text)?.unwrap();
 
         session.insert_document(uri.clone(), document)?;
 
