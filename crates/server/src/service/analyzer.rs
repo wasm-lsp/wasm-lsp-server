@@ -15,7 +15,7 @@ enum HoverComputeStatus {
 }
 
 // FIXME
-pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> anyhow::Result<Option<Hover>> {
+pub(crate) async fn hover_with_session(session: Arc<Session>, params: HoverParams) -> anyhow::Result<Option<Hover>> {
     let HoverParams {
         text_document_position_params:
             TextDocumentPositionParams {

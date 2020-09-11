@@ -44,13 +44,13 @@ impl LanguageServer for Server {
 
     async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
         let session = self.session.clone();
-        let result = elaborator::document_symbol(session, params).await;
+        let result = elaborator::document_symbol_with_session(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 
     async fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
         let session = self.session.clone();
-        let result = analyzer::hover(session, params).await;
+        let result = analyzer::hover_with_session(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 }
