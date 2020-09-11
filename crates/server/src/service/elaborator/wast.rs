@@ -10,6 +10,7 @@ use crate::{
 use tower_lsp::lsp_types::*;
 
 /// Compute "textDocument/documentSymbols" for a given document.
+pub async fn document_symbol_with_document(document: &Document) -> Option<DocumentSymbolResponse> {
     // Vector to collect document symbols into as they are constructed.
     let mut syms: Vec<DocumentSymbol> = vec![];
 

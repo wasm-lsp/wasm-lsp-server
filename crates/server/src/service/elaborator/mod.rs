@@ -100,7 +100,7 @@ mod document_symbol {
 
 // FIXME: reorganize this to where outline is pulled from database
 /// Compute the symbols for a given document.
-pub async fn document_symbol(
+pub async fn document_symbol_with_session(
     session: Arc<Session>,
     params: DocumentSymbolParams,
 ) -> anyhow::Result<Option<DocumentSymbolResponse>> {
@@ -110,8 +110,8 @@ pub async fn document_symbol(
     } = &params;
     let document = session.get_document(uri).await?;
     let result = match document.language {
-        Language::Wast => self::wast::document_symbol(&document).await,
-        Language::Wat => self::wast::document_symbol(&document).await,
+        Language::Wast => self::wast::document_symbol_with_document(&document).await,
+        Language::Wat => self::wast::document_symbol_with_document(&document).await,
     };
     Ok(result)
 }
