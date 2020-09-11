@@ -23,13 +23,11 @@ impl Document {
         let language = Language::try_from(language_id)?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
         let old_tree = None;
-        let document = parser.parse(&text[..], old_tree).and_then(|tree| {
-            Some(Document {
-                language,
-                parser: Mutex::new(parser),
-                text,
-                tree: Mutex::new(tree),
-            })
+        let document = parser.parse(&text[..], old_tree).map(|tree| Document {
+            language,
+            parser: Mutex::new(parser),
+            text,
+            tree: Mutex::new(tree),
         });
         Ok(document)
     }
