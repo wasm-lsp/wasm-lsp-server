@@ -32,7 +32,7 @@ mod document_symbol {
                 b.iter(|| {
                     for document in &documents {
                         runtime
-                            .block_on(service::elaborator::wast::document_symbol(document))
+                            .block_on(service::elaborator::wast::document_symbol_with_document(document))
                             .unwrap();
                     }
                 })
@@ -59,7 +59,7 @@ mod document_symbol {
                 b.iter(|| {
                     for document in &documents {
                         runtime
-                            .block_on(service::elaborator::wast::document_symbol(document))
+                            .block_on(service::elaborator::wast::document_symbol_with_document(document))
                             .unwrap();
                     }
                 })
