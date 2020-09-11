@@ -100,7 +100,7 @@ mod tree {
             },
         } = params;
 
-        let language = language::Language::try_from(language_id.as_ref())?;
+        let language = language::Language::try_from(language_id.as_str())?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
 
         // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.

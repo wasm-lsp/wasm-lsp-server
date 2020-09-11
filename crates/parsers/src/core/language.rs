@@ -1,7 +1,7 @@
 //! Core functionality related to document languages.
 
-use crate::core::error::Error;
-use std::convert::TryFrom;
+use crate::core::error::Error::{InvalidLanguageId, OsStrToStrFailed, PathExtensionFailed};
+use std::{convert::TryFrom, path::Path};
 
 /// Languages supported by the server.
 #[derive(Clone, Copy, Debug)]
@@ -29,8 +29,19 @@ impl TryFrom<&str> for Language {
         match language_id {
             "wasm.wast" => Ok(Language::Wast),
             "wasm.wat" => Ok(Language::Wat),
-            _ => Err(Error::InvalidLanguageId(language_id.into()).into()),
+            _ => Err(InvalidLanguageId(language_id.into()).into()),
         }
+    }
+}
+
+impl TryFrom<&Path> for Language {
+    type Error = anyhow::Error;
+
+    fn try_from(path: &Path) -> anyhow::Result<Self> {
+        let file_ext = path.extension().ok_or_else(|| PathExtensionFailed(path.into()))?;
+        let file_ext = file_ext.to_str().ok_or(OsStrToStrFailed)?;
+        let language_id = format!("wasm.{}", file_ext);
+        Language::try_from(language_id.as_str())
     }
 }
 
@@ -120,15 +131,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn try_from_invalid_language_id() {
+    fn try_from_str_then_id() -> anyhow::Result<()> {
+        assert_eq!("wasm.wast", Language::try_from("wasm.wast")?.id());
+        assert_eq!("wasm.wat", Language::try_from("wasm.wat")?.id());
+        Ok(())
+    }
+
+    #[test]
+    fn try_from_str_invalid_language_id() {
         let result = Language::try_from("");
         assert!(result.is_err());
     }
 
     #[test]
-    fn try_from_then_id() -> anyhow::Result<()> {
-        assert_eq!("wasm.wast", Language::try_from("wasm.wast")?.id());
-        assert_eq!("wasm.wat", Language::try_from("wasm.wat")?.id());
+    fn try_from_ext_then_id() -> anyhow::Result<()> {
+        assert_eq!("wasm.wast", Language::try_from(Path::new("foo.wast"))?.id());
+        assert_eq!("wasm.wat", Language::try_from(Path::new("bar.wat"))?.id());
         Ok(())
+    }
+
+    #[test]
+    fn try_from_ext_invalid_language_id() {
+        let result = Language::try_from(Path::new("foo.txt"));
+        assert!(result.is_err());
     }
 }
