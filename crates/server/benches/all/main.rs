@@ -25,7 +25,7 @@ mod document_symbol {
 
                     let language_id = format!("wasm.{}", file_ext);
                     let text = std::fs::read_to_string(path).unwrap();
-                    let document = Document::new(&language_id, text).unwrap();
+                    let document = Document::new(&language_id, text).unwrap().unwrap();
 
                     documents.push(document);
                 }
@@ -52,7 +52,7 @@ mod document_symbol {
 
             let language_id = format!("wasm.{}", file_ext);
             let text = std::fs::read_to_string(path).unwrap();
-            let document = Document::new(&language_id, text).unwrap();
+            let document = Document::new(&language_id, text).unwrap().unwrap();
 
             let mut runtime = tokio::runtime::Builder::new().basic_scheduler().build().unwrap();
 
