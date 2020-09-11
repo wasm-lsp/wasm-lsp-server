@@ -20,12 +20,26 @@ pub(crate) async fn hover_with_session(session: Arc<Session>, params: HoverParam
         text_document_position_params:
             TextDocumentPositionParams {
                 text_document: TextDocumentIdentifier { uri, .. },
-                position,
                 ..
             },
         ..
     } = &params;
     let document = session.get_document(uri).await?;
+    let hover = hover_with_document(&document, &params).await?;
+    Ok(hover)
+}
+
+/// Compute "textDocument/hover" for a given document.
+pub async fn hover_with_document(document: &Document, params: &HoverParams) -> anyhow::Result<Option<Hover>> {
+    let HoverParams {
+        text_document_position_params:
+            TextDocumentPositionParams {
+                text_document: TextDocumentIdentifier { uri, .. },
+                position,
+                ..
+            },
+        ..
+    } = params;
     let range = Range::new(*position, *position);
     let hover = hover_for_token_range(&uri, &document, range).await?;
     Ok(hover)
