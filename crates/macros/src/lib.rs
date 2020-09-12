@@ -9,6 +9,7 @@ mod corpus {
         syn::custom_keyword!(corpus);
         syn::custom_keyword!(include);
         syn::custom_keyword!(exclude);
+        syn::custom_keyword!(handler);
     }
 
     use syn::parse::{Parse, ParseStream};
@@ -17,6 +18,7 @@ mod corpus {
         pub(crate) corpus: syn::Ident,
         pub(crate) include: String,
         pub(crate) exclude: Vec<String>,
+        pub(crate) handler: syn::Expr,
     }
 
     impl Parse for TestsMacroInput {
@@ -44,10 +46,16 @@ mod corpus {
                 input.parse::<syn::Token![,]>()?;
             }
 
+            input.parse::<keyword::handler>()?;
+            input.parse::<syn::Token![:]>()?;
+            let handler = input.parse()?;
+            input.parse::<syn::Token![,]>().ok();
+
             Ok(TestsMacroInput {
                 corpus,
                 include,
                 exclude,
+                handler,
             })
         }
     }
@@ -56,8 +64,6 @@ mod corpus {
 use glob::glob;
 use proc_macro::TokenStream;
 use quote::ToTokens;
-use std::convert::TryInto;
-use wasm_language_server_parsers::core::language::Language;
 
 /// Generate tests from a corpus of wasm modules on the filesystem.
 ///
@@ -82,6 +88,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         corpus,
         include,
         exclude,
+        handler,
     } = syn::parse_macro_input!(input as corpus::TestsMacroInput);
     // compute the paths from the glob pattern
     let paths = glob(&include).unwrap();
@@ -99,64 +106,15 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         // skip the file if contained in the exclude list; otherwise continue
         if !exclude.contains(&String::from(file_name)) {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
-            let file_ext = path.extension().unwrap().to_str().unwrap();
-
             let test_name = heck::SnakeCase::to_snake_case(file_stem);
             let test_name = format!("r#{}", test_name);
             let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
 
-            let language: Language = format!("wasm.{}", file_ext).as_str().try_into().unwrap();
-            let language_id = language.id();
-
             // generate the individual test function for the given file
             let item: syn::Item = syn::parse_quote! {
-                #[tokio::test]
-                async fn #test_name() -> anyhow::Result<()> {
-                    let uri = Url::from_file_path(&#path_name).unwrap();
-                    let text = std::fs::read_to_string(#path_name).unwrap();
-
-                    let (ref mut service, ref mut messages) = testing::service::spawn()?;
-
-                    // send "initialize" request
-                    testing::assert_status!(service, Ok(()));
-                    let request = &testing::lsp::initialize::request();
-                    let response = Some(testing::lsp::initialize::response());
-                    testing::assert_exchange!(service, request, Ok(response));
-
-                    // send "initialized" notification
-                    testing::assert_status!(service, Ok(()));
-                    let notification = &testing::lsp::initialized::notification();
-                    let status = None::<Value>;
-                    testing::assert_exchange!(service, notification, Ok(status));
-                    // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
-                    messages.next().await.unwrap();
-
-                    // send "textDocument/didOpen" notification for `uri`
-                    testing::assert_status!(service, Ok(()));
-                    let notification =
-                        &testing::lsp::text_document::did_open::notification(&uri, #language_id, 1, text);
-                    let status = None::<Value>;
-                    testing::assert_exchange!(service, notification, Ok(status));
-
-                    // receive "textDocument/publishDiagnostics" notification for `uri`
-                    let message = messages.next().await.unwrap();
-                    let actual = serde_json::to_value(&message)?;
-                    let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
-                    assert_eq!(actual, expected);
-
-                    // send "shutdown" request
-                    testing::assert_status!(service, Ok(()));
-                    let request = &testing::lsp::shutdown::request();
-                    let response = Some(testing::lsp::shutdown::response());
-                    testing::assert_exchange!(service, request, Ok(response));
-
-                    // send "exit" notification
-                    testing::assert_status!(service, Ok(()));
-                    let notification = &testing::lsp::exit::notification();
-                    let status = None::<Value>;
-                    testing::assert_exchange!(service, notification, Ok(status));
-
-                    Ok(())
+                #[test]
+                fn #test_name() {
+                    #handler(#path_name);
                 }
             };
             content.push(item);
@@ -166,12 +124,6 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
     // generate the enclosing test submodule for the given corpus
     let module: syn::ItemMod = syn::parse_quote! {
         mod #corpus {
-            use futures::stream::StreamExt;
-            use serde_json::{json, Value};
-            use std::task::Poll;
-            use tower_lsp::lsp_types::*;
-            use wasm_language_server_testing as testing;
-
             // include the test functions generated from the corpus files
             #(#content)*
         }
