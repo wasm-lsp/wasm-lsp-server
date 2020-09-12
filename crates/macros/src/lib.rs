@@ -31,15 +31,18 @@ mod corpus {
             let include = input.parse::<syn::LitStr>()?.value();
             input.parse::<syn::Token![,]>()?;
 
-            input.parse::<keyword::exclude>()?;
-            input.parse::<syn::Token![:]>()?;
-            let exclude = {
-                let content;
-                syn::bracketed!(content in input);
-                content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?
-            };
-            let exclude = exclude.into_iter().map(|s| s.value()).collect();
-            input.parse::<syn::Token![,]>().ok();
+            let mut exclude = vec![];
+            if input.peek(keyword::exclude) {
+                input.parse::<keyword::exclude>()?;
+                input.parse::<syn::Token![:]>()?;
+                let paths = {
+                    let content;
+                    syn::bracketed!(content in input);
+                    content.parse_terminated::<syn::LitStr, syn::Token![,]>(|b| b.parse())?
+                };
+                exclude = paths.into_iter().map(|s| s.value()).collect();
+                input.parse::<syn::Token![,]>()?;
+            }
 
             Ok(TestsMacroInput {
                 corpus,
