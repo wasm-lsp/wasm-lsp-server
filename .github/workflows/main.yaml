@@ -69,7 +69,7 @@ jobs:
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets --benches --bins --examples --tests --workspace -- -D warnings
+          args: --all-features --all-targets --workspace -- -D warnings
 
   # build the documentation
   cargo-docs:
