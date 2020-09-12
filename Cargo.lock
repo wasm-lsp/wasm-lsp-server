@@ -1761,6 +1761,7 @@ dependencies = [
  "lazy_static",
  "thiserror",
  "tree-sitter",
+ "wasm-language-server-macros",
 ]
 
 [[package]]
