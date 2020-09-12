@@ -257,8 +257,8 @@
 };
 <span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// Compute the symbols for a given document.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentSymbolResponse</span><span class="op">&gt;</span> {
+<span class="doccomment">/// Compute &quot;textDocument/documentSymbols&quot; for a given document.</span>
+<span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">document_symbol_with_document</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentSymbolResponse</span><span class="op">&gt;</span> {
     <span class="comment">// Vector to collect document symbols into as they are constructed.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">syms</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DocumentSymbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
 

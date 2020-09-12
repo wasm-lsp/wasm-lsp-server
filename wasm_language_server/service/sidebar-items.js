@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["analyzer","Computes queries about documents."],["elaborator","Elaborates parse trees into structured data to be cached in the database."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["document_symbol_with_document","Compute \"textDocument/documentSymbols\" for a given document."]]});

@@ -102,13 +102,13 @@
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="ident">DocumentSymbolParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentSymbolResponse</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">elaborator</span>::<span class="ident">document_symbol</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>;
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">elaborator</span>::<span class="ident">document_symbol_with_session</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">error</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
     }
 
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">hover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="ident">HoverParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">analyzer</span>::<span class="ident">hover</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>;
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">analyzer</span>::<span class="ident">hover_with_session</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">error</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
     }
 }
