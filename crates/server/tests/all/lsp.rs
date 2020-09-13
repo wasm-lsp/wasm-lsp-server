@@ -717,6 +717,162 @@ mod text_document {
 
             Ok(())
         }
+
+        #[cfg(feature = "corpus")]
+        mod corpus {
+            use wasm_language_server_macros::corpus_tests;
+
+            fn handler(corpus: &str, path: &str) {
+                use futures::stream::StreamExt;
+                use serde_json::Value;
+                use std::{convert::TryFrom, io::Write};
+                use tower_lsp::lsp_types::*;
+                use wasm_language_server_parsers::core::language::Language;
+                use wasm_language_server_testing as testing;
+
+                async fn handler(corpus: &str, path: &str) -> anyhow::Result<()> {
+                    let path = std::path::Path::new(path);
+
+                    let mut mint = {
+                        let file_dir = format!("tests/goldenfiles/lsp/textDocument/documentSymbol/corpus/{}", corpus);
+                        goldenfile::Mint::new(file_dir)
+                    };
+                    let mut goldenfile = {
+                        let path = path.with_extension("json");
+                        let file_name = path.file_name().unwrap().to_str().unwrap();
+                        mint.new_goldenfile(file_name)?
+                    };
+
+                    let uri = Url::from_file_path(path).unwrap();
+                    let text = std::fs::read_to_string(path)?;
+                    let language = Language::try_from(path)?;
+                    let language_id = language.id();
+
+                    let (ref mut service, ref mut messages) = testing::service::spawn()?;
+
+                    // send "initialize" request
+                    testing::assert_status!(service, Ok(()));
+                    let request = &testing::lsp::initialize::request();
+                    let response = Some(testing::lsp::initialize::response());
+                    testing::assert_exchange!(service, request, Ok(response));
+
+                    // send "initialized" notification
+                    testing::assert_status!(service, Ok(()));
+                    let notification = &testing::lsp::initialized::notification();
+                    let status = None::<Value>;
+                    testing::assert_exchange!(service, notification, Ok(status));
+                    // ignore the "window/logMessage" notification: "WebAssembly language server initialized!"
+                    messages.next().await.unwrap();
+
+                    // send "textDocument/didOpen" notification for `uri`
+                    testing::assert_status!(service, Ok(()));
+                    let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+                    let status = None::<Value>;
+                    testing::assert_exchange!(service, notification, Ok(status));
+
+                    // receive "textDocument/publishDiagnostics" notification for `uri`
+                    let message = messages.next().await.unwrap();
+                    let actual = serde_json::to_value(&message)?;
+                    let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
+                    assert_eq!(actual, expected);
+
+                    // send "textDocument/documentSymbol" request for `uri`
+                    testing::assert_status!(service, Ok(()));
+                    let request = &testing::lsp::text_document::document_symbol::request(&uri);
+                    let response = wasm_language_server_testing::service::send(service, request).await?;
+                    // convert the response (wrapped in an outer `Option`) to a JSON value
+                    let value = serde_json::to_value(response)?;
+                    // write the value to the goldenfile
+                    write!(goldenfile, "{}", value)?;
+
+                    // send "shutdown" request
+                    testing::assert_status!(service, Ok(()));
+                    let request = &testing::lsp::shutdown::request();
+                    let response = Some(testing::lsp::shutdown::response());
+                    testing::assert_exchange!(service, request, Ok(response));
+
+                    // send "exit" notification
+                    testing::assert_status!(service, Ok(()));
+                    let notification = &testing::lsp::exit::notification();
+                    let status = None::<Value>;
+                    testing::assert_exchange!(service, notification, Ok(status));
+
+                    Ok(())
+                }
+                let mut runtime = tokio::runtime::Builder::new().basic_scheduler().build().unwrap();
+                runtime.block_on(handler(corpus, path)).unwrap();
+            }
+
+            corpus_tests! {
+                corpus: annotations,
+                include: "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: bulk_memory_operations,
+                include: "vendor/corpus/vendor/WebAssembly/bulk-memory-operations/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: exception_handling,
+                include: "vendor/corpus/vendor/WebAssembly/exception-handling/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: function_references,
+                include: "vendor/corpus/vendor/WebAssembly/function-references/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: interface_types,
+                include: "vendor/corpus/vendor/bytecodealliance/wasm-interface-types/tests/*.wat",
+                exclude: [
+                    // FIXME: fails because language id should be wasm.wast not wasm.wat
+                    "bad-schema.wat",
+                    // FIXME: fails because language id should be wasm.wast not wasm.wat
+                    "bad-section.wat",
+                    // NOTE: true positive; fails due to syntax error
+                    "not-interface.wat",
+                    // FIXME: fails because language id should be wasm.wast not wasm.wat
+                    "two-sections.wat",
+                ],
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: multi_memory,
+                include: "vendor/corpus/vendor/WebAssembly/multi-memory/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: reference_types,
+                include: "vendor/corpus/vendor/WebAssembly/reference-types/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: simd,
+                include: "vendor/corpus/vendor/WebAssembly/simd/test/core/**/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: spec,
+                include: "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+
+            corpus_tests! {
+                corpus: threads,
+                include: "vendor/corpus/vendor/WebAssembly/threads/test/core/*.wast",
+                handler: crate::lsp::text_document::document_symbol::corpus::handler,
+            }
+        }
     }
 
     #[tokio::test]
