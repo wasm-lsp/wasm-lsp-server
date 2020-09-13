@@ -1,5 +1,5 @@
 #[cfg(feature = "corpus")]
-mod corpus {
+mod parse {
     use wasm_language_server_macros::corpus_tests;
 
     fn handler(path: &str) {
@@ -30,21 +30,21 @@ mod corpus {
         corpus: annotations,
         include: "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
         corpus: bulk_memory_operations,
         include: "vendor/corpus/vendor/WebAssembly/bulk-memory-operations/test/core/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
         corpus: exception_handling,
         include: "vendor/corpus/vendor/WebAssembly/exception-handling/test/core/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
@@ -57,7 +57,7 @@ mod corpus {
             // FIXME: determine why the parser reports errors but the server does not
             "select.wast",
         ],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
@@ -73,41 +73,41 @@ mod corpus {
             // FIXME: fails because language id should be wasm.wast not wasm.wat
             "two-sections.wat",
         ],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
         corpus: multi_memory,
         include: "vendor/corpus/vendor/WebAssembly/multi-memory/test/core/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
         corpus: reference_types,
         include: "vendor/corpus/vendor/WebAssembly/reference-types/test/core/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
         corpus: simd,
         include: "vendor/corpus/vendor/WebAssembly/simd/test/core/**/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
         corpus: spec,
         include: "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 
     corpus_tests! {
         corpus: threads,
         include: "vendor/corpus/vendor/WebAssembly/threads/test/core/*.wast",
         exclude: ["comments.wast"],
-        handler: crate::corpus::handler,
+        handler: crate::parse::handler,
     }
 }
