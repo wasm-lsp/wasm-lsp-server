@@ -26,6 +26,7 @@ harness = false
 default = ["compression", "threaded"]
 compression = ["sled/compression"]
 corpus = []
+goldenfiles = []
 threaded = ["tokio/rt-threaded"]
 
 [build-dependencies]
