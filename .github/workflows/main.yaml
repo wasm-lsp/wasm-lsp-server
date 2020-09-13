@@ -134,6 +134,8 @@ jobs:
     name: Run cargo tarpaulin
     needs: [skip-commit]
     runs-on: ubuntu-latest
+    env:
+      RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@v2
         with:
@@ -147,6 +149,8 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
       - name: Fetch latest release version of cargo-tarpaulin
         run: |
           mkdir -p .github/caching
