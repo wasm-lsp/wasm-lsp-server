@@ -229,7 +229,10 @@ mod subcommand {
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["tarpaulin", "--examples", "--lib", "--tests"]);
+            cmd.args(&["+nightly", "tarpaulin"]);
+            cmd.args(&["-Zpackage-features"]);
+            cmd.args(&["--features", "wasm-language-server/corpus"]);
+            cmd.args(&["--features", "wasm-language-server-parsers/corpus"]);
             cmd.args(&["--out", "Xml"]);
             cmd.args(&[
                 "--packages",
