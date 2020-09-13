@@ -2,7 +2,7 @@
 mod parse {
     use wasm_language_server_macros::corpus_tests;
 
-    fn handler(path: &str) {
+    fn handler(_corpus: &str, path: &str) {
         use std::convert::TryFrom;
         use wasm_language_server_parsers::core::language::Language;
 

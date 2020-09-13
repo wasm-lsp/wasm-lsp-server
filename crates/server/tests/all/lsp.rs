@@ -833,7 +833,7 @@ mod text_document {
     mod did_open {
         use wasm_language_server_macros::corpus_tests;
 
-        fn handler(path: &str) {
+        fn handler(_corpus: &str, path: &str) {
             use futures::stream::StreamExt;
             use serde_json::Value;
             use std::convert::TryFrom;
