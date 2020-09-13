@@ -90,6 +90,10 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         exclude,
         handler,
     } = syn::parse_macro_input!(input as corpus::TestsMacroInput);
+    // compute a string representation for the corpus name
+    let corpus_name = corpus.to_string();
+    let corpus_name = corpus_name.as_str();
+
     // compute the paths from the glob pattern
     let paths = glob(&include).unwrap();
 
@@ -108,13 +112,15 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
             let test_name = heck::SnakeCase::to_snake_case(file_stem);
             let test_name = format!("r#{}", test_name);
-            let test_name = syn::parse_str::<syn::Ident>(&test_name).unwrap();
+
+            // compute the test identifier
+            let test = syn::parse_str::<syn::Ident>(&test_name).unwrap();
 
             // generate the individual test function for the given file
             let item: syn::Item = syn::parse_quote! {
                 #[test]
-                fn #test_name() {
-                    #handler(#path_name);
+                fn #test() {
+                    #handler(#corpus_name, #path_name);
                 }
             };
             content.push(item);
