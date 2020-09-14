@@ -6,61 +6,99 @@
 
 type Fallible<T> = Result<T, Box<dyn std::error::Error>>;
 
-fn main() -> Fallible<()> {
-    let app = clap::App::new("xtask")
-        .setting(clap::AppSettings::TrailingVarArg)
-        .subcommands({
-            let rest = &clap::Arg::with_name("rest")
-                .help("Extra arguments to pass to the underlying cargo command")
-                .last(true)
-                .multiple(true);
-            let subcommands = vec![
-                clap::SubCommand::with_name("check").arg(rest),
-                clap::SubCommand::with_name("clippy").arg(rest),
-                clap::SubCommand::with_name("doc").arg(rest),
-                clap::SubCommand::with_name("format").arg(rest),
-                clap::SubCommand::with_name("grcov").arg(rest).arg(
-                    clap::Arg::with_name("rebuild-parsers")
-                        .long("rebuild-parsers")
-                        .help("Rebuild tree-sitter parsers if necessary"),
-                ),
-                clap::SubCommand::with_name("init").arg(
-                    clap::Arg::with_name("with-corpus")
-                        .long("with-corpus")
-                        .help("Initialize corpus submodules"),
-                ),
-                clap::SubCommand::with_name("install").arg(rest).arg(
-                    clap::Arg::with_name("rebuild-parsers")
-                        .long("rebuild-parsers")
-                        .help("Rebuild tree-sitter parsers if necessary"),
-                ),
-                clap::SubCommand::with_name("tarpaulin").arg(rest).arg(
-                    clap::Arg::with_name("rebuild-parsers")
-                        .long("rebuild-parsers")
-                        .help("Rebuild tree-sitter parsers if necessary"),
-                ),
-                clap::SubCommand::with_name("test").arg(rest).arg(
-                    clap::Arg::with_name("rebuild-parsers")
-                        .long("rebuild-parsers")
-                        .help("Rebuild tree-sitter parsers if necessary"),
-                ),
-                clap::SubCommand::with_name("udeps").arg(rest),
-            ];
-            subcommands
-        });
+fn rest(input: &str) -> Fallible<Vec<String>> {
+    Ok(input
+        .trim_start_matches('\'')
+        .trim_end_matches('\'')
+        .split_whitespace()
+        .map(String::from)
+        .collect())
+}
 
-    match app.get_matches().subcommand() {
-        ("check", Some(sub_matches)) => subcommand::cargo::check(sub_matches)?,
-        ("clippy", Some(sub_matches)) => subcommand::cargo::clippy(sub_matches)?,
-        ("doc", Some(sub_matches)) => subcommand::cargo::doc(sub_matches)?,
-        ("format", Some(sub_matches)) => subcommand::cargo::format(sub_matches)?,
-        ("grcov", Some(sub_matches)) => subcommand::cargo::grcov(sub_matches)?,
-        ("init", Some(sub_matches)) => subcommand::init(sub_matches)?,
-        ("install", Some(sub_matches)) => subcommand::cargo::install(sub_matches)?,
-        ("tarpaulin", Some(sub_matches)) => subcommand::cargo::tarpaulin(sub_matches)?,
-        ("test", Some(sub_matches)) => subcommand::cargo::test(sub_matches)?,
-        ("udeps", Some(sub_matches)) => subcommand::cargo::udeps(sub_matches)?,
-        _ => {},
+fn main() -> Fallible<()> {
+    let help = r#"
+xtask
+
+USAGE:
+    xtask [SUBCOMMAND]
+
+FLAGS:
+    -h, --help       Prints help information
+
+SUBCOMMANDS:
+    check
+    clippy
+    doc
+    format
+    grcov
+    help         Prints this message or the help of the given subcommand(s)
+    init
+    install
+    tarpaulin
+    test
+    udeps
+"#
+    .trim();
+
+    let mut args = pico_args::Arguments::from_env();
+    match args.subcommand()?.as_deref() {
+        Some("check") => {
+            subcommand::cargo::check(args)?;
+            return Ok(());
+        },
+        Some("clippy") => {
+            subcommand::cargo::clippy(args)?;
+            return Ok(());
+        },
+        Some("doc") => {
+            subcommand::cargo::doc(args)?;
+            return Ok(());
+        },
+        Some("format") => {
+            subcommand::cargo::format(args)?;
+            return Ok(());
+        },
+        Some("grcov") => {
+            subcommand::cargo::grcov(args)?;
+            return Ok(());
+        },
+        Some("help") => {
+            println!("{}\n", help);
+            return Ok(());
+        },
+        Some("init") => {
+            subcommand::init(args)?;
+            return Ok(());
+        },
+        Some("install") => {
+            subcommand::cargo::install(args)?;
+            return Ok(());
+        },
+        Some("tarpaulin") => {
+            subcommand::cargo::tarpaulin(args)?;
+            return Ok(());
+        },
+        Some("test") => {
+            subcommand::cargo::test(args)?;
+            return Ok(());
+        },
+        Some("udeps") => {
+            subcommand::cargo::udeps(args)?;
+            return Ok(());
+        },
+        Some(subcommand) => {
+            return Err(format!("unknown subcommand: {}", subcommand).into());
+        },
+        None => {
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+        },
+    }
+
+    if let Err(pico_args::Error::UnusedArgsLeft(args)) = args.finish() {
+        return Err(format!("unrecognized arguments: {}", args.join(" ")).into());
     }
 
     Ok(())
@@ -90,7 +128,24 @@ mod subcommand {
         use std::process::Command;
 
         // Run `cargo check` with custom options.
-        pub fn check(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+        pub fn check(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-check
+
+USAGE:
+    xtask check
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -104,7 +159,7 @@ mod subcommand {
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -112,7 +167,24 @@ mod subcommand {
         }
 
         // Run `cargo clippy` with custom options.
-        pub fn clippy(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+        pub fn clippy(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-clippy
+
+USAGE:
+    xtask clippy
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -125,7 +197,7 @@ mod subcommand {
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.args(&["--", "-D", "warnings"]);
@@ -134,12 +206,29 @@ mod subcommand {
         }
 
         // Run `cargo doc` with custom options.
-        pub fn doc(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+        pub fn doc(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-doc
+
+USAGE:
+    xtask doc
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "doc"]);
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -147,12 +236,29 @@ mod subcommand {
         }
 
         // Run `cargo format` with custom options.
-        pub fn format(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+        pub fn format(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-format
+
+USAGE:
+    xtask format
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "fmt", "--all"]);
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -160,8 +266,25 @@ mod subcommand {
         }
 
         // Run `cargo grcov` with custom options.
-        pub fn grcov(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
-            if sub_matches.is_present("rebuild-parsers") {
+        pub fn grcov(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-grcov
+
+USAGE:
+    xtask grcov
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
+            if args.contains("--rebuild-parsers") {
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
@@ -183,7 +306,7 @@ mod subcommand {
             ]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -203,8 +326,25 @@ mod subcommand {
         }
 
         // Run `cargo install` with custom options.
-        pub fn install(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
-            if sub_matches.is_present("rebuild-parsers") {
+        pub fn install(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-install
+
+USAGE:
+    xtask install
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
+            if args.contains("--rebuild-parsers") {
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
@@ -212,7 +352,7 @@ mod subcommand {
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["install", "--path", "crates/server"]);
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -221,8 +361,25 @@ mod subcommand {
         }
 
         // Run `cargo tarpaulin` with custom options.
-        pub fn tarpaulin(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
-            if sub_matches.is_present("rebuild-parsers") {
+        pub fn tarpaulin(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-tarpaulin
+
+USAGE:
+    xtask tarpaulin
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
+            if args.contains("--rebuild-parsers") {
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
@@ -252,7 +409,7 @@ mod subcommand {
                 "**/stdio2.h",
                 "**/string_fortified.h",
             ]);
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -261,8 +418,25 @@ mod subcommand {
         }
 
         // Run `cargo test` with custom options.
-        pub fn test(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
-            if sub_matches.is_present("rebuild-parsers") {
+        pub fn test(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-test
+
+USAGE:
+    xtask test
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
+            if args.contains("--rebuild-parsers") {
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
@@ -279,7 +453,7 @@ mod subcommand {
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -288,7 +462,24 @@ mod subcommand {
         }
 
         // Run `cargo udeps` with custom options.
-        pub fn udeps(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+        pub fn udeps(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+            let help = r#"
+xtask-udep
+
+USAGE:
+    xtask udep
+
+FLAGS:
+    -h, --help       Prints help information
+    --rest '...'     Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
@@ -301,7 +492,7 @@ mod subcommand {
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = sub_matches.values_of("rest") {
+            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
                 cmd.args(values);
             }
             cmd.status()?;
@@ -316,7 +507,23 @@ mod subcommand {
     };
 
     // Initialize submodules (e.g., for tree-sitter grammars and test suites)
-    pub fn init(sub_matches: &clap::ArgMatches) -> crate::Fallible<()> {
+    pub fn init(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        let help = r#"
+xtask-init
+
+USAGE:
+    xtask init
+
+FLAGS:
+    -h, --help       Prints help information
+"#
+        .trim();
+
+        if args.contains(["-h", "--help"]) {
+            println!("{}\n", help);
+            return Ok(());
+        }
+
         // initialize "vendor/tree-sitter-wasm" submodule
         let submodule = Path::new("vendor/tree-sitter-wasm").to_str().unwrap();
         let mut cmd = Command::new("git");
@@ -324,7 +531,7 @@ mod subcommand {
         cmd.args(&["submodule", "update", "--init", "--depth", "1", "--", submodule]);
         cmd.status()?;
 
-        if sub_matches.is_present("with-corpus") {
+        if args.contains("--with-corpus") {
             // initialize "vendor/corpus" submodule
             let submodule = Path::new("vendor/corpus").to_str().unwrap();
             let mut cmd = Command::new("git");
