@@ -97,7 +97,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: doc -- --all-features --no-deps --package wasm-language-server
+          args: doc --rest='--all-features --no-deps --package wasm-language-server'
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -172,7 +172,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: tarpaulin -- --features "wasm-language-server/corpus" --features "wasm-language-server-parsers/corpus"
+          args: tarpaulin --rest='--features wasm-language-server/corpus --features wasm-language-server-parsers/corpus'
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
@@ -204,4 +204,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: test -- --all-features
+          args: test --rest='--all-features'
