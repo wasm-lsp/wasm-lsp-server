@@ -50,13 +50,7 @@ mod parse {
     corpus_tests! {
         corpus: function_references,
         include: "vendor/corpus/vendor/WebAssembly/function-references/test/core/*.wast",
-        exclude: [
-            "comments.wast",
-            // FIXME: determine why the parser reports errors but the server does not
-            "ref_null.wast",
-            // FIXME: determine why the parser reports errors but the server does not
-            "select.wast",
-        ],
+        exclude: ["comments.wast"],
         handler: crate::parse::handler,
     }
 
