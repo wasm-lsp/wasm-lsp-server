@@ -10,9 +10,15 @@ pub(crate) enum Error {
     /// Error that a given document could not be found.
     #[error("ClientNotInitialzed")]
     ClientNotInitialized,
+    /// Error that a given column index is out of bounds for a line of text in a document.
+    #[error("ColumnOutOfBounds: given={given:?}, max={max:?}")]
+    ColumnOutOfBounds { given: usize, max: usize },
     /// Error that a given document could not be found.
     #[error("core::DocumentNotFound: {0}")]
     DocumentNotFound(Url),
+    /// Error that a given line index is out of bounds for a document.
+    #[error("LineOutOfBounds: given={given:?}, max={max:?}")]
+    LineOutOfBounds { given: usize, max: usize },
 }
 
 /// Convenience newtype wrapper for convertion to jsonrpc_core::Error.
