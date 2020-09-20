@@ -2,11 +2,79 @@
 
 use crate::core::{
     document::Document,
+    error::Error,
     language::{wast, wat},
     session::Session,
 };
 use std::sync::Arc;
 use tower_lsp::lsp_types::*;
+
+// FIXME: move to util
+fn character_to_line_offset(line_text: &str, character: u64) -> anyhow::Result<usize> {
+    let mut offset = 0;
+
+    let mut chars = line_text.chars();
+    while let Some(c) = chars.next() {
+        if offset == character {
+            return Ok(line_text.len() - chars.as_str().len() - c.len_utf8());
+        }
+        offset += c.len_utf16() as u64;
+    }
+
+    // Handle positions after the last character on the line
+    if offset == character {
+        Ok(line_text.len())
+    } else {
+        Err(Error::ColumnOutOfBounds {
+            given: offset as usize,
+            max: line_text.len(),
+        }
+        .into())
+    }
+}
+
+// FIXME: move to util
+fn line_range(document: &Document, line_index: usize) -> Option<std::ops::Range<usize>> {
+    let (start, end) = line_span(document, line_index).ok()?;
+    Some(start .. end)
+}
+
+// FIXME: move to util
+fn line_span(document: &Document, line_index: usize) -> anyhow::Result<(usize, usize)> {
+    let line_starts = line_starts(document).collect::<Vec<_>>();
+    let this_start = line_start(document, &line_starts, line_index)?;
+    let next_start = line_start(document, &line_starts, line_index + 1)?;
+    Ok((this_start, next_start))
+}
+
+// FIXME: move to util
+fn line_start(document: &Document, line_starts: &[usize], line_index: usize) -> anyhow::Result<usize> {
+    use std::cmp::Ordering;
+    match line_index.cmp(&line_starts.len()) {
+        Ordering::Less => Ok(line_starts[line_index]),
+        Ordering::Equal => Ok(document.text.len()),
+        Ordering::Greater => Err(Error::LineOutOfBounds {
+            given: line_index,
+            max: line_starts.len(),
+        }
+        .into()),
+    }
+}
+
+// FIXME: move to util
+fn line_starts<'a>(document: &'a Document) -> impl 'a + Iterator<Item = usize> {
+    let source = document.text.as_str();
+    std::iter::once(0).chain(source.match_indices('\n').map(|i| i.0 + 1))
+}
+
+// FIXME: move to util
+fn position_to_byte_index(document: &Document, position: &Position) -> anyhow::Result<usize> {
+    let source = document.text.as_str();
+    let line_span: std::ops::Range<usize> = line_range(document, position.line as usize).unwrap();
+    let line_text = source.get(line_span.clone()).unwrap();
+    let byte_offset = character_to_line_offset(line_text, position.character)?;
+    Ok(line_span.start + byte_offset)
+}
 
 #[derive(Copy, Clone, Debug)]
 enum HoverComputeStatus {
@@ -46,11 +114,9 @@ pub async fn hover_with_document(document: &Document, params: &HoverParams) -> a
 }
 
 // FIXME
-async fn hover_for_token_range(uri: &Url, document: &Document, range: Range) -> anyhow::Result<Option<Hover>> {
-    let files = codespan_reporting::files::SimpleFile::new(uri, &document.text);
-    let file_id = ();
-    let start = codespan_lsp::position_to_byte_index(&files, file_id, &range.start)?;
-    let end = codespan_lsp::position_to_byte_index(&files, file_id, &range.end)?;
+async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) -> anyhow::Result<Option<Hover>> {
+    let start = position_to_byte_index(document, &range.start)?;
+    let end = position_to_byte_index(document, &range.end)?;
 
     let mut contents = vec![];
     let mut range = None;
@@ -136,5 +202,61 @@ fn try_hover_for_module_field(
         Ok(HoverComputeStatus::Done)
     } else {
         Ok(HoverComputeStatus::Next)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::document::Document;
+
+    #[test]
+    fn character_to_line_offset_ok() {
+        let line_text = "text";
+        let character = line_text.len() as u64;
+        let result = character_to_line_offset(line_text, character);
+        assert!(result.is_ok())
+    }
+
+    #[test]
+    fn character_to_line_offset_out_of_bounds() {
+        let line_text = "text";
+        let character = line_text.len() as u64 + 1;
+        let result = character_to_line_offset(line_text, character);
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn line_start_ok() {
+        let language_id = "wasm.wast";
+        let text = String::from("(module)");
+        let result = Document::new(language_id, text);
+        assert!(result.is_ok());
+        if let Ok(option) = result {
+            assert!(option.is_some());
+            if let Some(ref document) = option {
+                let line_starts = line_starts(document).collect::<Vec<_>>();
+                let line_index = 1;
+                let result = line_start(document, &line_starts, line_index);
+                assert!(result.is_ok())
+            }
+        }
+    }
+
+    #[test]
+    fn line_start_out_of_bounds() {
+        let language_id = "wasm.wast";
+        let text = String::from("(module)");
+        let result = Document::new(language_id, text);
+        assert!(result.is_ok());
+        if let Ok(option) = result {
+            assert!(option.is_some());
+            if let Some(ref document) = option {
+                let line_starts = line_starts(document).collect::<Vec<_>>();
+                let line_index = 2;
+                let result = line_start(document, &line_starts, line_index);
+                assert!(result.is_err())
+            }
+        }
     }
 }
