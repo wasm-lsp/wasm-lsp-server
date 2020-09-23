@@ -19,13 +19,11 @@ pub(crate) mod document {
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
             // run the auditor tasks
-            crate::service::auditor::tree::change(session.clone(), uri.clone()).await?;
-
-            // run the elaborator tasks
-            crate::service::elaborator::tree::change(session.clone(), uri.clone()).await?;
+            crate::provider::diagnostics::tree::change(session.clone(), uri.clone()).await?;
         } else {
             // TODO: report
         }
+
         Ok(())
     }
 
@@ -35,8 +33,7 @@ pub(crate) mod document {
             text_document: TextDocumentIdentifier { uri },
         } = &params;
         session.remove_document(uri)?;
-        crate::service::auditor::tree::close(session.clone(), uri.clone()).await?;
-        crate::service::elaborator::tree::close(session.clone(), uri.clone()).await?;
+        crate::provider::diagnostics::tree::close(session.clone(), uri.clone()).await?;
         Ok(())
     }
 
@@ -51,13 +48,11 @@ pub(crate) mod document {
 
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
-            // run the auditor tasks
-            crate::service::auditor::tree::open(session.clone(), uri.clone()).await?;
-            // run the elaborator tasks
-            crate::service::elaborator::tree::open(session.clone(), uri.clone()).await?;
+            crate::provider::diagnostics::tree::open(session.clone(), uri.clone()).await?;
         } else {
             // TODO: report
         }
+
         Ok(())
     }
 }
@@ -72,22 +67,24 @@ mod tree {
     // TODO: implement parser cancellation
     /// Handle a parse tree "change" event.
     pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> anyhow::Result<bool> {
-        let mut success = false;
         let mut document = session.get_mut_document(&uri).await?;
-        let tree;
-        {
+
+        let tree = {
             let mut parser = document.parser.lock().await;
             // FIXME: we reset the parser since we don't handle incremental changes yet
             parser.reset();
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
-            tree = parser.parse(&text[..], old_tree);
-        }
+            parser.parse(&text[..], old_tree)
+        };
+
+        let mut success = false;
         if let Some(tree) = tree {
             document.text = text;
             document.tree = Mutex::new(tree);
             success = true;
         }
+
         Ok(success)
     }
 
@@ -103,19 +100,24 @@ mod tree {
         let language = language::Language::try_from(language_id.as_str())?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
 
-        // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
-        let old_tree = None;
+        let tree = {
+            // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
+            let old_tree = None;
+            parser.parse(&text[..], old_tree)
+        };
 
         let mut success = false;
-        if let Some(tree) = parser.parse(&text[..], old_tree) {
-            session.insert_document(uri, Document {
+        if let Some(tree) = tree {
+            let document = Document {
                 language,
                 parser: Mutex::new(parser),
-                text: text.clone(),
+                text,
                 tree: Mutex::new(tree),
-            })?;
+            };
+            session.insert_document(uri, document)?;
             success = true;
         }
+
         Ok(success)
     }
 }
