@@ -1,10 +1,6 @@
 //! Definitions for the request handlers.
 
-use crate::{
-    core::error,
-    lsp::server::Server,
-    service::{analyzer, elaborator, synchronizer},
-};
+use crate::{core::error, lsp::server::Server, provider, service::synchronizer};
 use tower_lsp::{jsonrpc::Result, lsp_types::*, LanguageServer};
 
 #[tower_lsp::async_trait]
@@ -44,13 +40,13 @@ impl LanguageServer for Server {
 
     async fn document_symbol(&self, params: DocumentSymbolParams) -> Result<Option<DocumentSymbolResponse>> {
         let session = self.session.clone();
-        let result = elaborator::document_symbol_with_session(session, params).await;
+        let result = provider::document_symbol(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 
     async fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
         let session = self.session.clone();
-        let result = analyzer::hover_with_session(session, params).await;
+        let result = provider::hover(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 }

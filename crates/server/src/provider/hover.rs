@@ -1,12 +1,10 @@
-//! Computes queries about documents.
+//! Provides `textDocument/hover` functionality.
 
 use crate::core::{
     document::Document,
     error::Error,
     language::{wast, wat},
-    session::Session,
 };
-use std::sync::Arc;
 use tower_lsp::lsp_types::*;
 
 // FIXME: move to util
@@ -76,29 +74,8 @@ fn position_to_byte_index(document: &Document, position: &Position) -> anyhow::R
     Ok(line_span.start + byte_offset)
 }
 
-#[derive(Copy, Clone, Debug)]
-enum HoverComputeStatus {
-    Done,
-    Next,
-}
-
-// FIXME
-pub(crate) async fn hover_with_session(session: Arc<Session>, params: HoverParams) -> anyhow::Result<Option<Hover>> {
-    let HoverParams {
-        text_document_position_params:
-            TextDocumentPositionParams {
-                text_document: TextDocumentIdentifier { uri, .. },
-                ..
-            },
-        ..
-    } = &params;
-    let document = session.get_document(uri).await?;
-    let hover = hover_with_document(&document, &params).await?;
-    Ok(hover)
-}
-
 /// Compute "textDocument/hover" for a given document.
-pub async fn hover_with_document(document: &Document, params: &HoverParams) -> anyhow::Result<Option<Hover>> {
+pub async fn response(document: &Document, params: &HoverParams) -> anyhow::Result<Option<Hover>> {
     let HoverParams {
         text_document_position_params:
             TextDocumentPositionParams {
@@ -125,17 +102,25 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
     let node = tree.root_node();
 
     if let Some(mut child) = node.descendant_for_byte_range(start, end) {
-        use self::HoverComputeStatus::*;
         loop {
-            if let Done = try_hover_for_instr_plain(&document, &child, &mut contents, &mut range)? {
+            if [*wat::kind::INSTR_PLAIN, *wast::kind::INSTR_PLAIN].contains(&child.kind_id()) {
+                let text = child.utf8_text(&document.text.as_bytes())?;
+                contents.push(MarkedString::String(String::from(text)));
+                range = Some(crate::util::node::range(&child));
                 break;
             }
 
-            if let Done = try_hover_for_instr(&document, &child, &mut contents, &mut range)? {
+            if [*wat::kind::INSTR, *wast::kind::INSTR].contains(&child.kind_id()) {
+                let text = child.utf8_text(&document.text.as_bytes())?;
+                contents.push(MarkedString::String(String::from(text)));
+                range = Some(crate::util::node::range(&child));
                 break;
             }
 
-            if let Done = try_hover_for_module_field(&document, &child, &mut contents, &mut range)? {
+            if [*wat::kind::MODULE_FIELD, *wast::kind::MODULE_FIELD].contains(&child.kind_id()) {
+                let text = child.utf8_text(&document.text.as_bytes())?;
+                contents.push(MarkedString::String(String::from(text)));
+                range = Some(crate::util::node::range(&child));
                 break;
             }
 
@@ -154,54 +139,6 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
             contents: HoverContents::Array(contents),
             range,
         }))
-    }
-}
-
-fn try_hover_for_instr(
-    document: &Document,
-    child: &tree_sitter::Node<'_>,
-    contents: &mut Vec<MarkedString>,
-    range: &mut Option<Range>,
-) -> anyhow::Result<HoverComputeStatus> {
-    if [*wat::kind::INSTR, *wast::kind::INSTR].contains(&child.kind_id()) {
-        let text = child.utf8_text(&document.text.as_bytes())?;
-        contents.push(MarkedString::String(String::from(text)));
-        *range = Some(crate::util::node::range(&child));
-        Ok(HoverComputeStatus::Done)
-    } else {
-        Ok(HoverComputeStatus::Next)
-    }
-}
-
-fn try_hover_for_instr_plain(
-    document: &Document,
-    child: &tree_sitter::Node<'_>,
-    contents: &mut Vec<MarkedString>,
-    range: &mut Option<Range>,
-) -> anyhow::Result<HoverComputeStatus> {
-    if [*wat::kind::INSTR_PLAIN, *wast::kind::INSTR_PLAIN].contains(&child.kind_id()) {
-        let text = child.utf8_text(&document.text.as_bytes())?;
-        contents.push(MarkedString::String(String::from(text)));
-        *range = Some(crate::util::node::range(&child));
-        Ok(HoverComputeStatus::Done)
-    } else {
-        Ok(HoverComputeStatus::Next)
-    }
-}
-
-fn try_hover_for_module_field(
-    document: &Document,
-    child: &tree_sitter::Node<'_>,
-    contents: &mut Vec<MarkedString>,
-    range: &mut Option<Range>,
-) -> anyhow::Result<HoverComputeStatus> {
-    if [*wat::kind::MODULE_FIELD, *wast::kind::MODULE_FIELD].contains(&child.kind_id()) {
-        let text = child.utf8_text(&document.text.as_bytes())?;
-        contents.push(MarkedString::String(String::from(text)));
-        *range = Some(crate::util::node::range(&child));
-        Ok(HoverComputeStatus::Done)
-    } else {
-        Ok(HoverComputeStatus::Next)
     }
 }
 
