@@ -22,6 +22,9 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The WebAssembly language server.</span>
 
@@ -41,7 +44,10 @@
 <span class="comment">// Definitions related to the wasm-language-server crate.</span>
 <span class="kw">mod</span> <span class="ident">package</span>;
 
-<span class="comment">// Services (components) of the WASM language server.</span>
+<span class="comment">// Providers of the WebAssembly language server for LSP features.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">provider</span>;
+
+<span class="comment">// Services (components) of the WebAssembly language server.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">service</span>;
 
 <span class="comment">// Various utility functionality, e.g., for handling lsp or tree-sitter data.</span>
