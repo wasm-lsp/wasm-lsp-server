@@ -9,7 +9,7 @@ mod document_symbol {
         use criterion::Criterion;
         use glob::glob;
         use std::convert::TryFrom;
-        use wasm_language_server::{core::document::Document, service};
+        use wasm_language_server::{core::document::Document, provider};
         use wasm_language_server_parsers::core::language::Language;
 
         pub fn all(c: &mut Criterion) {
@@ -32,7 +32,7 @@ mod document_symbol {
                 b.iter(|| {
                     for document in &documents {
                         runtime
-                            .block_on(service::elaborator::wast::document_symbol_with_document(document))
+                            .block_on(provider::document_symbol::wast::response(document))
                             .unwrap();
                     }
                 })
@@ -59,7 +59,7 @@ mod document_symbol {
                 b.iter(|| {
                     for document in &documents {
                         runtime
-                            .block_on(service::elaborator::wast::document_symbol_with_document(document))
+                            .block_on(provider::document_symbol::wast::response(document))
                             .unwrap();
                     }
                 })
@@ -73,7 +73,7 @@ mod hover {
         use criterion::Criterion;
         use std::{convert::TryFrom, path::Path};
         use tower_lsp::lsp_types::*;
-        use wasm_language_server::{core::document::Document, service};
+        use wasm_language_server::{core::document::Document, provider};
         use wasm_language_server_parsers::core::language::Language;
 
         pub fn float_exprs(c: &mut Criterion) {
@@ -100,9 +100,7 @@ mod hover {
 
             c.bench_function("hover::spec::float_exprs.wast", |b| {
                 b.iter(|| {
-                    runtime
-                        .block_on(service::analyzer::hover_with_document(&document, &params))
-                        .unwrap();
+                    runtime.block_on(provider::hover::response(&document, &params)).unwrap();
                 })
             });
         }
