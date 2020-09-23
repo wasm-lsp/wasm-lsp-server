@@ -16,7 +16,10 @@ pub mod lsp;
 // Definitions related to the wasm-language-server crate.
 mod package;
 
-// Services (components) of the WASM language server.
+// Providers of the WebAssembly language server for LSP features.
+pub mod provider;
+
+// Services (components) of the WebAssembly language server.
 pub mod service;
 
 // Various utility functionality, e.g., for handling lsp or tree-sitter data.
