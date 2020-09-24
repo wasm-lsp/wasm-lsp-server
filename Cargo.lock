@@ -1795,8 +1795,7 @@ dependencies = [
 [[package]]
 name = "wast"
 version = "24.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ff1e3bd3ad0b2ee7784add89c30dc96b89a54b43e5d6d95d774eda1863b3500"
+source = "git+https://github.com/darinmorrison/wasm-tools?branch=update-simd#fd6380b5b262b684f5d562e6cf8bd4f9a782a007"
 dependencies = [
  "leb128",
 ]

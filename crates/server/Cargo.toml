@@ -48,7 +48,7 @@ tower-lsp = "0.13"
 tree-sitter = "0.16"
 uuid = { version = "0.8", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
-wast = "24.0"
+wast = { git = "https://github.com/darinmorrison/wasm-tools", branch = "update-simd" }
 zerocopy = "0.3"
 
 [dev-dependencies]
