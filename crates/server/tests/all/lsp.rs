@@ -143,7 +143,7 @@ mod text_document {
         let uri = Url::parse("inmemory:///test")?;
         let language_id = "wasm.wat";
 
-        let old_text = String::from("");
+        let old_text = String::from("(module)");
         let new_text = String::from("(module $m (func $f))");
 
         let (ref mut service, ref mut messages) = testing::service::spawn()?;
@@ -212,7 +212,7 @@ mod text_document {
             let uri = Url::parse("inmemory:///test")?;
             let language_id = "wasm.wat";
 
-            let old_text = String::from("");
+            let old_text = String::from("(module)");
             let new_text = String::from("(module (func (export \"\\x\"))");
 
             let (ref mut service, ref mut messages) = testing::service::spawn()?;
@@ -289,7 +289,7 @@ mod text_document {
             let uri = Url::parse("inmemory:///test")?;
             let language_id = "wasm.wat";
 
-            let old_text = String::from("");
+            let old_text = String::from("(module)");
             let new_text = String::from("(modu)");
 
             let (ref mut service, ref mut messages) = testing::service::spawn()?;
@@ -366,7 +366,7 @@ mod text_document {
     async fn did_close() -> anyhow::Result<()> {
         let uri = Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
-        let text = String::new();
+        let text = String::from("(module)");
 
         let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
@@ -421,7 +421,7 @@ mod text_document {
     async fn did_open() -> anyhow::Result<()> {
         let uri = Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
-        let text = String::new();
+        let text = String::from("(module)");
 
         let (ref mut service, ref mut messages) = testing::service::spawn()?;
 
