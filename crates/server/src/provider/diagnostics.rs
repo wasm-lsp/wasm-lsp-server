@@ -27,7 +27,7 @@ fn for_error(document: &Document, error: wast::Error) -> Diagnostic {
 // reporting (because tree-sitter does not provide detailed errors yet).
 fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<Diagnostic>> {
     let mut diagnostics = vec![];
-    if tree.root_node().has_error() {
+    if tree.root_node().has_error() || cfg!(debug_assertions) {
         match ::wast::parser::ParseBuffer::new(&document.text) {
             Err(error) => {
                 diagnostics.push(super::diagnostics::for_error(document, error));
