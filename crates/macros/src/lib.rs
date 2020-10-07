@@ -63,7 +63,7 @@ mod corpus {
 
 use glob::glob;
 use proc_macro::TokenStream;
-use quote::ToTokens;
+use quote::quote;
 
 /// Generate tests from a corpus of wasm modules on the filesystem.
 ///
@@ -99,7 +99,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
 
     // prepare the vector of syntax items; these items are the individual test
     // functions that will be enclosed in the generated test submodule
-    let mut content = Vec::<syn::Item>::new();
+    let mut content = vec![];
 
     for path in paths {
         // ensure the path is canonicalized and absolute
@@ -117,7 +117,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
             let test = syn::parse_str::<syn::Ident>(&test_name).unwrap();
 
             // generate the individual test function for the given file
-            let item: syn::Item = syn::parse_quote! {
+            let item = quote! {
                 #[test]
                 fn #test() {
                     #handler(#corpus_name, #path_name);
@@ -128,12 +128,12 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
     }
 
     // generate the enclosing test submodule for the given corpus
-    let module: syn::ItemMod = syn::parse_quote! {
+    let module = quote! {
         mod #corpus {
             // include the test functions generated from the corpus files
             #(#content)*
         }
     };
 
-    module.to_token_stream().into()
+    module.into()
 }
