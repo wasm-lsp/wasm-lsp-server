@@ -43,7 +43,7 @@ jobs:
       with:
         command: install
         args: --root ${{ runner.tool_cache }}/cargo-audit --force cargo-audit
-    - run: echo "::add-path::${{ runner.tool_cache }}/cargo-audit/bin"
+    - run: echo "${{ runner.tool_cache }}/cargo-audit/bin" >> $GITHUB_PATH
     - run: cargo audit
 
   # verify that project passes clippy lints
@@ -167,7 +167,7 @@ jobs:
         with:
           command: install
           args: --root ${{ runner.tool_cache }}/cargo-tarpaulin --force cargo-tarpaulin
-      - run: echo "::add-path::${{ runner.tool_cache }}/cargo-tarpaulin/bin"
+      - run: echo "${{ runner.tool_cache }}/cargo-tarpaulin/bin" >> $GITHUB_PATH
       - name: Run cargo xtask tarpaulin
         uses: actions-rs/cargo@v1
         with:
