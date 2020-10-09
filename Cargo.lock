@@ -1805,9 +1805,9 @@ dependencies = [
 
 [[package]]
 name = "wast"
-version = "25.0.1"
+version = "25.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94c7c4b9eeb5c233b89385147dd3ea5bb89988a3a8d256f116cf1db40e5ff43e"
+checksum = "000df4e05cdb4cbc1d0bb1e7e5ea86adb3f1295850c9effb9a47b1086a346895"
 dependencies = [
  "leb128",
 ]
