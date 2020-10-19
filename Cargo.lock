@@ -1795,9 +1795,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-smith"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f00efefcbf5715459d199f3c325cea570d999cb5f8d73cfde9c74ad3d1fa8804"
+checksum = "f372c777fcc75bbad237aa0b14e380cfddb3680f42c0584f1f0681542f8559b7"
 dependencies = [
  "arbitrary",
  "leb128",
