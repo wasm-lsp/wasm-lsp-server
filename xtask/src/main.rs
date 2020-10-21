@@ -23,7 +23,7 @@ USAGE:
     xtask [SUBCOMMAND]
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help          Prints help information
 
 SUBCOMMANDS:
     check
@@ -31,7 +31,7 @@ SUBCOMMANDS:
     doc
     format
     grcov
-    help         Prints this message or the help of the given subcommand(s)
+    help                Prints this message or the help of the given subcommand(s)
     init
     install
     tarpaulin
@@ -136,8 +136,8 @@ USAGE:
     xtask check
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -175,8 +175,8 @@ USAGE:
     xtask clippy
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -214,8 +214,8 @@ USAGE:
     xtask doc
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -244,8 +244,8 @@ USAGE:
     xtask format
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -474,8 +474,8 @@ USAGE:
     xtask udep
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -519,7 +519,7 @@ USAGE:
     xtask init
 
 FLAGS:
-    -h, --help       Prints help information
+    -h, --help          Prints help information
 "#
         .trim();
 
