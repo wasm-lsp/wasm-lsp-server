@@ -274,8 +274,9 @@ USAGE:
     xtask grcov
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rebuild-parsers   Rebuild tree-sitter parsers
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -334,8 +335,9 @@ USAGE:
     xtask install
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rebuild-parsers   Rebuild tree-sitter parsers
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -369,8 +371,9 @@ USAGE:
     xtask tarpaulin
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rebuild-parsers   Rebuild tree-sitter parsers
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -426,8 +429,9 @@ USAGE:
     xtask test
 
 FLAGS:
-    -h, --help       Prints help information
-    --rest '...'     Extra arguments to pass to the underlying cargo command
+    -h, --help          Prints help information
+    --rebuild-parsers   Rebuild tree-sitter parsers
+    --rest '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
