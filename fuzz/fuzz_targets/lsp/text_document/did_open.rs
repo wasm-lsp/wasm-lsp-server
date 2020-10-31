@@ -17,12 +17,7 @@ fuzz_target!(|module: Module| {
         let wasm = module.to_bytes();
         let uri = Url::parse("inmemory:///test").unwrap();
         let language_id = "wasm.wast";
-        let text = wabt::wasm2wat_with_features(wasm, {
-            let mut features = wabt::Features::new();
-            features.enable_all();
-            features
-        })
-        .unwrap();
+        let text = wasmprinter::print_bytes(wasm).unwrap();
 
         println!("{}", text);
 
@@ -32,7 +27,8 @@ fuzz_target!(|module: Module| {
         testing::assert_exchange!(service, request, Ok(response));
 
         testing::assert_status!(service, Ok(()));
-        let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+        let notification =
+            &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
         let status = None::<Value>;
         testing::assert_exchange!(service, notification, Ok(status));
 
