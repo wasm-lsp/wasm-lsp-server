@@ -208,15 +208,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cmake"
-version = "0.1.44"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e56268c17a6248366d66d4a47a3381369d068cce8409bb1716ed77ea32163bb"
-dependencies = [
- "cc",
-]
-
-[[package]]
 name = "const-random"
 version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -572,12 +563,6 @@ dependencies = [
  "log",
  "url",
 ]
-
-[[package]]
-name = "glob"
-version = "0.2.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8be18de09a56b60ed0edf84bc9df007e30040691af7acd1c41874faac5895bfb"
 
 [[package]]
 name = "glob"
@@ -1607,29 +1592,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5a972e5669d67ba988ce3dc826706fb0a8b01471c088cb0b6110b805cc36aed"
 
 [[package]]
-name = "wabt"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00bef93d5e6c81a293bccf107cf43aa47239382f455ba14869d36695d8963b9c"
-dependencies = [
- "serde",
- "serde_derive",
- "serde_json",
- "wabt-sys",
-]
-
-[[package]]
-name = "wabt-sys"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a4e043159f63e16986e713e9b5e1c06043df4848565bf672e27c523864c7791"
-dependencies = [
- "cc",
- "cmake",
- "glob 0.2.11",
-]
-
-[[package]]
 name = "wait-timeout"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1721,7 +1683,7 @@ dependencies = [
  "dashmap",
  "env_logger",
  "futures",
- "glob 0.3.0",
+ "glob",
  "goldenfile",
  "indoc",
  "log",
@@ -1749,9 +1711,9 @@ dependencies = [
  "serde_json",
  "tokio",
  "tower-lsp",
- "wabt",
  "wasm-language-server-testing",
  "wasm-smith",
+ "wasmprinter",
 ]
 
 [[package]]
@@ -1759,7 +1721,7 @@ name = "wasm-language-server-macros"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "glob 0.3.0",
+ "glob",
  "heck",
  "proc-macro2",
  "quote",
@@ -1775,7 +1737,7 @@ dependencies = [
  "anyhow",
  "cc",
  "criterion",
- "glob 0.3.0",
+ "glob",
  "lazy_static",
  "thiserror",
  "tree-sitter",
@@ -1801,6 +1763,22 @@ checksum = "f00efefcbf5715459d199f3c325cea570d999cb5f8d73cfde9c74ad3d1fa8804"
 dependencies = [
  "arbitrary",
  "leb128",
+]
+
+[[package]]
+name = "wasmparser"
+version = "0.65.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87cc2fe6350834b4e528ba0901e7aa405d78b89dc1fa3145359eb4de0e323fcf"
+
+[[package]]
+name = "wasmprinter"
+version = "0.2.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0fe87e79ad307dc73cb7caca2b57d049d2905c7db1317a9c21171e69aa9f93d3"
+dependencies = [
+ "anyhow",
+ "wasmparser",
 ]
 
 [[package]]
@@ -1908,7 +1886,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b89249644df056b522696b1bb9e7c18c87e8ffa3e2f0dc3b0155875d6498f01b"
 dependencies = [
  "cc",
- "glob 0.3.0",
+ "glob",
  "itertools",
  "libc",
 ]
