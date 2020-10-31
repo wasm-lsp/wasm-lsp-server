@@ -27,8 +27,7 @@ fuzz_target!(|module: Module| {
         testing::assert_exchange!(service, request, Ok(response));
 
         testing::assert_status!(service, Ok(()));
-        let notification =
-            &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
+        let notification = &testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text);
         let status = None::<Value>;
         testing::assert_exchange!(service, notification, Ok(status));
 
