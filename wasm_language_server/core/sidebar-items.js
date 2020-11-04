@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["document","Core functionality related to documents."],["session","Core functionality related to the LSP server session."]]});

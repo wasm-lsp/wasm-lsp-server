@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["response","Compute \"textDocument/documentSymbols\" for a given document."]]});
