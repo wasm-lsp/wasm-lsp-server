@@ -81,7 +81,7 @@ pub mod wast {
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
             pub static ref MODULE_FIELD: u16 = super::language().id_for_node_kind("module_field", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
-            pub static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
+            pub static ref ROOT: u16 = super::language().id_for_node_kind("ROOT", true);
         }
     }
 }
@@ -121,7 +121,7 @@ pub mod wat {
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
             pub static ref MODULE_FIELD: u16 = super::language().id_for_node_kind("module_field", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
-            pub static ref PARSE: u16 = super::language().id_for_node_kind("PARSE", true);
+            pub static ref ROOT: u16 = super::language().id_for_node_kind("ROOT", true);
         }
     }
 }
