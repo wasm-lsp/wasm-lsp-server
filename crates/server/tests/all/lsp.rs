@@ -863,7 +863,7 @@ mod text_document {
 
             corpus_tests! {
                 corpus: spec,
-                include: "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast",
+                include: "vendor/corpus/vendor/WebAssembly/spec/test/core/address.wast",
                 handler: crate::lsp::text_document::document_symbol::corpus::handler,
             }
 
