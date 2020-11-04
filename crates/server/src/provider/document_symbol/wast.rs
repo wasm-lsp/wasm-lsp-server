@@ -1,3 +1,6 @@
+#![allow(unreachable_code)]
+#![allow(unused)]
+
 //! Elaborator definitions specific to ".wat" and ".wast" files.
 
 use crate::{
@@ -94,7 +97,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 }
             },
 
-            Work::Node(node) if [*wast::kind::PARSE, *wat::kind::PARSE].contains(&node.kind_id()) => {
+            Work::Node(node) if [*wast::kind::ROOT, *wat::kind::ROOT].contains(&node.kind_id()) => {
                 let mut cursor = node.walk();
                 let commands = node
                     .children(&mut cursor)
