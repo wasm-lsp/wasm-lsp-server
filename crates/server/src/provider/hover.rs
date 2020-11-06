@@ -92,6 +92,23 @@ pub async fn response(document: &Document, params: &HoverParams) -> anyhow::Resu
 
 // FIXME
 async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) -> anyhow::Result<Option<Hover>> {
+    let module_fields: &[u16] = &[
+        *wast::kind::MODULE_FIELD_DATA,
+        *wast::kind::MODULE_FIELD_ELEM,
+        *wast::kind::MODULE_FIELD_FUNC,
+        *wast::kind::MODULE_FIELD_GLOBAL,
+        *wast::kind::MODULE_FIELD_MEMORY,
+        *wast::kind::MODULE_FIELD_TABLE,
+        *wast::kind::MODULE_FIELD_TYPE,
+        *wat::kind::MODULE_FIELD_DATA,
+        *wat::kind::MODULE_FIELD_ELEM,
+        *wat::kind::MODULE_FIELD_FUNC,
+        *wat::kind::MODULE_FIELD_GLOBAL,
+        *wat::kind::MODULE_FIELD_MEMORY,
+        *wat::kind::MODULE_FIELD_TABLE,
+        *wat::kind::MODULE_FIELD_TYPE,
+    ];
+
     let start = position_to_byte_index(document, &range.start)?;
     let end = position_to_byte_index(document, &range.end)?;
 
@@ -117,7 +134,7 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
                 break;
             }
 
-            if [*wat::kind::MODULE_FIELD, *wast::kind::MODULE_FIELD].contains(&child.kind_id()) {
+            if module_fields.contains(&child.kind_id()) {
                 let text = child.utf8_text(&document.text.as_bytes())?;
                 contents.push(MarkedString::String(String::from(text)));
                 range = Some(crate::util::node::range(&child));

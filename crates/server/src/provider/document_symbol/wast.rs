@@ -17,26 +17,25 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
     // Vector to collect document symbols into as they are constructed.
     let mut syms: Vec<DocumentSymbol> = vec![];
 
+    let module_fields: &[u16] = &[
+        *wast::kind::MODULE_FIELD_DATA,
+        *wast::kind::MODULE_FIELD_ELEM,
+        *wast::kind::MODULE_FIELD_FUNC,
+        *wast::kind::MODULE_FIELD_GLOBAL,
+        *wast::kind::MODULE_FIELD_MEMORY,
+        *wast::kind::MODULE_FIELD_TABLE,
+        *wast::kind::MODULE_FIELD_TYPE,
+        *wat::kind::MODULE_FIELD_DATA,
+        *wat::kind::MODULE_FIELD_ELEM,
+        *wat::kind::MODULE_FIELD_FUNC,
+        *wat::kind::MODULE_FIELD_GLOBAL,
+        *wat::kind::MODULE_FIELD_MEMORY,
+        *wat::kind::MODULE_FIELD_TABLE,
+        *wat::kind::MODULE_FIELD_TYPE,
+    ];
+
     // Prepare a filter to discard uninteresting module-child nodes.
-    let module_field_filter = |node: &tree_sitter::Node| {
-        [
-            *wast::kind::MODULE_FIELD_DATA,
-            *wast::kind::MODULE_FIELD_ELEM,
-            *wast::kind::MODULE_FIELD_FUNC,
-            *wast::kind::MODULE_FIELD_GLOBAL,
-            *wast::kind::MODULE_FIELD_MEMORY,
-            *wast::kind::MODULE_FIELD_TABLE,
-            *wast::kind::MODULE_FIELD_TYPE,
-            *wat::kind::MODULE_FIELD_DATA,
-            *wat::kind::MODULE_FIELD_ELEM,
-            *wat::kind::MODULE_FIELD_FUNC,
-            *wat::kind::MODULE_FIELD_GLOBAL,
-            *wat::kind::MODULE_FIELD_MEMORY,
-            *wat::kind::MODULE_FIELD_TABLE,
-            *wat::kind::MODULE_FIELD_TYPE,
-        ]
-        .contains(&node.kind_id())
-    };
+    let module_field_filter = |node: &tree_sitter::Node| module_fields.contains(&node.kind_id());
 
     // Configure the identifier field id according to the document language.
     let identifier_field_id = match document.language {
@@ -102,13 +101,9 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 let commands = node
                     .children(&mut cursor)
                     .filter(|it| {
-                        [
-                            *wast::kind::COMMAND,
-                            *wast::kind::MODULE_FIELD,
-                            *wat::kind::MODULE,
-                            *wat::kind::MODULE_FIELD,
-                        ]
-                        .contains(&it.kind_id())
+                        [&[*wast::kind::COMMAND, *wat::kind::MODULE], module_fields]
+                            .concat()
+                            .contains(&it.kind_id())
                     })
                     .map(Work::Node);
                 work.extend(commands);
@@ -126,14 +121,9 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if [*wast::kind::MODULE_FIELD, *wat::kind::MODULE_FIELD].contains(&child.kind_id()) {
-                        debug_assert!(child.child_count() == 1);
-                        if let Some(module_field) = child.named_child(0) {
-                            if module_field_filter(&module_field) {
-                                work.push(Work::Node(module_field));
-                                children_count += 1;
-                            }
-                        }
+                    if module_fields.contains(&child.kind_id()) {
+                        work.push(Work::Node(child));
+                        children_count += 1;
                     }
                 }
 
@@ -143,15 +133,6 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                     kind: SymbolKind::Module,
                     name_hint: "module",
                 });
-            },
-
-            Work::Node(node) if [*wast::kind::MODULE_FIELD, *wat::kind::MODULE_FIELD].contains(&node.kind_id()) => {
-                debug_assert!(node.child_count() == 1);
-                if let Some(module_field) = node.named_child(0) {
-                    if module_field_filter(&module_field) {
-                        work.push(Work::Node(module_field));
-                    }
-                }
             },
 
             Work::Node(node)
