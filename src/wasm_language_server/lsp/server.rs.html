@@ -67,7 +67,7 @@
 
 <span class="doccomment">/// Compute the server capabilities.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capabilities</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ServerCapabilities</span> {
-    <span class="kw">let</span> <span class="ident">document_symbol_provider</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>);
+    <span class="kw">let</span> <span class="ident">document_symbol_provider</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">OneOf</span>::<span class="ident">Left</span>(<span class="bool-val">true</span>));
 
     <span class="kw">let</span> <span class="ident">hover_provider</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">HoverProviderCapability</span>::<span class="ident">Simple</span>(<span class="bool-val">true</span>));
 
