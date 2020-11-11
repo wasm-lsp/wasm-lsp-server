@@ -148,6 +148,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e4cec68f03f32e44924783795810fa50a7035d8c8ebe78580ad7e6c703fba38"
 
 [[package]]
+name = "bytes"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0dcbc35f504eb6fc275a6d20e4ebcda18cf50d40ba6fabff8c711fa16cb3b16"
+
+[[package]]
 name = "cargo-lock"
 version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -814,6 +820,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "lsp-types"
+version = "0.83.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25e0bd4b95038f2c23bda332ba0ca684e8dda765db1f9bdb63dc4c3e01f3b456"
+dependencies = [
+ "base64",
+ "bitflags",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "url",
+]
+
+[[package]]
 name = "matches"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1438,8 +1458,20 @@ version = "0.2.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5d34ca54d84bf2b5b4d7d31e901a8464f7b60ac145a284fba25ceb801f2ddccd"
 dependencies = [
- "bytes",
+ "bytes 0.5.6",
  "fnv",
+ "futures-core",
+ "pin-project-lite",
+ "slab",
+]
+
+[[package]]
+name = "tokio"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5ca08accbcb46f11fd8d2d1c6158c348b7888009a1f39260bcad66f6a454250"
+dependencies = [
+ "autocfg",
  "futures-core",
  "num_cpus",
  "pin-project-lite",
@@ -1449,9 +1481,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "0.2.5"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0c3acc6aa564495a0f2e1d59fab677cd7f81a19994cfc7f3ad0e64301560389"
+checksum = "21d30fdbb5dc2d8f91049691aa1a9d4d4ae422a21c334ce8936e5886d30c5c45"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1464,9 +1496,9 @@ version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed0049c119b6d505c4447f5c64873636c7af6c75ab0d45fd9f618d82acb8016d"
 dependencies = [
- "bytes",
+ "bytes 0.5.6",
  "futures-core",
- "tokio",
+ "tokio 0.2.22",
 ]
 
 [[package]]
@@ -1475,12 +1507,26 @@ version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be8242891f2b6cbef26a2d7e8605133c2c554cd35b3e4948ea892d6d68436499"
 dependencies = [
- "bytes",
+ "bytes 0.5.6",
  "futures-core",
  "futures-sink",
  "log",
  "pin-project-lite",
- "tokio",
+ "tokio 0.2.22",
+]
+
+[[package]]
+name = "tokio-util"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73af76301319bcacf00d26d3c75534ef248dcad7ceaf36d93ec902453c3b1706"
+dependencies = [
+ "bytes 0.6.0",
+ "futures-core",
+ "futures-sink",
+ "log",
+ "pin-project-lite",
+ "tokio 0.3.3",
 ]
 
 [[package]]
@@ -1506,17 +1552,38 @@ checksum = "a75aeada84f07dfc4e81bc58a36a12b22c01c418af2180587cf80f9f3228acad"
 dependencies = [
  "async-trait",
  "auto_impl",
- "bytes",
+ "bytes 0.5.6",
  "dashmap",
  "futures",
  "log",
- "lsp-types",
+ "lsp-types 0.81.0",
  "nom",
  "serde",
  "serde_json",
- "tokio",
- "tokio-util",
- "tower-lsp-macros",
+ "tokio 0.2.22",
+ "tokio-util 0.3.1",
+ "tower-lsp-macros 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tower-service",
+]
+
+[[package]]
+name = "tower-lsp"
+version = "0.13.3"
+source = "git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed#d213772520ce47f1e889eba8d787b6c7f0f3a17d"
+dependencies = [
+ "async-trait",
+ "auto_impl",
+ "bytes 0.6.0",
+ "dashmap",
+ "futures",
+ "log",
+ "lsp-types 0.83.0",
+ "nom",
+ "serde",
+ "serde_json",
+ "tokio 0.3.3",
+ "tokio-util 0.5.0",
+ "tower-lsp-macros 0.3.0 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
  "tower-service",
 ]
 
@@ -1525,6 +1592,17 @@ name = "tower-lsp-macros"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c51c24e3b5909be30d6ed472f934aa9b7d91abf2688013956b296b1d1e7b186"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "tower-lsp-macros"
+version = "0.3.0"
+source = "git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed#d213772520ce47f1e889eba8d787b6c7f0f3a17d"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -1546,7 +1624,7 @@ checksum = "9ba4bbc2c1e4a8543c30d4c13a4c8314ed72d6e07581910f665aa13fde0153c8"
 dependencies = [
  "futures-util",
  "pin-project 0.4.27",
- "tokio",
+ "tokio 0.2.22",
  "tokio-test",
  "tower-layer",
  "tower-service",
@@ -1749,8 +1827,8 @@ dependencies = [
  "serde_json",
  "sled",
  "thiserror",
- "tokio",
- "tower-lsp",
+ "tokio 0.3.3",
+ "tower-lsp 0.13.3 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
  "tree-sitter",
  "uuid",
  "wasm-language-server-macros",
@@ -1767,8 +1845,8 @@ dependencies = [
  "futures",
  "libfuzzer-sys",
  "serde_json",
- "tokio",
- "tower-lsp",
+ "tokio 0.2.22",
+ "tower-lsp 0.13.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "wasm-language-server-testing",
  "wasm-smith",
  "wasmprinter",
@@ -1808,7 +1886,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "serde_json",
- "tower-lsp",
+ "tower-lsp 0.13.3 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
  "tower-test",
  "wasm-language-server",
 ]

@@ -91,6 +91,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                         name: name.to_string(),
                         range,
                         selection_range,
+                        tags: Default::default(),
                     };
                     syms.push(this);
                 }
