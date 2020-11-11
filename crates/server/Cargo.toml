@@ -60,7 +60,6 @@ goldenfile = "1.0"
 indoc = "1.0"
 predicates = "1.0"
 tokio = { version = "0.3" }
-# tokio = { version = "0.3", features = ["io-std", "macros", "sync", "time", "test-util"] }
 tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", branch = "feature-proposed" }
 wasm-language-server-macros = { path = "../macros", version = "0.0.0" }
 wasm-language-server-testing = { path = "../testing", version = "0.0.0" }
