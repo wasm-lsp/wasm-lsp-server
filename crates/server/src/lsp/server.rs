@@ -22,7 +22,7 @@ impl Server {
 
 /// Compute the server capabilities.
 pub fn capabilities() -> ServerCapabilities {
-    let document_symbol_provider = Some(true);
+    let document_symbol_provider = Some(OneOf::Left(true));
 
     let hover_provider = Some(HoverProviderCapability::Simple(true));
 
