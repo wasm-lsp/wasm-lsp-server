@@ -799,7 +799,7 @@ mod text_document {
 
                     Ok(())
                 }
-                let mut runtime = tokio::runtime::Builder::new().basic_scheduler().build().unwrap();
+                let runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
                 runtime.block_on(handler(corpus, path)).unwrap();
             }
 
@@ -1045,7 +1045,7 @@ mod text_document {
 
                 Ok(())
             }
-            let mut runtime = tokio::runtime::Builder::new().basic_scheduler().build().unwrap();
+            let runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
             runtime.block_on(handler(path)).unwrap();
         }
 

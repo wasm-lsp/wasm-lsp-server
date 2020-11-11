@@ -22,6 +22,6 @@ threaded = ["wasm-language-server/threaded"]
 [dependencies]
 anyhow = "1.0.28"
 serde_json = { version = "1.0", features = ["preserve_order"] }
-tower-lsp = "0.13"
+tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", branch = "feature-proposed" }
 tower-test = "0.3.0"
 wasm-language-server = { path = "../server", version = "0.0.0" }
