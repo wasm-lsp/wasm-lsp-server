@@ -26,11 +26,14 @@ pub fn capabilities() -> ServerCapabilities {
 
     let hover_provider = Some(HoverProviderCapability::Simple(true));
 
-    let text_document_sync = Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
-        open_close: Some(true),
-        change: Some(TextDocumentSyncKind::Full),
-        ..Default::default()
-    }));
+    let text_document_sync = {
+        let options = TextDocumentSyncOptions {
+            open_close: Some(true),
+            change: Some(TextDocumentSyncKind::Full),
+            ..Default::default()
+        };
+        Some(TextDocumentSyncCapability::Options(options))
+    };
 
     ServerCapabilities {
         document_symbol_provider,
