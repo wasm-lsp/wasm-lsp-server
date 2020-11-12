@@ -49,4 +49,10 @@ impl LanguageServer for Server {
         let result = provider::hover(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
+
+    async fn semantic_tokens_full(&self, params: SemanticTokensParams) -> Result<Option<SemanticTokensResult>> {
+        let _ = params;
+        log::info!("Got a textDocument/semanticTokens/full request, but it is not implemented");
+        Ok(None)
+    }
 }
