@@ -970,6 +970,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c917123afa01924fc84bb20c4c03f004d9c38e5127e3c039bbf7f4b9c76a2f6b"
 
 [[package]]
+name = "pin-project-lite"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b063f57ec186e6140e2b8b6921e5f1bd89c7356dda5b33acc5401203ca6131c"
+
+[[package]]
 name = "pin-utils"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1448,20 +1454,20 @@ dependencies = [
  "bytes 0.5.6",
  "fnv",
  "futures-core",
- "pin-project-lite",
+ "pin-project-lite 0.1.11",
  "slab",
 ]
 
 [[package]]
 name = "tokio"
-version = "0.3.3"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5ca08accbcb46f11fd8d2d1c6158c348b7888009a1f39260bcad66f6a454250"
+checksum = "a12a3eb39ee2c231be64487f1fcbe726c8f2514876a55480a5ab8559fc374252"
 dependencies = [
  "autocfg",
  "futures-core",
  "num_cpus",
- "pin-project-lite",
+ "pin-project-lite 0.2.0",
  "slab",
  "tokio-macros",
 ]
@@ -1498,7 +1504,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "log",
- "pin-project-lite",
+ "pin-project-lite 0.1.11",
  "tokio 0.2.22",
 ]
 
@@ -1512,8 +1518,8 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "log",
- "pin-project-lite",
- "tokio 0.3.3",
+ "pin-project-lite 0.1.11",
+ "tokio 0.3.5",
 ]
 
 [[package]]
@@ -1568,7 +1574,7 @@ dependencies = [
  "nom",
  "serde",
  "serde_json",
- "tokio 0.3.3",
+ "tokio 0.3.5",
  "tokio-util 0.5.0",
  "tower-lsp-macros 0.3.0 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
  "tower-service",
@@ -1815,7 +1821,7 @@ dependencies = [
  "serde_json",
  "sled",
  "thiserror",
- "tokio 0.3.3",
+ "tokio 0.3.5",
  "tower-lsp 0.13.3 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
  "tree-sitter",
  "uuid",
@@ -1833,7 +1839,7 @@ dependencies = [
  "futures",
  "libfuzzer-sys",
  "serde_json",
- "tokio 0.2.22",
+ "tokio 0.3.5",
  "tower-lsp 0.13.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "wasm-language-server-testing",
  "wasm-smith",
