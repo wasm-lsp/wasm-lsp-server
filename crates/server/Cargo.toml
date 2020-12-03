@@ -48,7 +48,7 @@ tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", branch = "feat
 tree-sitter = "0.17"
 uuid = { version = "0.8", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
-wast = "25.0"
+wast = "28.0"
 zerocopy = "0.3"
 
 [dev-dependencies]
