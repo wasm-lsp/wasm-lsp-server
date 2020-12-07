@@ -9,7 +9,7 @@ fn for_error(document: &Document, error: wast::Error) -> Diagnostic {
         let span = error.span();
         let (line, col) = span.linecol_in(input);
         // NOTE: wast only gives us the start position so we use that twice
-        let pos = Position::new(line as u64, col as u64);
+        let pos = Position::new(line as u32, col as u32);
         Range::new(pos, pos)
     };
     let severity = Some(DiagnosticSeverity::Error);

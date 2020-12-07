@@ -8,7 +8,7 @@ use crate::core::{
 use tower_lsp::lsp_types::*;
 
 // FIXME: move to util
-fn character_to_line_offset(line_text: &str, character: u64) -> anyhow::Result<usize> {
+fn character_to_line_offset(line_text: &str, character: usize) -> anyhow::Result<usize> {
     let mut offset = 0;
 
     let mut chars = line_text.chars();
@@ -16,7 +16,7 @@ fn character_to_line_offset(line_text: &str, character: u64) -> anyhow::Result<u
         if offset == character {
             return Ok(line_text.len() - chars.as_str().len() - c.len_utf8());
         }
-        offset += c.len_utf16() as u64;
+        offset += c.len_utf16();
     }
 
     // Handle positions after the last character on the line
@@ -70,7 +70,8 @@ fn position_to_byte_index(document: &Document, position: &Position) -> anyhow::R
     let source = document.text.as_str();
     let line_span: std::ops::Range<usize> = line_range(document, position.line as usize).unwrap();
     let line_text = source.get(line_span.clone()).unwrap();
-    let byte_offset = character_to_line_offset(line_text, position.character)?;
+    let character = position.character as usize;
+    let byte_offset = character_to_line_offset(line_text, character)?;
     Ok(line_span.start + byte_offset)
 }
 
@@ -167,7 +168,7 @@ mod tests {
     #[test]
     fn character_to_line_offset_ok() {
         let line_text = "text";
-        let character = line_text.len() as u64;
+        let character = line_text.len();
         let result = character_to_line_offset(line_text, character);
         assert!(result.is_ok())
     }
@@ -175,7 +176,7 @@ mod tests {
     #[test]
     fn character_to_line_offset_out_of_bounds() {
         let line_text = "text";
-        let character = line_text.len() as u64 + 1;
+        let character = line_text.len() + 1;
         let result = character_to_line_offset(line_text, character);
         assert!(result.is_err())
     }
