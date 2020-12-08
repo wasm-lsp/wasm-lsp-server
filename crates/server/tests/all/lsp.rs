@@ -1,5 +1,5 @@
 use serde_json::Value;
-use tower_lsp::{lsp_types::*, ExitedError};
+use lspower::{lsp_types::*, ExitedError};
 use wasm_language_server_testing as testing;
 
 #[tokio::test]
@@ -135,7 +135,7 @@ async fn shutdown() -> anyhow::Result<()> {
 mod text_document {
     use futures::stream::StreamExt;
     use serde_json::{json, Value};
-    use tower_lsp::lsp_types::*;
+    use lspower::lsp_types::*;
     use wasm_language_server_testing as testing;
 
     #[tokio::test]
@@ -245,7 +245,7 @@ mod text_document {
     mod document_symbol {
         use futures::stream::StreamExt;
         use serde_json::{json, Value};
-        use tower_lsp::lsp_types::*;
+        use lspower::lsp_types::*;
         use wasm_language_server_testing as testing;
 
         #[tokio::test]
@@ -502,7 +502,7 @@ mod text_document {
                 use futures::stream::StreamExt;
                 use serde_json::Value;
                 use std::{convert::TryFrom, io::Write};
-                use tower_lsp::lsp_types::*;
+                use lspower::lsp_types::*;
                 use wasm_language_server_parsers::core::language::Language;
                 use wasm_language_server_testing as testing;
 
@@ -769,7 +769,7 @@ mod text_document {
             use futures::stream::StreamExt;
             use serde_json::Value;
             use std::convert::TryFrom;
-            use tower_lsp::lsp_types::*;
+            use lspower::lsp_types::*;
             use wasm_language_server_parsers::core::language::Language;
             use wasm_language_server_testing as testing;
 

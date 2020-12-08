@@ -72,7 +72,7 @@ mod hover {
     pub mod spec {
         use criterion::Criterion;
         use std::{convert::TryFrom, path::Path};
-        use tower_lsp::lsp_types::*;
+        use lspower::lsp_types::*;
         use wasm_language_server::{core::document::Document, provider};
         use wasm_language_server_parsers::core::language::Language;
 

@@ -1,7 +1,7 @@
 //! Provides `textDocument/documentSymbol` functionality.
 
 use crate::core::document::Document;
-use tower_lsp::lsp_types::*;
+use lspower::lsp_types::*;
 
 fn for_error(document: &Document, error: wast::Error) -> Diagnostic {
     let range = {
@@ -46,7 +46,7 @@ fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Ve
 pub(crate) mod tree {
     use crate::core::session::Session;
     use std::sync::Arc;
-    use tower_lsp::lsp_types::*;
+    use lspower::lsp_types::*;
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {

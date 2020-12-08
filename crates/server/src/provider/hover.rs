@@ -5,7 +5,7 @@ use crate::core::{
     error::Error,
     language::{wast, wat},
 };
-use tower_lsp::lsp_types::*;
+use lspower::lsp_types::*;
 
 // FIXME: move to util
 fn character_to_line_offset(line_text: &str, character: usize) -> anyhow::Result<usize> {
