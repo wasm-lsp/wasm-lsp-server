@@ -6,15 +6,6 @@
 
 type Fallible<T> = Result<T, Box<dyn std::error::Error>>;
 
-fn rest(input: &str) -> Fallible<Vec<String>> {
-    Ok(input
-        .trim_start_matches('\'')
-        .trim_end_matches('\'')
-        .split_whitespace()
-        .map(String::from)
-        .collect())
-}
-
 fn main() -> Fallible<()> {
     let help = r#"
 xtask
@@ -26,6 +17,7 @@ FLAGS:
     -h, --help          Prints help information
 
 SUBCOMMANDS:
+    build
     check
     clippy
     doc
@@ -40,26 +32,42 @@ SUBCOMMANDS:
 "#
     .trim();
 
-    let mut args = pico_args::Arguments::from_env();
+    let mut args: Vec<_> = std::env::args_os().collect();
+    // remove "xtask" argument
+    args.remove(0);
+
+    let cargo_args = if let Some(dash_dash) = args.iter().position(|arg| arg == "--") {
+        let c = args.drain(dash_dash + 1..).collect();
+        args.pop();
+        c
+    } else {
+        Vec::new()
+    };
+
+    let mut args = pico_args::Arguments::from_vec(args);
     match args.subcommand()?.as_deref() {
+        Some("build") => {
+            subcommand::cargo::build(args, &cargo_args)?;
+            return Ok(());
+        },
         Some("check") => {
-            subcommand::cargo::check(args)?;
+            subcommand::cargo::check(args, &cargo_args)?;
             return Ok(());
         },
         Some("clippy") => {
-            subcommand::cargo::clippy(args)?;
+            subcommand::cargo::clippy(args, &cargo_args)?;
             return Ok(());
         },
         Some("doc") => {
-            subcommand::cargo::doc(args)?;
+            subcommand::cargo::doc(args, &cargo_args)?;
             return Ok(());
         },
         Some("format") => {
-            subcommand::cargo::format(args)?;
+            subcommand::cargo::format(args, &cargo_args)?;
             return Ok(());
         },
         Some("grcov") => {
-            subcommand::cargo::grcov(args)?;
+            subcommand::cargo::grcov(args, &cargo_args)?;
             return Ok(());
         },
         Some("help") => {
@@ -71,19 +79,19 @@ SUBCOMMANDS:
             return Ok(());
         },
         Some("install") => {
-            subcommand::cargo::install(args)?;
+            subcommand::cargo::install(args, &cargo_args)?;
             return Ok(());
         },
         Some("tarpaulin") => {
-            subcommand::cargo::tarpaulin(args)?;
+            subcommand::cargo::tarpaulin(args, &cargo_args)?;
             return Ok(());
         },
         Some("test") => {
-            subcommand::cargo::test(args)?;
+            subcommand::cargo::test(args, &cargo_args)?;
             return Ok(());
         },
         Some("udeps") => {
-            subcommand::cargo::udeps(args)?;
+            subcommand::cargo::udeps(args, &cargo_args)?;
             return Ok(());
         },
         Some(subcommand) => {
@@ -127,8 +135,42 @@ mod subcommand {
         use crate::metadata;
         use std::process::Command;
 
+        // Run `cargo build` with custom options.
+        pub fn build(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+            let help = r#"
+xtask-build
+
+USAGE:
+    xtask build
+
+FLAGS:
+    -h, --help          Prints help information
+    --rebuild-parsers   Rebuild tree-sitter parsers
+    -- '...'        Extra arguments to pass to the underlying cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
+            if args.contains("--rebuild-parsers") {
+                crate::util::tree_sitter::rebuild_parsers()?;
+            }
+
+            let cargo = metadata::cargo()?;
+            let mut cmd = Command::new(cargo);
+            cmd.current_dir(metadata::project_root());
+            cmd.args(&["build", "--package", "wasm-language-server"]);
+            cmd.args(cargo_args);
+            cmd.status()?;
+
+            Ok(())
+        }
+
         // Run `cargo check` with custom options.
-        pub fn check(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn check(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-check
 
@@ -137,7 +179,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -159,15 +201,13 @@ FLAGS:
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo clippy` with custom options.
-        pub fn clippy(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn clippy(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-clippy
 
@@ -176,7 +216,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -197,16 +237,14 @@ FLAGS:
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.args(&["--", "-D", "warnings"]);
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo doc` with custom options.
-        pub fn doc(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn doc(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-doc
 
@@ -215,7 +253,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -228,15 +266,13 @@ FLAGS:
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "doc"]);
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo format` with custom options.
-        pub fn format(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn format(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-format
 
@@ -245,7 +281,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -258,15 +294,13 @@ FLAGS:
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "fmt", "--all"]);
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
             Ok(())
         }
 
         // Run `cargo grcov` with custom options.
-        pub fn grcov(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn grcov(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-grcov
 
@@ -276,7 +310,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -307,9 +341,7 @@ FLAGS:
             ]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
 
             let mut cmd = Command::new("grcov");
@@ -327,7 +359,7 @@ FLAGS:
         }
 
         // Run `cargo install` with custom options.
-        pub fn install(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn install(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-install
 
@@ -337,7 +369,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -354,16 +386,14 @@ FLAGS:
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["install", "--path", "crates/server"]);
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
 
             Ok(())
         }
 
         // Run `cargo tarpaulin` with custom options.
-        pub fn tarpaulin(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn tarpaulin(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-tarpaulin
 
@@ -373,7 +403,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -412,16 +442,14 @@ FLAGS:
                 "**/stdio2.h",
                 "**/string_fortified.h",
             ]);
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
 
             Ok(())
         }
 
         // Run `cargo test` with custom options.
-        pub fn test(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn test(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-test
 
@@ -431,7 +459,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -457,16 +485,14 @@ FLAGS:
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
 
             Ok(())
         }
 
         // Run `cargo udeps` with custom options.
-        pub fn udeps(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+        pub fn udeps(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
             let help = r#"
 xtask-udep
 
@@ -475,7 +501,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    --rest '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'        Extra arguments to pass to the underlying cargo command
 "#
             .trim();
 
@@ -496,9 +522,7 @@ FLAGS:
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-language-server-fuzz"]);
             }
-            if let Some(values) = args.opt_value_from_fn("--rest", crate::rest)? {
-                cmd.args(values);
-            }
+            cmd.args(cargo_args);
             cmd.status()?;
             Ok(())
         }
