@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["response","Compute \"textDocument/hover\" for a given document."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["wast","Elaborator definitions specific to \".wat\" and \".wast\" files. Elaborator definitions specific to \".wat\" and \".wast\" files."]]});
