@@ -86,8 +86,8 @@ pub mod text_document {
 
         /// Definitions for constructing a `textDocument/didChange` notification.
         pub mod notification {
-            use serde_json::{json, Value};
             use lspower::lsp_types::*;
+            use serde_json::{json, Value};
 
             /// Construct a `textDocument/didChange` notification with entire new text.
             pub fn entire<S: AsRef<str>>(uri: &Url, text: S) -> Value {
@@ -111,8 +111,8 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/didClose` messages.
     pub mod did_close {
-        use serde_json::{json, Value};
         use lspower::lsp_types::*;
+        use serde_json::{json, Value};
 
         /// Construct a `textDocument/didClose` notification.
         pub fn notification(uri: &Url) -> Value {
@@ -130,8 +130,8 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/didOpen` messages.
     pub mod did_open {
-        use serde_json::{json, Value};
         use lspower::lsp_types::*;
+        use serde_json::{json, Value};
 
         /// Construct a `textDocument/didOpen` notification.
         pub fn notification<S: AsRef<str>, T: AsRef<str>>(uri: &Url, language_id: S, version: i64, text: T) -> Value {
@@ -152,8 +152,8 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/documentSymbol` messages.
     pub mod document_symbol {
-        use serde_json::{json, Value};
         use lspower::lsp_types::*;
+        use serde_json::{json, Value};
 
         /// Construct a `textDocument/documentSymbol` request.
         pub fn request(uri: &Url) -> Value {
@@ -181,8 +181,8 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/hover` messages.
     pub mod hover {
-        use serde_json::{json, Value};
         use lspower::lsp_types::*;
+        use serde_json::{json, Value};
 
         /// Construct a `textDocument/hover` request.
         pub fn request(uri: &Url, position: Position) -> Value {
@@ -212,8 +212,8 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/publishDiagnostics` messages.
     pub mod publish_diagnostics {
-        use serde_json::{json, Value};
         use lspower::lsp_types::*;
+        use serde_json::{json, Value};
 
         /// Construct a `textDocument/publishDiagnostics` notification.
         pub fn notification(uri: &Url, diagnostics: &[Diagnostic]) -> Value {

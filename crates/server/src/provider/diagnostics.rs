@@ -45,8 +45,8 @@ fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Ve
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
     use crate::core::session::Session;
-    use std::sync::Arc;
     use lspower::lsp_types::*;
+    use std::sync::Arc;
 
     /// Handle a parse tree "change" event.
     pub(crate) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {

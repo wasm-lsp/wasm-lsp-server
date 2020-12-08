@@ -1,8 +1,8 @@
 //! Providers of the WebAssembly language server for LSP features.
 
 use crate::core::{language::Language, session::Session};
-use std::sync::Arc;
 use lspower::lsp_types::*;
+use std::sync::Arc;
 
 // Provides diagnostics functionality.
 pub(crate) mod diagnostics;

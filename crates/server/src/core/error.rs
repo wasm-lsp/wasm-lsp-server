@@ -1,7 +1,7 @@
 //! Core definitions related to runtime errors.
 
-use thiserror::Error;
 use lspower::lsp_types::*;
+use thiserror::Error;
 
 /// Runtime errors for the WebAssembly language server.
 #[allow(clippy::enum_variant_names)]
