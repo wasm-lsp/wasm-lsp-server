@@ -36,6 +36,6 @@ fuzz_target!(|module: Module| {
         let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
         assert_eq!(actual, expected);
     };
-    let mut runtime = Runtime::new().unwrap();
+    let runtime = Runtime::new().unwrap();
     runtime.block_on(future);
 });
