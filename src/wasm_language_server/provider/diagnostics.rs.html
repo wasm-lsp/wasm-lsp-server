@@ -124,8 +124,8 @@
 <span class="doccomment">/// Functions related to processing parse tree events for a document.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">tree</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
     <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
     <span class="doccomment">/// Handle a parse tree &quot;change&quot; event.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
