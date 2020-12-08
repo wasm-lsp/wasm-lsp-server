@@ -1,8 +1,8 @@
 //! Definitions for the server instance.
 
 use crate::core::session::Session;
-use std::sync::Arc;
 use lspower::{lsp_types::*, Client};
+use std::sync::Arc;
 
 /// The WASM language server instance.
 pub struct Server {
