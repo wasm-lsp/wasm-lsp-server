@@ -2,7 +2,7 @@
 
 use crate::core::session::Session;
 use std::sync::Arc;
-use tower_lsp::{lsp_types::*, Client};
+use lspower::{lsp_types::*, Client};
 
 /// The WASM language server instance.
 pub struct Server {

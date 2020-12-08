@@ -789,20 +789,6 @@ dependencies = [
 
 [[package]]
 name = "lsp-types"
-version = "0.81.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e02724627e9ef8ba91f461ebc01d48aebbd13a4b7c9dc547a0a2890f53e2171"
-dependencies = [
- "base64",
- "bitflags",
- "serde",
- "serde_json",
- "serde_repr",
- "url",
-]
-
-[[package]]
-name = "lsp-types"
 version = "0.83.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4e79f39834b97271f9f5ecec573e42c7d9c5bdbd2620b30a851054ece6aab6d"
@@ -813,6 +799,38 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "url",
+]
+
+[[package]]
+name = "lspower"
+version = "0.13.3"
+source = "git+https://github.com/rslint/lspower?branch=main#39eeeadccde14bcb43d743e270f07a6fa0b21bcf"
+dependencies = [
+ "async-trait",
+ "auto_impl",
+ "bytes 0.6.0",
+ "dashmap",
+ "futures",
+ "log",
+ "lsp-types",
+ "lspower-macros",
+ "nom",
+ "serde",
+ "serde_json",
+ "tokio 0.3.5",
+ "tokio-util",
+ "tower-service",
+]
+
+[[package]]
+name = "lspower-macros"
+version = "0.3.0"
+source = "git+https://github.com/rslint/lspower?branch=main#39eeeadccde14bcb43d743e270f07a6fa0b21bcf"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1502,20 +1520,6 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be8242891f2b6cbef26a2d7e8605133c2c554cd35b3e4948ea892d6d68436499"
-dependencies = [
- "bytes 0.5.6",
- "futures-core",
- "futures-sink",
- "log",
- "pin-project-lite 0.1.11",
- "tokio 0.2.23",
-]
-
-[[package]]
-name = "tokio-util"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3137de2b078e95274b696cc522e87f22c9a753fe3ef3344116ffb94f104f10a3"
@@ -1542,72 +1546,6 @@ name = "tower-layer"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a35d656f2638b288b33495d1053ea74c40dc05ec0b92084dd71ca5566c4ed1dc"
-
-[[package]]
-name = "tower-lsp"
-version = "0.13.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a75aeada84f07dfc4e81bc58a36a12b22c01c418af2180587cf80f9f3228acad"
-dependencies = [
- "async-trait",
- "auto_impl",
- "bytes 0.5.6",
- "dashmap",
- "futures",
- "log",
- "lsp-types 0.81.0",
- "nom",
- "serde",
- "serde_json",
- "tokio 0.2.23",
- "tokio-util 0.3.1",
- "tower-lsp-macros 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "tower-service",
-]
-
-[[package]]
-name = "tower-lsp"
-version = "0.13.3"
-source = "git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed#4869dfa52fbafebbf9951388d5ad4c55659ce77a"
-dependencies = [
- "async-trait",
- "auto_impl",
- "bytes 0.6.0",
- "dashmap",
- "futures",
- "log",
- "lsp-types 0.83.1",
- "nom",
- "serde",
- "serde_json",
- "tokio 0.3.5",
- "tokio-util 0.5.1",
- "tower-lsp-macros 0.3.0 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
- "tower-service",
-]
-
-[[package]]
-name = "tower-lsp-macros"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c51c24e3b5909be30d6ed472f934aa9b7d91abf2688013956b296b1d1e7b186"
-dependencies = [
- "heck",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "tower-lsp-macros"
-version = "0.3.0"
-source = "git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed#4869dfa52fbafebbf9951388d5ad4c55659ce77a"
-dependencies = [
- "heck",
- "proc-macro2",
- "quote",
- "syn",
-]
 
 [[package]]
 name = "tower-service"
@@ -1832,12 +1770,12 @@ dependencies = [
  "goldenfile",
  "indoc",
  "log",
+ "lspower",
  "predicates",
  "serde_json",
  "sled",
  "thiserror",
  "tokio 0.3.5",
- "tower-lsp 0.13.3 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
  "tree-sitter",
  "uuid",
  "wasm-language-server-macros",
@@ -1853,9 +1791,9 @@ version = "0.0.0"
 dependencies = [
  "futures",
  "libfuzzer-sys",
+ "lspower",
  "serde_json",
  "tokio 0.2.23",
- "tower-lsp 0.13.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "wasm-language-server-testing",
  "wasm-smith",
  "wasmprinter",
@@ -1894,8 +1832,8 @@ name = "wasm-language-server-testing"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "lspower",
  "serde_json",
- "tower-lsp 0.13.3 (git+https://github.com/darinmorrison/tower-lsp?branch=feature-proposed)",
  "tower-test",
  "wasm-language-server",
 ]

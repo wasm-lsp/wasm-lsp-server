@@ -1,7 +1,7 @@
 //! Core definitions related to runtime errors.
 
 use thiserror::Error;
-use tower_lsp::lsp_types::*;
+use lspower::lsp_types::*;
 
 /// Runtime errors for the WebAssembly language server.
 #[allow(clippy::enum_variant_names)]
@@ -24,9 +24,9 @@ pub(crate) enum Error {
 /// Convenience newtype wrapper for convertion to jsonrpc_core::Error.
 pub(crate) struct IntoJsonRpcError(pub(crate) anyhow::Error);
 
-impl From<IntoJsonRpcError> for tower_lsp::jsonrpc::Error {
+impl From<IntoJsonRpcError> for lspower::jsonrpc::Error {
     fn from(error: IntoJsonRpcError) -> Self {
-        let mut rpc_error = tower_lsp::jsonrpc::Error::internal_error();
+        let mut rpc_error = lspower::jsonrpc::Error::internal_error();
         rpc_error.data = Some(serde_json::to_value(format!("{}", error.0)).unwrap());
         rpc_error
     }
@@ -35,7 +35,7 @@ impl From<IntoJsonRpcError> for tower_lsp::jsonrpc::Error {
 #[cfg(test)]
 mod tests {
     use super::{Error, IntoJsonRpcError};
-    use tower_lsp::jsonrpc;
+    use lspower::jsonrpc;
 
     #[test]
     fn from() {
@@ -45,7 +45,7 @@ mod tests {
         let mut expected = jsonrpc::Error::internal_error();
         expected.data = Some(serde_json::to_value(format!("{}", error)).unwrap());
 
-        let actual: tower_lsp::jsonrpc::Error = IntoJsonRpcError(error).into();
+        let actual: lspower::jsonrpc::Error = IntoJsonRpcError(error).into();
 
         assert_eq!(expected, actual);
     }
