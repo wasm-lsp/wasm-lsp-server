@@ -3,9 +3,9 @@
 
 use futures::stream::StreamExt;
 use libfuzzer_sys::fuzz_target;
+use lspower::lsp_types::*;
 use serde_json::Value;
 use tokio::runtime::Runtime;
-use lspower::lsp_types::*;
 use wasm_language_server_testing as testing;
 use wasm_smith::Module;
 

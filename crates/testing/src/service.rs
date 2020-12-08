@@ -1,7 +1,7 @@
 //! Service-related definitions.
 
-use serde_json::Value;
 use lspower::{ExitedError, LspService, MessageStream};
+use serde_json::Value;
 use tower_test::mock::Spawn;
 
 /// Send a `request` via the given `service` and return the response if possible.
