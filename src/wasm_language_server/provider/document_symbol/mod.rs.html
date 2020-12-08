@@ -68,7 +68,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Elaborates parse trees into structured data to be cached in the database.</span>
 
-<span class="kw">use</span> <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Elaborator definitions specific to &quot;.wat&quot; and &quot;.wast&quot; files.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">wast</span>;
@@ -101,9 +101,9 @@
     <span class="doccomment">/// The name (identifier) of the symbol.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="doccomment">/// The (node-enclosing) range of the symbol.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">range</span>: <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="ident">Range</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">range</span>: <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="ident">Range</span>,
     <span class="doccomment">/// The (identifier-enclosing) range of the symbol.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">selection_range</span>: <span class="ident">tower_lsp</span>::<span class="ident">lsp_types</span>::<span class="ident">Range</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">selection_range</span>: <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="ident">Range</span>,
 }
 
 <span class="doccomment">/// Compute the name and ranges for a document symbol given tree-sitter node data.</span>
