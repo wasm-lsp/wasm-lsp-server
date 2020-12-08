@@ -27,8 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-          lfs: true
     - name: Fetch latest release version of cargo-audit
       run: |
         mkdir -p .github/caching
@@ -55,8 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -82,8 +78,6 @@ jobs:
       RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -115,8 +109,6 @@ jobs:
       RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -140,8 +132,6 @@ jobs:
       RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: Run cargo xtask init
         uses: actions-rs/cargo@v1
         with:
@@ -191,8 +181,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: Run cargo xtask init
         uses: actions-rs/cargo@v1
         with:
