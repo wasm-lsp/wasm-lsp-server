@@ -2,7 +2,7 @@
 
 use crate::core::{language::Language, session::Session};
 use std::sync::Arc;
-use tower_lsp::lsp_types::*;
+use lspower::lsp_types::*;
 
 // Provides diagnostics functionality.
 pub(crate) mod diagnostics;

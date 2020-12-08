@@ -1,6 +1,6 @@
 //! Elaborates parse trees into structured data to be cached in the database.
 
-use tower_lsp::lsp_types::*;
+use lspower::lsp_types::*;
 
 /// Elaborator definitions specific to ".wat" and ".wast" files.
 pub mod wast;
@@ -33,9 +33,9 @@ pub(crate) struct SymbolRange {
     /// The name (identifier) of the symbol.
     pub(crate) name: String,
     /// The (node-enclosing) range of the symbol.
-    pub(crate) range: tower_lsp::lsp_types::Range,
+    pub(crate) range: lspower::lsp_types::Range,
     /// The (identifier-enclosing) range of the symbol.
-    pub(crate) selection_range: tower_lsp::lsp_types::Range,
+    pub(crate) selection_range: lspower::lsp_types::Range,
 }
 
 /// Compute the name and ranges for a document symbol given tree-sitter node data.

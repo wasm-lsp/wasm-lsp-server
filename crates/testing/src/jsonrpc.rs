@@ -3,7 +3,7 @@
 /// Definitions for constructing error messages.
 pub mod error {
     use serde_json::{json, Value};
-    use tower_lsp::jsonrpc;
+    use lspower::jsonrpc;
 
     /// Construct an `invalid request` error.
     pub fn invalid_request() -> Value {

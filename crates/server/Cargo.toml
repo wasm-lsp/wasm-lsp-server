@@ -44,7 +44,7 @@ serde_json = "1.0"
 sled = "0.34"
 thiserror = "1.0"
 tokio = { version = "0.3", features = ["io-std", "macros", "sync"] }
-tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", branch = "feature-proposed" }
+lspower = { git = "https://github.com/rslint/lspower", branch = "main" }
 tree-sitter = "0.17"
 uuid = { version = "0.8", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
@@ -60,7 +60,7 @@ goldenfile = "1.0"
 indoc = "1.0"
 predicates = "1.0"
 tokio = { version = "0.3" }
-tower-lsp = { git = "https://github.com/darinmorrison/tower-lsp", branch = "feature-proposed" }
+lspower = { git = "https://github.com/rslint/lspower", branch = "main" }
 wasm-language-server-macros = { path = "../macros", version = "0.0.0" }
 wasm-language-server-testing = { path = "../testing", version = "0.0.0" }
 

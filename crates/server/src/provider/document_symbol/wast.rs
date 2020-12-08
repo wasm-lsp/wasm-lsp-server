@@ -10,7 +10,7 @@ use crate::{
     },
     provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
 };
-use tower_lsp::lsp_types::*;
+use lspower::lsp_types::*;
 
 /// Compute "textDocument/documentSymbols" for a given document.
 pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {

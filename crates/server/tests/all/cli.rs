@@ -49,7 +49,7 @@ mod invoke {
                 #[rustfmt::skip]
                 const STDOUT: &str = "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32700,\"message\":\"Parse error\"},\"id\":null}";
                 #[rustfmt::skip]
-                const STDERR: &str = "ERROR tower_lsp::transport] failed to decode message: missing required `Content-Length` header\n";
+                const STDERR: &str = "ERROR lspower::transport] failed to decode message: missing required `Content-Length` header\n";
                 Command::cargo_bin(BIN)?
                     .write_stdin("\n")
                     .assert()

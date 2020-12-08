@@ -4,7 +4,7 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
-use tower_lsp::{LspService, Server};
+use lspower::{LspService, Server};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

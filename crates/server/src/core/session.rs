@@ -9,7 +9,7 @@ use dashmap::{
     mapref::one::{Ref, RefMut},
     DashMap,
 };
-use tower_lsp::{lsp_types::*, Client};
+use lspower::{lsp_types::*, Client};
 use zerocopy::AsBytes;
 
 /// Represents the current state of the LSP service.
@@ -77,7 +77,7 @@ impl Session {
 mod tests {
     use super::Session;
     use crate::core::{database::DocumentStatus, document::Document, error::Error};
-    use tower_lsp::lsp_types::*;
+    use lspower::lsp_types::*;
     use zerocopy::AsBytes;
 
     #[tokio::test]
@@ -102,7 +102,7 @@ mod tests {
     mod document_not_found {
         use super::Session;
         use crate::core::error::Error;
-        use tower_lsp::lsp_types::*;
+        use lspower::lsp_types::*;
 
         #[tokio::test]
         async fn get_document() -> anyhow::Result<()> {
