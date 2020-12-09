@@ -37,7 +37,7 @@ SUBCOMMANDS:
     args.remove(0);
 
     let cargo_args = if let Some(dash_dash) = args.iter().position(|arg| arg == "--") {
-        let c = args.drain(dash_dash + 1..).collect();
+        let c = args.drain(dash_dash + 1 ..).collect();
         args.pop();
         c
     } else {
