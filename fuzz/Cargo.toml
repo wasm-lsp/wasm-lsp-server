@@ -24,6 +24,6 @@ serde_json = "1.0"
 tokio = "0.3"
 lspower = { git = "https://github.com/rslint/lspower", branch = "main" }
 wasm-language-server-testing = { path = "../crates/testing" }
-wasm-smith = "0.1"
+wasm-smith = "0.2"
 wasmprinter = "0.2"
 
