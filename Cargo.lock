@@ -786,9 +786,9 @@ dependencies = [
 
 [[package]]
 name = "lsp-types"
-version = "0.83.1"
+version = "0.85.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4e79f39834b97271f9f5ecec573e42c7d9c5bdbd2620b30a851054ece6aab6d"
+checksum = "857650f3e83fb62f89d15410414e0ed7d0735445020da398d37f65d20a5423b9"
 dependencies = [
  "base64",
  "bitflags",
@@ -801,7 +801,7 @@ dependencies = [
 [[package]]
 name = "lspower"
 version = "0.13.3"
-source = "git+https://github.com/rslint/lspower?branch=main#39eeeadccde14bcb43d743e270f07a6fa0b21bcf"
+source = "git+https://github.com/rslint/lspower?branch=main#aab3ee2b4371f2b698b0ad7616934195caa8afa3"
 dependencies = [
  "async-trait",
  "auto_impl",
@@ -822,7 +822,7 @@ dependencies = [
 [[package]]
 name = "lspower-macros"
 version = "0.3.0"
-source = "git+https://github.com/rslint/lspower?branch=main#39eeeadccde14bcb43d743e270f07a6fa0b21bcf"
+source = "git+https://github.com/rslint/lspower?branch=main#aab3ee2b4371f2b698b0ad7616934195caa8afa3"
 dependencies = [
  "heck",
  "proc-macro2",
