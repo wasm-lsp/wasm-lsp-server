@@ -814,7 +814,7 @@ dependencies = [
  "nom",
  "serde",
  "serde_json",
- "tokio 0.3.5",
+ "tokio 0.3.6",
  "tokio-util",
  "tower-service",
 ]
@@ -1475,9 +1475,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "0.3.5"
+version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a12a3eb39ee2c231be64487f1fcbe726c8f2514876a55480a5ab8559fc374252"
+checksum = "720ba21c25078711bf456d607987d95bce90f7c3bea5abe1db587862e7a1e87c"
 dependencies = [
  "autocfg",
  "futures-core",
@@ -1520,7 +1520,7 @@ dependencies = [
  "futures-sink",
  "log",
  "pin-project-lite 0.2.0",
- "tokio 0.3.5",
+ "tokio 0.3.6",
 ]
 
 [[package]]
@@ -1766,7 +1766,7 @@ dependencies = [
  "serde_json",
  "sled",
  "thiserror",
- "tokio 0.3.5",
+ "tokio 0.3.6",
  "tree-sitter",
  "uuid",
  "wasm-language-server-macros",
@@ -1784,7 +1784,7 @@ dependencies = [
  "libfuzzer-sys",
  "lspower",
  "serde_json",
- "tokio 0.3.5",
+ "tokio 0.3.6",
  "wasm-language-server-testing",
  "wasm-smith",
  "wasmprinter",
