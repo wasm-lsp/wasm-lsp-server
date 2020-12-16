@@ -1810,9 +1810,9 @@ checksum = "7e7811dd7f9398f14cc76efd356f98f03aa30419dea46aa810d71e819fc97158"
 
 [[package]]
 name = "wasm-encoder"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49891b7c581cf9e0090b25cd274e6498ad478f0a7819319ea96da2f253caaacb"
+checksum = "ed89eaf99e08b84f96e477a16588a07dd3b51dc5f07291c3706782f62a10a5e1"
 dependencies = [
  "leb128",
 ]
@@ -1903,9 +1903,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-smith"
-version = "0.1.12"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7fdf8c9ba2fdc0d8ffe3f7e5b23b5aac377eeca817a9885c058f27c8de5c500"
+checksum = "509904d9c4c4659ac238a3f27c3656dd6d3931697eddd4b0f32e335769c298d0"
 dependencies = [
  "arbitrary",
  "leb128",
