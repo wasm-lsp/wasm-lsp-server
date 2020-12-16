@@ -132,17 +132,17 @@ jobs:
       RUST_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@v2
-      - name: Run cargo xtask init
-        uses: actions-rs/cargo@v1
-        with:
-          command: xtask
-          args: init --with-corpus
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
+      - name: Run cargo xtask init
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: init --with-corpus
       - name: Fetch latest release version of cargo-tarpaulin
         run: |
           mkdir -p .github/caching
@@ -181,15 +181,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
       - name: Run cargo xtask init
         uses: actions-rs/cargo@v1
         with:
           command: xtask
           args: init --with-corpus
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
       - name: Run cargo xtask test
         uses: actions-rs/cargo@v1
         with:
@@ -218,15 +218,15 @@ jobs:
             asset_name: wasm-language-server-macos
     steps:
       - uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
       - name: Run cargo xtask init
         uses: actions-rs/cargo@v1
         with:
           command: xtask
           args: init --with-corpus
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
       - name: Run cargo xtask build
         uses: actions-rs/cargo@v1
         with:
