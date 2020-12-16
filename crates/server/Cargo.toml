@@ -48,7 +48,7 @@ lspower = "0.1"
 tree-sitter = "0.17"
 uuid = { version = "0.8", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
-wast = "28.0"
+wast = "29.0"
 zerocopy = "0.3"
 
 [dev-dependencies]
