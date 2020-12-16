@@ -26,7 +26,7 @@ mod document_symbol {
                 documents.push(document);
             }
 
-            let runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
+            let mut runtime = tokio::runtime::Builder::new().basic_scheduler().build().unwrap();
 
             c.bench_function("document_symbol::spec::*.wast", |b| {
                 b.iter(|| {
@@ -53,7 +53,7 @@ mod document_symbol {
                 documents.push(document);
             }
 
-            let runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
+            let mut runtime = tokio::runtime::Builder::new().basic_scheduler().build().unwrap();
 
             c.bench_function("document_symbol::spec::float_exprs.wast", |b| {
                 b.iter(|| {
@@ -96,7 +96,7 @@ mod hover {
                 work_done_progress_params: Default::default(),
             };
 
-            let runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
+            let mut runtime = tokio::runtime::Builder::new().basic_scheduler().build().unwrap();
 
             c.bench_function("hover::spec::float_exprs.wast", |b| {
                 b.iter(|| {
