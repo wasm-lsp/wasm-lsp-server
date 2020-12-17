@@ -8,10 +8,12 @@ on:
       - 'v*'
 
 jobs:
-  create-release:
-    name: Deploy release build for ${{ matrix.os }}
+  create_release:
+    name: Create release entry
     if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Create GitHub release entry
         id: create_release
@@ -24,9 +26,9 @@ jobs:
           draft: false
           prerelease: false
 
-  deploy-release:
-    name: Deploy release build for ${{ matrix.os }}
-    needs: create-release
+  deploy_release:
+    name: Deploy release asset for ${{ matrix.os }}
+    needs: create_release
     if: startsWith(github.ref, 'refs/tags')
     runs-on: ${{ matrix.os }}
     strategy:
@@ -62,14 +64,15 @@ jobs:
           command: xtask
           args: build -- --release
       - name: Create release asset
-        run: zip --junk-paths ${{ matrix.asset_name }} target/release/${{ matrix.artifact_name }}
+        run: Compress-Archive -DestinationPath ${{ matrix.asset_name }}.zip -Path target/release/${{ matrix.artifact_name }}
+        shell: pwsh
       - name: Deploy release asset to GitHub
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./${{ matrix.asset_name }}.zip
           asset_name: ${{ matrix.asset_name }}.zip
           asset_content_type: application/zip
