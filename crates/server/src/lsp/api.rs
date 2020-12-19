@@ -5,7 +5,10 @@ use lspower::{jsonrpc::Result, lsp_types::*, LanguageServer};
 
 #[lspower::async_trait]
 impl LanguageServer for Server {
-    async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
+        // Receive and store the client capabilities.
+        *self.session.client_capabilities.write().await = Some(params.capabilities);
+        // Return the server capabilities.
         let capabilities = crate::lsp::server::capabilities();
         Ok(InitializeResult {
             capabilities,
@@ -51,8 +54,31 @@ impl LanguageServer for Server {
     }
 
     async fn semantic_tokens_full(&self, params: SemanticTokensParams) -> Result<Option<SemanticTokensResult>> {
+        let session = self.session.clone();
+        let result = provider::semantic_tokens_full(session, params).await;
+        Ok(result.map_err(error::IntoJsonRpcError)?)
+    }
+
+    async fn semantic_tokens_full_delta(
+        &self,
+        params: SemanticTokensDeltaParams,
+    ) -> Result<Option<SemanticTokensFullDeltaResult>> {
         let _ = params;
-        log::info!("Got a textDocument/semanticTokens/full request, but it is not implemented");
+        log::info!("Got a textDocument/semanticTokens/full/delta request, but it is not implemented");
         Ok(None)
+    }
+
+    async fn semantic_tokens_range(
+        &self,
+        params: SemanticTokensRangeParams,
+    ) -> Result<Option<SemanticTokensRangeResult>> {
+        let session = self.session.clone();
+        let result = provider::semantic_tokens_range(session, params).await;
+        Ok(result.map_err(error::IntoJsonRpcError)?)
+    }
+
+    async fn semantic_tokens_refresh(&self) -> Result<()> {
+        log::info!("Got a textDocument/semanticTokens/refresh request, but it is not implemented");
+        Ok(())
     }
 }
