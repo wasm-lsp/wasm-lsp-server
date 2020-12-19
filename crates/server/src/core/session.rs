@@ -10,10 +10,15 @@ use dashmap::{
     DashMap,
 };
 use lspower::{lsp_types::*, Client};
+use tokio::sync::RwLock;
 use zerocopy::AsBytes;
 
 /// Represents the current state of the LSP service.
 pub struct Session {
+    /// The LSP server capabilities.
+    pub(crate) server_capabilities: RwLock<ServerCapabilities>,
+    /// The LSP client capabilities.
+    pub(crate) client_capabilities: RwLock<Option<ClientCapabilities>>,
     /// The LSP client handle.
     client: Option<Client>,
     /// The document metadata database.
@@ -25,9 +30,13 @@ pub struct Session {
 impl Session {
     /// Create a new session.
     pub fn new(client: Option<Client>) -> anyhow::Result<Self> {
+        let server_capabilities = RwLock::new(crate::lsp::server::capabilities());
+        let client_capabilities = RwLock::new(Default::default());
         let database = Database::new()?;
         let documents = DashMap::new();
         Ok(Session {
+            server_capabilities,
+            client_capabilities,
             client,
             database,
             documents,
@@ -56,6 +65,21 @@ impl Session {
         let status = status.as_bytes();
         self.database.trees.documents.insert(&uri[..], status)?;
         Ok(result)
+    }
+
+    /// FIXME: we should be able to avoid cloning here
+    pub(crate) async fn semantic_tokens_legend(&self) -> Option<SemanticTokensLegend> {
+        let capabilities = self.server_capabilities.read().await;
+        if let Some(capabilities) = &capabilities.semantic_tokens_provider {
+            match capabilities {
+                SemanticTokensServerCapabilities::SemanticTokensOptions(options) => Some(options.legend.clone()),
+                SemanticTokensServerCapabilities::SemanticTokensRegistrationOptions(options) => {
+                    Some(options.semantic_tokens_options.legend.clone())
+                },
+            }
+        } else {
+            None
+        }
     }
 
     /// Get a reference to a document associated with the session, if possible.
