@@ -13,6 +13,9 @@ pub mod document_symbol;
 // Provides `textDocument/hover` functionality.
 pub mod hover;
 
+// Provides `textDocument/semanticTokens/*` functionality.
+pub mod semantic_tokens;
+
 /// Provide response for `textDocument/documentSymbols`.
 pub async fn document_symbol(
     session: Arc<Session>,
@@ -41,6 +44,25 @@ pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> anyhow:
         ..
     } = &params;
     let document = session.get_document(uri).await?;
-    let hover = hover::response(&document, &params).await?;
-    Ok(hover)
+    let response = hover::response(&document, &params).await?;
+    Ok(response)
+}
+
+// FIXME
+pub(crate) async fn semantic_tokens_full(
+    session: Arc<Session>,
+    params: SemanticTokensParams,
+) -> anyhow::Result<Option<SemanticTokensResult>> {
+    let document = session.get_document(&params.text_document.uri).await?;
+    let response = semantic_tokens::full::response(session.clone(), &document, params).await?;
+    Ok(response)
+}
+
+pub(crate) async fn semantic_tokens_range(
+    session: Arc<Session>,
+    params: SemanticTokensRangeParams,
+) -> anyhow::Result<Option<SemanticTokensRangeResult>> {
+    let document = session.get_document(&params.text_document.uri).await?;
+    let response = semantic_tokens::range::response(session.clone(), &document, params).await?;
+    Ok(response)
 }

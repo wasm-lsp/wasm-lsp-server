@@ -27,14 +27,28 @@ pub fn capabilities() -> ServerCapabilities {
     let hover_provider = Some(HoverProviderCapability::Simple(true));
 
     let semantic_tokens_provider = {
+        let token_types = vec![
+            SemanticTokenType::COMMENT,
+            SemanticTokenType::FUNCTION,
+            SemanticTokenType::KEYWORD,
+            SemanticTokenType::NAMESPACE,
+            SemanticTokenType::OPERATOR,
+            SemanticTokenType::PARAMETER,
+            SemanticTokenType::STRING,
+            SemanticTokenType::TYPE,
+            SemanticTokenType::TYPE_PARAMETER,
+            SemanticTokenType::VARIABLE,
+        ];
+        let token_modifiers = Default::default();
+
         let options = SemanticTokensOptions {
-            work_done_progress_options: Default::default(),
             legend: SemanticTokensLegend {
-                token_types: Default::default(),
-                token_modifiers: Default::default(),
+                token_types,
+                token_modifiers,
             },
-            range: Default::default(),
+            range: Some(true),
             full: Some(SemanticTokensFullOptions::Bool(true)),
+            ..Default::default()
         };
         Some(SemanticTokensServerCapabilities::SemanticTokensOptions(options))
     };
