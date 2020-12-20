@@ -4,7 +4,7 @@ use crate::core::error::Error::{InvalidLanguageId, OsStrToStrFailed, PathExtensi
 use std::{convert::TryFrom, path::Path};
 
 /// Languages supported by the server.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Language {
     /// The `.wast` language.
     Wast,
