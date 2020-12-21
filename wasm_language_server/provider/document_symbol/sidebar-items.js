@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["wast","Elaborator definitions specific to \".wat\" and \".wast\" files. Elaborator definitions specific to \".wat\" and \".wast\" files."]]});
+initSidebarItems({"mod":[["wast","Document symbol definitions for \".wast\" files."],["wat","Document symbol definitions for \".wat\" files."]]});

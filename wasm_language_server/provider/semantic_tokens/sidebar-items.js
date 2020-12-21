@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["wast","Semantic tokens provider definitions for \".wast\" files."],["wat","Semantic tokens provider definitions for \".wast\" files."]]});
