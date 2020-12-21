@@ -28,7 +28,7 @@ pub async fn document_symbol(
     let document = session.get_document(uri).await?;
     let response = match document.language {
         Language::Wast => document_symbol::wast::response(&document).await,
-        Language::Wat => document_symbol::wast::response(&document).await,
+        Language::Wat => document_symbol::wat::response(&document).await,
     };
     Ok(response)
 }

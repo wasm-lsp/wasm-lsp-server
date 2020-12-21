@@ -1,10 +1,10 @@
 #![allow(unreachable_code)]
 #![allow(unused)]
 
-//! Elaborator definitions specific to ".wast" files.
+//! Elaborator definitions specific to ".wat" files.
 
 use crate::{
-    core::{document::Document, language::wast},
+    core::{document::Document, language::wat},
     provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
 };
 use lspower::lsp_types::*;
@@ -15,13 +15,13 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
     let mut syms: Vec<DocumentSymbol> = vec![];
 
     let module_fields: &[u16] = &[
-        *wast::kind::MODULE_FIELD_DATA,
-        *wast::kind::MODULE_FIELD_ELEM,
-        *wast::kind::MODULE_FIELD_FUNC,
-        *wast::kind::MODULE_FIELD_GLOBAL,
-        *wast::kind::MODULE_FIELD_MEMORY,
-        *wast::kind::MODULE_FIELD_TABLE,
-        *wast::kind::MODULE_FIELD_TYPE,
+        *wat::kind::MODULE_FIELD_DATA,
+        *wat::kind::MODULE_FIELD_ELEM,
+        *wat::kind::MODULE_FIELD_FUNC,
+        *wat::kind::MODULE_FIELD_GLOBAL,
+        *wat::kind::MODULE_FIELD_MEMORY,
+        *wat::kind::MODULE_FIELD_TABLE,
+        *wat::kind::MODULE_FIELD_TYPE,
     ];
 
     // Prepare a filter to discard uninteresting module-child nodes.
@@ -53,7 +53,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                         name,
                         range,
                         selection_range,
-                    } = symbol_range(&document.text.as_bytes(), node, name_hint, *wast::field::IDENTIFIER);
+                    } = symbol_range(&document.text.as_bytes(), node, name_hint, *wat::field::IDENTIFIER);
 
                     // FIXME
                     #[allow(deprecated)]
@@ -80,27 +80,16 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 }
             },
 
-            Work::Node(node) if *wast::kind::ROOT == node.kind_id() => {
+            Work::Node(node) if *wat::kind::ROOT == node.kind_id() => {
                 let mut cursor = node.walk();
                 let commands = node
                     .children(&mut cursor)
-                    .filter(|it| {
-                        [&[*wast::kind::COMMAND], module_fields]
-                            .concat()
-                            .contains(&it.kind_id())
-                    })
+                    .filter(|it| [&[*wat::kind::MODULE], module_fields].concat().contains(&it.kind_id()))
                     .map(Work::Node);
                 work.extend(commands);
             },
 
-            Work::Node(node) if *wast::kind::COMMAND == node.kind_id() => {
-                debug_assert!(node.child_count() == 1);
-                if let Some(command) = node.named_child(0) {
-                    work.push(Work::Node(command));
-                }
-            },
-
-            Work::Node(node) if *wast::kind::MODULE == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE == node.kind_id() => {
                 work.push(Work::Data);
 
                 let mut children_count = 0;
@@ -119,7 +108,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 });
             },
 
-            Work::Node(node) if *wast::kind::MODULE_FIELD_DATA == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE_FIELD_DATA == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -129,7 +118,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 });
             },
 
-            Work::Node(node) if *wast::kind::MODULE_FIELD_ELEM == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE_FIELD_ELEM == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -139,7 +128,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 });
             },
 
-            Work::Node(node) if *wast::kind::MODULE_FIELD_FUNC == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE_FIELD_FUNC == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -149,7 +138,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 });
             },
 
-            Work::Node(node) if *wast::kind::MODULE_FIELD_GLOBAL == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE_FIELD_GLOBAL == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -159,7 +148,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 });
             },
 
-            Work::Node(node) if *wast::kind::MODULE_FIELD_MEMORY == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE_FIELD_MEMORY == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -169,7 +158,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 });
             },
 
-            Work::Node(node) if *wast::kind::MODULE_FIELD_TABLE == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE_FIELD_TABLE == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -179,7 +168,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 });
             },
 
-            Work::Node(node) if *wast::kind::MODULE_FIELD_TYPE == node.kind_id() => {
+            Work::Node(node) if *wat::kind::MODULE_FIELD_TYPE == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
