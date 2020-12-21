@@ -54,7 +54,10 @@ pub(crate) async fn semantic_tokens_full(
     params: SemanticTokensParams,
 ) -> anyhow::Result<Option<SemanticTokensResult>> {
     let document = session.get_document(&params.text_document.uri).await?;
-    let response = semantic_tokens::full::response(session.clone(), &document, params).await?;
+    let response = match document.language {
+        Language::Wast => semantic_tokens::wast::full::response(session.clone(), &document, params).await?,
+        Language::Wat => semantic_tokens::wat::full::response(session.clone(), &document, params).await?,
+    };
     Ok(response)
 }
 
@@ -63,6 +66,9 @@ pub(crate) async fn semantic_tokens_range(
     params: SemanticTokensRangeParams,
 ) -> anyhow::Result<Option<SemanticTokensRangeResult>> {
     let document = session.get_document(&params.text_document.uri).await?;
-    let response = semantic_tokens::range::response(session.clone(), &document, params).await?;
+    let response = match document.language {
+        Language::Wast => semantic_tokens::wast::range::response(session.clone(), &document, params).await?,
+        Language::Wat => semantic_tokens::wat::range::response(session.clone(), &document, params).await?,
+    };
     Ok(response)
 }

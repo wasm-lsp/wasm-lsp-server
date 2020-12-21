@@ -1,7 +1,7 @@
 #![allow(unreachable_code)]
 #![allow(unused)]
 
-//! Elaborator definitions specific to ".wast" files.
+//! Document symbol definitions for ".wast" files.
 
 use crate::{
     core::{document::Document, language::wast},
