@@ -2,10 +2,10 @@
 
 use lspower::lsp_types::*;
 
-// Elaborator definitions specific to ".wast" files.
+// Document symbol provider definitions for ".wast" files.
 pub mod wast;
 
-// Elaborator definitions specific to ".wat" files.
+// Document symbol definitions for ".wat" files.
 pub mod wat;
 
 /// Encodes data for constructing upcoming DocumentSymbols.

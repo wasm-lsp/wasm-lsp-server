@@ -1,7 +1,7 @@
 #![allow(unreachable_code)]
 #![allow(unused)]
 
-//! Elaborator definitions specific to ".wat" files.
+//! Document symbol definitions for ".wat" files.
 
 use crate::{
     core::{document::Document, language::wat},
