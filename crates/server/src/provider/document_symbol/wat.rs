@@ -14,18 +14,8 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
     // Vector to collect document symbols into as they are constructed.
     let mut syms: Vec<DocumentSymbol> = vec![];
 
-    let module_fields: &[u16] = &[
-        *wat::kind::MODULE_FIELD_DATA,
-        *wat::kind::MODULE_FIELD_ELEM,
-        *wat::kind::MODULE_FIELD_FUNC,
-        *wat::kind::MODULE_FIELD_GLOBAL,
-        *wat::kind::MODULE_FIELD_MEMORY,
-        *wat::kind::MODULE_FIELD_TABLE,
-        *wat::kind::MODULE_FIELD_TYPE,
-    ];
-
     // Prepare a filter to discard uninteresting module-child nodes.
-    let module_field_filter = |node: &tree_sitter::Node| module_fields.contains(&node.kind_id());
+    let module_field_filter = |node: &tree_sitter::Node| wat::MODULE_FIELDS.contains(&node.kind_id());
 
     // Prepare the syntax tree.
     let tree = document.tree.lock().await.clone();
@@ -84,7 +74,11 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
                 let mut cursor = node.walk();
                 let commands = node
                     .children(&mut cursor)
-                    .filter(|it| [&[*wat::kind::MODULE], module_fields].concat().contains(&it.kind_id()))
+                    .filter(|it| {
+                        [&[*wat::kind::MODULE], wat::MODULE_FIELDS.as_slice()]
+                            .concat()
+                            .contains(&it.kind_id())
+                    })
                     .map(Work::Node);
                 work.extend(commands);
             },
@@ -94,7 +88,7 @@ pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if module_fields.contains(&child.kind_id()) {
+                    if wat::MODULE_FIELDS.contains(&child.kind_id()) {
                         work.push(Work::Node(child));
                         children_count += 1;
                     }
