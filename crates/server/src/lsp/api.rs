@@ -59,15 +59,6 @@ impl LanguageServer for Server {
         Ok(result.map_err(error::IntoJsonRpcError)?)
     }
 
-    async fn semantic_tokens_full_delta(
-        &self,
-        params: SemanticTokensDeltaParams,
-    ) -> Result<Option<SemanticTokensFullDeltaResult>> {
-        let _ = params;
-        log::info!("Got a textDocument/semanticTokens/full/delta request, but it is not implemented");
-        Ok(None)
-    }
-
     async fn semantic_tokens_range(
         &self,
         params: SemanticTokensRangeParams,
@@ -75,10 +66,5 @@ impl LanguageServer for Server {
         let session = self.session.clone();
         let result = provider::semantic_tokens_range(session, params).await;
         Ok(result.map_err(error::IntoJsonRpcError)?)
-    }
-
-    async fn semantic_tokens_refresh(&self) -> Result<()> {
-        log::info!("Got a textDocument/semanticTokens/refresh request, but it is not implemented");
-        Ok(())
     }
 }
