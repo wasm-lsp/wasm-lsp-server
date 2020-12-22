@@ -47,6 +47,8 @@ impl TryFrom<&Path> for Language {
 
 /// Functions for working with the `.wast` grammar.
 pub mod wast {
+    use lazy_static::lazy_static;
+
     #[allow(unsafe_code)]
     /// Tree-sitter language for the `.wast` grammar.
     pub fn language() -> tree_sitter::Language {
@@ -82,11 +84,43 @@ pub mod wast {
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub static ref ROOT: u16 = super::language().id_for_node_kind("ROOT", true);
         }
+
+        pub mod equals {
+            #![allow(missing_docs)]
+            #![allow(non_snake_case)]
+
+            pub fn COMMAND(kind_id: u16) -> bool {
+                *super::COMMAND == kind_id
+            }
+
+            pub fn MODULE(kind_id: u16) -> bool {
+                *super::MODULE == kind_id
+            }
+
+            pub fn ROOT(kind_id: u16) -> bool {
+                *super::ROOT == kind_id
+            }
+        }
+    }
+
+    lazy_static! {
+        #[allow(missing_docs)]
+        pub static ref MODULE_FIELDS: Vec<u16> = vec![
+            *kind::MODULE_FIELD_DATA,
+            *kind::MODULE_FIELD_ELEM,
+            *kind::MODULE_FIELD_FUNC,
+            *kind::MODULE_FIELD_GLOBAL,
+            *kind::MODULE_FIELD_MEMORY,
+            *kind::MODULE_FIELD_TABLE,
+            *kind::MODULE_FIELD_TYPE,
+        ];
     }
 }
 
 /// Functions for working with the `.wat` grammar.
 pub mod wat {
+    use lazy_static::lazy_static;
+
     /// Tree-sitter language for the `.wat` grammar.
     #[allow(unsafe_code)]
     pub fn language() -> tree_sitter::Language {
@@ -121,6 +155,32 @@ pub mod wat {
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
             pub static ref ROOT: u16 = super::language().id_for_node_kind("ROOT", true);
         }
+
+        pub mod equals {
+            #![allow(missing_docs)]
+            #![allow(non_snake_case)]
+
+            pub fn MODULE(kind_id: u16) -> bool {
+                *super::MODULE == kind_id
+            }
+
+            pub fn ROOT(kind_id: u16) -> bool {
+                *super::ROOT == kind_id
+            }
+        }
+    }
+
+    lazy_static! {
+        #[allow(missing_docs)]
+        pub static ref MODULE_FIELDS: Vec<u16> = vec![
+            *kind::MODULE_FIELD_DATA,
+            *kind::MODULE_FIELD_ELEM,
+            *kind::MODULE_FIELD_FUNC,
+            *kind::MODULE_FIELD_GLOBAL,
+            *kind::MODULE_FIELD_MEMORY,
+            *kind::MODULE_FIELD_TABLE,
+            *kind::MODULE_FIELD_TYPE,
+        ];
     }
 }
 
