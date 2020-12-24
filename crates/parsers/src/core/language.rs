@@ -92,9 +92,12 @@ pub mod wast {
             pub static ref META_SCRIPT: u16 = super::language().id_for_node_kind("meta_script", true);
             pub static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
             pub static ref MODULE_FIELD_ELEM: u16 = super::language().id_for_node_kind("module_field_elem", true);
+            pub static ref MODULE_FIELD_EXPORT: u16 = super::language().id_for_node_kind("module_field_export", true);
             pub static ref MODULE_FIELD_FUNC: u16 = super::language().id_for_node_kind("module_field_func", true);
             pub static ref MODULE_FIELD_GLOBAL: u16 = super::language().id_for_node_kind("module_field_global", true);
+            pub static ref MODULE_FIELD_IMPORT: u16 = super::language().id_for_node_kind("module_field_import", true);
             pub static ref MODULE_FIELD_MEMORY: u16 = super::language().id_for_node_kind("module_field_memory", true);
+            pub static ref MODULE_FIELD_START: u16 = super::language().id_for_node_kind("module_field_start", true);
             pub static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
@@ -186,6 +189,46 @@ pub mod wast {
 
             pub fn MODULE(kind_id: u16) -> bool {
                 *super::MODULE == kind_id
+            }
+
+            pub fn MODULE_FIELD_DATA(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_DATA == kind_id
+            }
+
+            pub fn MODULE_FIELD_ELEM(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_ELEM == kind_id
+            }
+
+            pub fn MODULE_FIELD_EXPORT(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_EXPORT == kind_id
+            }
+
+            pub fn MODULE_FIELD_FUNC(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_FUNC == kind_id
+            }
+
+            pub fn MODULE_FIELD_GLOBAL(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_GLOBAL == kind_id
+            }
+
+            pub fn MODULE_FIELD_IMPORT(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_IMPORT == kind_id
+            }
+
+            pub fn MODULE_FIELD_MEMORY(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_MEMORY == kind_id
+            }
+
+            pub fn MODULE_FIELD_START(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_START == kind_id
+            }
+
+            pub fn MODULE_FIELD_TABLE(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_TABLE == kind_id
+            }
+
+            pub fn MODULE_FIELD_TYPE(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_TYPE == kind_id
             }
 
             pub fn REGISTER(kind_id: u16) -> bool {
