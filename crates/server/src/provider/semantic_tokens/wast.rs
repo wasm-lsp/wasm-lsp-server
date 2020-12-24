@@ -65,18 +65,96 @@ pub(crate) async fn range(
         };
 
         while let Some(this) = work.pop_front() {
+            // handle "_action"
+            if wast::kind::equals::ACTION_GET(this.kind_id()) {
+                handle::action_get(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ACTION_INVOKE(this.kind_id()) {
+                handle::action_invoke(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            }
+
+            // handle "_assertion"
+            if wast::kind::equals::ASSERT_EXHAUSTION(this.kind_id()) {
+                handle::action_get(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_INVALID(this.kind_id()) {
+                handle::action_invoke(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_EXHAUSTION(this.kind_id()) {
+                handle::assert_exhaustion(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_INVALID(this.kind_id()) {
+                handle::assert_invalid(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_MALFORMED(this.kind_id()) {
+                handle::assert_malformed(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_RETURN(this.kind_id()) {
+                handle::assert_return(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_RETURN_ARITHMETIC_NAN(this.kind_id()) {
+                handle::assert_return_arithmetic_nan(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_RETURN_CANONICAL_NAN(this.kind_id()) {
+                handle::assert_return_canonical_nan(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_TRAP_ACTION(this.kind_id()) {
+                handle::assert_trap_action(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_TRAP_MODULE(this.kind_id()) {
+                handle::assert_trap_module(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::ASSERT_UNLINKABLE(this.kind_id()) {
+                handle::assert_unlinkable(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            }
+
+            // handle "command"
             if wast::kind::equals::COMMAND(this.kind_id()) {
                 handle::command(&mut cursor, &mut work, this, &mut builder)?;
                 continue;
             }
 
+            // handle "_meta"
+            if wast::kind::equals::META_INPUT(this.kind_id()) {
+                handle::meta_input(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::META_OUTPUT(this.kind_id()) {
+                handle::meta_output(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::META_SCRIPT(this.kind_id()) {
+                handle::meta_script(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            }
+
+            // handle "module"
             if wast::kind::equals::MODULE(this.kind_id()) {
                 handle::module(&mut cursor, &mut work, this, &mut builder)?;
                 continue;
             }
 
+            // handle "register"
+            if wast::kind::equals::REGISTER(this.kind_id()) {
+                handle::register(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            }
+
+            // handle "root"
             if wast::kind::equals::ROOT(this.kind_id()) {
                 handle::root(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            }
+
+            // handle "_script_module"
+            if wast::kind::equals::MODULE(this.kind_id()) {
+                // handled earlier
+                unreachable!();
+            } else if wast::kind::equals::SCRIPT_MODULE_BINARY(this.kind_id()) {
+                handle::script_module_binary(&mut cursor, &mut work, this, &mut builder)?;
+                continue;
+            } else if wast::kind::equals::SCRIPT_MODULE_QUOTE(this.kind_id()) {
+                handle::script_module_quote(&mut cursor, &mut work, this, &mut builder)?;
                 continue;
             }
 
@@ -98,6 +176,160 @@ mod handle {
     use lspower::lsp_types::*;
     use std::collections::VecDeque;
 
+    pub(super) fn action_get<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn action_invoke<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_exhaustion<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_invalid<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_malformed<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_return<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_return_arithmetic_nan<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_return_canonical_nan<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_trap_action<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_trap_module<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn assert_unlinkable<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
     pub(super) fn command<'a>(
         _cursor: &mut tree_sitter::TreeCursor<'a>,
         work: &mut VecDeque<tree_sitter::Node<'a>>,
@@ -105,6 +337,45 @@ mod handle {
         _builder: &mut SemanticTokensBuilder<'a>,
     ) -> anyhow::Result<()> {
         if let Some(node) = this.child(0) {
+            work.push_back(node);
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn meta_input<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        _builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            work.push_back(node);
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn meta_output<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        _builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            work.push_back(node);
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn meta_script<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        _builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
             work.push_back(node);
         }
 
@@ -131,6 +402,20 @@ mod handle {
         Ok(())
     }
 
+    pub(super) fn register<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
     pub(super) fn root<'a>(
         cursor: &mut tree_sitter::TreeCursor<'a>,
         work: &mut VecDeque<tree_sitter::Node<'a>>,
@@ -144,6 +429,34 @@ mod handle {
                 .contains(&it.kind_id())
         });
         work.extend(commands);
+
+        Ok(())
+    }
+
+    pub(super) fn script_module_binary<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
+
+        Ok(())
+    }
+
+    pub(super) fn script_module_quote<'a>(
+        _cursor: &mut tree_sitter::TreeCursor<'a>,
+        _work: &mut VecDeque<tree_sitter::Node<'a>>,
+        this: tree_sitter::Node<'a>,
+        builder: &mut SemanticTokensBuilder<'a>,
+    ) -> anyhow::Result<()> {
+        if let Some(node) = this.child(1) {
+            let range = crate::util::node::range(&node);
+            builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+        }
 
         Ok(())
     }

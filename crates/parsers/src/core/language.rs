@@ -71,9 +71,25 @@ pub mod wast {
         use lazy_static::lazy_static;
 
         lazy_static! {
+            pub static ref ACTION_GET: u16 = super::language().id_for_node_kind("action_get", true);
+            pub static ref ACTION_INVOKE: u16 = super::language().id_for_node_kind("action_invoke", true);
+            pub static ref ASSERT_EXHAUSTION: u16 = super::language().id_for_node_kind("assert_exhaustion", true);
+            pub static ref ASSERT_INVALID: u16 = super::language().id_for_node_kind("assert_invalid", true);
+            pub static ref ASSERT_MALFORMED: u16 = super::language().id_for_node_kind("assert_malformed", true);
+            pub static ref ASSERT_RETURN_ARITHMETIC_NAN: u16 =
+                super::language().id_for_node_kind("assert_return_arithmetic_nan", true);
+            pub static ref ASSERT_RETURN_CANONICAL_NAN: u16 =
+                super::language().id_for_node_kind("assert_return_canonical_nan", true);
+            pub static ref ASSERT_RETURN: u16 = super::language().id_for_node_kind("assert_return", true);
+            pub static ref ASSERT_TRAP_ACTION: u16 = super::language().id_for_node_kind("assert_trap_action", true);
+            pub static ref ASSERT_TRAP_MODULE: u16 = super::language().id_for_node_kind("assert_trap_module", true);
+            pub static ref ASSERT_UNLINKABLE: u16 = super::language().id_for_node_kind("assert_unlinkable", true);
             pub static ref COMMAND: u16 = super::language().id_for_node_kind("command", true);
             pub static ref INSTR_PLAIN: u16 = super::language().id_for_node_kind("instr_plain", true);
             pub static ref INSTR: u16 = super::language().id_for_node_kind("instr", true);
+            pub static ref META_INPUT: u16 = super::language().id_for_node_kind("meta_input", true);
+            pub static ref META_OUTPUT: u16 = super::language().id_for_node_kind("meta_output", true);
+            pub static ref META_SCRIPT: u16 = super::language().id_for_node_kind("meta_script", true);
             pub static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
             pub static ref MODULE_FIELD_ELEM: u16 = super::language().id_for_node_kind("module_field_elem", true);
             pub static ref MODULE_FIELD_FUNC: u16 = super::language().id_for_node_kind("module_field_func", true);
@@ -82,23 +98,110 @@ pub mod wast {
             pub static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
+            pub static ref REGISTER: u16 = super::language().id_for_node_kind("register", true);
             pub static ref ROOT: u16 = super::language().id_for_node_kind("ROOT", true);
+            pub static ref SCRIPT_MODULE_BINARY: u16 = super::language().id_for_node_kind("script_module_binary", true);
+            pub static ref SCRIPT_MODULE_QUOTE: u16 = super::language().id_for_node_kind("script_module_quote", true);
         }
 
         pub mod equals {
             #![allow(missing_docs)]
             #![allow(non_snake_case)]
 
+            pub fn ACTION_GET(kind_id: u16) -> bool {
+                *super::ACTION_GET == kind_id
+            }
+
+            pub fn ACTION_INVOKE(kind_id: u16) -> bool {
+                *super::ACTION_INVOKE == kind_id
+            }
+
+            pub fn ASSERT_EXHAUSTION(kind_id: u16) -> bool {
+                *super::ASSERT_EXHAUSTION == kind_id
+            }
+
+            pub fn ASSERT_INVALID(kind_id: u16) -> bool {
+                *super::ASSERT_INVALID == kind_id
+            }
+
+            pub fn ASSERT_MALFORMED(kind_id: u16) -> bool {
+                *super::ASSERT_MALFORMED == kind_id
+            }
+
+            pub fn ASSERT_RETURN(kind_id: u16) -> bool {
+                *super::ASSERT_RETURN == kind_id
+            }
+
+            pub fn ASSERT_RETURN_ARITHMETIC_NAN(kind_id: u16) -> bool {
+                *super::ASSERT_RETURN_ARITHMETIC_NAN == kind_id
+            }
+
+            pub fn ASSERT_RETURN_CANONICAL_NAN(kind_id: u16) -> bool {
+                *super::ASSERT_RETURN_CANONICAL_NAN == kind_id
+            }
+
+            pub fn ASSERT_TRAP_ACTION(kind_id: u16) -> bool {
+                *super::ASSERT_TRAP_ACTION == kind_id
+            }
+
+            pub fn ASSERT_TRAP_MODULE(kind_id: u16) -> bool {
+                *super::ASSERT_TRAP_MODULE == kind_id
+            }
+
+            pub fn ASSERT_UNLINKABLE(kind_id: u16) -> bool {
+                *super::ASSERT_UNLINKABLE == kind_id
+            }
+
+            pub fn ASSERTION(kind_id: u16) -> bool {
+                [
+                    ASSERT_EXHAUSTION,
+                    ASSERT_INVALID,
+                    ASSERT_MALFORMED,
+                    ASSERT_RETURN,
+                    ASSERT_RETURN_ARITHMETIC_NAN,
+                    ASSERT_RETURN_CANONICAL_NAN,
+                    ASSERT_TRAP_ACTION,
+                    ASSERT_TRAP_MODULE,
+                    ASSERT_UNLINKABLE,
+                ]
+                .iter()
+                .any(|pred| pred(kind_id))
+            }
+
             pub fn COMMAND(kind_id: u16) -> bool {
                 *super::COMMAND == kind_id
+            }
+
+            pub fn META_INPUT(kind_id: u16) -> bool {
+                *super::META_INPUT == kind_id
+            }
+
+            pub fn META_OUTPUT(kind_id: u16) -> bool {
+                *super::META_OUTPUT == kind_id
+            }
+
+            pub fn META_SCRIPT(kind_id: u16) -> bool {
+                *super::META_SCRIPT == kind_id
             }
 
             pub fn MODULE(kind_id: u16) -> bool {
                 *super::MODULE == kind_id
             }
 
+            pub fn REGISTER(kind_id: u16) -> bool {
+                *super::REGISTER == kind_id
+            }
+
             pub fn ROOT(kind_id: u16) -> bool {
                 *super::ROOT == kind_id
+            }
+
+            pub fn SCRIPT_MODULE_BINARY(kind_id: u16) -> bool {
+                *super::SCRIPT_MODULE_BINARY == kind_id
+            }
+
+            pub fn SCRIPT_MODULE_QUOTE(kind_id: u16) -> bool {
+                *super::SCRIPT_MODULE_QUOTE == kind_id
             }
         }
     }
