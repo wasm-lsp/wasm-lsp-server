@@ -73,6 +73,7 @@ pub mod wast {
         lazy_static! {
             pub static ref ACTION_GET: u16 = super::language().id_for_node_kind("action_get", true);
             pub static ref ACTION_INVOKE: u16 = super::language().id_for_node_kind("action_invoke", true);
+            pub static ref ANNOTATION: u16 = super::language().id_for_node_kind("annotation", true);
             pub static ref ASSERT_EXHAUSTION: u16 = super::language().id_for_node_kind("assert_exhaustion", true);
             pub static ref ASSERT_INVALID: u16 = super::language().id_for_node_kind("assert_invalid", true);
             pub static ref ASSERT_MALFORMED: u16 = super::language().id_for_node_kind("assert_malformed", true);
@@ -85,8 +86,17 @@ pub mod wast {
             pub static ref ASSERT_TRAP_MODULE: u16 = super::language().id_for_node_kind("assert_trap_module", true);
             pub static ref ASSERT_UNLINKABLE: u16 = super::language().id_for_node_kind("assert_unlinkable", true);
             pub static ref COMMAND: u16 = super::language().id_for_node_kind("command", true);
+            pub static ref COMMENT_BLOCK_ANNOT: u16 = super::language().id_for_node_kind("comment_block_annot", true);
+            pub static ref COMMENT_BLOCK: u16 = super::language().id_for_node_kind("comment_block", true);
+            pub static ref COMMENT_LINE_ANNOT: u16 = super::language().id_for_node_kind("comment_line_annot", true);
+            pub static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
+            pub static ref EXPORT: u16 = super::language().id_for_node_kind("export", true);
+            pub static ref IDENTIFIER: u16 = super::language().id_for_node_kind("identifier", true);
+            pub static ref IMPORT: u16 = super::language().id_for_node_kind("import", true);
+            pub static ref INDEX: u16 = super::language().id_for_node_kind("index", true);
             pub static ref INSTR_PLAIN: u16 = super::language().id_for_node_kind("instr_plain", true);
             pub static ref INSTR: u16 = super::language().id_for_node_kind("instr", true);
+            pub static ref LPAREN: u16 = super::language().id_for_node_kind("(", false);
             pub static ref META_INPUT: u16 = super::language().id_for_node_kind("meta_input", true);
             pub static ref META_OUTPUT: u16 = super::language().id_for_node_kind("meta_output", true);
             pub static ref META_SCRIPT: u16 = super::language().id_for_node_kind("meta_script", true);
@@ -101,10 +111,13 @@ pub mod wast {
             pub static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
+            pub static ref NAME: u16 = super::language().id_for_node_kind("name", true);
             pub static ref REGISTER: u16 = super::language().id_for_node_kind("register", true);
             pub static ref ROOT: u16 = super::language().id_for_node_kind("ROOT", true);
+            pub static ref RPAREN: u16 = super::language().id_for_node_kind(")", false);
             pub static ref SCRIPT_MODULE_BINARY: u16 = super::language().id_for_node_kind("script_module_binary", true);
             pub static ref SCRIPT_MODULE_QUOTE: u16 = super::language().id_for_node_kind("script_module_quote", true);
+            pub static ref TYPE_USE: u16 = super::language().id_for_node_kind("type_use", true);
         }
 
         pub mod equals {
@@ -119,6 +132,10 @@ pub mod wast {
                 *super::ACTION_INVOKE == kind_id
             }
 
+            pub fn ANNOTATION(kind_id: u16) -> bool {
+                *super::ANNOTATION == kind_id
+            }
+
             pub fn ASSERT_EXHAUSTION(kind_id: u16) -> bool {
                 *super::ASSERT_EXHAUSTION == kind_id
             }
@@ -131,16 +148,16 @@ pub mod wast {
                 *super::ASSERT_MALFORMED == kind_id
             }
 
-            pub fn ASSERT_RETURN(kind_id: u16) -> bool {
-                *super::ASSERT_RETURN == kind_id
-            }
-
             pub fn ASSERT_RETURN_ARITHMETIC_NAN(kind_id: u16) -> bool {
                 *super::ASSERT_RETURN_ARITHMETIC_NAN == kind_id
             }
 
             pub fn ASSERT_RETURN_CANONICAL_NAN(kind_id: u16) -> bool {
                 *super::ASSERT_RETURN_CANONICAL_NAN == kind_id
+            }
+
+            pub fn ASSERT_RETURN(kind_id: u16) -> bool {
+                *super::ASSERT_RETURN == kind_id
             }
 
             pub fn ASSERT_TRAP_ACTION(kind_id: u16) -> bool {
@@ -175,6 +192,50 @@ pub mod wast {
                 *super::COMMAND == kind_id
             }
 
+            pub fn COMMENT_BLOCK_ANNOT(kind_id: u16) -> bool {
+                *super::COMMENT_BLOCK_ANNOT == kind_id
+            }
+
+            pub fn COMMENT_BLOCK(kind_id: u16) -> bool {
+                *super::COMMENT_BLOCK == kind_id
+            }
+
+            pub fn COMMENT_LINE_ANNOT(kind_id: u16) -> bool {
+                *super::COMMENT_LINE_ANNOT == kind_id
+            }
+
+            pub fn COMMENT_LINE(kind_id: u16) -> bool {
+                *super::COMMENT_LINE == kind_id
+            }
+
+            pub fn EXPORT(kind_id: u16) -> bool {
+                *super::EXPORT == kind_id
+            }
+
+            pub fn IDENTIFIER(kind_id: u16) -> bool {
+                *super::IDENTIFIER == kind_id
+            }
+
+            pub fn IMPORT(kind_id: u16) -> bool {
+                *super::IMPORT == kind_id
+            }
+
+            pub fn INDEX(kind_id: u16) -> bool {
+                *super::INDEX == kind_id
+            }
+
+            pub fn INSTR_PLAIN(kind_id: u16) -> bool {
+                *super::INSTR_PLAIN == kind_id
+            }
+
+            pub fn INSTR(kind_id: u16) -> bool {
+                *super::INSTR == kind_id
+            }
+
+            pub fn LPAREN(kind_id: u16) -> bool {
+                *super::LPAREN == kind_id
+            }
+
             pub fn META_INPUT(kind_id: u16) -> bool {
                 *super::META_INPUT == kind_id
             }
@@ -185,10 +246,6 @@ pub mod wast {
 
             pub fn META_SCRIPT(kind_id: u16) -> bool {
                 *super::META_SCRIPT == kind_id
-            }
-
-            pub fn MODULE(kind_id: u16) -> bool {
-                *super::MODULE == kind_id
             }
 
             pub fn MODULE_FIELD_DATA(kind_id: u16) -> bool {
@@ -231,6 +288,14 @@ pub mod wast {
                 *super::MODULE_FIELD_TYPE == kind_id
             }
 
+            pub fn MODULE(kind_id: u16) -> bool {
+                *super::MODULE == kind_id
+            }
+
+            pub fn NAME(kind_id: u16) -> bool {
+                *super::NAME == kind_id
+            }
+
             pub fn REGISTER(kind_id: u16) -> bool {
                 *super::REGISTER == kind_id
             }
@@ -239,12 +304,20 @@ pub mod wast {
                 *super::ROOT == kind_id
             }
 
+            pub fn RPAREN(kind_id: u16) -> bool {
+                *super::RPAREN == kind_id
+            }
+
             pub fn SCRIPT_MODULE_BINARY(kind_id: u16) -> bool {
                 *super::SCRIPT_MODULE_BINARY == kind_id
             }
 
             pub fn SCRIPT_MODULE_QUOTE(kind_id: u16) -> bool {
                 *super::SCRIPT_MODULE_QUOTE == kind_id
+            }
+
+            pub fn TYPE_USE(kind_id: u16) -> bool {
+                *super::TYPE_USE == kind_id
             }
         }
     }
@@ -289,29 +362,145 @@ pub mod wat {
         use lazy_static::lazy_static;
 
         lazy_static! {
+            pub static ref ANNOTATION: u16 = super::language().id_for_node_kind("annotation", true);
+            pub static ref COMMENT_BLOCK_ANNOT: u16 = super::language().id_for_node_kind("comment_block_annot", true);
+            pub static ref COMMENT_BLOCK: u16 = super::language().id_for_node_kind("comment_block", true);
+            pub static ref COMMENT_LINE_ANNOT: u16 = super::language().id_for_node_kind("comment_line_annot", true);
+            pub static ref COMMENT_LINE: u16 = super::language().id_for_node_kind("comment_line", true);
+            pub static ref EXPORT: u16 = super::language().id_for_node_kind("export", true);
+            pub static ref IDENTIFIER: u16 = super::language().id_for_node_kind("identifier", true);
+            pub static ref IMPORT: u16 = super::language().id_for_node_kind("import", true);
+            pub static ref INDEX: u16 = super::language().id_for_node_kind("index", true);
             pub static ref INSTR_PLAIN: u16 = super::language().id_for_node_kind("instr_plain", true);
             pub static ref INSTR: u16 = super::language().id_for_node_kind("instr", true);
+            pub static ref LPAREN: u16 = super::language().id_for_node_kind("(", false);
             pub static ref MODULE_FIELD_DATA: u16 = super::language().id_for_node_kind("module_field_data", true);
             pub static ref MODULE_FIELD_ELEM: u16 = super::language().id_for_node_kind("module_field_elem", true);
+            pub static ref MODULE_FIELD_EXPORT: u16 = super::language().id_for_node_kind("module_field_export", true);
             pub static ref MODULE_FIELD_FUNC: u16 = super::language().id_for_node_kind("module_field_func", true);
             pub static ref MODULE_FIELD_GLOBAL: u16 = super::language().id_for_node_kind("module_field_global", true);
+            pub static ref MODULE_FIELD_IMPORT: u16 = super::language().id_for_node_kind("module_field_import", true);
             pub static ref MODULE_FIELD_MEMORY: u16 = super::language().id_for_node_kind("module_field_memory", true);
+            pub static ref MODULE_FIELD_START: u16 = super::language().id_for_node_kind("module_field_start", true);
             pub static ref MODULE_FIELD_TABLE: u16 = super::language().id_for_node_kind("module_field_table", true);
             pub static ref MODULE_FIELD_TYPE: u16 = super::language().id_for_node_kind("module_field_type", true);
             pub static ref MODULE: u16 = super::language().id_for_node_kind("module", true);
+            pub static ref NAME: u16 = super::language().id_for_node_kind("name", true);
             pub static ref ROOT: u16 = super::language().id_for_node_kind("ROOT", true);
+            pub static ref RPAREN: u16 = super::language().id_for_node_kind(")", false);
+            pub static ref TYPE_USE: u16 = super::language().id_for_node_kind("type_use", true);
         }
 
         pub mod equals {
             #![allow(missing_docs)]
             #![allow(non_snake_case)]
 
+            pub fn ANNOTATION(kind_id: u16) -> bool {
+                *super::ANNOTATION == kind_id
+            }
+
+            pub fn COMMENT_BLOCK_ANNOT(kind_id: u16) -> bool {
+                *super::COMMENT_BLOCK_ANNOT == kind_id
+            }
+
+            pub fn COMMENT_BLOCK(kind_id: u16) -> bool {
+                *super::COMMENT_BLOCK == kind_id
+            }
+
+            pub fn COMMENT_LINE_ANNOT(kind_id: u16) -> bool {
+                *super::COMMENT_LINE_ANNOT == kind_id
+            }
+
+            pub fn COMMENT_LINE(kind_id: u16) -> bool {
+                *super::COMMENT_LINE == kind_id
+            }
+
+            pub fn EXPORT(kind_id: u16) -> bool {
+                *super::EXPORT == kind_id
+            }
+
+            pub fn IDENTIFIER(kind_id: u16) -> bool {
+                *super::IDENTIFIER == kind_id
+            }
+
+            pub fn IMPORT(kind_id: u16) -> bool {
+                *super::IMPORT == kind_id
+            }
+
+            pub fn INDEX(kind_id: u16) -> bool {
+                *super::INDEX == kind_id
+            }
+
+            pub fn INSTR_PLAIN(kind_id: u16) -> bool {
+                *super::INSTR_PLAIN == kind_id
+            }
+
+            pub fn INSTR(kind_id: u16) -> bool {
+                *super::INSTR == kind_id
+            }
+
+            pub fn LPAREN(kind_id: u16) -> bool {
+                *super::LPAREN == kind_id
+            }
+
+            pub fn MODULE_FIELD_DATA(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_DATA == kind_id
+            }
+
+            pub fn MODULE_FIELD_ELEM(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_ELEM == kind_id
+            }
+
+            pub fn MODULE_FIELD_EXPORT(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_EXPORT == kind_id
+            }
+
+            pub fn MODULE_FIELD_FUNC(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_FUNC == kind_id
+            }
+
+            pub fn MODULE_FIELD_GLOBAL(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_GLOBAL == kind_id
+            }
+
+            pub fn MODULE_FIELD_IMPORT(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_IMPORT == kind_id
+            }
+
+            pub fn MODULE_FIELD_MEMORY(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_MEMORY == kind_id
+            }
+
+            pub fn MODULE_FIELD_START(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_START == kind_id
+            }
+
+            pub fn MODULE_FIELD_TABLE(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_TABLE == kind_id
+            }
+
+            pub fn MODULE_FIELD_TYPE(kind_id: u16) -> bool {
+                *super::MODULE_FIELD_TYPE == kind_id
+            }
+
             pub fn MODULE(kind_id: u16) -> bool {
                 *super::MODULE == kind_id
             }
 
+            pub fn NAME(kind_id: u16) -> bool {
+                *super::NAME == kind_id
+            }
+
             pub fn ROOT(kind_id: u16) -> bool {
                 *super::ROOT == kind_id
+            }
+
+            pub fn RPAREN(kind_id: u16) -> bool {
+                *super::RPAREN == kind_id
+            }
+
+            pub fn TYPE_USE(kind_id: u16) -> bool {
+                *super::TYPE_USE == kind_id
             }
         }
     }
