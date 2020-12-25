@@ -71,20 +71,6 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Definitions for the request handlers.</span>
 
@@ -147,15 +133,6 @@
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">error</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
     }
 
-    <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_full_delta</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">params</span>: <span class="ident">SemanticTokensDeltaParams</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SemanticTokensFullDeltaResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">params</span>;
-        <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Got a textDocument/semanticTokens/full/delta request, but it is not implemented&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-    }
-
     <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_range</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">params</span>: <span class="ident">SemanticTokensRangeParams</span>,
@@ -163,11 +140,6 @@
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">provider</span>::<span class="ident">semantic_tokens_range</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="ident">await</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">error</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
-    }
-
-    <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_refresh</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Got a textDocument/semanticTokens/refresh request, but it is not implemented&quot;</span>);
-        <span class="prelude-val">Ok</span>(())
     }
 }
 </pre></div>
