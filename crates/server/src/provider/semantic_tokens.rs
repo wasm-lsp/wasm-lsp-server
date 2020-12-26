@@ -205,23 +205,30 @@ impl<'a> SemanticTokensBuilder<'a> {
     }
 }
 
+// Move to the next appropriate node in the syntax tree.
 fn goto_next(cursor: &mut tree_sitter::TreeCursor, done: &mut bool) {
-    if !cursor.goto_next_sibling() {
-        let mut finished = true;
-        while cursor.goto_parent() {
-            if cursor.goto_next_sibling() {
-                finished = false;
-                break;
+    // First try to descend to the first child node.
+    if !cursor.goto_first_child() {
+        // Otherwise try to move to the next sibling node.
+        if !cursor.goto_next_sibling() {
+            let mut finished = true;
+            // Otherwise continue to ascend to parent nodes...
+            while cursor.goto_parent() {
+                // ... until we can move to a sibling node.
+                if cursor.goto_next_sibling() {
+                    finished = false;
+                    break;
+                }
+                // Otherwise we set `done = true` and stop the outer loop.
             }
+            *done = finished;
         }
-        *done = finished;
     }
 }
 
-// Semantic tokens provider definitions for ".wast" files.
+/// Semantic tokens provider definitions for ".wast" files.
 pub mod wast {
-    //! Semantic tokens provider definitions for ".wast" files.
-
+    use super::goto_next;
     use crate::{
         core::{document::Document, language::wast, session::Session},
         provider::semantic_tokens::SemanticTokensBuilder,
@@ -355,6 +362,21 @@ pub mod wast {
                     continue;
                 }
 
+                // handle {"comment_block", "comment_block_annot", "comment_line", "comment_line_annot"}
+                if wast::kind::equals::COMMENT_BLOCK(this.kind_id()) {
+                    handle::comment_block(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
+                    continue;
+                } else if wast::kind::equals::COMMENT_BLOCK_ANNOT(this.kind_id()) {
+                    handle::comment_block_annot(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
+                    continue;
+                } else if wast::kind::equals::COMMENT_LINE(this.kind_id()) {
+                    handle::comment_line(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
+                    continue;
+                } else if wast::kind::equals::COMMENT_LINE_ANNOT(this.kind_id()) {
+                    handle::comment_line_annot(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
+                    continue;
+                }
+
                 // handle "_meta"
                 if wast::kind::equals::META_INPUT(this.kind_id()) {
                     handle::meta_input(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
@@ -377,15 +399,13 @@ pub mod wast {
                 if wast::kind::equals::MODULE_FIELD_DATA(this.kind_id()) {
                     handle::module_field_data(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
                     continue;
-                }
-                if wast::kind::equals::MODULE_FIELD_ELEM(this.kind_id()) {
+                } else if wast::kind::equals::MODULE_FIELD_ELEM(this.kind_id()) {
                     handle::module_field_elem(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
                     continue;
                 } else if wast::kind::equals::MODULE_FIELD_EXPORT(this.kind_id()) {
                     handle::module_field_export(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
                     continue;
-                }
-                if wast::kind::equals::MODULE_FIELD_FUNC(this.kind_id()) {
+                } else if wast::kind::equals::MODULE_FIELD_FUNC(this.kind_id()) {
                     handle::module_field_func(&mut stack, &mut cursor, this, &mut builder, &mut done)?;
                     continue;
                 } else if wast::kind::equals::MODULE_FIELD_GLOBAL(this.kind_id()) {
@@ -427,16 +447,7 @@ pub mod wast {
                 }
 
                 // FIXME: catch all case
-                if !cursor.goto_next_sibling() {
-                    let mut finished = true;
-                    while cursor.goto_parent() {
-                        if cursor.goto_next_sibling() {
-                            finished = false;
-                            break;
-                        }
-                    }
-                    done = finished;
-                }
+                goto_next(&mut cursor, &mut done);
             }
 
             let tokens = builder.build()?;
@@ -652,6 +663,66 @@ pub mod wast {
             Ok(())
         }
 
+        pub(super) fn comment_block<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            this: tree_sitter::Node<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            let range = crate::util::node::range(&this);
+            builder.push(range, &SemanticTokenType::COMMENT, None)?;
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn comment_block_annot<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            this: tree_sitter::Node<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            let range = crate::util::node::range(&this);
+            builder.push(range, &SemanticTokenType::COMMENT, None)?;
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn comment_line<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            this: tree_sitter::Node<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            let range = crate::util::node::range(&this);
+            builder.push(range, &SemanticTokenType::COMMENT, None)?;
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn comment_line_annot<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            this: tree_sitter::Node<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            let range = crate::util::node::range(&this);
+            builder.push(range, &SemanticTokenType::COMMENT, None)?;
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
         pub(super) fn meta_input<'a>(
             _stack: &mut Vec<tree_sitter::Node>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
@@ -715,10 +786,7 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            if !cursor.goto_first_child() {
-                cursor.reset(this);
-                goto_next(cursor, done);
-            }
+            goto_next(cursor, done);
 
             Ok(())
         }
@@ -960,10 +1028,8 @@ pub mod wast {
     }
 }
 
-// Semantic tokens provider definitions for ".wat" files.
+/// Semantic tokens provider definitions for ".wat" files.
 pub mod wat {
-    //! Semantic tokens provider definitions for ".wast" files.
-
     use crate::{
         core::{document::Document, language::wat, session::Session},
         provider::semantic_tokens::SemanticTokensBuilder,
@@ -1061,6 +1127,7 @@ pub mod wat {
     }
 
     mod handle {
+        use super::super::goto_next;
         use crate::provider::semantic_tokens::SemanticTokensBuilder;
         use lspower::lsp_types::*;
 
@@ -1076,19 +1143,7 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            if !cursor.goto_first_child() {
-                cursor.reset(this);
-                if !cursor.goto_next_sibling() {
-                    let mut finished = true;
-                    while cursor.goto_parent() {
-                        if cursor.goto_next_sibling() {
-                            finished = false;
-                            break;
-                        }
-                    }
-                    *done = finished;
-                }
-            }
+            goto_next(cursor, done);
 
             Ok(())
         }
