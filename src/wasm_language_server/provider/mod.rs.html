@@ -95,7 +95,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">semantic_tokens</span>;
 
 <span class="doccomment">/// Provide response for `textDocument/documentSymbols`.</span>
-<span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(
     <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>,
     <span class="ident">params</span>: <span class="ident">DocumentSymbolParams</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DocumentSymbolResponse</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -103,16 +103,16 @@
         <span class="ident">text_document</span>: <span class="ident">TextDocumentIdentifier</span> { <span class="ident">uri</span> },
         ..
     } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">params</span>;
-    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="ident">uri</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">document</span>.<span class="ident">language</span> {
-        <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">document_symbol</span>::<span class="ident">wast</span>::<span class="ident">response</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="ident">await</span>,
-        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">document_symbol</span>::<span class="ident">wat</span>::<span class="ident">response</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="ident">await</span>,
+        <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">document_symbol</span>::<span class="ident">wast</span>::<span class="ident">response</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="kw">await</span>,
+        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">document_symbol</span>::<span class="ident">wat</span>::<span class="ident">response</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>).<span class="kw">await</span>,
     };
     <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
 }
 
 <span class="comment">// FIXME</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">hover</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">HoverParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">hover</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">HoverParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">HoverParams</span> {
         <span class="ident">text_document_position_params</span>:
             <span class="ident">TextDocumentPositionParams</span> {
@@ -121,32 +121,32 @@
             },
         ..
     } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">params</span>;
-    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="ident">uri</span>).<span class="ident">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">hover</span>::<span class="ident">response</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">hover</span>::<span class="ident">response</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
 }
 
 <span class="comment">// FIXME</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_full</span>(
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_full</span>(
     <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>,
     <span class="ident">params</span>: <span class="ident">SemanticTokensParams</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SemanticTokensResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">document</span>.<span class="ident">language</span> {
-        <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wast</span>::<span class="ident">full</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="ident">await</span><span class="question-mark">?</span>,
-        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wat</span>::<span class="ident">full</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="ident">await</span><span class="question-mark">?</span>,
+        <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wast</span>::<span class="ident">full</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wat</span>::<span class="ident">full</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="kw">await</span><span class="question-mark">?</span>,
     };
     <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_range</span>(
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_range</span>(
     <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>,
     <span class="ident">params</span>: <span class="ident">SemanticTokensRangeParams</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SemanticTokensRangeResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">document</span>.<span class="ident">language</span> {
-        <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wast</span>::<span class="ident">range</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="ident">await</span><span class="question-mark">?</span>,
-        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wat</span>::<span class="ident">range</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="ident">await</span><span class="question-mark">?</span>,
+        <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wast</span>::<span class="ident">range</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">semantic_tokens</span>::<span class="ident">wat</span>::<span class="ident">range</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">params</span>).<span class="kw">await</span><span class="question-mark">?</span>,
     };
     <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
 }

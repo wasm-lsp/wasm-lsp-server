@@ -297,7 +297,7 @@
 }
 
 <span class="doccomment">/// Compute &quot;textDocument/hover&quot; for a given document.</span>
-<span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">response</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">HoverParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">response</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">HoverParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">HoverParams</span> {
         <span class="ident">text_document_position_params</span>:
             <span class="ident">TextDocumentPositionParams</span> {
@@ -308,12 +308,12 @@
         ..
     } <span class="op">=</span> <span class="ident">params</span>;
     <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">Range</span>::<span class="ident">new</span>(<span class="kw-2">*</span><span class="ident">position</span>, <span class="kw-2">*</span><span class="ident">position</span>);
-    <span class="kw">let</span> <span class="ident">hover</span> <span class="op">=</span> <span class="ident">hover_for_token_range</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>, <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">range</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">hover</span> <span class="op">=</span> <span class="ident">hover_for_token_range</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>, <span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">range</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">hover</span>)
 }
 
 <span class="comment">// FIXME</span>
-<span class="ident">async</span> <span class="kw">fn</span> <span class="ident">hover_for_token_range</span>(<span class="ident">_uri</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>, <span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">range</span>: <span class="ident">Range</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">hover_for_token_range</span>(<span class="ident">_uri</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>, <span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">range</span>: <span class="ident">Range</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hover</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">module_fields</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
         <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_DATA</span>,
         <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_ELEM</span>,
@@ -337,7 +337,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">range</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
-    <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">tree</span>.<span class="ident">lock</span>().<span class="ident">await</span>;
+    <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">tree</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
     <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">tree</span>.<span class="ident">root_node</span>();
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">child</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">descendant_for_byte_range</span>(<span class="ident">start</span>, <span class="ident">end</span>) {
