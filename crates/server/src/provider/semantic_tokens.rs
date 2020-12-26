@@ -459,7 +459,7 @@ pub mod wast {
 
     mod handle {
         use super::super::goto_next;
-        use crate::{provider::semantic_tokens::SemanticTokensBuilder};
+        use crate::{core::language::wast, provider::semantic_tokens::SemanticTokensBuilder};
         use lspower::lsp_types::*;
 
         pub(super) fn action_get<'a>(
@@ -705,6 +705,80 @@ pub mod wast {
             Ok(())
         }
 
+        pub(super) fn export<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            // "("
+            cursor.goto_first_child();
+
+            // "export"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            }
+
+            // $.name
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::STRING, None)?;
+            }
+
+            // skip ")"
+            cursor.goto_next_sibling();
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn import<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            // "("
+            cursor.goto_first_child();
+
+            // "import"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            }
+
+            // $.name
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::STRING, None)?;
+            }
+
+            // $.name
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::STRING, None)?;
+            }
+
+            // skip ")"
+            cursor.goto_next_sibling();
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
         pub(super) fn meta_input<'a>(
             _stack: &mut Vec<tree_sitter::Node>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
@@ -818,14 +892,44 @@ pub mod wast {
         }
 
         pub(super) fn module_field_func<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
         ) -> anyhow::Result<()> {
-            if let Some(node) = cursor.node().child(1) {
+            // "("
+            cursor.goto_first_child();
+
+            // "func"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
                 let range = crate::util::node::range(&node);
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // optional($.identifier)
+            if wast::kind::equals::IDENTIFIER(cursor.node().kind_id()) {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // repeat($.export)
+            while wast::kind::equals::EXPORT(cursor.node().kind_id()) {
+                export(stack, cursor, builder, done)?;
+            }
+
+            // optional($.import)
+            if wast::kind::equals::IMPORT(cursor.node().kind_id()) {
+                import(stack, cursor, builder, done)?;
+            }
+
+            // optional($.type_use)
+            if wast::kind::equals::TYPE_USE(cursor.node().kind_id()) {
+                type_use(stack, cursor, builder, done)?;
             }
 
             goto_next(cursor, done);
@@ -834,14 +938,39 @@ pub mod wast {
         }
 
         pub(super) fn module_field_global<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
         ) -> anyhow::Result<()> {
-            if let Some(node) = cursor.node().child(1) {
+            // "("
+            cursor.goto_first_child();
+
+            // "global"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
                 let range = crate::util::node::range(&node);
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // optional($.identifier)
+            if wast::kind::equals::IDENTIFIER(cursor.node().kind_id()) {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // repeat($.export)
+            while wast::kind::equals::EXPORT(cursor.node().kind_id()) {
+                export(stack, cursor, builder, done)?;
+            }
+
+            // optional($.import)
+            if wast::kind::equals::IMPORT(cursor.node().kind_id()) {
+                import(stack, cursor, builder, done)?;
             }
 
             goto_next(cursor, done);
@@ -982,6 +1111,39 @@ pub mod wast {
                 let range = crate::util::node::range(&node);
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn type_use<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            // "("
+            cursor.goto_first_child();
+
+            // "type"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            }
+
+            // $.index
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::VARIABLE, None)?;
+            }
+
+            // skip ")"
+            cursor.goto_parent();
 
             goto_next(cursor, done);
 
@@ -1142,7 +1304,7 @@ pub mod wat {
 
     mod handle {
         use super::super::goto_next;
-        use crate::{provider::semantic_tokens::SemanticTokensBuilder};
+        use crate::{core::language::wat, provider::semantic_tokens::SemanticTokensBuilder};
         use lspower::lsp_types::*;
 
         pub(super) fn comment_block<'a>(
@@ -1195,6 +1357,80 @@ pub mod wat {
         ) -> anyhow::Result<()> {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn export<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            // "("
+            cursor.goto_first_child();
+
+            // "export"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            }
+
+            // $.name
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::STRING, None)?;
+            }
+
+            // skip ")"
+            cursor.goto_next_sibling();
+
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn import<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            // "("
+            cursor.goto_first_child();
+
+            // "import"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            }
+
+            // $.name
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::STRING, None)?;
+            }
+
+            // $.name
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::STRING, None)?;
+            }
+
+            // skip ")"
+            cursor.goto_next_sibling();
 
             goto_next(cursor, done);
 
@@ -1266,14 +1502,44 @@ pub mod wat {
         }
 
         pub(super) fn module_field_func<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
         ) -> anyhow::Result<()> {
-            if let Some(node) = cursor.node().child(1) {
+            // "("
+            cursor.goto_first_child();
+
+            // "func"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
                 let range = crate::util::node::range(&node);
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // optional($.identifier)
+            if wat::kind::equals::IDENTIFIER(cursor.node().kind_id()) {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // repeat($.export)
+            while wat::kind::equals::EXPORT(cursor.node().kind_id()) {
+                export(stack, cursor, builder, done)?;
+            }
+
+            // optional($.import)
+            if wat::kind::equals::IMPORT(cursor.node().kind_id()) {
+                import(stack, cursor, builder, done)?;
+            }
+
+            // optional($.type_use)
+            if wat::kind::equals::TYPE_USE(cursor.node().kind_id()) {
+                type_use(stack, cursor, builder, done)?;
             }
 
             goto_next(cursor, done);
@@ -1282,14 +1548,39 @@ pub mod wat {
         }
 
         pub(super) fn module_field_global<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
         ) -> anyhow::Result<()> {
-            if let Some(node) = cursor.node().child(1) {
+            // "("
+            cursor.goto_first_child();
+
+            // "global"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
                 let range = crate::util::node::range(&node);
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // optional($.identifier)
+            if wat::kind::equals::IDENTIFIER(cursor.node().kind_id()) {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                cursor.goto_next_sibling();
+            }
+
+            // repeat($.export)
+            while wat::kind::equals::EXPORT(cursor.node().kind_id()) {
+                export(stack, cursor, builder, done)?;
+            }
+
+            // optional($.import)
+            if wat::kind::equals::IMPORT(cursor.node().kind_id()) {
+                import(stack, cursor, builder, done)?;
             }
 
             goto_next(cursor, done);
@@ -1383,6 +1674,39 @@ pub mod wat {
             _builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
         ) -> anyhow::Result<()> {
+            goto_next(cursor, done);
+
+            Ok(())
+        }
+
+        pub(super) fn type_use<'a>(
+            _stack: &mut Vec<tree_sitter::Node>,
+            cursor: &mut tree_sitter::TreeCursor<'a>,
+            builder: &mut SemanticTokensBuilder<'a>,
+            done: &mut bool,
+        ) -> anyhow::Result<()> {
+            // "("
+            cursor.goto_first_child();
+
+            // "type"
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            }
+
+            // $.index
+            cursor.goto_next_sibling();
+            {
+                let node = cursor.node();
+                let range = crate::util::node::range(&node);
+                builder.push(range, &SemanticTokenType::VARIABLE, None)?;
+            }
+
+            // skip ")"
+            cursor.goto_parent();
+
             goto_next(cursor, done);
 
             Ok(())
