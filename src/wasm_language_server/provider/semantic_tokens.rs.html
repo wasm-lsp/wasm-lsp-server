@@ -1716,6 +1716,11 @@
 <span id="1713">1713</span>
 <span id="1714">1714</span>
 <span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Provides `textDocument/semanticTokens/*` functionality.</span>
 
@@ -1925,14 +1930,19 @@
 }
 
 <span class="comment">// Move to the next appropriate node in the syntax tree.</span>
-<span class="kw">fn</span> <span class="ident">goto_next</span>(<span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span>, <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>) {
+<span class="kw">fn</span> <span class="ident">goto_next</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>) {
+    <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">cursor</span>.<span class="ident">node</span>();
+
     <span class="comment">// First try to descend to the first child node.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">cursor</span>.<span class="ident">goto_first_child</span>() {
+    <span class="kw">if</span> <span class="ident">cursor</span>.<span class="ident">goto_first_child</span>() {
+        <span class="ident">stack</span>.<span class="ident">push</span>(<span class="ident">prev</span>);
+    } <span class="kw">else</span> {
         <span class="comment">// Otherwise try to move to the next sibling node.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident">cursor</span>.<span class="ident">goto_next_sibling</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="comment">// Otherwise continue to ascend to parent nodes...</span>
             <span class="kw">while</span> <span class="ident">cursor</span>.<span class="ident">goto_parent</span>() {
+                <span class="ident">stack</span>.<span class="ident">pop</span>();
                 <span class="comment">// ... until we can move to a sibling node.</span>
                 <span class="kw">if</span> <span class="ident">cursor</span>.<span class="ident">goto_next_sibling</span>() {
                     <span class="ident">finished</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -2163,8 +2173,8 @@
                     <span class="kw">continue</span>;
                 }
 
-                <span class="comment">// FIXME: catch all case</span>
-                <span class="ident">goto_next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cursor</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">done</span>);
+                <span class="comment">// catch all case</span>
+                <span class="ident">goto_next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cursor</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stack</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">done</span>);
             }
 
             <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">build</span>()<span class="question-mark">?</span>;
@@ -2182,7 +2192,7 @@
         <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">action_get</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2192,13 +2202,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">action_invoke</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2208,13 +2218,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_exhaustion</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2224,13 +2234,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_invalid</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2240,13 +2250,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_malformed</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2256,13 +2266,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_return</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2272,13 +2282,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_return_arithmetic_nan</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2288,13 +2298,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_return_canonical_nan</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2304,13 +2314,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_trap_action</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2320,13 +2330,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_trap_module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2336,13 +2346,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">assert_unlinkable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2352,13 +2362,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">command</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">_builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">_done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2369,7 +2379,7 @@
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2377,13 +2387,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_block_annot</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2391,13 +2401,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_line</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2405,13 +2415,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_line_annot</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2419,13 +2429,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">export</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2452,13 +2462,13 @@
             <span class="comment">// skip &quot;)&quot;</span>
             <span class="ident">cursor</span>.<span class="ident">goto_next_sibling</span>();
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">import</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2493,13 +2503,13 @@
             <span class="comment">// skip &quot;)&quot;</span>
             <span class="ident">cursor</span>.<span class="ident">goto_next_sibling</span>();
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">meta_input</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2509,13 +2519,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">meta_output</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2525,13 +2535,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">meta_script</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2541,13 +2551,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2557,13 +2567,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_data</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2573,13 +2583,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_elem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2589,13 +2599,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_export</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2605,13 +2615,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_func</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2651,13 +2661,13 @@
                 <span class="ident">type_use</span>(<span class="ident">stack</span>, <span class="ident">cursor</span>, <span class="ident">builder</span>, <span class="ident">done</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_global</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2692,13 +2702,13 @@
                 <span class="ident">import</span>(<span class="ident">stack</span>, <span class="ident">cursor</span>, <span class="ident">builder</span>, <span class="ident">done</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_import</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2708,13 +2718,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_memory</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2724,13 +2734,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_start</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2740,13 +2750,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2756,13 +2766,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_type</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2772,13 +2782,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">register</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2788,24 +2798,24 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">root</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">_builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">script_module_binary</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2815,13 +2825,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">script_module_quote</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2831,13 +2841,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">type_use</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -2864,7 +2874,7 @@
             <span class="comment">// skip &quot;)&quot;</span>
             <span class="ident">cursor</span>.<span class="ident">goto_parent</span>();
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
@@ -3009,7 +3019,7 @@
                 }
 
                 <span class="comment">// FIXME: catch all case</span>
-                <span class="ident">goto_next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cursor</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">done</span>);
+                <span class="ident">goto_next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cursor</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stack</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">done</span>);
             }
 
             <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">build</span>()<span class="question-mark">?</span>;
@@ -3027,7 +3037,7 @@
         <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3035,13 +3045,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_block_annot</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3049,13 +3059,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_line</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3063,13 +3073,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">comment_line_annot</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3077,13 +3087,13 @@
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">node</span>::<span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="ident">cursor</span>.<span class="ident">node</span>());
             <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">COMMENT</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">export</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3110,13 +3120,13 @@
             <span class="comment">// skip &quot;)&quot;</span>
             <span class="ident">cursor</span>.<span class="ident">goto_next_sibling</span>();
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">import</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3151,13 +3161,13 @@
             <span class="comment">// skip &quot;)&quot;</span>
             <span class="ident">cursor</span>.<span class="ident">goto_next_sibling</span>();
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3167,13 +3177,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_data</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3183,13 +3193,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_elem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3199,13 +3209,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_export</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3215,13 +3225,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_func</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3261,13 +3271,13 @@
                 <span class="ident">type_use</span>(<span class="ident">stack</span>, <span class="ident">cursor</span>, <span class="ident">builder</span>, <span class="ident">done</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_global</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3302,13 +3312,13 @@
                 <span class="ident">import</span>(<span class="ident">stack</span>, <span class="ident">cursor</span>, <span class="ident">builder</span>, <span class="ident">done</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_import</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3318,13 +3328,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_memory</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3334,13 +3344,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_start</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3350,13 +3360,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3366,13 +3376,13 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">module_field_type</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3382,24 +3392,24 @@
                 <span class="ident">builder</span>.<span class="ident">push</span>(<span class="ident">range</span>, <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>::<span class="ident">KEYWORD</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">root</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">_builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
 
         <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">type_use</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">_stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&gt;</span>,
+            <span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
             <span class="ident">cursor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tree_sitter</span>::<span class="ident">TreeCursor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
             <span class="ident">done</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
@@ -3426,7 +3436,7 @@
             <span class="comment">// skip &quot;)&quot;</span>
             <span class="ident">cursor</span>.<span class="ident">goto_parent</span>();
 
-            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">done</span>);
+            <span class="ident">goto_next</span>(<span class="ident">cursor</span>, <span class="ident">stack</span>, <span class="ident">done</span>);
 
             <span class="prelude-val">Ok</span>(())
         }
