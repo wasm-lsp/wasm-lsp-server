@@ -206,14 +206,19 @@ impl<'a> SemanticTokensBuilder<'a> {
 }
 
 // Move to the next appropriate node in the syntax tree.
-fn goto_next(cursor: &mut tree_sitter::TreeCursor, done: &mut bool) {
+fn goto_next<'a>(cursor: &mut tree_sitter::TreeCursor<'a>, stack: &mut Vec<tree_sitter::Node<'a>>, done: &mut bool) {
+    let prev = cursor.node();
+
     // First try to descend to the first child node.
-    if !cursor.goto_first_child() {
+    if cursor.goto_first_child() {
+        stack.push(prev);
+    } else {
         // Otherwise try to move to the next sibling node.
         if !cursor.goto_next_sibling() {
             let mut finished = true;
             // Otherwise continue to ascend to parent nodes...
             while cursor.goto_parent() {
+                stack.pop();
                 // ... until we can move to a sibling node.
                 if cursor.goto_next_sibling() {
                     finished = false;
@@ -445,6 +450,7 @@ pub mod wast {
                 }
 
                 // catch all case
+                goto_next(&mut cursor, &mut stack, &mut done);
             }
 
             let tokens = builder.build()?;
@@ -462,7 +468,7 @@ pub mod wast {
         use lspower::lsp_types::*;
 
         pub(super) fn action_get<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -472,13 +478,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn action_invoke<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -488,13 +494,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_exhaustion<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -504,13 +510,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_invalid<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -520,13 +526,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_malformed<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -536,13 +542,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_return<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -552,13 +558,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_return_arithmetic_nan<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -568,13 +574,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_return_canonical_nan<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -584,13 +590,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_trap_action<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -600,13 +606,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_trap_module<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -616,13 +622,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn assert_unlinkable<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -632,13 +638,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn command<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            _stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             _builder: &mut SemanticTokensBuilder<'a>,
             _done: &mut bool,
@@ -649,7 +655,7 @@ pub mod wast {
         }
 
         pub(super) fn comment_block<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -657,13 +663,13 @@ pub mod wast {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn comment_block_annot<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -671,13 +677,13 @@ pub mod wast {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn comment_line<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -685,13 +691,13 @@ pub mod wast {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn comment_line_annot<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -699,13 +705,13 @@ pub mod wast {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn export<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -732,13 +738,13 @@ pub mod wast {
             // skip ")"
             cursor.goto_next_sibling();
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn import<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -773,13 +779,13 @@ pub mod wast {
             // skip ")"
             cursor.goto_next_sibling();
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn meta_input<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -789,13 +795,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn meta_output<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -805,13 +811,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn meta_script<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -821,13 +827,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -837,13 +843,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_data<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -853,13 +859,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_elem<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -869,13 +875,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_export<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -885,13 +891,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_func<'a>(
-            stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -931,13 +937,13 @@ pub mod wast {
                 type_use(stack, cursor, builder, done)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_global<'a>(
-            stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -972,13 +978,13 @@ pub mod wast {
                 import(stack, cursor, builder, done)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_import<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -988,13 +994,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_memory<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1004,13 +1010,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_start<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1020,13 +1026,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_table<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1036,13 +1042,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_type<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1052,13 +1058,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn register<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1068,24 +1074,24 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn root<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             _builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
         ) -> anyhow::Result<()> {
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn script_module_binary<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1095,13 +1101,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn script_module_quote<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1111,13 +1117,13 @@ pub mod wast {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn type_use<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1144,7 +1150,7 @@ pub mod wast {
             // skip ")"
             cursor.goto_parent();
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
@@ -1289,7 +1295,7 @@ pub mod wat {
                 }
 
                 // FIXME: catch all case
-                goto_next(&mut cursor, &mut done);
+                goto_next(&mut cursor, &mut stack, &mut done);
             }
 
             let tokens = builder.build()?;
@@ -1307,7 +1313,7 @@ pub mod wat {
         use lspower::lsp_types::*;
 
         pub(super) fn comment_block<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1315,13 +1321,13 @@ pub mod wat {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn comment_block_annot<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1329,13 +1335,13 @@ pub mod wat {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn comment_line<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1343,13 +1349,13 @@ pub mod wat {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn comment_line_annot<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1357,13 +1363,13 @@ pub mod wat {
             let range = crate::util::node::range(&cursor.node());
             builder.push(range, &SemanticTokenType::COMMENT, None)?;
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn export<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1390,13 +1396,13 @@ pub mod wat {
             // skip ")"
             cursor.goto_next_sibling();
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn import<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1431,13 +1437,13 @@ pub mod wat {
             // skip ")"
             cursor.goto_next_sibling();
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1447,13 +1453,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_data<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1463,13 +1469,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_elem<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1479,13 +1485,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_export<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1495,13 +1501,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_func<'a>(
-            stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1541,13 +1547,13 @@ pub mod wat {
                 type_use(stack, cursor, builder, done)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_global<'a>(
-            stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1582,13 +1588,13 @@ pub mod wat {
                 import(stack, cursor, builder, done)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_import<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1598,13 +1604,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_memory<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1614,13 +1620,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_start<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1630,13 +1636,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_table<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1646,13 +1652,13 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn module_field_type<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1662,24 +1668,24 @@ pub mod wat {
                 builder.push(range, &SemanticTokenType::KEYWORD, None)?;
             }
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn root<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             _builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
         ) -> anyhow::Result<()> {
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
 
         pub(super) fn type_use<'a>(
-            _stack: &mut Vec<tree_sitter::Node>,
+            stack: &mut Vec<tree_sitter::Node<'a>>,
             cursor: &mut tree_sitter::TreeCursor<'a>,
             builder: &mut SemanticTokensBuilder<'a>,
             done: &mut bool,
@@ -1706,7 +1712,7 @@ pub mod wat {
             // skip ")"
             cursor.goto_parent();
 
-            goto_next(cursor, done);
+            goto_next(cursor, stack, done);
 
             Ok(())
         }
