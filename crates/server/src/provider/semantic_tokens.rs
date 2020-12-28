@@ -444,8 +444,7 @@ pub mod wast {
                     continue;
                 }
 
-                // FIXME: catch all case
-                goto_next(&mut cursor, &mut done);
+                // catch all case
             }
 
             let tokens = builder.build()?;
