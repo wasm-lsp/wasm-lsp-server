@@ -59,7 +59,7 @@ impl<'a> NodeWalker<'a> {
         walker
     }
 
-    // Move to the first child node in the syntax tree.
+    // Move the cursor to the first child node.
     pub(super) fn goto_first_child(&mut self) -> bool {
         let prev = self.cursor.node();
         let moved = self.cursor.goto_first_child();
@@ -69,12 +69,12 @@ impl<'a> NodeWalker<'a> {
         moved
     }
 
-    // Move to the first child node in the syntax tree.
+    // Move the cursor to the next sibling node.
     pub(super) fn goto_next_sibling(&mut self) -> bool {
         self.cursor.goto_next_sibling()
     }
 
-    // Move to the next appropriate node in the syntax tree.
+    // Move cursor to the next accessible node.
     pub(super) fn goto_next(&mut self) -> bool {
         let prev = self.cursor.node();
         let mut moved;
@@ -105,12 +105,18 @@ impl<'a> NodeWalker<'a> {
         moved
     }
 
+    // Move the cursor to the parent node.
     pub(super) fn goto_parent(&mut self) -> bool {
         let moved = self.cursor.goto_parent();
         if moved {
             self.stack.pop();
         }
         moved
+    }
+
+    // Return the current node's kind id.
+    pub(super) fn kind(&self) -> u16 {
+        self.cursor.node().kind_id()
     }
 
     // Return the current node for the cursor.
