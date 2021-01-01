@@ -26,10 +26,6 @@ pub mod wast {
             let walker = NodeWalker::new(language, node);
             Self { builder, walker }
         }
-
-        fn current_kind(&self) -> u16 {
-            self.walker.node().kind_id()
-        }
     }
 
     pub(crate) async fn full(
@@ -89,142 +85,142 @@ pub mod wast {
                 }
 
                 // handle "root"
-                if wast::kind::equals::ROOT(handler.current_kind()) {
+                if wast::kind::equals::ROOT(handler.walker.kind()) {
                     handler.root()?;
                     continue;
                 }
 
                 // handle "_action"
-                if wast::kind::equals::ACTION_GET(handler.current_kind()) {
+                if wast::kind::equals::ACTION_GET(handler.walker.kind()) {
                     handler.action_get()?;
                     continue;
-                } else if wast::kind::equals::ACTION_INVOKE(handler.current_kind()) {
+                } else if wast::kind::equals::ACTION_INVOKE(handler.walker.kind()) {
                     handler.action_invoke()?;
                     continue;
                 }
 
                 // handle "_assertion"
-                if wast::kind::equals::ASSERT_EXHAUSTION(handler.current_kind()) {
+                if wast::kind::equals::ASSERT_EXHAUSTION(handler.walker.kind()) {
                     handler.assert_exhaustion()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_INVALID(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_INVALID(handler.walker.kind()) {
                     handler.assert_invalid()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_EXHAUSTION(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_EXHAUSTION(handler.walker.kind()) {
                     handler.assert_exhaustion()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_INVALID(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_INVALID(handler.walker.kind()) {
                     handler.assert_invalid()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_MALFORMED(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_MALFORMED(handler.walker.kind()) {
                     handler.assert_malformed()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_RETURN(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_RETURN(handler.walker.kind()) {
                     handler.assert_return()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_RETURN_ARITHMETIC_NAN(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_RETURN_ARITHMETIC_NAN(handler.walker.kind()) {
                     handler.assert_return_arithmetic_nan()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_RETURN_CANONICAL_NAN(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_RETURN_CANONICAL_NAN(handler.walker.kind()) {
                     handler.assert_return_canonical_nan()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_TRAP_ACTION(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_TRAP_ACTION(handler.walker.kind()) {
                     handler.assert_trap_action()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_TRAP_MODULE(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_TRAP_MODULE(handler.walker.kind()) {
                     handler.assert_trap_module()?;
                     continue;
-                } else if wast::kind::equals::ASSERT_UNLINKABLE(handler.current_kind()) {
+                } else if wast::kind::equals::ASSERT_UNLINKABLE(handler.walker.kind()) {
                     handler.assert_unlinkable()?;
                     continue;
                 }
 
                 // handle "command"
-                if wast::kind::equals::COMMAND(handler.current_kind()) {
+                if wast::kind::equals::COMMAND(handler.walker.kind()) {
                     handler.command()?;
                     continue;
                 }
 
                 // handle {"comment_block", "comment_block_annot", "comment_line", "comment_line_annot"}
-                if wast::kind::equals::COMMENT_BLOCK(handler.current_kind()) {
+                if wast::kind::equals::COMMENT_BLOCK(handler.walker.kind()) {
                     handler.comment_block()?;
                     continue;
-                } else if wast::kind::equals::COMMENT_BLOCK_ANNOT(handler.current_kind()) {
+                } else if wast::kind::equals::COMMENT_BLOCK_ANNOT(handler.walker.kind()) {
                     handler.comment_block_annot()?;
                     continue;
-                } else if wast::kind::equals::COMMENT_LINE(handler.current_kind()) {
+                } else if wast::kind::equals::COMMENT_LINE(handler.walker.kind()) {
                     handler.comment_line()?;
                     continue;
-                } else if wast::kind::equals::COMMENT_LINE_ANNOT(handler.current_kind()) {
+                } else if wast::kind::equals::COMMENT_LINE_ANNOT(handler.walker.kind()) {
                     handler.comment_line_annot()?;
                     continue;
                 }
 
                 // handle "_meta"
-                if wast::kind::equals::META_INPUT(handler.current_kind()) {
+                if wast::kind::equals::META_INPUT(handler.walker.kind()) {
                     handler.meta_input()?;
                     continue;
-                } else if wast::kind::equals::META_OUTPUT(handler.current_kind()) {
+                } else if wast::kind::equals::META_OUTPUT(handler.walker.kind()) {
                     handler.meta_output()?;
                     continue;
-                } else if wast::kind::equals::META_SCRIPT(handler.current_kind()) {
+                } else if wast::kind::equals::META_SCRIPT(handler.walker.kind()) {
                     handler.meta_script()?;
                     continue;
                 }
 
                 // handle "module"
-                if wast::kind::equals::MODULE(handler.current_kind()) {
+                if wast::kind::equals::MODULE(handler.walker.kind()) {
                     handler.module()?;
                     continue;
                 }
 
                 // handle "_module_field"
-                if wast::kind::equals::MODULE_FIELD_DATA(handler.current_kind()) {
+                if wast::kind::equals::MODULE_FIELD_DATA(handler.walker.kind()) {
                     handler.module_field_data()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_ELEM(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_ELEM(handler.walker.kind()) {
                     handler.module_field_elem()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_EXPORT(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_EXPORT(handler.walker.kind()) {
                     handler.module_field_export()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_FUNC(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_FUNC(handler.walker.kind()) {
                     handler.module_field_func()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_GLOBAL(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_GLOBAL(handler.walker.kind()) {
                     handler.module_field_global()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_IMPORT(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_IMPORT(handler.walker.kind()) {
                     handler.module_field_import()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_MEMORY(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_MEMORY(handler.walker.kind()) {
                     handler.module_field_memory()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_START(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_START(handler.walker.kind()) {
                     handler.module_field_start()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_TABLE(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_TABLE(handler.walker.kind()) {
                     handler.module_field_table()?;
                     continue;
-                } else if wast::kind::equals::MODULE_FIELD_TYPE(handler.current_kind()) {
+                } else if wast::kind::equals::MODULE_FIELD_TYPE(handler.walker.kind()) {
                     handler.module_field_type()?;
                     continue;
                 }
 
                 // handle "register"
-                if wast::kind::equals::REGISTER(handler.current_kind()) {
+                if wast::kind::equals::REGISTER(handler.walker.kind()) {
                     handler.register()?;
                     continue;
                 }
 
                 // handle "_script_module"
-                if wast::kind::equals::MODULE(handler.current_kind()) {
+                if wast::kind::equals::MODULE(handler.walker.kind()) {
                     // handled earlier
                     unreachable!();
-                } else if wast::kind::equals::SCRIPT_MODULE_BINARY(handler.current_kind()) {
+                } else if wast::kind::equals::SCRIPT_MODULE_BINARY(handler.walker.kind()) {
                     handler.script_module_binary()?;
                     continue;
-                } else if wast::kind::equals::SCRIPT_MODULE_QUOTE(handler.current_kind()) {
+                } else if wast::kind::equals::SCRIPT_MODULE_QUOTE(handler.walker.kind()) {
                     handler.script_module_quote()?;
                     continue;
                 }
@@ -561,7 +557,7 @@ pub mod wast {
             }
 
             // optional($.identifier)
-            if wast::kind::equals::IDENTIFIER(self.current_kind()) {
+            if wast::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
                 self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
@@ -569,17 +565,17 @@ pub mod wast {
             }
 
             // repeat($.export)
-            while wast::kind::equals::EXPORT(self.current_kind()) {
+            while wast::kind::equals::EXPORT(self.walker.kind()) {
                 self.export()?;
             }
 
             // optional($.import)
-            if wast::kind::equals::IMPORT(self.current_kind()) {
+            if wast::kind::equals::IMPORT(self.walker.kind()) {
                 self.import()?;
             }
 
             // optional($.type_use)
-            if wast::kind::equals::TYPE_USE(self.current_kind()) {
+            if wast::kind::equals::TYPE_USE(self.walker.kind()) {
                 self.type_use()?;
             }
 
@@ -602,7 +598,7 @@ pub mod wast {
             }
 
             // optional($.identifier)
-            if wast::kind::equals::IDENTIFIER(self.current_kind()) {
+            if wast::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
                 self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
@@ -610,12 +606,12 @@ pub mod wast {
             }
 
             // repeat($.export)
-            while wast::kind::equals::EXPORT(self.current_kind()) {
+            while wast::kind::equals::EXPORT(self.walker.kind()) {
                 self.export()?;
             }
 
             // optional($.import)
-            if wast::kind::equals::IMPORT(self.current_kind()) {
+            if wast::kind::equals::IMPORT(self.walker.kind()) {
                 self.import()?;
             }
 
@@ -772,10 +768,6 @@ pub mod wat {
             let walker = NodeWalker::new(language, node);
             Self { builder, walker }
         }
-
-        fn current_kind(&self) -> u16 {
-            self.walker.node().kind_id()
-        }
     }
 
     pub(crate) async fn full(
@@ -835,61 +827,61 @@ pub mod wat {
                 }
 
                 // handle "root"
-                if wat::kind::equals::ROOT(handler.current_kind()) {
+                if wat::kind::equals::ROOT(handler.walker.kind()) {
                     handler.root()?;
                     continue;
                 }
 
                 // handle {"comment_block", "comment_block_annot", "comment_line", "comment_line_annot"}
-                if wat::kind::equals::COMMENT_BLOCK(handler.current_kind()) {
+                if wat::kind::equals::COMMENT_BLOCK(handler.walker.kind()) {
                     handler.comment_block()?;
                     continue;
-                } else if wat::kind::equals::COMMENT_BLOCK_ANNOT(handler.current_kind()) {
+                } else if wat::kind::equals::COMMENT_BLOCK_ANNOT(handler.walker.kind()) {
                     handler.comment_block_annot()?;
                     continue;
-                } else if wat::kind::equals::COMMENT_LINE(handler.current_kind()) {
+                } else if wat::kind::equals::COMMENT_LINE(handler.walker.kind()) {
                     handler.comment_line()?;
                     continue;
-                } else if wat::kind::equals::COMMENT_LINE_ANNOT(handler.current_kind()) {
+                } else if wat::kind::equals::COMMENT_LINE_ANNOT(handler.walker.kind()) {
                     handler.comment_line_annot()?;
                     continue;
                 }
 
                 // handle "module"
-                if wat::kind::equals::MODULE(handler.current_kind()) {
+                if wat::kind::equals::MODULE(handler.walker.kind()) {
                     handler.module()?;
                     continue;
                 }
 
                 // handle "_module_field"
-                if wat::kind::equals::MODULE_FIELD_DATA(handler.current_kind()) {
+                if wat::kind::equals::MODULE_FIELD_DATA(handler.walker.kind()) {
                     handler.module_field_data()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_ELEM(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_ELEM(handler.walker.kind()) {
                     handler.module_field_elem()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_EXPORT(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_EXPORT(handler.walker.kind()) {
                     handler.module_field_export()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_FUNC(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_FUNC(handler.walker.kind()) {
                     handler.module_field_func()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_GLOBAL(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_GLOBAL(handler.walker.kind()) {
                     handler.module_field_global()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_IMPORT(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_IMPORT(handler.walker.kind()) {
                     handler.module_field_import()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_MEMORY(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_MEMORY(handler.walker.kind()) {
                     handler.module_field_memory()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_START(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_START(handler.walker.kind()) {
                     handler.module_field_start()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_TABLE(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_TABLE(handler.walker.kind()) {
                     handler.module_field_table()?;
                     continue;
-                } else if wat::kind::equals::MODULE_FIELD_TYPE(handler.current_kind()) {
+                } else if wat::kind::equals::MODULE_FIELD_TYPE(handler.walker.kind()) {
                     handler.module_field_type()?;
                     continue;
                 }
@@ -1066,7 +1058,7 @@ pub mod wat {
             }
 
             // optional($.identifier)
-            if wat::kind::equals::IDENTIFIER(self.current_kind()) {
+            if wat::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
                 self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
@@ -1074,17 +1066,17 @@ pub mod wat {
             }
 
             // repeat($.export)
-            while wat::kind::equals::EXPORT(self.current_kind()) {
+            while wat::kind::equals::EXPORT(self.walker.kind()) {
                 self.export()?;
             }
 
             // optional($.import)
-            if wat::kind::equals::IMPORT(self.current_kind()) {
+            if wat::kind::equals::IMPORT(self.walker.kind()) {
                 self.import()?;
             }
 
             // optional($.type_use)
-            if wat::kind::equals::TYPE_USE(self.current_kind()) {
+            if wat::kind::equals::TYPE_USE(self.walker.kind()) {
                 self.type_use()?;
             }
 
@@ -1107,7 +1099,7 @@ pub mod wat {
             }
 
             // optional($.identifier)
-            if wat::kind::equals::IDENTIFIER(self.current_kind()) {
+            if wat::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
                 self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
@@ -1115,12 +1107,12 @@ pub mod wat {
             }
 
             // repeat($.export)
-            while wat::kind::equals::EXPORT(self.current_kind()) {
+            while wat::kind::equals::EXPORT(self.walker.kind()) {
                 self.export()?;
             }
 
             // optional($.import)
-            if wat::kind::equals::IMPORT(self.current_kind()) {
+            if wat::kind::equals::IMPORT(self.walker.kind()) {
                 self.import()?;
             }
 
