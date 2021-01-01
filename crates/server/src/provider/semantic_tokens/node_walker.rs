@@ -1,5 +1,4 @@
-use crate::{core::language::Language, provider::semantic_tokens::builder::SemanticTokensBuilder};
-use lspower::lsp_types::*;
+use crate::core::language::Language;
 
 /// The current node stack along with it's hash. Used for context comparison.
 #[derive(Debug, Default, Clone)]
@@ -41,21 +40,18 @@ impl<'a> NodeWalkerStack<'a> {
 pub(super) struct NodeWalker<'a> {
     language: Language,
     stack: NodeWalkerStack<'a>,
-    builder: SemanticTokensBuilder<'a>,
     cursor: tree_sitter::TreeCursor<'a>,
-    done: bool,
+    pub(super) done: bool,
 }
 
 impl<'a> NodeWalker<'a> {
-    fn new(language: Language, legend: Option<&'a SemanticTokensLegend>, node: &tree_sitter::Node<'a>) -> Self {
+    pub(super) fn new(language: Language, node: tree_sitter::Node<'a>) -> Self {
         let stack = NodeWalkerStack::new();
-        let builder = SemanticTokensBuilder::new(legend);
         let cursor = node.walk();
         let done = false;
         let mut walker = Self {
             language,
             stack,
-            builder,
             cursor,
             done,
         };
@@ -63,19 +59,38 @@ impl<'a> NodeWalker<'a> {
         walker
     }
 
-    // Move to the next appropriate node in the syntax tree.
-    fn goto_next(&mut self) {
+    // Move to the first child node in the syntax tree.
+    pub(super) fn goto_first_child(&mut self) -> bool {
         let prev = self.cursor.node();
+        let moved = self.cursor.goto_first_child();
+        if moved {
+            self.stack.push(prev);
+        }
+        moved
+    }
+
+    // Move to the first child node in the syntax tree.
+    pub(super) fn goto_next_sibling(&mut self) -> bool {
+        self.cursor.goto_next_sibling()
+    }
+
+    // Move to the next appropriate node in the syntax tree.
+    pub(super) fn goto_next(&mut self) -> bool {
+        let prev = self.cursor.node();
+        let mut moved;
 
         // First try to descend to the first child node.
-        if self.cursor.goto_first_child() {
+        moved = self.cursor.goto_first_child();
+        if moved {
             self.stack.push(prev);
         } else {
             // Otherwise try to move to the next sibling node.
-            if !self.cursor.goto_next_sibling() {
+            moved = self.cursor.goto_next_sibling();
+            if !moved {
                 let mut finished = true;
                 // Otherwise continue to ascend to parent nodes...
                 while self.cursor.goto_parent() {
+                    moved = true;
                     self.stack.pop();
                     // ... until we can move to a sibling node.
                     if self.cursor.goto_next_sibling() {
@@ -87,6 +102,20 @@ impl<'a> NodeWalker<'a> {
                 self.done = finished;
             }
         }
+        moved
+    }
+
+    pub(super) fn goto_parent(&mut self) -> bool {
+        let moved = self.cursor.goto_parent();
+        if moved {
+            self.stack.pop();
+        }
+        moved
+    }
+
+    // Return the current node for the cursor.
+    pub(super) fn node(&self) -> tree_sitter::Node<'a> {
+        self.cursor.node()
     }
 
     // Reconstruct the context stack from the current node position.
@@ -98,6 +127,7 @@ impl<'a> NodeWalker<'a> {
         let node = self.cursor.node();
         let kind = node.kind_id();
 
+        // Reconstruct the stack by traversing upward if the current node isn't ROOT.
         if (language == Wast && !wast::kind::equals::ROOT(kind)) || (language == Wat && !wat::kind::equals::ROOT(kind))
         {
             while self.cursor.goto_parent() {
