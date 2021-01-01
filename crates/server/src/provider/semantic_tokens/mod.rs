@@ -1,6 +1,7 @@
 //! Provides `textDocument/semanticTokens/*` functionality.
 
 mod builder;
+mod node_walker;
 
 use builder::SemanticTokensBuilder;
 
