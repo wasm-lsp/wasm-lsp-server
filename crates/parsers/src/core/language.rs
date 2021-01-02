@@ -494,6 +494,10 @@ pub mod wast {
                     *super::FUNCREF == kind_id
                 }
 
+                pub fn GET(kind_id: u16) -> bool {
+                    *super::GET == kind_id
+                }
+
                 pub fn GLOBAL(kind_id: u16) -> bool {
                     *super::GLOBAL == kind_id
                 }
