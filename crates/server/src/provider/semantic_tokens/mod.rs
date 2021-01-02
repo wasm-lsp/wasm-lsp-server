@@ -94,8 +94,14 @@ pub mod wast {
                 if wast::kind::equals::ACTION_GET(handler.walker.kind()) {
                     handler.action_get()?;
                     continue;
+                } else if wast::kind::token::equals::GET(handler.walker.kind()) {
+                    handler.token_get()?;
+                    continue;
                 } else if wast::kind::equals::ACTION_INVOKE(handler.walker.kind()) {
                     handler.action_invoke()?;
+                    continue;
+                } else if wast::kind::token::equals::INVOKE(handler.walker.kind()) {
+                    handler.token_invoke()?;
                     continue;
                 }
 
@@ -736,6 +742,26 @@ pub mod wast {
 
             // skip ")"
             self.walker.goto_parent();
+
+            self.walker.goto_next();
+
+            Ok(())
+        }
+
+        fn token_get(&mut self) -> anyhow::Result<()> {
+            let node = self.walker.node();
+            let range = crate::util::node::range(&node);
+            self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+
+            self.walker.goto_next();
+
+            Ok(())
+        }
+
+        fn token_invoke(&mut self) -> anyhow::Result<()> {
+            let node = self.walker.node();
+            let range = crate::util::node::range(&node);
+            self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
 
             self.walker.goto_next();
 
