@@ -1,38 +1,42 @@
 use crate::core::language::Language;
+// use std::slice::SliceIndex;
 
 /// The current node stack along with it's hash. Used for context comparison.
 #[derive(Debug, Default, Clone)]
 pub(super) struct NodeWalkerStack<'a> {
     nodes: Vec<tree_sitter::Node<'a>>,
-    hash: u64,
 }
 
 impl<'a> NodeWalkerStack<'a> {
     fn new() -> Self {
-        let mut stack = Self { ..Default::default() };
-        stack.rehash();
-        stack
+        Self { ..Default::default() }
     }
 
+    // fn matches<I>(&self, index: I, kinds: &[u16]) -> bool
+    // where
+    //     I: SliceIndex<[tree_sitter::Node<'a>], Output = [tree_sitter::Node<'a>]>,
+    // {
+    //     if let Some(nodes) = self.nodes.get(index) {
+    //         if nodes.len() == kinds.len() {
+    //             let mut result = false;
+    //             for i in 0 .. kinds.len() {
+    //                 result = kinds[i] == nodes[i].kind_id();
+    //             }
+    //             result
+    //         } else {
+    //             false
+    //         }
+    //     } else {
+    //         false
+    //     }
+    // }
+
     fn pop(&mut self) -> Option<tree_sitter::Node<'a>> {
-        let node = self.nodes.pop();
-        self.rehash();
-        node
+        self.nodes.pop()
     }
 
     fn push(&mut self, node: tree_sitter::Node<'a>) {
         self.nodes.push(node);
-        self.rehash();
-    }
-
-    fn rehash(&mut self) {
-        use std::{
-            collections::hash_map::DefaultHasher,
-            hash::{Hash, Hasher},
-        };
-        let mut hasher = DefaultHasher::new();
-        Hash::hash_slice(&self.nodes, &mut hasher);
-        self.hash = hasher.finish();
     }
 }
 
@@ -58,6 +62,17 @@ impl<'a> NodeWalker<'a> {
         walker.reconstruct_stack();
         walker
     }
+
+    // pub(super) fn context<I>(&self, index: I, kinds: &[u16]) -> bool
+    // where
+    //     I: SliceIndex<[tree_sitter::Node<'a>], Output = [tree_sitter::Node<'a>]>,
+    // {
+    //     self.stack.matches(index, kinds)
+    // }
+
+    // pub(super) fn depth(&self) -> usize {
+    //     self.stack.nodes.len()
+    // }
 
     // Move the cursor to the first child node.
     pub(super) fn goto_first_child(&mut self) -> bool {
