@@ -5,7 +5,8 @@ use lspower::lsp_types::*;
 
 fn for_error(document: &Document, error: wast::Error) -> Diagnostic {
     let range = {
-        let input = &document.text;
+        let input = document.rope.chunks().collect::<String>();
+        let input = input.as_str();
         let span = error.span();
         let (line, col) = span.linecol_in(input);
         // NOTE: wast only gives us the start position so we use that twice
@@ -28,7 +29,9 @@ fn for_error(document: &Document, error: wast::Error) -> Diagnostic {
 fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<Diagnostic>> {
     let mut diagnostics = vec![];
     if tree.root_node().has_error() || cfg!(debug_assertions) {
-        match ::wast::parser::ParseBuffer::new(&document.text) {
+        let input = document.rope.chunks().collect::<String>();
+        let input = input.as_str();
+        match ::wast::parser::ParseBuffer::new(input) {
             Err(error) => {
                 diagnostics.push(super::diagnostics::for_error(document, error));
             },

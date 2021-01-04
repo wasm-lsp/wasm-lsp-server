@@ -101,7 +101,11 @@ pub mod wast {
                             name,
                             range,
                             selection_range,
-                        } = symbol_range(&document.text.as_bytes(), node, name_hint, *wast::field::IDENTIFIER);
+                        } = {
+                            let source = document.rope.bytes().collect::<Vec<_>>();
+                            let source = source.as_slice();
+                            symbol_range(source, node, name_hint, *wast::field::IDENTIFIER)
+                        };
 
                         // FIXME
                         #[allow(deprecated)]
@@ -289,7 +293,11 @@ pub mod wat {
                             name,
                             range,
                             selection_range,
-                        } = symbol_range(&document.text.as_bytes(), node, name_hint, *wat::field::IDENTIFIER);
+                        } = {
+                            let source = document.rope.bytes().collect::<Vec<_>>();
+                            let source = source.as_slice();
+                            symbol_range(source, node, name_hint, *wat::field::IDENTIFIER)
+                        };
 
                         // FIXME
                         #[allow(deprecated)]

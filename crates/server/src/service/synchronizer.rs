@@ -24,8 +24,10 @@ pub(crate) mod document {
                     (start, end)
                 };
 
-                let replace_with = &change.text;
-                document.text.replace_range(start .. end, replace_with);
+                document.rope.remove(start .. end);
+                if !change.text.is_empty() {
+                    document.rope.insert(start, change.text.as_str());
+                }
 
                 if finished {
                     // FIXME: For now just assume there really are no more edits, per spec.
@@ -79,8 +81,9 @@ pub(crate) mod document {
 
 /// Functions related to processing parse tree events for a document.
 mod tree {
-    use crate::core::{document::Document, language, session::Session};
+    use crate::core::{document::Document, language, rope::RopeExt, session::Session};
     use lspower::lsp_types::*;
+    use ropey::Rope;
     use std::{convert::TryFrom, sync::Arc};
     use tokio::sync::Mutex;
 
@@ -93,9 +96,10 @@ mod tree {
             let mut parser = document.parser.lock().await;
             // FIXME: we reset the parser since we don't handle incremental changes yet
             parser.reset();
+            let mut callback = document.rope.chunk_walker(0).callback_adapter();
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
-            parser.parse(&document.text[..], old_tree)
+            parser.parse_with(&mut callback, old_tree)
         };
 
         let mut success = false;
@@ -119,18 +123,22 @@ mod tree {
         let language = language::Language::try_from(language_id.as_str())?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
 
+        let rope = Rope::from(text);
+
         let tree = {
+            let mut callback = rope.chunk_walker(0).callback_adapter();
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
-            parser.parse(&text[..], old_tree)
+            parser.parse_with(&mut callback, old_tree)
         };
 
         let mut success = false;
         if let Some(tree) = tree {
+            // let rope = Rope::from(text);
             let document = Document {
                 language,
+                rope,
                 parser: Mutex::new(parser),
-                text,
                 tree: Mutex::new(tree),
             };
             session.insert_document(uri, document)?;
