@@ -8,18 +8,38 @@ pub(crate) mod document {
 
     /// Handle a document "change" event.
     pub(crate) async fn change(session: Arc<Session>, params: DidChangeTextDocumentParams) -> anyhow::Result<()> {
-        let DidChangeTextDocumentParams {
-            text_document: VersionedTextDocumentIdentifier { uri, .. },
-            content_changes,
-        } = params;
-        let TextDocumentContentChangeEvent { text, .. } = content_changes[0].clone();
+        {
+            let mut document = session.get_mut_document(&params.text_document.uri).await?;
 
-        let tree_was_generated = super::tree::change(session.clone(), uri.clone(), text).await?;
+            for change in &params.content_changes {
+                let mut finished = false;
+                let (start, end) = if let Some(range) = change.range {
+                    let start = crate::util::position::byte_index(&document, &range.start)?;
+                    let end = crate::util::position::byte_index(&document, &range.end)?;
+                    (start, end)
+                } else {
+                    finished = true;
+                    let start = 0;
+                    let end = change.text.len();
+                    (start, end)
+                };
+
+                let replace_with = &change.text;
+                document.text.replace_range(start .. end, replace_with);
+
+                if finished {
+                    // FIXME: For now just assume there really are no more edits, per spec.
+                    break;
+                }
+            }
+        }
+
+        let tree_was_generated = super::tree::change(session.clone(), params.text_document.uri.clone()).await?;
 
         // on successful generation of a parse tree (which may contain syntax errors)
         if tree_was_generated {
             // run the auditor tasks
-            crate::provider::diagnostics::tree::change(session.clone(), uri.clone()).await?;
+            crate::provider::diagnostics::tree::change(session.clone(), params.text_document.uri).await?;
         } else {
             // TODO: report
         }
@@ -66,7 +86,7 @@ mod tree {
 
     // TODO: implement parser cancellation
     /// Handle a parse tree "change" event.
-    pub(super) async fn change(session: Arc<Session>, uri: Url, text: String) -> anyhow::Result<bool> {
+    pub(super) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<bool> {
         let mut document = session.get_mut_document(&uri).await?;
 
         let tree = {
@@ -75,12 +95,11 @@ mod tree {
             parser.reset();
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
-            parser.parse(&text[..], old_tree)
+            parser.parse(&document.text[..], old_tree)
         };
 
         let mut success = false;
         if let Some(tree) = tree {
-            document.text = text;
             document.tree = Mutex::new(tree);
             success = true;
         }

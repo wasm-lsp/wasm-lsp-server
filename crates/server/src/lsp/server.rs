@@ -56,7 +56,7 @@ pub fn capabilities() -> ServerCapabilities {
     let text_document_sync = {
         let options = TextDocumentSyncOptions {
             open_close: Some(true),
-            change: Some(TextDocumentSyncKind::Full),
+            change: Some(TextDocumentSyncKind::Incremental),
             ..Default::default()
         };
         Some(TextDocumentSyncCapability::Options(options))
