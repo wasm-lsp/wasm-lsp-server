@@ -38,7 +38,9 @@ pub(crate) mod line {
     }
 
     fn span(document: &Document, line_index: usize) -> anyhow::Result<(usize, usize)> {
-        let line_starts = super::line::starts(document).collect::<Vec<_>>();
+        let source = document.rope.chunks().collect::<String>();
+        let source = source.as_str();
+        let line_starts = super::line::starts(source).collect::<Vec<_>>();
         let this_start = super::line::start(document, &line_starts, line_index)?;
         let next_start = super::line::start(document, &line_starts, line_index + 1)?;
         Ok((this_start, next_start))
@@ -48,7 +50,7 @@ pub(crate) mod line {
         use std::cmp::Ordering;
         match line_index.cmp(&line_starts.len()) {
             Ordering::Less => Ok(line_starts[line_index]),
-            Ordering::Equal => Ok(document.text.len()),
+            Ordering::Equal => Ok(document.rope.len_bytes()),
             Ordering::Greater => Err(Error::LineOutOfBounds {
                 given: line_index,
                 max: line_starts.len(),
@@ -57,8 +59,7 @@ pub(crate) mod line {
         }
     }
 
-    pub(crate) fn starts<'a>(document: &'a Document) -> impl 'a + Iterator<Item = usize> {
-        let source = document.text.as_str();
+    pub(crate) fn starts<'a>(source: &'a str) -> impl 'a + Iterator<Item = usize> {
         std::iter::once(0).chain(source.match_indices('\n').map(|i| i.0 + 1))
     }
 }
@@ -91,8 +92,10 @@ pub(crate) mod position {
     use lspower::lsp_types::*;
 
     pub(crate) fn byte_index(document: &Document, position: &Position) -> anyhow::Result<usize> {
-        let source = document.text.as_str();
-        let line_span: std::ops::Range<usize> = super::line::range(document, position.line as usize).unwrap();
+        let source = document.rope.chunks().collect::<String>();
+        let source = source.as_str();
+        let line_index = position.line as usize;
+        let line_span: std::ops::Range<usize> = super::line::range(document, line_index).unwrap();
         let line_text = source.get(line_span.clone()).unwrap();
         let character = position.character as usize;
         let byte_offset = super::character::line::offset(line_text, character)?;

@@ -1,6 +1,7 @@
 //! Core functionality related to documents.
 
 use crate::core::language::Language;
+use ropey::Rope;
 use std::convert::TryFrom;
 use tokio::sync::Mutex;
 use tree_sitter::{Parser, Tree};
@@ -9,10 +10,10 @@ use tree_sitter::{Parser, Tree};
 pub struct Document {
     /// The language type of the document, e.g., "wasm.wast"
     pub language: Language,
+    /// The current text of the document.
+    pub rope: Rope,
     /// The tree-sitter parser state for the document.
     pub parser: Mutex<Parser>,
-    /// The current text of the document.
-    pub text: String,
     /// The current tree-sitter parse tree of the document.
     pub tree: Mutex<Tree>,
 }
@@ -23,10 +24,12 @@ impl Document {
         let language = Language::try_from(language_id)?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
         let old_tree = None;
-        let document = parser.parse(&text[..], old_tree).map(|tree| Document {
+        let tree = parser.parse(&text[..], old_tree);
+        let rope = Rope::from(text);
+        let document = tree.map(|tree| Document {
             language,
+            rope,
             parser: Mutex::new(parser),
-            text,
             tree: Mutex::new(tree),
         });
         Ok(document)
