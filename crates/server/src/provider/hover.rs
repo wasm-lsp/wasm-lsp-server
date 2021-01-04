@@ -53,21 +53,27 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
     if let Some(mut child) = node.descendant_for_byte_range(start, end) {
         loop {
             if [*wat::kind::INSTR_PLAIN, *wast::kind::INSTR_PLAIN].contains(&child.kind_id()) {
-                let text = child.utf8_text(&document.text.as_bytes())?;
+                let source = document.rope.bytes().collect::<Vec<_>>();
+                let source = source.as_slice();
+                let text = child.utf8_text(source)?;
                 contents.push(MarkedString::String(String::from(text)));
                 range = Some(crate::util::node::range(&child));
                 break;
             }
 
             if [*wat::kind::INSTR, *wast::kind::INSTR].contains(&child.kind_id()) {
-                let text = child.utf8_text(&document.text.as_bytes())?;
+                let source = document.rope.bytes().collect::<Vec<_>>();
+                let source = source.as_slice();
+                let text = child.utf8_text(source)?;
                 contents.push(MarkedString::String(String::from(text)));
                 range = Some(crate::util::node::range(&child));
                 break;
             }
 
             if module_fields.contains(&child.kind_id()) {
-                let text = child.utf8_text(&document.text.as_bytes())?;
+                let source = document.rope.bytes().collect::<Vec<_>>();
+                let source = source.as_slice();
+                let text = child.utf8_text(source)?;
                 contents.push(MarkedString::String(String::from(text)));
                 range = Some(crate::util::node::range(&child));
                 break;
@@ -120,7 +126,9 @@ mod tests {
         if let Ok(option) = result {
             assert!(option.is_some());
             if let Some(ref document) = option {
-                let line_starts = crate::util::line::starts(document).collect::<Vec<_>>();
+                let source = document.rope.chunks().collect::<String>();
+                let source = source.as_str();
+                let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
                 let line_index = 1;
                 let result = crate::util::line::start(document, &line_starts, line_index);
                 assert!(result.is_ok())
@@ -137,7 +145,9 @@ mod tests {
         if let Ok(option) = result {
             assert!(option.is_some());
             if let Some(ref document) = option {
-                let line_starts = crate::util::line::starts(document).collect::<Vec<_>>();
+                let source = document.rope.chunks().collect::<String>();
+                let source = source.as_str();
+                let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
                 let line_index = 2;
                 let result = crate::util::line::start(document, &line_starts, line_index);
                 assert!(result.is_err())
