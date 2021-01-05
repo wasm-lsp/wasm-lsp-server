@@ -1,3 +1,5 @@
+//! Core functionality related to working with ropes.
+
 use ropey::{iter::Chunks, Rope};
 
 /// Convenience trait for working with [`Chunks`].
