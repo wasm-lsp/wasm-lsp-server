@@ -431,6 +431,14 @@
 <span id="428">428</span>
 <span id="429">429</span>
 <span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Elaborates parse trees into structured data to be cached in the database.</span>
 
@@ -535,7 +543,11 @@
                             <span class="ident">name</span>,
                             <span class="ident">range</span>,
                             <span class="ident">selection_range</span>,
-                        } <span class="op">=</span> <span class="ident">symbol_range</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>.<span class="ident">text</span>.<span class="ident">as_bytes</span>(), <span class="ident">node</span>, <span class="ident">name_hint</span>, <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">field</span>::<span class="ident">IDENTIFIER</span>);
+                        } <span class="op">=</span> {
+                            <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">rope</span>.<span class="ident">bytes</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+                            <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">as_slice</span>();
+                            <span class="ident">symbol_range</span>(<span class="ident">source</span>, <span class="ident">node</span>, <span class="ident">name_hint</span>, <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">field</span>::<span class="ident">IDENTIFIER</span>)
+                        };
 
                         <span class="comment">// FIXME</span>
                         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
@@ -723,7 +735,11 @@
                             <span class="ident">name</span>,
                             <span class="ident">range</span>,
                             <span class="ident">selection_range</span>,
-                        } <span class="op">=</span> <span class="ident">symbol_range</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>.<span class="ident">text</span>.<span class="ident">as_bytes</span>(), <span class="ident">node</span>, <span class="ident">name_hint</span>, <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">field</span>::<span class="ident">IDENTIFIER</span>);
+                        } <span class="op">=</span> {
+                            <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">rope</span>.<span class="ident">bytes</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+                            <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">as_slice</span>();
+                            <span class="ident">symbol_range</span>(<span class="ident">source</span>, <span class="ident">node</span>, <span class="ident">name_hint</span>, <span class="kw-2">*</span><span class="ident">wat</span>::<span class="ident">field</span>::<span class="ident">IDENTIFIER</span>)
+                        };
 
                         <span class="comment">// FIXME</span>
                         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>

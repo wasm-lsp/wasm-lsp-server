@@ -141,42 +141,67 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">language</span>::<span class="ident">Language</span>;
+<span class="comment">// use std::slice::SliceIndex;</span>
 
 <span class="doccomment">/// The current node stack along with it&#39;s hash. Used for context comparison.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">NodeWalkerStack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">hash</span>: <span class="ident">u64</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">NodeWalkerStack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="self">Self</span> { ..<span class="ident">Default</span>::<span class="ident">default</span>() };
-        <span class="ident">stack</span>.<span class="ident">rehash</span>();
-        <span class="ident">stack</span>
+        <span class="self">Self</span> { ..<span class="ident">Default</span>::<span class="ident">default</span>() }
     }
 
+    <span class="comment">// fn matches&lt;I&gt;(&amp;self, index: I, kinds: &amp;[u16]) -&gt; bool</span>
+    <span class="comment">// where</span>
+    <span class="comment">//     I: SliceIndex&lt;[tree_sitter::Node&lt;&#39;a&gt;], Output = [tree_sitter::Node&lt;&#39;a&gt;]&gt;,</span>
+    <span class="comment">// {</span>
+    <span class="comment">//     if let Some(nodes) = self.nodes.get(index) {</span>
+    <span class="comment">//         if nodes.len() == kinds.len() {</span>
+    <span class="comment">//             let mut result = false;</span>
+    <span class="comment">//             for i in 0 .. kinds.len() {</span>
+    <span class="comment">//                 result = kinds[i] == nodes[i].kind_id();</span>
+    <span class="comment">//             }</span>
+    <span class="comment">//             result</span>
+    <span class="comment">//         } else {</span>
+    <span class="comment">//             false</span>
+    <span class="comment">//         }</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         false</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
+
     <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">pop</span>();
-        <span class="self">self</span>.<span class="ident">rehash</span>();
-        <span class="ident">node</span>
+        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">pop</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="ident">tree_sitter</span>::<span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">node</span>);
-        <span class="self">self</span>.<span class="ident">rehash</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">rehash</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">use</span> <span class="ident">std</span>::{
-            <span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">DefaultHasher</span>,
-            <span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>},
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">DefaultHasher</span>::<span class="ident">new</span>();
-        <span class="ident">Hash</span>::<span class="ident">hash_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>);
-        <span class="self">self</span>.<span class="ident">hash</span> <span class="op">=</span> <span class="ident">hasher</span>.<span class="ident">finish</span>();
     }
 }
 
@@ -203,7 +228,18 @@
         <span class="ident">walker</span>
     }
 
-    <span class="comment">// Move to the first child node in the syntax tree.</span>
+    <span class="comment">// pub(super) fn context&lt;I&gt;(&amp;self, index: I, kinds: &amp;[u16]) -&gt; bool</span>
+    <span class="comment">// where</span>
+    <span class="comment">//     I: SliceIndex&lt;[tree_sitter::Node&lt;&#39;a&gt;], Output = [tree_sitter::Node&lt;&#39;a&gt;]&gt;,</span>
+    <span class="comment">// {</span>
+    <span class="comment">//     self.stack.matches(index, kinds)</span>
+    <span class="comment">// }</span>
+
+    <span class="comment">// pub(super) fn depth(&amp;self) -&gt; usize {</span>
+    <span class="comment">//     self.stack.nodes.len()</span>
+    <span class="comment">// }</span>
+
+    <span class="comment">// Move the cursor to the first child node.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">goto_first_child</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cursor</span>.<span class="ident">node</span>();
         <span class="kw">let</span> <span class="ident">moved</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cursor</span>.<span class="ident">goto_first_child</span>();
@@ -213,12 +249,12 @@
         <span class="ident">moved</span>
     }
 
-    <span class="comment">// Move to the first child node in the syntax tree.</span>
+    <span class="comment">// Move the cursor to the next sibling node.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">goto_next_sibling</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">cursor</span>.<span class="ident">goto_next_sibling</span>()
     }
 
-    <span class="comment">// Move to the next appropriate node in the syntax tree.</span>
+    <span class="comment">// Move cursor to the next accessible node.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">goto_next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cursor</span>.<span class="ident">node</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">moved</span>;
@@ -249,12 +285,18 @@
         <span class="ident">moved</span>
     }
 
+    <span class="comment">// Move the cursor to the parent node.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">goto_parent</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">moved</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cursor</span>.<span class="ident">goto_parent</span>();
         <span class="kw">if</span> <span class="ident">moved</span> {
             <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">pop</span>();
         }
         <span class="ident">moved</span>
+    }
+
+    <span class="comment">// Return the current node&#39;s kind id.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+        <span class="self">self</span>.<span class="ident">cursor</span>.<span class="ident">node</span>().<span class="ident">kind_id</span>()
     }
 
     <span class="comment">// Return the current node for the cursor.</span>

@@ -17,6 +17,9 @@
 <span id="14">14</span>
 <span id="15">15</span>
 <span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core functionality for the WASM language server.</span>
 
@@ -28,6 +31,9 @@
 
 <span class="comment">// Core functionality related to runtime errors.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">error</span>;
+
+<span class="comment">// Core functionality related to working with ropes.</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">rope</span>;
 
 <span class="comment">// Core functionality related to parsers.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">wasm_language_server_parsers</span>::<span class="ident">core</span>::<span class="kw-2">*</span>;
