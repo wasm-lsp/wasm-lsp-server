@@ -59,7 +59,7 @@ pub(crate) mod line {
         }
     }
 
-    pub(crate) fn starts<'a>(source: &'a str) -> impl 'a + Iterator<Item = usize> {
+    pub(crate) fn starts(source: &str) -> impl '_ + Iterator<Item = usize> {
         std::iter::once(0).chain(source.match_indices('\n').map(|i| i.0 + 1))
     }
 }
