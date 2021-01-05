@@ -1850,6 +1850,7 @@ dependencies = [
  "goldenfile",
  "indoc",
  "log",
+ "lsp-types",
  "lspower",
  "predicates",
  "ropey",
@@ -1872,6 +1873,7 @@ version = "0.0.0"
 dependencies = [
  "futures",
  "libfuzzer-sys",
+ "lsp-types",
  "lspower",
  "serde_json",
  "tokio 1.0.1",

@@ -69,29 +69,28 @@ pub(crate) mod node {
     /// Functions for creation of lsp position data from tree-sitter nodes.
     mod position {
         /// Creates an lsp position from the starting position of a tree-sitter node.
-        pub(crate) fn start(node: &tree_sitter::Node) -> lspower::lsp_types::Position {
+        pub(crate) fn start(node: &tree_sitter::Node) -> lsp::Position {
             let tree_sitter::Point { row, column } = node.start_position();
-            lspower::lsp_types::Position::new(row as u32, column as u32)
+            lsp::Position::new(row as u32, column as u32)
         }
 
         /// Creates an lsp position from the ending position of a tree-sitter node.
-        pub(crate) fn end(node: &tree_sitter::Node) -> lspower::lsp_types::Position {
+        pub(crate) fn end(node: &tree_sitter::Node) -> lsp::Position {
             let tree_sitter::Point { row, column } = node.end_position();
-            lspower::lsp_types::Position::new(row as u32, column as u32)
+            lsp::Position::new(row as u32, column as u32)
         }
     }
 
     /// Creates an lsp range from the range of a tree-sitter node.
-    pub(crate) fn range(node: &tree_sitter::Node) -> lspower::lsp_types::Range {
-        lspower::lsp_types::Range::new(position::start(node), position::end(node))
+    pub(crate) fn range(node: &tree_sitter::Node) -> lsp::Range {
+        lsp::Range::new(position::start(node), position::end(node))
     }
 }
 
 pub(crate) mod position {
     use crate::core::document::Document;
-    use lspower::lsp_types::*;
 
-    pub(crate) fn byte_index(document: &Document, position: &Position) -> anyhow::Result<usize> {
+    pub(crate) fn byte_index(document: &Document, position: &lsp::Position) -> anyhow::Result<usize> {
         let source = document.rope.chunks().collect::<String>();
         let source = source.as_str();
         let line_index = position.line as usize;
