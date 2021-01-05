@@ -4,26 +4,25 @@ use crate::core::{
     document::Document,
     language::{wast, wat},
 };
-use lspower::lsp_types::*;
 
 /// Compute "textDocument/hover" for a given document.
-pub async fn response(document: &Document, params: &HoverParams) -> anyhow::Result<Option<Hover>> {
-    let HoverParams {
+pub async fn response(document: &Document, params: &lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
+    let lsp::HoverParams {
         text_document_position_params:
-            TextDocumentPositionParams {
-                text_document: TextDocumentIdentifier { uri, .. },
+        lsp::TextDocumentPositionParams {
+                text_document: lsp::TextDocumentIdentifier { uri, .. },
                 position,
                 ..
             },
         ..
     } = params;
-    let range = Range::new(*position, *position);
+    let range = lsp::Range::new(*position, *position);
     let hover = hover_for_token_range(&uri, &document, range).await?;
     Ok(hover)
 }
 
 // FIXME
-async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) -> anyhow::Result<Option<Hover>> {
+async fn hover_for_token_range(_uri: &lsp::Url, document: &Document, range: lsp::Range) -> anyhow::Result<Option<lsp::Hover>> {
     let module_fields: &[u16] = &[
         *wast::kind::MODULE_FIELD_DATA,
         *wast::kind::MODULE_FIELD_ELEM,
@@ -56,7 +55,7 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
                 let source = document.rope.bytes().collect::<Vec<_>>();
                 let source = source.as_slice();
                 let text = child.utf8_text(source)?;
-                contents.push(MarkedString::String(String::from(text)));
+                contents.push(lsp::MarkedString::String(String::from(text)));
                 range = Some(crate::util::node::range(&child));
                 break;
             }
@@ -65,7 +64,7 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
                 let source = document.rope.bytes().collect::<Vec<_>>();
                 let source = source.as_slice();
                 let text = child.utf8_text(source)?;
-                contents.push(MarkedString::String(String::from(text)));
+                contents.push(lsp::MarkedString::String(String::from(text)));
                 range = Some(crate::util::node::range(&child));
                 break;
             }
@@ -74,7 +73,7 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
                 let source = document.rope.bytes().collect::<Vec<_>>();
                 let source = source.as_slice();
                 let text = child.utf8_text(source)?;
-                contents.push(MarkedString::String(String::from(text)));
+                contents.push(lsp::MarkedString::String(String::from(text)));
                 range = Some(crate::util::node::range(&child));
                 break;
             }
@@ -90,8 +89,8 @@ async fn hover_for_token_range(_uri: &Url, document: &Document, range: Range) ->
     if contents.is_empty() {
         Ok(None)
     } else {
-        Ok(Some(Hover {
-            contents: HoverContents::Array(contents),
+        Ok(Some(lsp::Hover {
+            contents: lsp::HoverContents::Array(contents),
             range,
         }))
     }

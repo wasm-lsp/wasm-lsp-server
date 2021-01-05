@@ -3,11 +3,10 @@
 /// Functions related to processing events for a document.
 pub(crate) mod document {
     use crate::core::session::Session;
-    use lspower::lsp_types::*;
     use std::sync::Arc;
 
     /// Handle a document "change" event.
-    pub(crate) async fn change(session: Arc<Session>, params: DidChangeTextDocumentParams) -> anyhow::Result<()> {
+    pub(crate) async fn change(session: Arc<Session>, params: lsp::DidChangeTextDocumentParams) -> anyhow::Result<()> {
         {
             let mut document = session.get_mut_document(&params.text_document.uri).await?;
 
@@ -50,9 +49,9 @@ pub(crate) mod document {
     }
 
     /// Handle a document "close" event.
-    pub(crate) async fn close(session: Arc<Session>, params: DidCloseTextDocumentParams) -> anyhow::Result<()> {
-        let DidCloseTextDocumentParams {
-            text_document: TextDocumentIdentifier { uri },
+    pub(crate) async fn close(session: Arc<Session>, params: lsp::DidCloseTextDocumentParams) -> anyhow::Result<()> {
+        let lsp::DidCloseTextDocumentParams {
+            text_document: lsp::TextDocumentIdentifier { uri },
         } = &params;
         session.remove_document(uri)?;
         crate::provider::diagnostics::tree::close(session.clone(), uri.clone()).await?;
@@ -60,9 +59,9 @@ pub(crate) mod document {
     }
 
     /// Handle a document "open" event.
-    pub(crate) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> anyhow::Result<()> {
-        let DidOpenTextDocumentParams {
-            text_document: TextDocumentItem { uri, .. },
+    pub(crate) async fn open(session: Arc<Session>, params: lsp::DidOpenTextDocumentParams) -> anyhow::Result<()> {
+        let lsp::DidOpenTextDocumentParams {
+            text_document: lsp::TextDocumentItem { uri, .. },
         } = &params;
 
         // spawn a parser and try to generate a syntax tree
@@ -82,14 +81,13 @@ pub(crate) mod document {
 /// Functions related to processing parse tree events for a document.
 mod tree {
     use crate::core::{document::Document, language, rope::RopeExt, session::Session};
-    use lspower::lsp_types::*;
     use ropey::Rope;
     use std::{convert::TryFrom, sync::Arc};
     use tokio::sync::Mutex;
 
     // TODO: implement parser cancellation
     /// Handle a parse tree "change" event.
-    pub(super) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<bool> {
+    pub(super) async fn change(session: Arc<Session>, uri: lsp::Url) -> anyhow::Result<bool> {
         let mut document = session.get_mut_document(&uri).await?;
 
         let tree = {
@@ -113,9 +111,9 @@ mod tree {
 
     // TODO: implement parser cancellation
     /// Handle a parse tree "open" event.
-    pub(super) async fn open(session: Arc<Session>, params: DidOpenTextDocumentParams) -> anyhow::Result<bool> {
-        let DidOpenTextDocumentParams {
-            text_document: TextDocumentItem {
+    pub(super) async fn open(session: Arc<Session>, params: lsp::DidOpenTextDocumentParams) -> anyhow::Result<bool> {
+        let lsp::DidOpenTextDocumentParams {
+            text_document: lsp::TextDocumentItem {
                 language_id, text, uri, ..
             },
         } = params;

@@ -3,7 +3,6 @@
 
 use futures::stream::StreamExt;
 use libfuzzer_sys::fuzz_target;
-use lspower::lsp_types::*;
 use serde_json::Value;
 use tokio::runtime::Runtime;
 use wasm_language_server_testing as testing;
@@ -15,7 +14,7 @@ fuzz_target!(|module: Module| {
         let service = &mut service;
 
         let wasm = module.to_bytes();
-        let uri = Url::parse("inmemory:///test").unwrap();
+        let uri = lsp::Url::parse("inmemory:///test").unwrap();
         let language_id = "wasm.wast";
         let text = wasmprinter::print_bytes(wasm).unwrap();
 

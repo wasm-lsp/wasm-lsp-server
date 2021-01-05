@@ -1,4 +1,3 @@
-use lspower::{lsp_types::*, ExitedError};
 use serde_json::Value;
 use wasm_language_server_testing as testing;
 
@@ -25,14 +24,14 @@ async fn exit() -> anyhow::Result<()> {
     testing::assert_exchange!(service, notification, Ok(status));
 
     // send "textDocument/didOpen" notification; should error
-    testing::assert_status!(service, Err(ExitedError));
+    testing::assert_status!(service, Err(lspower::ExitedError));
     let notification = &{
-        let uri = Url::parse("inmemory::///test")?;
+        let uri = lsp::Url::parse("inmemory::///test")?;
         let language_id = "wasm.wat";
         let text = String::from("");
         testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text)
     };
-    let status = ExitedError;
+    let status = lspower::ExitedError;
     testing::assert_exchange!(service, notification, Err(status));
 
     Ok(())
@@ -134,13 +133,12 @@ async fn shutdown() -> anyhow::Result<()> {
 
 mod text_document {
     use futures::stream::StreamExt;
-    use lspower::lsp_types::*;
     use serde_json::{json, Value};
     use wasm_language_server_testing as testing;
 
     #[tokio::test]
     async fn did_close() -> anyhow::Result<()> {
-        let uri = Url::parse("inmemory:///test")?;
+        let uri = lsp::Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
         let text = String::from("(module)");
 
@@ -195,7 +193,7 @@ mod text_document {
 
     #[tokio::test]
     async fn did_open() -> anyhow::Result<()> {
-        let uri = Url::parse("inmemory:///test")?;
+        let uri = lsp::Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
         let text = String::from("(module)");
 
@@ -244,13 +242,12 @@ mod text_document {
 
     mod document_symbol {
         use futures::stream::StreamExt;
-        use lspower::lsp_types::*;
         use serde_json::{json, Value};
         use wasm_language_server_testing as testing;
 
         #[tokio::test]
         async fn wat() -> anyhow::Result<()> {
-            let uri = Url::parse("inmemory:///test")?;
+            let uri = lsp::Url::parse("inmemory:///test")?;
             let language_id = "wasm.wat";
             #[rustfmt::skip]
             let text = String::from(indoc::indoc! {r#"
@@ -300,49 +297,49 @@ mod text_document {
                 "result": [
                     {
                         "name": "$a",
-                        "kind": SymbolKind::TypeParameter,
+                        "kind": lsp::SymbolKind::TypeParameter,
                         "range": { "start": { "line": 0, "character": 0 }, "end": { "line": 0, "character": 16 } },
                         "selectionRange": { "start": { "line": 0, "character": 6 }, "end": { "line": 0, "character": 8 } },
                         "children": [],
                     },
                     {
                         "name": "$g",
-                        "kind": SymbolKind::Event,
+                        "kind": lsp::SymbolKind::Event,
                         "range": { "start": { "line": 1, "character": 0 }, "end": { "line": 1, "character": 29 } },
                         "selectionRange": { "start": { "line": 1, "character": 8 }, "end": { "line": 1, "character": 10 } },
                         "children": [],
                     },
                     {
                         "name": "$m",
-                        "kind": SymbolKind::Array,
+                        "kind": lsp::SymbolKind::Array,
                         "range": { "start": { "line": 2, "character": 0 }, "end": { "line": 2, "character": 13 } },
                         "selectionRange": { "start": { "line": 2, "character": 8 }, "end": { "line": 2, "character": 10 } },
                         "children": [],
                     },
                     {
                         "name": "<data@4:1>",
-                        "kind": SymbolKind::Key,
+                        "kind": lsp::SymbolKind::Key,
                         "range": { "start": { "line": 3, "character": 0 }, "end": { "line": 3, "character": 20 } },
                         "selectionRange": { "start": { "line": 3, "character": 0 }, "end": { "line": 3, "character": 20 } },
                         "children": [],
                     },
                     {
                         "name": "$t",
-                        "kind": SymbolKind::Interface,
+                        "kind": lsp::SymbolKind::Interface,
                         "range": { "start": { "line": 4, "character": 0 }, "end": { "line": 4, "character": 21 } },
                         "selectionRange": { "start": { "line": 4, "character": 7 }, "end": { "line": 4, "character": 9 } },
                         "children": [],
                     },
                     {
                         "name": "$f",
-                        "kind": SymbolKind::Function,
+                        "kind": lsp::SymbolKind::Function,
                         "range": { "start": { "line": 5, "character": 0 }, "end": { "line": 5, "character": 9 } },
                         "selectionRange": { "start": { "line": 5, "character": 6 }, "end": { "line": 5, "character": 8 } },
                         "children": [],
                     },
                     {
                         "name": "<elem@7:1>",
-                        "kind": SymbolKind::Field,
+                        "kind": lsp::SymbolKind::Field,
                         "range": { "start": { "line": 6, "character": 0 }, "end": { "line": 6, "character": 20 } },
                         "selectionRange": { "start": { "line": 6, "character": 0 }, "end": { "line": 6, "character": 20 } },
                     },
@@ -368,7 +365,7 @@ mod text_document {
 
         #[tokio::test]
         async fn wast() -> anyhow::Result<()> {
-            let uri = Url::parse("inmemory:///test")?;
+            let uri = lsp::Url::parse("inmemory:///test")?;
             let language_id = "wasm.wast";
             #[rustfmt::skip]
             let text = String::from(indoc::indoc! {r#"
@@ -420,55 +417,55 @@ mod text_document {
                 "result": [
                     {
                         "name": "$m",
-                        "kind": SymbolKind::Module,
+                        "kind": lsp::SymbolKind::Module,
                         "range": { "start": { "line": 0, "character": 0 }, "end": { "line": 7, "character": 23 } },
                         "selectionRange": { "start": { "line": 0, "character": 8 }, "end": { "line": 0, "character": 10 } },
                         "children": [
                             {
                                 "name": "$a",
-                                "kind": SymbolKind::TypeParameter,
+                                "kind": lsp::SymbolKind::TypeParameter,
                                 "range": { "start": { "line": 1, "character": 2 }, "end": { "line": 1, "character": 18 } },
                                 "selectionRange": { "start": { "line": 1, "character": 8 }, "end": { "line": 1, "character": 10 } },
                                 "children": [],
                             },
                             {
                                 "name": "$g",
-                                "kind": SymbolKind::Event,
+                                "kind": lsp::SymbolKind::Event,
                                 "range": { "start": { "line": 2, "character": 2 }, "end": { "line": 2, "character": 31 } },
                                 "selectionRange": { "start": { "line": 2, "character": 10 }, "end": { "line": 2, "character": 12 } },
                                 "children": [],
                             },
                             {
                                 "name": "$m",
-                                "kind": SymbolKind::Array,
+                                "kind": lsp::SymbolKind::Array,
                                 "range": { "start": { "line": 3, "character": 2 }, "end": { "line": 3, "character": 15 } },
                                 "selectionRange": { "start": { "line": 3, "character": 10 }, "end": { "line": 3, "character": 12 } },
                                 "children": [],
                             },
                             {
                                 "name": "<data@5:3>",
-                                "kind": SymbolKind::Key,
+                                "kind": lsp::SymbolKind::Key,
                                 "range": { "start": { "line": 4, "character": 2 }, "end": { "line": 4, "character": 22 } },
                                 "selectionRange": { "start": { "line": 4, "character": 2 }, "end": { "line": 4, "character": 22 } },
                                 "children": [],
                             },
                             {
                                 "name": "$t",
-                                "kind": SymbolKind::Interface,
+                                "kind": lsp::SymbolKind::Interface,
                                 "range": { "start": { "line": 5, "character": 2 }, "end": { "line": 5, "character": 23 } },
                                 "selectionRange": { "start": { "line": 5, "character": 9 }, "end": { "line": 5, "character": 11 } },
                                 "children": [],
                             },
                             {
                                 "name": "$f",
-                                "kind": SymbolKind::Function,
+                                "kind": lsp::SymbolKind::Function,
                                 "range": { "start": { "line": 6, "character": 2 }, "end": { "line": 6, "character": 11 } },
                                 "selectionRange": { "start": { "line": 6, "character": 8 }, "end": { "line": 6, "character": 10 } },
                                 "children": [],
                             },
                             {
                                 "name": "<elem@8:3>",
-                                "kind": SymbolKind::Field,
+                                "kind": lsp::SymbolKind::Field,
                                 "range": { "start": { "line": 7, "character": 2 }, "end": { "line": 7, "character": 22 } },
                                 "selectionRange": { "start": { "line": 7, "character": 2 }, "end": { "line": 7, "character": 22 } },
                             },
@@ -500,7 +497,6 @@ mod text_document {
 
             fn handler(corpus: &str, path: &str) {
                 use futures::stream::StreamExt;
-                use lspower::lsp_types::*;
                 use serde_json::Value;
                 use std::{convert::TryFrom, io::Write};
                 use wasm_language_server_parsers::core::language::Language;
@@ -519,7 +515,7 @@ mod text_document {
                         mint.new_goldenfile(file_name)?
                     };
 
-                    let uri = Url::from_file_path(path).unwrap();
+                    let uri = lsp::Url::from_file_path(path).unwrap();
                     let text = std::fs::read_to_string(path)?;
                     let language = Language::try_from(path)?;
                     let language_id = language.id();
@@ -653,7 +649,7 @@ mod text_document {
 
     #[tokio::test]
     async fn hover() -> anyhow::Result<()> {
-        let uri = Url::parse("inmemory:///test")?;
+        let uri = lsp::Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
         let text = String::from("(module $m (func $f (call_indirect (i32.const 0))))");
 
@@ -688,7 +684,7 @@ mod text_document {
         // send "textDocument/hover" request for `uri`
         testing::assert_status!(service, Ok(()));
         let request = &{
-            let position = Position { line: 0, character: 15 };
+            let position = lsp::Position { line: 0, character: 15 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
         let response = Some(json!({
@@ -704,7 +700,7 @@ mod text_document {
         // send "textDocument/hover" request for `uri`
         testing::assert_status!(service, Ok(()));
         let request = &{
-            let position = Position { line: 0, character: 23 };
+            let position = lsp::Position { line: 0, character: 23 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
         let response = Some(json!({
@@ -720,7 +716,7 @@ mod text_document {
         // send "textDocument/hover" request for `uri`
         testing::assert_status!(service, Ok(()));
         let request = &{
-            let position = Position { line: 0, character: 39 };
+            let position = lsp::Position { line: 0, character: 39 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
         let response = Some(json!({
@@ -736,7 +732,7 @@ mod text_document {
         // send "textDocument/hover" request for `uri`
         testing::assert_status!(service, Ok(()));
         let request = &{
-            let position = Position { line: 0, character: 50 };
+            let position = lsp::Position { line: 0, character: 50 };
             testing::lsp::text_document::hover::request(&uri, position)
         };
         let response = Some(json!({
@@ -767,14 +763,13 @@ mod text_document {
 
         fn handler(_corpus: &str, path: &str) {
             use futures::stream::StreamExt;
-            use lspower::lsp_types::*;
             use serde_json::Value;
             use std::convert::TryFrom;
             use wasm_language_server_parsers::core::language::Language;
             use wasm_language_server_testing as testing;
 
             async fn handler(path: &str) -> anyhow::Result<()> {
-                let uri = Url::from_file_path(path).unwrap();
+                let uri = lsp::Url::from_file_path(path).unwrap();
                 let text = std::fs::read_to_string(path).unwrap();
                 let language = Language::try_from(std::path::Path::new(path))?;
                 let language_id = language.id();
