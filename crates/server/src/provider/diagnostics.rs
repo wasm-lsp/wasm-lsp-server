@@ -1,32 +1,31 @@
 //! Provides `textDocument/documentSymbol` functionality.
 
 use crate::core::document::Document;
-use lspower::lsp_types::*;
 
-fn for_error(document: &Document, error: wast::Error) -> Diagnostic {
+fn for_error(document: &Document, error: wast::Error) -> lsp::Diagnostic {
     let range = {
         let input = document.rope.chunks().collect::<String>();
         let input = input.as_str();
         let span = error.span();
         let (line, col) = span.linecol_in(input);
         // NOTE: wast only gives us the start position so we use that twice
-        let pos = Position::new(line as u32, col as u32);
-        Range::new(pos, pos)
+        let pos = lsp::Position::new(line as u32, col as u32);
+        lsp::Range::new(pos, pos)
     };
-    let severity = Some(DiagnosticSeverity::Error);
+    let severity = Some(lsp::DiagnosticSeverity::Error);
     let code = Default::default();
     let source = Some(String::from("wast"));
     let message = error.message();
     let related_information = Default::default();
     let tags = Default::default();
-    Diagnostic::new(range, severity, code, source, message, related_information, tags)
+    lsp::Diagnostic::new(range, severity, code, source, message, related_information, tags)
 }
 
 // Compute diagnostics for a change event given a `document` and `tree`.
 // NOTE: Currently we only use the tree-sitter grammar to check for the
 // presence of errors and then use the `wast` crate for the actual error
 // reporting (because tree-sitter does not provide detailed errors yet).
-fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<Diagnostic>> {
+fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<lsp::Diagnostic>> {
     let mut diagnostics = vec![];
     if tree.root_node().has_error() || cfg!(debug_assertions) {
         let input = document.rope.chunks().collect::<String>();
@@ -48,11 +47,10 @@ fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Ve
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
     use crate::core::session::Session;
-    use lspower::lsp_types::*;
     use std::sync::Arc;
 
     /// Handle a parse tree "change" event.
-    pub(crate) async fn change(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {
+    pub(crate) async fn change(session: Arc<Session>, uri: lsp::Url) -> anyhow::Result<()> {
         let document = session.get_document(&uri).await?;
         let tree = document.tree.lock().await.clone();
         let diagnostics = super::for_change(&document, tree)?;
@@ -62,7 +60,7 @@ pub(crate) mod tree {
     }
 
     /// Handle a parse tree "close" event.
-    pub(crate) async fn close(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {
+    pub(crate) async fn close(session: Arc<Session>, uri: lsp::Url) -> anyhow::Result<()> {
         // clear diagnostics on tree close
         // FIXME: handle this properly
         let diagnostics = Default::default();
@@ -72,7 +70,7 @@ pub(crate) mod tree {
     }
 
     /// Handle a parse tree "open" event.
-    pub(crate) async fn open(session: Arc<Session>, uri: Url) -> anyhow::Result<()> {
+    pub(crate) async fn open(session: Arc<Session>, uri: lsp::Url) -> anyhow::Result<()> {
         self::change(session, uri).await
     }
 }

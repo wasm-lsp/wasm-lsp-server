@@ -1,7 +1,6 @@
 //! Definitions for the semantic tokens encoder.
 
 use anyhow::anyhow;
-use lspower::lsp_types::*;
 use std::collections::HashMap;
 
 /// The builder for the semantic tokens encoder. Encapsulates state during encoding.
@@ -10,15 +9,15 @@ pub(crate) struct SemanticTokensBuilder<'a> {
     prev_start: u32,
     prev_line: u32,
     data_is_sorted_and_delta_encoded: bool,
-    data: Vec<SemanticToken>,
-    token_modifier_map: HashMap<&'a SemanticTokenModifier, u32>,
-    token_type_map: HashMap<&'a SemanticTokenType, u32>,
+    data: Vec<lsp::SemanticToken>,
+    token_modifier_map: HashMap<&'a lsp::SemanticTokenModifier, u32>,
+    token_type_map: HashMap<&'a lsp::SemanticTokenType, u32>,
     has_legend: bool,
 }
 
 impl<'a> SemanticTokensBuilder<'a> {
     /// Construct a new builder given an optional tokens legend.
-    pub(crate) fn new(legend: Option<&'a SemanticTokensLegend>) -> Self {
+    pub(crate) fn new(legend: Option<&'a lsp::SemanticTokensLegend>) -> Self {
         let data_is_sorted_and_delta_encoded = true;
 
         let mut token_modifier_map = HashMap::new();
@@ -47,14 +46,14 @@ impl<'a> SemanticTokensBuilder<'a> {
     }
 
     /// Build and return the semantic tokenization result from the current encoder state.
-    pub(crate) fn build(self) -> anyhow::Result<SemanticTokens> {
+    pub(crate) fn build(self) -> anyhow::Result<lsp::SemanticTokens> {
         let data = if !self.data_is_sorted_and_delta_encoded {
             Self::sort_and_delta_encode(&self.data)
         } else {
             self.data
         };
 
-        Ok(SemanticTokens {
+        Ok(lsp::SemanticTokens {
             data,
             ..Default::default()
         })
@@ -63,9 +62,9 @@ impl<'a> SemanticTokensBuilder<'a> {
     /// Push a new semantic token onto the encoder state.
     pub(crate) fn push(
         &mut self,
-        range: Range,
-        token_type: &SemanticTokenType,
-        token_modifiers: Option<Vec<&SemanticTokenModifier>>,
+        range: lsp::Range,
+        token_type: &lsp::SemanticTokenType,
+        token_modifiers: Option<Vec<&lsp::SemanticTokenModifier>>,
     ) -> anyhow::Result<()> {
         if !self.has_legend {
             return Err(anyhow!("Legend must be provided in constructor"));
@@ -150,7 +149,7 @@ impl<'a> SemanticTokensBuilder<'a> {
             }
         }
 
-        self.data.push(SemanticToken {
+        self.data.push(lsp::SemanticToken {
             delta_line,
             delta_start,
             length,
@@ -165,7 +164,7 @@ impl<'a> SemanticTokensBuilder<'a> {
     }
 
     /// Sort and delta-encode a slice of semantic tokens.
-    pub(crate) fn sort_and_delta_encode(data: &[SemanticToken]) -> Vec<SemanticToken> {
+    pub(crate) fn sort_and_delta_encode(data: &[lsp::SemanticToken]) -> Vec<lsp::SemanticToken> {
         let pos = {
             let mut pos = (0 .. data.len()).collect::<Vec<_>>();
             pos.sort_by(|&a, &b| {
@@ -197,7 +196,7 @@ impl<'a> SemanticTokensBuilder<'a> {
                 token.delta_start
             };
 
-            result.push(SemanticToken {
+            result.push(lsp::SemanticToken {
                 delta_line,
                 delta_start,
                 ..token

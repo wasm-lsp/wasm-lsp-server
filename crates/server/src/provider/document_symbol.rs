@@ -1,7 +1,5 @@
 //! Elaborates parse trees into structured data to be cached in the database.
 
-use lspower::lsp_types::*;
-
 /// Encodes data for constructing upcoming DocumentSymbols.
 #[derive(Clone, Debug)]
 pub(crate) struct Data<'a> {
@@ -10,7 +8,7 @@ pub(crate) struct Data<'a> {
     /// Number of (possibly filtered) children to be processed for the symbol.
     pub(crate) children_count: usize,
     /// The kind of document entity the symbol represents.
-    pub(crate) kind: SymbolKind,
+    pub(crate) kind: lsp::SymbolKind,
     /// The name hint for the symbol (used for anonymous entities).
     pub(crate) name_hint: &'static str,
 }
@@ -30,9 +28,9 @@ pub(crate) struct SymbolRange {
     /// The name (identifier) of the symbol.
     pub(crate) name: String,
     /// The (node-enclosing) range of the symbol.
-    pub(crate) range: lspower::lsp_types::Range,
+    pub(crate) range: lsp::Range,
     /// The (identifier-enclosing) range of the symbol.
-    pub(crate) selection_range: lspower::lsp_types::Range,
+    pub(crate) selection_range: lsp::Range,
 }
 
 /// Compute the name and ranges for a document symbol given tree-sitter node data.
@@ -68,12 +66,11 @@ pub mod wast {
         core::{document::Document, language::wast},
         provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
     };
-    use lspower::lsp_types::*;
 
     /// Compute "textDocument/documentSymbols" for a given document.
-    pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
+    pub async fn response(document: &Document) -> Option<lsp::DocumentSymbolResponse> {
         // Vector to collect document symbols into as they are constructed.
-        let mut syms: Vec<DocumentSymbol> = vec![];
+        let mut syms: Vec<lsp::DocumentSymbol> = vec![];
 
         // Prepare the syntax tree.
         let tree = document.tree.lock().await.clone();
@@ -109,7 +106,7 @@ pub mod wast {
 
                         // FIXME
                         #[allow(deprecated)]
-                        let this = DocumentSymbol {
+                        let this = lsp::DocumentSymbol {
                             children: if syms.is_empty() {
                                 None
                             } else {
@@ -166,7 +163,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count,
-                        kind: SymbolKind::Module,
+                        kind: lsp::SymbolKind::Module,
                         name_hint: "module",
                     });
                 },
@@ -176,7 +173,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Key,
+                        kind: lsp::SymbolKind::Key,
                         name_hint: "data",
                     });
                 },
@@ -186,7 +183,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Field,
+                        kind: lsp::SymbolKind::Field,
                         name_hint: "elem",
                     });
                 },
@@ -196,7 +193,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Function,
+                        kind: lsp::SymbolKind::Function,
                         name_hint: "func",
                     });
                 },
@@ -206,7 +203,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Event,
+                        kind: lsp::SymbolKind::Event,
                         name_hint: "global",
                     });
                 },
@@ -216,7 +213,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Array,
+                        kind: lsp::SymbolKind::Array,
                         name_hint: "memory",
                     });
                 },
@@ -226,7 +223,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Interface,
+                        kind: lsp::SymbolKind::Interface,
                         name_hint: "table",
                     });
                 },
@@ -236,7 +233,7 @@ pub mod wast {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::TypeParameter,
+                        kind: lsp::SymbolKind::TypeParameter,
                         name_hint: "type",
                     });
                 },
@@ -248,7 +245,7 @@ pub mod wast {
         // correct order. Note that children nodes are reversed _as the symbols are nested_.
         let results = syms.into_iter().rev().collect();
 
-        Some(DocumentSymbolResponse::Nested(results))
+        Some(lsp::DocumentSymbolResponse::Nested(results))
     }
 }
 
@@ -260,12 +257,11 @@ pub mod wat {
         core::{document::Document, language::wat},
         provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
     };
-    use lspower::lsp_types::*;
 
     /// Compute "textDocument/documentSymbols" for a given document.
-    pub async fn response(document: &Document) -> Option<DocumentSymbolResponse> {
+    pub async fn response(document: &Document) -> Option<lsp::DocumentSymbolResponse> {
         // Vector to collect document symbols into as they are constructed.
-        let mut syms: Vec<DocumentSymbol> = vec![];
+        let mut syms: Vec<lsp::DocumentSymbol> = vec![];
 
         // Prepare the syntax tree.
         let tree = document.tree.lock().await.clone();
@@ -301,7 +297,7 @@ pub mod wat {
 
                         // FIXME
                         #[allow(deprecated)]
-                        let this = DocumentSymbol {
+                        let this = lsp::DocumentSymbol {
                             children: if syms.is_empty() {
                                 None
                             } else {
@@ -351,7 +347,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count,
-                        kind: SymbolKind::Module,
+                        kind: lsp::SymbolKind::Module,
                         name_hint: "module",
                     });
                 },
@@ -361,7 +357,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Key,
+                        kind: lsp::SymbolKind::Key,
                         name_hint: "data",
                     });
                 },
@@ -371,7 +367,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Field,
+                        kind: lsp::SymbolKind::Field,
                         name_hint: "elem",
                     });
                 },
@@ -381,7 +377,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Function,
+                        kind: lsp::SymbolKind::Function,
                         name_hint: "func",
                     });
                 },
@@ -391,7 +387,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Event,
+                        kind: lsp::SymbolKind::Event,
                         name_hint: "global",
                     });
                 },
@@ -401,7 +397,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Array,
+                        kind: lsp::SymbolKind::Array,
                         name_hint: "memory",
                     });
                 },
@@ -411,7 +407,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::Interface,
+                        kind: lsp::SymbolKind::Interface,
                         name_hint: "table",
                     });
                 },
@@ -421,7 +417,7 @@ pub mod wat {
                     data.push(Data {
                         node,
                         children_count: 0,
-                        kind: SymbolKind::TypeParameter,
+                        kind: lsp::SymbolKind::TypeParameter,
                         name_hint: "type",
                     });
                 },
@@ -433,6 +429,6 @@ pub mod wat {
         // correct order. Note that children nodes are reversed _as the symbols are nested_.
         let results = syms.into_iter().rev().collect();
 
-        Some(DocumentSymbolResponse::Nested(results))
+        Some(lsp::DocumentSymbolResponse::Nested(results))
     }
 }

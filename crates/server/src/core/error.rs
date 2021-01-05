@@ -1,6 +1,5 @@
 //! Core definitions related to runtime errors.
 
-use lspower::lsp_types::*;
 use thiserror::Error;
 
 /// Runtime errors for the WebAssembly language server.
@@ -15,7 +14,7 @@ pub(crate) enum Error {
     ColumnOutOfBounds { given: usize, max: usize },
     /// Error that a given document could not be found.
     #[error("core::DocumentNotFound: {0}")]
-    DocumentNotFound(Url),
+    DocumentNotFound(lsp::Url),
     /// Error that a given line index is out of bounds for a document.
     #[error("LineOutOfBounds: given={given:?}, max={max:?}")]
     LineOutOfBounds { given: usize, max: usize },

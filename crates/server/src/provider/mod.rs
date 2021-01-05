@@ -1,7 +1,6 @@
 //! Providers of the WebAssembly language server for LSP features.
 
 use crate::core::{language::Language, session::Session};
-use lspower::lsp_types::*;
 use std::sync::Arc;
 
 // Provides diagnostics functionality.
@@ -19,10 +18,10 @@ pub mod semantic_tokens;
 /// Provide response for `textDocument/documentSymbols`.
 pub async fn document_symbol(
     session: Arc<Session>,
-    params: DocumentSymbolParams,
-) -> anyhow::Result<Option<DocumentSymbolResponse>> {
-    let DocumentSymbolParams {
-        text_document: TextDocumentIdentifier { uri },
+    params: lsp::DocumentSymbolParams,
+) -> anyhow::Result<Option<lsp::DocumentSymbolResponse>> {
+    let lsp::DocumentSymbolParams {
+        text_document: lsp::TextDocumentIdentifier { uri },
         ..
     } = &params;
     let document = session.get_document(uri).await?;
@@ -34,11 +33,11 @@ pub async fn document_symbol(
 }
 
 // FIXME
-pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> anyhow::Result<Option<Hover>> {
-    let HoverParams {
+pub(crate) async fn hover(session: Arc<Session>, params: lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
+    let lsp::HoverParams {
         text_document_position_params:
-            TextDocumentPositionParams {
-                text_document: TextDocumentIdentifier { uri, .. },
+        lsp::TextDocumentPositionParams {
+                text_document: lsp::TextDocumentIdentifier { uri, .. },
                 ..
             },
         ..
@@ -51,8 +50,8 @@ pub(crate) async fn hover(session: Arc<Session>, params: HoverParams) -> anyhow:
 // FIXME
 pub(crate) async fn semantic_tokens_full(
     session: Arc<Session>,
-    params: SemanticTokensParams,
-) -> anyhow::Result<Option<SemanticTokensResult>> {
+    params: lsp::SemanticTokensParams,
+) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
     let document = session.get_document(&params.text_document.uri).await?;
     let response = match document.language {
         Language::Wast => semantic_tokens::wast::full(session.clone(), &document, params).await?,
@@ -63,8 +62,8 @@ pub(crate) async fn semantic_tokens_full(
 
 pub(crate) async fn semantic_tokens_range(
     session: Arc<Session>,
-    params: SemanticTokensRangeParams,
-) -> anyhow::Result<Option<SemanticTokensRangeResult>> {
+    params: lsp::SemanticTokensRangeParams,
+) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
     let document = session.get_document(&params.text_document.uri).await?;
     let response = match document.language {
         Language::Wast => semantic_tokens::wast::range(session.clone(), &document, params).await?,

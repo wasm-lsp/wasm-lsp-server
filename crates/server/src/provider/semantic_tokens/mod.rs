@@ -12,7 +12,6 @@ pub mod wast {
         session::Session,
     };
     use anyhow::anyhow;
-    use lspower::lsp_types::*;
     use std::sync::Arc;
 
     struct Handler<'a> {
@@ -21,7 +20,7 @@ pub mod wast {
     }
 
     impl<'a> Handler<'a> {
-        fn new(language: Language, legend: Option<&'a SemanticTokensLegend>, node: tree_sitter::Node<'a>) -> Self {
+        fn new(language: Language, legend: Option<&'a lsp::SemanticTokensLegend>, node: tree_sitter::Node<'a>) -> Self {
             let builder = SemanticTokensBuilder::new(legend);
             let walker = NodeWalker::new(language, node);
             Self { builder, walker }
@@ -31,9 +30,9 @@ pub mod wast {
     pub(crate) async fn full(
         session: Arc<Session>,
         document: &Document,
-        params: SemanticTokensParams,
-    ) -> anyhow::Result<Option<SemanticTokensResult>> {
-        let params = SemanticTokensRangeParams {
+        params: lsp::SemanticTokensParams,
+    ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
+        let params = lsp::SemanticTokensRangeParams {
             work_done_progress_params: params.work_done_progress_params,
             partial_result_params: params.partial_result_params,
             text_document: params.text_document,
@@ -45,8 +44,8 @@ pub mod wast {
         };
 
         let result = range(session, document, params).await?.map(|result| match result {
-            SemanticTokensRangeResult::Tokens(tokens) => SemanticTokensResult::Tokens(tokens),
-            SemanticTokensRangeResult::Partial(partial) => SemanticTokensResult::Partial(partial),
+            lsp::SemanticTokensRangeResult::Tokens(tokens) => lsp::SemanticTokensResult::Tokens(tokens),
+            lsp::SemanticTokensRangeResult::Partial(partial) => lsp::SemanticTokensResult::Partial(partial),
         });
 
         Ok(result)
@@ -55,8 +54,8 @@ pub mod wast {
     pub(crate) async fn range(
         session: Arc<Session>,
         document: &Document,
-        params: SemanticTokensRangeParams,
-    ) -> anyhow::Result<Option<SemanticTokensRangeResult>> {
+        params: lsp::SemanticTokensRangeParams,
+    ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
         let language = document.language;
         let legend = session.semantic_tokens_legend().await;
         let legend = legend.as_ref();
@@ -236,7 +235,7 @@ pub mod wast {
             }
 
             let tokens = handler.builder.build()?;
-            let result = SemanticTokensRangeResult::Tokens(tokens);
+            let result = lsp::SemanticTokensRangeResult::Tokens(tokens);
 
             Ok(Some(result))
         } else {
@@ -248,7 +247,7 @@ pub mod wast {
         fn action_get(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -259,7 +258,7 @@ pub mod wast {
         fn action_invoke(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -270,7 +269,7 @@ pub mod wast {
         fn assert_exhaustion(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -281,7 +280,7 @@ pub mod wast {
         fn assert_invalid(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -292,7 +291,7 @@ pub mod wast {
         fn assert_malformed(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -303,7 +302,7 @@ pub mod wast {
         fn assert_return(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -314,7 +313,7 @@ pub mod wast {
         fn assert_return_arithmetic_nan(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -325,7 +324,7 @@ pub mod wast {
         fn assert_return_canonical_nan(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -336,7 +335,7 @@ pub mod wast {
         fn assert_trap_action(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -347,7 +346,7 @@ pub mod wast {
         fn assert_trap_module(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -358,7 +357,7 @@ pub mod wast {
         fn assert_unlinkable(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -374,7 +373,7 @@ pub mod wast {
 
         fn comment_block(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -383,7 +382,7 @@ pub mod wast {
 
         fn comment_block_annot(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -392,7 +391,7 @@ pub mod wast {
 
         fn comment_line(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -401,7 +400,7 @@ pub mod wast {
 
         fn comment_line_annot(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -417,7 +416,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             // $.name
@@ -425,7 +424,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::STRING, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
             }
 
             // skip ")"
@@ -445,7 +444,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             // $.name
@@ -453,7 +452,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::STRING, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
             }
 
             // $.name
@@ -461,7 +460,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::STRING, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
             }
 
             // skip ")"
@@ -475,7 +474,7 @@ pub mod wast {
         fn meta_input(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -486,7 +485,7 @@ pub mod wast {
         fn meta_output(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -497,7 +496,7 @@ pub mod wast {
         fn meta_script(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -508,7 +507,7 @@ pub mod wast {
         fn module(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -519,7 +518,7 @@ pub mod wast {
         fn module_field_data(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -530,7 +529,7 @@ pub mod wast {
         fn module_field_elem(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -541,7 +540,7 @@ pub mod wast {
         fn module_field_export(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -558,7 +557,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -566,7 +565,7 @@ pub mod wast {
             if wast::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::FUNCTION, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -599,7 +598,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -607,7 +606,7 @@ pub mod wast {
             if wast::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::FUNCTION, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -629,7 +628,7 @@ pub mod wast {
         fn module_field_import(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -640,7 +639,7 @@ pub mod wast {
         fn module_field_memory(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -651,7 +650,7 @@ pub mod wast {
         fn module_field_start(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -662,7 +661,7 @@ pub mod wast {
         fn module_field_table(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -673,7 +672,7 @@ pub mod wast {
         fn module_field_type(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -684,7 +683,7 @@ pub mod wast {
         fn register(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -701,7 +700,7 @@ pub mod wast {
         fn script_module_binary(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -712,7 +711,7 @@ pub mod wast {
         fn script_module_quote(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -729,7 +728,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             // $.index
@@ -737,7 +736,7 @@ pub mod wast {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::VARIABLE, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::VARIABLE, None)?;
             }
 
             // skip ")"
@@ -751,7 +750,7 @@ pub mod wast {
         fn token_get(&mut self) -> anyhow::Result<()> {
             let node = self.walker.node();
             let range = crate::util::node::range(&node);
-            self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
 
             self.walker.goto_next();
 
@@ -761,7 +760,7 @@ pub mod wast {
         fn token_invoke(&mut self) -> anyhow::Result<()> {
             let node = self.walker.node();
             let range = crate::util::node::range(&node);
-            self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
 
             self.walker.goto_next();
 
@@ -779,7 +778,6 @@ pub mod wat {
         session::Session,
     };
     use anyhow::anyhow;
-    use lspower::lsp_types::*;
     use std::sync::Arc;
 
     // Move to the next appropriate node in the syntax tree.
@@ -789,7 +787,7 @@ pub mod wat {
     }
 
     impl<'a> Handler<'a> {
-        fn new(language: Language, legend: Option<&'a SemanticTokensLegend>, node: tree_sitter::Node<'a>) -> Self {
+        fn new(language: Language, legend: Option<&'a lsp::SemanticTokensLegend>, node: tree_sitter::Node<'a>) -> Self {
             let builder = SemanticTokensBuilder::new(legend);
             let walker = NodeWalker::new(language, node);
             Self { builder, walker }
@@ -799,9 +797,9 @@ pub mod wat {
     pub(crate) async fn full(
         session: Arc<Session>,
         document: &Document,
-        params: SemanticTokensParams,
-    ) -> anyhow::Result<Option<SemanticTokensResult>> {
-        let params = SemanticTokensRangeParams {
+        params: lsp::SemanticTokensParams,
+    ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
+        let params = lsp::SemanticTokensRangeParams {
             work_done_progress_params: params.work_done_progress_params,
             partial_result_params: params.partial_result_params,
             text_document: params.text_document,
@@ -813,8 +811,8 @@ pub mod wat {
         };
 
         let result = range(session, document, params).await?.map(|result| match result {
-            SemanticTokensRangeResult::Tokens(tokens) => SemanticTokensResult::Tokens(tokens),
-            SemanticTokensRangeResult::Partial(partial) => SemanticTokensResult::Partial(partial),
+            lsp::SemanticTokensRangeResult::Tokens(tokens) => lsp::SemanticTokensResult::Tokens(tokens),
+            lsp::SemanticTokensRangeResult::Partial(partial) => lsp::SemanticTokensResult::Partial(partial),
         });
 
         Ok(result)
@@ -823,8 +821,8 @@ pub mod wat {
     pub(crate) async fn range(
         session: Arc<Session>,
         document: &Document,
-        params: SemanticTokensRangeParams,
-    ) -> anyhow::Result<Option<SemanticTokensRangeResult>> {
+        params: lsp::SemanticTokensRangeParams,
+    ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
         let language = document.language;
         let legend = session.semantic_tokens_legend().await;
         let legend = legend.as_ref();
@@ -917,7 +915,7 @@ pub mod wat {
             }
 
             let tokens = handler.builder.build()?;
-            let result = SemanticTokensRangeResult::Tokens(tokens);
+            let result = lsp::SemanticTokensRangeResult::Tokens(tokens);
 
             Ok(Some(result))
         } else {
@@ -928,7 +926,7 @@ pub mod wat {
     impl<'a> Handler<'a> {
         fn comment_block(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -937,7 +935,7 @@ pub mod wat {
 
         fn comment_block_annot(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -946,7 +944,7 @@ pub mod wat {
 
         fn comment_line(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -955,7 +953,7 @@ pub mod wat {
 
         fn comment_line_annot(&mut self) -> anyhow::Result<()> {
             let range = crate::util::node::range(&self.walker.node());
-            self.builder.push(range, &SemanticTokenType::COMMENT, None)?;
+            self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
 
             self.walker.goto_next();
 
@@ -971,7 +969,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             // $.name
@@ -979,7 +977,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::STRING, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
             }
 
             // skip ")"
@@ -999,7 +997,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             // $.name
@@ -1007,7 +1005,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::STRING, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
             }
 
             // $.name
@@ -1015,7 +1013,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::STRING, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
             }
 
             // skip ")"
@@ -1029,7 +1027,7 @@ pub mod wat {
         fn module(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1040,7 +1038,7 @@ pub mod wat {
         fn module_field_data(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1051,7 +1049,7 @@ pub mod wat {
         fn module_field_elem(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1062,7 +1060,7 @@ pub mod wat {
         fn module_field_export(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1079,7 +1077,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -1087,7 +1085,7 @@ pub mod wat {
             if wat::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::FUNCTION, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -1120,7 +1118,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -1128,7 +1126,7 @@ pub mod wat {
             if wat::kind::equals::IDENTIFIER(self.walker.kind()) {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::FUNCTION, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::FUNCTION, None)?;
                 self.walker.goto_next_sibling();
             }
 
@@ -1150,7 +1148,7 @@ pub mod wat {
         fn module_field_import(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1161,7 +1159,7 @@ pub mod wat {
         fn module_field_memory(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1172,7 +1170,7 @@ pub mod wat {
         fn module_field_start(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1183,7 +1181,7 @@ pub mod wat {
         fn module_field_table(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1194,7 +1192,7 @@ pub mod wat {
         fn module_field_type(&mut self) -> anyhow::Result<()> {
             if let Some(node) = self.walker.node().child(1) {
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             self.walker.goto_next();
@@ -1217,7 +1215,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::KEYWORD, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
             }
 
             // $.index
@@ -1225,7 +1223,7 @@ pub mod wat {
             {
                 let node = self.walker.node();
                 let range = crate::util::node::range(&node);
-                self.builder.push(range, &SemanticTokenType::VARIABLE, None)?;
+                self.builder.push(range, &lsp::SemanticTokenType::VARIABLE, None)?;
             }
 
             // skip ")"
