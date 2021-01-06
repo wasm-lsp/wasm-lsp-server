@@ -1,9 +1,12 @@
 //! Core functionality related to the LSP server session.
 
-use crate::core::{
-    database::{Database, DocumentStatus},
-    document::Document,
-    error::Error,
+use crate::{
+    core::{
+        database::{Database, DocumentStatus},
+        document::Document,
+        error::Error,
+    },
+    server,
 };
 use dashmap::{
     mapref::one::{Ref, RefMut},
@@ -29,7 +32,7 @@ pub struct Session {
 impl Session {
     /// Create a new session.
     pub fn new(client: Option<lspower::Client>) -> anyhow::Result<Self> {
-        let server_capabilities = RwLock::new(crate::lsp::server::capabilities());
+        let server_capabilities = RwLock::new(server::capabilities());
         let client_capabilities = RwLock::new(Default::default());
         let database = Database::new()?;
         let documents = DashMap::new();
