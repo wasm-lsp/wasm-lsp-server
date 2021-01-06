@@ -1,6 +1,6 @@
 //! Definitions for the server instance.
 
-use crate::core::session::Session;
+use crate::core;
 use std::sync::Arc;
 
 /// The WASM language server instance.
@@ -8,13 +8,13 @@ pub struct Server {
     /// The LSP client handle.
     pub(crate) client: lspower::Client,
     /// The current state of the server.
-    pub(crate) session: Arc<Session>,
+    pub(crate) session: Arc<core::Session>,
 }
 
 impl Server {
     /// Create a new server.
     pub fn new(client: lspower::Client) -> anyhow::Result<Self> {
-        let session = Arc::new(Session::new(Some(client.clone()))?);
+        let session = Arc::new(core::Session::new(Some(client.clone()))?);
         Ok(Server { client, session })
     }
 }

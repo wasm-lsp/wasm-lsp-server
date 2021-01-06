@@ -2,7 +2,7 @@
 
 pub(crate) mod character {
     pub(crate) mod line {
-        use crate::core::error::Error;
+        use crate::core;
 
         pub(crate) fn offset(line_text: &str, character: usize) -> anyhow::Result<usize> {
             let mut offset = 0;
@@ -19,7 +19,7 @@ pub(crate) mod character {
             if offset == character {
                 Ok(line_text.len())
             } else {
-                Err(Error::ColumnOutOfBounds {
+                Err(core::Error::ColumnOutOfBounds {
                     given: offset as usize,
                     max: line_text.len(),
                 }
@@ -30,14 +30,14 @@ pub(crate) mod character {
 }
 
 pub(crate) mod line {
-    use crate::core::{document::Document, error::Error};
+    use crate::core;
 
-    pub(crate) fn range(document: &Document, line_index: usize) -> Option<std::ops::Range<usize>> {
+    pub(crate) fn range(document: &core::Document, line_index: usize) -> Option<std::ops::Range<usize>> {
         let (start, end) = super::line::span(document, line_index).ok()?;
         Some(start .. end)
     }
 
-    fn span(document: &Document, line_index: usize) -> anyhow::Result<(usize, usize)> {
+    fn span(document: &core::Document, line_index: usize) -> anyhow::Result<(usize, usize)> {
         let source = document.rope.chunks().collect::<String>();
         let source = source.as_str();
         let line_starts = super::line::starts(source).collect::<Vec<_>>();
@@ -46,12 +46,12 @@ pub(crate) mod line {
         Ok((this_start, next_start))
     }
 
-    pub(crate) fn start(document: &Document, line_starts: &[usize], line_index: usize) -> anyhow::Result<usize> {
+    pub(crate) fn start(document: &core::Document, line_starts: &[usize], line_index: usize) -> anyhow::Result<usize> {
         use std::cmp::Ordering;
         match line_index.cmp(&line_starts.len()) {
             Ordering::Less => Ok(line_starts[line_index]),
             Ordering::Equal => Ok(document.rope.len_bytes()),
-            Ordering::Greater => Err(Error::LineOutOfBounds {
+            Ordering::Greater => Err(core::Error::LineOutOfBounds {
                 given: line_index,
                 max: line_starts.len(),
             }
@@ -88,9 +88,9 @@ pub(crate) mod node {
 }
 
 pub(crate) mod position {
-    use crate::core::document::Document;
+    use crate::core;
 
-    pub(crate) fn byte_index(document: &Document, position: &lsp::Position) -> anyhow::Result<usize> {
+    pub(crate) fn byte_index(document: &core::Document, position: &lsp::Position) -> anyhow::Result<usize> {
         let source = document.rope.chunks().collect::<String>();
         let source = source.as_str();
         let line_index = position.line as usize;

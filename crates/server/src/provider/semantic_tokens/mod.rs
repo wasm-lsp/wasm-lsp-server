@@ -7,9 +7,8 @@ mod node_walker;
 pub mod wast {
     use super::{builder::SemanticTokensBuilder, node_walker::NodeWalker};
     use crate::core::{
-        document::Document,
+        self,
         language::{wast, Language},
-        session::Session,
     };
     use anyhow::anyhow;
     use std::sync::Arc;
@@ -28,8 +27,8 @@ pub mod wast {
     }
 
     pub(crate) async fn full(
-        session: Arc<Session>,
-        document: &Document,
+        session: Arc<core::Session>,
+        document: &core::Document,
         params: lsp::SemanticTokensParams,
     ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
         let params = lsp::SemanticTokensRangeParams {
@@ -52,8 +51,8 @@ pub mod wast {
     }
 
     pub(crate) async fn range(
-        session: Arc<Session>,
-        document: &Document,
+        session: Arc<core::Session>,
+        document: &core::Document,
         params: lsp::SemanticTokensRangeParams,
     ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
         let language = document.language;
@@ -773,9 +772,8 @@ pub mod wast {
 pub mod wat {
     use super::{builder::SemanticTokensBuilder, node_walker::NodeWalker};
     use crate::core::{
-        document::Document,
+        self,
         language::{wat, Language},
-        session::Session,
     };
     use anyhow::anyhow;
     use std::sync::Arc;
@@ -795,8 +793,8 @@ pub mod wat {
     }
 
     pub(crate) async fn full(
-        session: Arc<Session>,
-        document: &Document,
+        session: Arc<core::Session>,
+        document: &core::Document,
         params: lsp::SemanticTokensParams,
     ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
         let params = lsp::SemanticTokensRangeParams {
@@ -819,8 +817,8 @@ pub mod wat {
     }
 
     pub(crate) async fn range(
-        session: Arc<Session>,
-        document: &Document,
+        session: Arc<core::Session>,
+        document: &core::Document,
         params: lsp::SemanticTokensRangeParams,
     ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
         let language = document.language;
