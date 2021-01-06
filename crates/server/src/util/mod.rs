@@ -38,7 +38,7 @@ pub(crate) mod line {
     }
 
     fn span(document: &core::Document, line_index: usize) -> anyhow::Result<(usize, usize)> {
-        let source = document.rope.chunks().collect::<String>();
+        let source = document.content.chunks().collect::<String>();
         let source = source.as_str();
         let line_starts = super::line::starts(source).collect::<Vec<_>>();
         let this_start = super::line::start(document, &line_starts, line_index)?;
@@ -50,7 +50,7 @@ pub(crate) mod line {
         use std::cmp::Ordering;
         match line_index.cmp(&line_starts.len()) {
             Ordering::Less => Ok(line_starts[line_index]),
-            Ordering::Equal => Ok(document.rope.len_bytes()),
+            Ordering::Equal => Ok(document.content.len_bytes()),
             Ordering::Greater => Err(core::Error::LineOutOfBounds {
                 given: line_index,
                 max: line_starts.len(),
@@ -91,7 +91,7 @@ pub(crate) mod position {
     use crate::core;
 
     pub(crate) fn byte_index(document: &core::Document, position: &lsp::Position) -> anyhow::Result<usize> {
-        let source = document.rope.chunks().collect::<String>();
+        let source = document.content.chunks().collect::<String>();
         let source = source.as_str();
         let line_index = position.line as usize;
         let line_span: std::ops::Range<usize> = super::line::range(document, line_index).unwrap();

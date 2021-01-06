@@ -99,7 +99,7 @@ pub mod wast {
                             range,
                             selection_range,
                         } = {
-                            let source = document.rope.bytes().collect::<Vec<_>>();
+                            let source = document.content.bytes().collect::<Vec<_>>();
                             let source = source.as_slice();
                             symbol_range(source, node, name_hint, *wast::field::IDENTIFIER)
                         };
@@ -290,7 +290,7 @@ pub mod wat {
                             range,
                             selection_range,
                         } = {
-                            let source = document.rope.bytes().collect::<Vec<_>>();
+                            let source = document.content.bytes().collect::<Vec<_>>();
                             let source = source.as_slice();
                             symbol_range(source, node, name_hint, *wat::field::IDENTIFIER)
                         };
