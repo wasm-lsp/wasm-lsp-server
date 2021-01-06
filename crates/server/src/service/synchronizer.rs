@@ -3,6 +3,7 @@
 /// Functions related to processing events for a document.
 pub(crate) mod document {
     use crate::core;
+    use ropey::Rope;
     use std::sync::Arc;
 
     /// Handle a document "change" event.
@@ -14,25 +15,10 @@ pub(crate) mod document {
             let mut document = session.get_mut_document(&params.text_document.uri).await?;
 
             for change in &params.content_changes {
-                let mut finished = false;
-                let (start, end) = if let Some(range) = change.range {
-                    let start = crate::util::position::byte_index(&document, &range.start)?;
-                    let end = crate::util::position::byte_index(&document, &range.end)?;
-                    (start, end)
+                if let Some(range) = change.range {
+                    document.modify_lsp_range(range, &change.text)?;
                 } else {
-                    finished = true;
-                    let start = 0;
-                    let end = change.text.len();
-                    (start, end)
-                };
-
-                document.rope.remove(start .. end);
-                if !change.text.is_empty() {
-                    document.rope.insert(start, change.text.as_str());
-                }
-
-                if finished {
-                    // FIXME: For now just assume there really are no more edits, per spec.
+                    document.content = Rope::from(change.text.as_str());
                     break;
                 }
             }
@@ -103,7 +89,7 @@ mod tree {
             let mut parser = document.parser.lock().await;
             // FIXME: we reset the parser since we don't handle incremental changes yet
             parser.reset();
-            let mut callback = document.rope.chunk_walker(0).callback_adapter();
+            let mut callback = document.content.chunk_walker(0).callback_adapter();
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
             parser.parse_with(&mut callback, old_tree)
@@ -147,7 +133,7 @@ mod tree {
             // let rope = Rope::from(text);
             let document = core::Document {
                 language,
-                rope,
+                content: rope,
                 parser: Mutex::new(parser),
                 tree: Mutex::new(tree),
             };

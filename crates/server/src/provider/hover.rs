@@ -56,7 +56,7 @@ async fn hover_for_token_range(
     if let Some(mut child) = node.descendant_for_byte_range(start, end) {
         loop {
             if [*wat::kind::INSTR_PLAIN, *wast::kind::INSTR_PLAIN].contains(&child.kind_id()) {
-                let source = document.rope.bytes().collect::<Vec<_>>();
+                let source = document.content.bytes().collect::<Vec<_>>();
                 let source = source.as_slice();
                 let text = child.utf8_text(source)?;
                 contents.push(lsp::MarkedString::String(String::from(text)));
@@ -65,7 +65,7 @@ async fn hover_for_token_range(
             }
 
             if [*wat::kind::INSTR, *wast::kind::INSTR].contains(&child.kind_id()) {
-                let source = document.rope.bytes().collect::<Vec<_>>();
+                let source = document.content.bytes().collect::<Vec<_>>();
                 let source = source.as_slice();
                 let text = child.utf8_text(source)?;
                 contents.push(lsp::MarkedString::String(String::from(text)));
@@ -74,7 +74,7 @@ async fn hover_for_token_range(
             }
 
             if module_fields.contains(&child.kind_id()) {
-                let source = document.rope.bytes().collect::<Vec<_>>();
+                let source = document.content.bytes().collect::<Vec<_>>();
                 let source = source.as_slice();
                 let text = child.utf8_text(source)?;
                 contents.push(lsp::MarkedString::String(String::from(text)));
@@ -129,7 +129,7 @@ mod tests {
         if let Ok(option) = result {
             assert!(option.is_some());
             if let Some(ref document) = option {
-                let source = document.rope.chunks().collect::<String>();
+                let source = document.content.chunks().collect::<String>();
                 let source = source.as_str();
                 let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
                 let line_index = 1;
@@ -148,7 +148,7 @@ mod tests {
         if let Ok(option) = result {
             assert!(option.is_some());
             if let Some(ref document) = option {
-                let source = document.rope.chunks().collect::<String>();
+                let source = document.content.chunks().collect::<String>();
                 let source = source.as_str();
                 let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
                 let line_index = 2;
