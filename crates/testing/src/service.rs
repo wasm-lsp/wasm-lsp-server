@@ -15,7 +15,7 @@ pub async fn send(service: &mut Spawn<LspService>, request: &Value) -> Result<Op
 /// Spawn an LSP service and return it along with its message stream.
 pub fn spawn() -> anyhow::Result<(Spawn<LspService>, MessageStream)> {
     let (service, messages) = LspService::new(|client| {
-        let server = wasm_language_server::lsp::server::Server::new(client);
+        let server = wasm_language_server::server::Server::new(client);
         server.unwrap()
     });
     Ok((Spawn::new(service), messages))

@@ -10,14 +10,14 @@ pub mod cli;
 // Core functionality for the WASM language server.
 pub mod core;
 
-// Functionality related to implementation of the Language Server Protocol (LSP).
-pub mod lsp;
-
 // Definitions related to the wasm-language-server crate.
 mod package;
 
 // Providers of the WebAssembly language server for LSP features.
 pub mod provider;
+
+// The implementation of the Language Server Protocol (LSP).
+pub mod server;
 
 // Services (components) of the WebAssembly language server.
 pub mod service;
