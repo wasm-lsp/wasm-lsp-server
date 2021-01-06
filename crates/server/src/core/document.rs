@@ -24,9 +24,9 @@ impl Document {
         let language = Language::try_from(language_id)?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
         let old_tree = None;
-        let tree = parser.parse(&text[..], old_tree);
+        let new_tree = parser.parse(&text[..], old_tree);
         let rope = Rope::from(text);
-        let document = tree.map(|tree| Document {
+        let document = new_tree.map(|tree| Document {
             language,
             rope,
             parser: Mutex::new(parser),
