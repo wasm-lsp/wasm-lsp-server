@@ -4,7 +4,7 @@ use crate::core;
 
 fn for_error(document: &core::Document, error: wast::Error) -> lsp::Diagnostic {
     let range = {
-        let input = document.rope.chunks().collect::<String>();
+        let input = document.content.chunks().collect::<String>();
         let input = input.as_str();
         let span = error.span();
         let (line, col) = span.linecol_in(input);
@@ -28,7 +28,7 @@ fn for_error(document: &core::Document, error: wast::Error) -> lsp::Diagnostic {
 fn for_change(document: &core::Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<lsp::Diagnostic>> {
     let mut diagnostics = vec![];
     if tree.root_node().has_error() || cfg!(debug_assertions) {
-        let input = document.rope.chunks().collect::<String>();
+        let input = document.content.chunks().collect::<String>();
         let input = input.as_str();
         match ::wast::parser::ParseBuffer::new(input) {
             Err(error) => {

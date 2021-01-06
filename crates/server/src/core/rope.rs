@@ -1,5 +1,6 @@
 //! Core functionality related to working with ropes.
 
+use anyhow::anyhow;
 use ropey::{iter::Chunks, Rope};
 
 /// Convenience trait for working with [`Chunks`].
@@ -73,10 +74,13 @@ impl<'a> ChunkWalker<'a> {
     }
 }
 
-/// Extension trait for building a [`ChunkWalker`].
+/// Extension trait for [`Rope`].
 pub(crate) trait RopeExt<'a> {
     /// Build a [`ChunkWalker`] given an appropriate structure and a starting byte offset.
     fn chunk_walker(&'a self, byte_idx: usize) -> ChunkWalker<'a>;
+
+    /// Translate an [`lsp::Position`] to a utf16 offset.
+    fn lsp_position_to_utf16_offset(&self, position: lsp::Position) -> anyhow::Result<usize>;
 }
 
 impl<'a> RopeExt<'a> for Rope {
@@ -90,5 +94,28 @@ impl<'a> RopeExt<'a> for Rope {
             cursor_chunk,
             chunks,
         }
+    }
+
+    fn lsp_position_to_utf16_offset(&self, position: lsp::Position) -> anyhow::Result<usize> {
+        let line = self.line(position.line as usize);
+        let character = position.character as usize;
+
+        let mut utf16_offset = 0usize;
+        let mut char_offset = 0usize;
+
+        for c in line.chars() {
+            if utf16_offset == character {
+                break;
+            }
+
+            if utf16_offset > character {
+                return Err(anyhow!("character is not on an offset boundary"));
+            }
+
+            utf16_offset += c.len_utf16();
+            char_offset += 1;
+        }
+
+        Ok(self.line_to_char(position.line as usize) + char_offset)
     }
 }
