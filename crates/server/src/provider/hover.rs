@@ -1,15 +1,15 @@
 //! Provides `textDocument/hover` functionality.
 
 use crate::core::{
-    document::Document,
+    self,
     language::{wast, wat},
 };
 
 /// Compute "textDocument/hover" for a given document.
-pub async fn response(document: &Document, params: &lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
+pub async fn response(document: &core::Document, params: &lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
     let lsp::HoverParams {
         text_document_position_params:
-        lsp::TextDocumentPositionParams {
+            lsp::TextDocumentPositionParams {
                 text_document: lsp::TextDocumentIdentifier { uri, .. },
                 position,
                 ..
@@ -22,7 +22,11 @@ pub async fn response(document: &Document, params: &lsp::HoverParams) -> anyhow:
 }
 
 // FIXME
-async fn hover_for_token_range(_uri: &lsp::Url, document: &Document, range: lsp::Range) -> anyhow::Result<Option<lsp::Hover>> {
+async fn hover_for_token_range(
+    _uri: &lsp::Url,
+    document: &core::Document,
+    range: lsp::Range,
+) -> anyhow::Result<Option<lsp::Hover>> {
     let module_fields: &[u16] = &[
         *wast::kind::MODULE_FIELD_DATA,
         *wast::kind::MODULE_FIELD_ELEM,
@@ -98,7 +102,7 @@ async fn hover_for_token_range(_uri: &lsp::Url, document: &Document, range: lsp:
 
 #[cfg(test)]
 mod tests {
-    use crate::core::document::Document;
+    use crate::core;
 
     #[test]
     fn character_to_line_offset_ok() {
@@ -120,7 +124,7 @@ mod tests {
     fn line_start_ok() {
         let language_id = "wasm.wast";
         let text = String::from("(module)");
-        let result = Document::new(language_id, text);
+        let result = core::Document::new(language_id, text);
         assert!(result.is_ok());
         if let Ok(option) = result {
             assert!(option.is_some());
@@ -139,7 +143,7 @@ mod tests {
     fn line_start_out_of_bounds() {
         let language_id = "wasm.wast";
         let text = String::from("(module)");
-        let result = Document::new(language_id, text);
+        let result = core::Document::new(language_id, text);
         assert!(result.is_ok());
         if let Ok(option) = result {
             assert!(option.is_some());

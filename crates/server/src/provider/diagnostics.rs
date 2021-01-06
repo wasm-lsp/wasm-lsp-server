@@ -1,8 +1,8 @@
 //! Provides `textDocument/documentSymbol` functionality.
 
-use crate::core::document::Document;
+use crate::core;
 
-fn for_error(document: &Document, error: wast::Error) -> lsp::Diagnostic {
+fn for_error(document: &core::Document, error: wast::Error) -> lsp::Diagnostic {
     let range = {
         let input = document.rope.chunks().collect::<String>();
         let input = input.as_str();
@@ -25,7 +25,7 @@ fn for_error(document: &Document, error: wast::Error) -> lsp::Diagnostic {
 // NOTE: Currently we only use the tree-sitter grammar to check for the
 // presence of errors and then use the `wast` crate for the actual error
 // reporting (because tree-sitter does not provide detailed errors yet).
-fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<lsp::Diagnostic>> {
+fn for_change(document: &core::Document, tree: tree_sitter::Tree) -> anyhow::Result<Vec<lsp::Diagnostic>> {
     let mut diagnostics = vec![];
     if tree.root_node().has_error() || cfg!(debug_assertions) {
         let input = document.rope.chunks().collect::<String>();
@@ -46,11 +46,11 @@ fn for_change(document: &Document, tree: tree_sitter::Tree) -> anyhow::Result<Ve
 
 /// Functions related to processing parse tree events for a document.
 pub(crate) mod tree {
-    use crate::core::session::Session;
+    use crate::core;
     use std::sync::Arc;
 
     /// Handle a parse tree "change" event.
-    pub(crate) async fn change(session: Arc<Session>, uri: lsp::Url) -> anyhow::Result<()> {
+    pub(crate) async fn change(session: Arc<core::Session>, uri: lsp::Url) -> anyhow::Result<()> {
         let document = session.get_document(&uri).await?;
         let tree = document.tree.lock().await.clone();
         let diagnostics = super::for_change(&document, tree)?;
@@ -60,7 +60,7 @@ pub(crate) mod tree {
     }
 
     /// Handle a parse tree "close" event.
-    pub(crate) async fn close(session: Arc<Session>, uri: lsp::Url) -> anyhow::Result<()> {
+    pub(crate) async fn close(session: Arc<core::Session>, uri: lsp::Url) -> anyhow::Result<()> {
         // clear diagnostics on tree close
         // FIXME: handle this properly
         let diagnostics = Default::default();
@@ -70,7 +70,7 @@ pub(crate) mod tree {
     }
 
     /// Handle a parse tree "open" event.
-    pub(crate) async fn open(session: Arc<Session>, uri: lsp::Url) -> anyhow::Result<()> {
+    pub(crate) async fn open(session: Arc<core::Session>, uri: lsp::Url) -> anyhow::Result<()> {
         self::change(session, uri).await
     }
 }

@@ -1,19 +1,22 @@
 //! Core functionality for the WASM language server.
 
 // Core functionality related to the document metadata database.
-pub(crate) mod database;
+mod database;
 
 // Core functionality related to documents.
-pub mod document;
+mod document;
 
 // Core functionality related to runtime errors.
-pub(crate) mod error;
+mod error;
 
 // Core functionality related to working with ropes.
-pub(crate) mod rope;
-
-// Core functionality related to parsers.
-pub(crate) use wasm_language_server_parsers::core::*;
+mod rope;
 
 // Core functionality related to the LSP server session.
-pub mod session;
+mod session;
+
+pub use document::*;
+pub(crate) use error::*;
+pub(crate) use rope::*;
+pub(crate) use session::*;
+pub(crate) use wasm_language_server_parsers::core::*;

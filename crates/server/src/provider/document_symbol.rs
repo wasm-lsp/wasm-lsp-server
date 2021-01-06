@@ -63,12 +63,12 @@ pub mod wast {
     //! Document symbol definitions for ".wast" files.
 
     use crate::{
-        core::{document::Document, language::wast},
+        core::{self, language::wast},
         provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
     };
 
     /// Compute "textDocument/documentSymbols" for a given document.
-    pub async fn response(document: &Document) -> Option<lsp::DocumentSymbolResponse> {
+    pub async fn response(document: &core::Document) -> Option<lsp::DocumentSymbolResponse> {
         // Vector to collect document symbols into as they are constructed.
         let mut syms: Vec<lsp::DocumentSymbol> = vec![];
 
@@ -254,12 +254,12 @@ pub mod wat {
     //! Document symbol definitions for ".wat" files.
 
     use crate::{
-        core::{document::Document, language::wat},
+        core::{self, language::wat},
         provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
     };
 
     /// Compute "textDocument/documentSymbols" for a given document.
-    pub async fn response(document: &Document) -> Option<lsp::DocumentSymbolResponse> {
+    pub async fn response(document: &core::Document) -> Option<lsp::DocumentSymbolResponse> {
         // Vector to collect document symbols into as they are constructed.
         let mut syms: Vec<lsp::DocumentSymbol> = vec![];
 
