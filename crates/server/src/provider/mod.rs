@@ -1,6 +1,6 @@
 //! Providers of the WebAssembly language server for LSP features.
 
-use crate::core::{language::Language, session::Session};
+use crate::core::{self, language::Language};
 use std::sync::Arc;
 
 // Provides diagnostics functionality.
@@ -17,7 +17,7 @@ pub mod semantic_tokens;
 
 /// Provide response for `textDocument/documentSymbols`.
 pub async fn document_symbol(
-    session: Arc<Session>,
+    session: Arc<core::Session>,
     params: lsp::DocumentSymbolParams,
 ) -> anyhow::Result<Option<lsp::DocumentSymbolResponse>> {
     let lsp::DocumentSymbolParams {
@@ -33,10 +33,10 @@ pub async fn document_symbol(
 }
 
 // FIXME
-pub(crate) async fn hover(session: Arc<Session>, params: lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
+pub(crate) async fn hover(session: Arc<core::Session>, params: lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
     let lsp::HoverParams {
         text_document_position_params:
-        lsp::TextDocumentPositionParams {
+            lsp::TextDocumentPositionParams {
                 text_document: lsp::TextDocumentIdentifier { uri, .. },
                 ..
             },
@@ -49,7 +49,7 @@ pub(crate) async fn hover(session: Arc<Session>, params: lsp::HoverParams) -> an
 
 // FIXME
 pub(crate) async fn semantic_tokens_full(
-    session: Arc<Session>,
+    session: Arc<core::Session>,
     params: lsp::SemanticTokensParams,
 ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
     let document = session.get_document(&params.text_document.uri).await?;
@@ -61,7 +61,7 @@ pub(crate) async fn semantic_tokens_full(
 }
 
 pub(crate) async fn semantic_tokens_range(
-    session: Arc<Session>,
+    session: Arc<core::Session>,
     params: lsp::SemanticTokensRangeParams,
 ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
     let document = session.get_document(&params.text_document.uri).await?;

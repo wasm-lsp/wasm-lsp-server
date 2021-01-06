@@ -9,7 +9,7 @@ mod document_symbol {
         use criterion::Criterion;
         use glob::glob;
         use std::convert::TryFrom;
-        use wasm_language_server::{core::document::Document, provider};
+        use wasm_language_server::{core, provider};
         use wasm_language_server_parsers::core::language::Language;
 
         pub fn all(c: &mut Criterion) {
@@ -21,7 +21,7 @@ mod document_symbol {
                 let path = path.unwrap().canonicalize().unwrap();
                 let language = Language::try_from(path.as_path()).unwrap();
                 let text = std::fs::read_to_string(path).unwrap();
-                let document = Document::new(language.id(), text).unwrap().unwrap();
+                let document = core::Document::new(language.id(), text).unwrap().unwrap();
 
                 documents.push(document);
             }
@@ -48,7 +48,7 @@ mod document_symbol {
                 let path = path.unwrap().canonicalize().unwrap();
                 let language = Language::try_from(path.as_path()).unwrap();
                 let text = std::fs::read_to_string(path).unwrap();
-                let document = Document::new(language.id(), text).unwrap().unwrap();
+                let document = core::Document::new(language.id(), text).unwrap().unwrap();
 
                 documents.push(document);
             }
@@ -72,7 +72,7 @@ mod hover {
     pub mod spec {
         use criterion::Criterion;
         use std::{convert::TryFrom, path::Path};
-        use wasm_language_server::{core::document::Document, provider};
+        use wasm_language_server::{core, provider};
         use wasm_language_server_parsers::core::language::Language;
 
         pub fn float_exprs(c: &mut Criterion) {
@@ -83,7 +83,7 @@ mod hover {
             let language = Language::try_from(path.as_path()).unwrap();
             let text = std::fs::read_to_string(path).unwrap();
 
-            let document = Document::new(language.id(), text).unwrap().unwrap();
+            let document = core::Document::new(language.id(), text).unwrap().unwrap();
             let params = lsp::HoverParams {
                 text_document_position_params: lsp::TextDocumentPositionParams {
                     text_document: lsp::TextDocumentIdentifier { uri },

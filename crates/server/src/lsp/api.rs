@@ -1,10 +1,10 @@
 //! Definitions for the request handlers.
 
-use crate::{core::error, lsp::server::Server, provider, service::synchronizer};
-use lspower::{jsonrpc::Result, LanguageServer};
+use crate::{core, lsp::server::Server, provider, service::synchronizer};
+use lspower::jsonrpc::Result;
 
 #[lspower::async_trait]
-impl LanguageServer for Server {
+impl lspower::LanguageServer for Server {
     async fn initialize(&self, params: lsp::InitializeParams) -> Result<lsp::InitializeResult> {
         // Receive and store the client capabilities.
         *self.session.client_capabilities.write().await = Some(params.capabilities);
@@ -44,19 +44,22 @@ impl LanguageServer for Server {
     async fn document_symbol(&self, params: lsp::DocumentSymbolParams) -> Result<Option<lsp::DocumentSymbolResponse>> {
         let session = self.session.clone();
         let result = provider::document_symbol(session, params).await;
-        Ok(result.map_err(error::IntoJsonRpcError)?)
+        Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 
     async fn hover(&self, params: lsp::HoverParams) -> Result<Option<lsp::Hover>> {
         let session = self.session.clone();
         let result = provider::hover(session, params).await;
-        Ok(result.map_err(error::IntoJsonRpcError)?)
+        Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 
-    async fn semantic_tokens_full(&self, params: lsp::SemanticTokensParams) -> Result<Option<lsp::SemanticTokensResult>> {
+    async fn semantic_tokens_full(
+        &self,
+        params: lsp::SemanticTokensParams,
+    ) -> Result<Option<lsp::SemanticTokensResult>> {
         let session = self.session.clone();
         let result = provider::semantic_tokens_full(session, params).await;
-        Ok(result.map_err(error::IntoJsonRpcError)?)
+        Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 
     async fn semantic_tokens_range(
@@ -65,6 +68,6 @@ impl LanguageServer for Server {
     ) -> Result<Option<lsp::SemanticTokensRangeResult>> {
         let session = self.session.clone();
         let result = provider::semantic_tokens_range(session, params).await;
-        Ok(result.map_err(error::IntoJsonRpcError)?)
+        Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 }
