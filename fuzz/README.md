@@ -1,3 +1,7 @@
+# wasm-language-server-fuzz
+
+The `wasm-language-server-fuzz` subcrate is used for fuzzing the WebAssembly language server.
+
 ## Usage
 
 First, you need to have `cargo-fuzz` installed.
