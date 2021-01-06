@@ -16,7 +16,6 @@ pub mod exit {
 /// Definitions for constructing `initialize` messages.
 pub mod initialize {
     use serde_json::{json, Value};
-    use wasm_language_server as server;
 
     /// Construct an `initialize` request.
     pub fn request() -> Value {
@@ -35,7 +34,7 @@ pub mod initialize {
         json!({
             "jsonrpc": "2.0",
             "result": {
-                "capabilities": server::lsp::server::capabilities(),
+                "capabilities": wasm_language_server::server::capabilities(),
             },
             "id": 1,
         })
