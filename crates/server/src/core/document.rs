@@ -2,9 +2,7 @@
 
 use crate::core::{language::Language, rope::RopeExt};
 use ropey::Rope;
-use std::convert::{TryFrom, TryInto};
-use tokio::sync::Mutex;
-use tree_sitter::{Parser, Tree};
+use std::convert::TryInto;
 
 /// The current state of a document.
 pub struct Document {
@@ -12,10 +10,6 @@ pub struct Document {
     pub language: Language,
     /// The current text content of the document.
     pub content: Rope,
-    /// The tree-sitter parser state for the document.
-    pub parser: Mutex<Parser>,
-    /// The current tree-sitter parse tree of the document.
-    pub tree: Mutex<Tree>,
 }
 
 impl Document {
@@ -23,23 +17,11 @@ impl Document {
     pub fn new(
         language_id: impl TryInto<Language, Error = anyhow::Error>,
         text: impl AsRef<str>,
-    ) -> anyhow::Result<Option<Self>> {
+    ) -> anyhow::Result<Self> {
         let text = text.as_ref();
-
         let language = language_id.try_into()?;
-        let mut parser = tree_sitter::Parser::try_from(language)?;
-        let old_tree = None;
-        let new_tree = parser.parse(&text[..], old_tree);
         let content = Rope::from_str(text);
-
-        let document = new_tree.map(|tree| Document {
-            language,
-            content,
-            parser: Mutex::new(parser),
-            tree: Mutex::new(tree),
-        });
-
-        Ok(document)
+        Ok(Document { language, content })
     }
 
     /// Build a [`DocumentEdit`] from an [`lsp::TextDocumentContentChangeEvent`].
@@ -53,10 +35,7 @@ impl Document {
         } else {
             let start = self.content.byte_to_lsp_position(0);
             let end = self.content.byte_to_lsp_position(text_end_byte_idx);
-            lsp::Range {
-                start,
-                end,
-            }
+            lsp::Range { start, end }
         };
 
         let start_char_idx = {
@@ -89,17 +68,10 @@ impl Document {
 
             let row = start_position.row + line_count;
             let column = {
-                let padding = if line_count > 0 {
-                    0
-                } else {
-                    old_end_byte
-                };
+                let padding = if line_count > 0 { 0 } else { old_end_byte };
                 padding + last_line.as_bytes().len()
             };
-            tree_sitter::Point {
-                row,
-                column,
-            }
+            tree_sitter::Point { row, column }
         };
 
         let input_edit = tree_sitter::InputEdit {
