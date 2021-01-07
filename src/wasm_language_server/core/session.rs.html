@@ -237,83 +237,203 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core functionality related to the LSP server session.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{
-    <span class="ident">database</span>::{<span class="ident">Database</span>, <span class="ident">DocumentStatus</span>},
-    <span class="ident">document</span>::<span class="ident">Document</span>,
-    <span class="ident">error</span>::<span class="ident">Error</span>,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">core</span>::{
+        <span class="ident">database</span>::{<span class="ident">Database</span>, <span class="ident">DocumentStatus</span>},
+        <span class="ident">document</span>::<span class="ident">Document</span>,
+        <span class="ident">error</span>::<span class="ident">Error</span>,
+    },
+    <span class="ident">server</span>,
 };
 <span class="kw">use</span> <span class="ident">dashmap</span>::{
     <span class="ident">mapref</span>::<span class="ident">one</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
     <span class="ident">DashMap</span>,
 };
-<span class="kw">use</span> <span class="ident">lspower</span>::{<span class="ident">lsp_types</span>::<span class="kw-2">*</span>, <span class="ident">Client</span>};
-<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">RwLock</span>;
+<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::{<span class="ident">Mutex</span>, <span class="ident">RwLock</span>};
 <span class="kw">use</span> <span class="ident">zerocopy</span>::<span class="ident">AsBytes</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SessionResourceKind</span> {
+    <span class="ident">Document</span>,
+    <span class="ident">Parser</span>,
+    <span class="ident">Tree</span>,
+}
 
 <span class="doccomment">/// Represents the current state of the LSP service.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Session</span> {
     <span class="doccomment">/// The LSP server capabilities.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">server_capabilities</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">ServerCapabilities</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">server_capabilities</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">ServerCapabilities</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The LSP client capabilities.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">client_capabilities</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ClientCapabilities</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">client_capabilities</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">ClientCapabilities</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The LSP client handle.</span>
-    <span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Client</span><span class="op">&gt;</span>,
+    <span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lspower</span>::<span class="ident">Client</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The document metadata database.</span>
     <span class="ident">database</span>: <span class="ident">Database</span>,
     <span class="doccomment">/// The store of currently open documents.</span>
-    <span class="ident">documents</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">Url</span>, <span class="ident">Document</span><span class="op">&gt;</span>,
+    <span class="ident">documents</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Document</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The store of currently open parsers (one per synax tree).</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">parsers</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Parser</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The store of currently open syntax trees (one per document).</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">trees</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Tree</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Session</span> {
     <span class="doccomment">/// Create a new session.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Client</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">server_capabilities</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">lsp</span>::<span class="ident">server</span>::<span class="ident">capabilities</span>());
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lspower</span>::<span class="ident">Client</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">server_capabilities</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">server</span>::<span class="ident">capabilities</span>());
         <span class="kw">let</span> <span class="ident">client_capabilities</span> <span class="op">=</span> <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">Default</span>::<span class="ident">default</span>());
         <span class="kw">let</span> <span class="ident">database</span> <span class="op">=</span> <span class="ident">Database</span>::<span class="ident">new</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">documents</span> <span class="op">=</span> <span class="ident">DashMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">parsers</span> <span class="op">=</span> <span class="ident">DashMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">trees</span> <span class="op">=</span> <span class="ident">DashMap</span>::<span class="ident">new</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">Session</span> {
             <span class="ident">server_capabilities</span>,
             <span class="ident">client_capabilities</span>,
             <span class="ident">client</span>,
             <span class="ident">database</span>,
             <span class="ident">documents</span>,
+            <span class="ident">parsers</span>,
+            <span class="ident">trees</span>,
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">client</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Client</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">client</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">lspower</span>::<span class="ident">Client</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">as_ref</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">ClientNotInitialized</span>.<span class="ident">into</span>())
     }
 
     <span class="doccomment">/// Insert an opened document into the session. Updates the documents hashmap and sets the</span>
     <span class="doccomment">/// document status in the database to &quot;opened&quot;. Notifies subscribers to the document status.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="ident">Url</span>, <span class="ident">document</span>: <span class="ident">Document</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Document</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_document</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">uri</span>: <span class="ident">lsp</span>::<span class="ident">Url</span>,
+        <span class="ident">document</span>: <span class="ident">Document</span>,
+        <span class="ident">parser</span>: <span class="ident">tree_sitter</span>::<span class="ident">Parser</span>,
+        <span class="ident">tree</span>: <span class="ident">tree_sitter</span>::<span class="ident">Tree</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">documents</span>.<span class="ident">insert</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">document</span>);
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_none</span>());
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">insert</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">parser</span>));
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_none</span>());
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">insert</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">tree</span>));
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_none</span>());
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">DocumentStatus</span>::<span class="ident">opened</span>();
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">status</span>.<span class="ident">as_bytes</span>();
         <span class="self">self</span>.<span class="ident">database</span>.<span class="ident">trees</span>.<span class="ident">documents</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>[..], <span class="ident">status</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Remove a closed document from the session. Updates the documents hashmap and sets the</span>
     <span class="doccomment">/// document status in the database to &quot;closed&quot;. Notifies subscribers to the document status.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Url</span>, <span class="ident">Document</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">documents</span>.<span class="ident">remove</span>(<span class="ident">uri</span>);
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_some</span>());
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">remove</span>(<span class="ident">uri</span>);
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_some</span>());
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">remove</span>(<span class="ident">uri</span>);
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_some</span>());
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">DocumentStatus</span>::<span class="ident">closed</span>();
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">status</span>.<span class="ident">as_bytes</span>();
         <span class="self">self</span>.<span class="ident">database</span>.<span class="ident">trees</span>.<span class="ident">documents</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>[..], <span class="ident">status</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// FIXME: we should be able to avoid cloning here</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SemanticTokensLegend</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokensLegend</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">capabilities</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">server_capabilities</span>.<span class="ident">read</span>().<span class="kw">await</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">capabilities</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">capabilities</span>.<span class="ident">semantic_tokens_provider</span> {
             <span class="kw">match</span> <span class="ident">capabilities</span> {
-                <span class="ident">SemanticTokensServerCapabilities</span>::<span class="ident">SemanticTokensOptions</span>(<span class="ident">options</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">options</span>.<span class="ident">legend</span>.<span class="ident">clone</span>()),
-                <span class="ident">SemanticTokensServerCapabilities</span>::<span class="ident">SemanticTokensRegistrationOptions</span>(<span class="ident">options</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">lsp</span>::<span class="ident">SemanticTokensServerCapabilities</span>::<span class="ident">SemanticTokensOptions</span>(<span class="ident">options</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">options</span>.<span class="ident">legend</span>.<span class="ident">clone</span>()),
+                <span class="ident">lsp</span>::<span class="ident">SemanticTokensServerCapabilities</span>::<span class="ident">SemanticTokensRegistrationOptions</span>(<span class="ident">options</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">options</span>.<span class="ident">semantic_tokens_options</span>.<span class="ident">legend</span>.<span class="ident">clone</span>())
                 },
             }
@@ -323,25 +443,59 @@
     }
 
     <span class="doccomment">/// Get a reference to a document associated with the session, if possible.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Url</span>, <span class="ident">Document</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">documents</span>
-            .<span class="ident">get</span>(<span class="ident">uri</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">DocumentNotFound</span>(<span class="ident">uri</span>.<span class="ident">clone</span>()).<span class="ident">into</span>())
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Document</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">documents</span>.<span class="ident">get</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind</span>::<span class="ident">Document</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident">Error</span>::<span class="ident">SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
     }
 
     <span class="doccomment">/// Get a mutable reference to a document associated with the session, if possible.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Url</span>, <span class="ident">Document</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">documents</span>
-            .<span class="ident">get_mut</span>(<span class="ident">uri</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">DocumentNotFound</span>(<span class="ident">uri</span>.<span class="ident">clone</span>()).<span class="ident">into</span>())
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Document</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">documents</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind</span>::<span class="ident">Document</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident">Error</span>::<span class="ident">SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
+    }
+
+    <span class="doccomment">/// Get a mutable reference to a parser associated with the session, if possible.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_parser</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">Url</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Parser</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind</span>::<span class="ident">Parser</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident">Error</span>::<span class="ident">SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
+    }
+
+    <span class="doccomment">/// Get a reference to a tree associated with the session, if possible.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Tree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">get</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind</span>::<span class="ident">Tree</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident">Error</span>::<span class="ident">SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
+    }
+
+    <span class="doccomment">/// Get a mutable reference to a tree associated with the session, if possible.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp</span>::<span class="ident">Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Tree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind</span>::<span class="ident">Tree</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident">Error</span>::<span class="ident">SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Session</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">database</span>::<span class="ident">DocumentStatus</span>, <span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">error</span>::<span class="ident">Error</span>};
-    <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">database</span>::<span class="ident">DocumentStatus</span>, <span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">language</span>::<span class="ident">Language</span>};
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
     <span class="kw">use</span> <span class="ident">zerocopy</span>::<span class="ident">AsBytes</span>;
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
@@ -364,20 +518,22 @@
     }
 
     <span class="kw">mod</span> <span class="ident">document_not_found</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Session</span>;
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
-        <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="self">self</span>, <span class="ident">error</span>::<span class="ident">Error</span>};
 
         <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
         <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_document</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Session</span>::<span class="ident">new</span>(<span class="ident">client</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">Session</span>::<span class="ident">new</span>(<span class="ident">client</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">lsp</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span>;
 
             <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span> <span class="ident">result</span> {
-                <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Error</span>::<span class="ident">DocumentNotFound</span>(<span class="ident">uri</span>.<span class="ident">clone</span>());
+                <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> {
+                    <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">SessionResourceKind</span>::<span class="ident">Document</span>;
+                    <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+                    <span class="kw-2">&amp;</span><span class="ident">Error</span>::<span class="ident">SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }
+                };
                 <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">root_cause</span>().<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>();
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">actual</span>.<span class="ident">is_some</span>());
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">actual</span>) <span class="op">=</span> <span class="ident">actual</span> {
@@ -391,13 +547,17 @@
         <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
         <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_document</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Session</span>::<span class="ident">new</span>(<span class="ident">client</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">Session</span>::<span class="ident">new</span>(<span class="ident">client</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">lsp</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_mut_document</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span>;
 
             <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span> <span class="ident">result</span> {
-                <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Error</span>::<span class="ident">DocumentNotFound</span>(<span class="ident">uri</span>.<span class="ident">clone</span>());
+                <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> {
+                    <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">SessionResourceKind</span>::<span class="ident">Document</span>;
+                    <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+                    <span class="kw-2">&amp;</span><span class="ident">Error</span>::<span class="ident">SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }
+                };
                 <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">root_cause</span>().<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>();
                 <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">actual</span>.<span class="ident">is_some</span>());
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">actual</span>) <span class="op">=</span> <span class="ident">actual</span> {
@@ -417,12 +577,19 @@
         <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">database</span>.<span class="ident">trees</span>.<span class="ident">documents</span>.<span class="ident">watch_prefix</span>(<span class="ident">prefix</span>);
 
-        <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">lsp</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
+
         <span class="kw">let</span> <span class="ident">language_id</span> <span class="op">=</span> <span class="string">&quot;wasm.wast&quot;</span>;
         <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">Document</span>::<span class="ident">new</span>(<span class="ident">language_id</span>, <span class="ident">text</span>)<span class="question-mark">?</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">language</span> <span class="op">=</span> <span class="ident">Language</span>::<span class="ident">try_from</span>(<span class="ident">language_id</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">tree_sitter</span>::<span class="ident">Parser</span>::<span class="ident">try_from</span>(<span class="ident">language</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">old_tree</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">text</span>[..], <span class="ident">old_tree</span>);
+        <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">Document</span>::<span class="ident">new</span>(<span class="ident">language_id</span>, <span class="ident">text</span>)<span class="question-mark">?</span>;
 
-        <span class="ident">session</span>.<span class="ident">insert_document</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">document</span>)<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tree</span>) <span class="op">=</span> <span class="ident">tree</span> {
+            <span class="ident">session</span>.<span class="ident">insert_document</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">document</span>, <span class="ident">parser</span>, <span class="ident">tree</span>)<span class="question-mark">?</span>;
+        }
 
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">subscriber</span>).<span class="kw">await</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">sled</span>::<span class="ident">Event</span>::<span class="ident">Insert</span> { <span class="ident">key</span>, <span class="ident">value</span> } <span class="op">=</span> <span class="ident">event</span> {
@@ -444,12 +611,19 @@
         <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">database</span>.<span class="ident">trees</span>.<span class="ident">documents</span>.<span class="ident">watch_prefix</span>(<span class="ident">prefix</span>);
 
-        <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">lsp</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;inmemory:///test&quot;</span>)<span class="question-mark">?</span>;
+
         <span class="kw">let</span> <span class="ident">language_id</span> <span class="op">=</span> <span class="string">&quot;wasm.wast&quot;</span>;
         <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">Document</span>::<span class="ident">new</span>(<span class="ident">language_id</span>, <span class="ident">text</span>)<span class="question-mark">?</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">language</span> <span class="op">=</span> <span class="ident">Language</span>::<span class="ident">try_from</span>(<span class="ident">language_id</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">tree_sitter</span>::<span class="ident">Parser</span>::<span class="ident">try_from</span>(<span class="ident">language</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">old_tree</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">text</span>[..], <span class="ident">old_tree</span>);
+        <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">Document</span>::<span class="ident">new</span>(<span class="ident">language_id</span>, <span class="ident">text</span>)<span class="question-mark">?</span>;
 
-        <span class="ident">session</span>.<span class="ident">insert_document</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">document</span>)<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tree</span>) <span class="op">=</span> <span class="ident">tree</span> {
+            <span class="ident">session</span>.<span class="ident">insert_document</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">document</span>, <span class="ident">parser</span>, <span class="ident">tree</span>)<span class="question-mark">?</span>;
+        }
 
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">subscriber</span>).<span class="kw">await</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">sled</span>::<span class="ident">Event</span>::<span class="ident">Insert</span> { <span class="ident">key</span>, <span class="ident">value</span> } <span class="op">=</span> <span class="ident">event</span> {

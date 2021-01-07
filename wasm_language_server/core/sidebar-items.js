@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["document","Core functionality related to documents."],["session","Core functionality related to the LSP server session."]]});
+initSidebarItems({"struct":[["Document","The current state of a document."],["DocumentEdit","A description of an edit to a [`Document`]."]]});

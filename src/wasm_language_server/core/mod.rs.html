@@ -20,25 +20,31 @@
 <span id="17">17</span>
 <span id="18">18</span>
 <span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core functionality for the WASM language server.</span>
 
 <span class="comment">// Core functionality related to the document metadata database.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">database</span>;
+<span class="kw">mod</span> <span class="ident">database</span>;
 
 <span class="comment">// Core functionality related to documents.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">document</span>;
+<span class="kw">mod</span> <span class="ident">document</span>;
 
 <span class="comment">// Core functionality related to runtime errors.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">mod</span> <span class="ident">error</span>;
 
 <span class="comment">// Core functionality related to working with ropes.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">rope</span>;
-
-<span class="comment">// Core functionality related to parsers.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">wasm_language_server_parsers</span>::<span class="ident">core</span>::<span class="kw-2">*</span>;
+<span class="kw">mod</span> <span class="ident">rope</span>;
 
 <span class="comment">// Core functionality related to the LSP server session.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">session</span>;
+<span class="kw">mod</span> <span class="ident">session</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">document</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">error</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">rope</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">session</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">wasm_language_server_parsers</span>::<span class="ident">core</span>::<span class="kw-2">*</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "wasm_language_server";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

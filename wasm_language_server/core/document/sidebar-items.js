@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Document","The current state of a document."]]});

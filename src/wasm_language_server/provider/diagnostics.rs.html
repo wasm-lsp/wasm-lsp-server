@@ -77,41 +77,38 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Provides `textDocument/documentSymbol` functionality.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">document</span>::<span class="ident">Document</span>;
-<span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>;
 
-<span class="kw">fn</span> <span class="ident">for_error</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">error</span>: <span class="ident">wast</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Diagnostic</span> {
+<span class="kw">fn</span> <span class="ident">for_error</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">core</span>::<span class="ident">Document</span>, <span class="ident">error</span>: <span class="ident">wast</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">lsp</span>::<span class="ident">Diagnostic</span> {
     <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">rope</span>.<span class="ident">chunks</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">content</span>.<span class="ident">chunks</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">as_str</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">span</span>();
         <span class="kw">let</span> (<span class="ident">line</span>, <span class="ident">col</span>) <span class="op">=</span> <span class="ident">span</span>.<span class="ident">linecol_in</span>(<span class="ident">input</span>);
         <span class="comment">// NOTE: wast only gives us the start position so we use that twice</span>
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">Position</span>::<span class="ident">new</span>(<span class="ident">line</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">col</span> <span class="kw">as</span> <span class="ident">u32</span>);
-        <span class="ident">Range</span>::<span class="ident">new</span>(<span class="ident">pos</span>, <span class="ident">pos</span>)
+        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">lsp</span>::<span class="ident">Position</span>::<span class="ident">new</span>(<span class="ident">line</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">col</span> <span class="kw">as</span> <span class="ident">u32</span>);
+        <span class="ident">lsp</span>::<span class="ident">Range</span>::<span class="ident">new</span>(<span class="ident">pos</span>, <span class="ident">pos</span>)
     };
-    <span class="kw">let</span> <span class="ident">severity</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DiagnosticSeverity</span>::<span class="ident">Error</span>);
+    <span class="kw">let</span> <span class="ident">severity</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lsp</span>::<span class="ident">DiagnosticSeverity</span>::<span class="ident">Error</span>);
     <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;wast&quot;</span>));
     <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">message</span>();
     <span class="kw">let</span> <span class="ident">related_information</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
-    <span class="ident">Diagnostic</span>::<span class="ident">new</span>(<span class="ident">range</span>, <span class="ident">severity</span>, <span class="ident">code</span>, <span class="ident">source</span>, <span class="ident">message</span>, <span class="ident">related_information</span>, <span class="ident">tags</span>)
+    <span class="ident">lsp</span>::<span class="ident">Diagnostic</span>::<span class="ident">new</span>(<span class="ident">range</span>, <span class="ident">severity</span>, <span class="ident">code</span>, <span class="ident">source</span>, <span class="ident">message</span>, <span class="ident">related_information</span>, <span class="ident">tags</span>)
 }
 
 <span class="comment">// Compute diagnostics for a change event given a `document` and `tree`.</span>
 <span class="comment">// NOTE: Currently we only use the tree-sitter grammar to check for the</span>
 <span class="comment">// presence of errors and then use the `wast` crate for the actual error</span>
 <span class="comment">// reporting (because tree-sitter does not provide detailed errors yet).</span>
-<span class="kw">fn</span> <span class="ident">for_change</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">Document</span>, <span class="ident">tree</span>: <span class="ident">tree_sitter</span>::<span class="ident">Tree</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Diagnostic</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">for_change</span>(<span class="ident">document</span>: <span class="kw-2">&amp;</span><span class="ident">core</span>::<span class="ident">Document</span>, <span class="ident">tree</span>: <span class="ident">tree_sitter</span>::<span class="ident">Tree</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">Diagnostic</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diagnostics</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
     <span class="kw">if</span> <span class="ident">tree</span>.<span class="ident">root_node</span>().<span class="ident">has_error</span>() <span class="op">|</span><span class="op">|</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">debug_assertions</span>) {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">rope</span>.<span class="ident">chunks</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">content</span>.<span class="ident">chunks</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">as_str</span>();
         <span class="kw">match</span> ::<span class="ident">wast</span>::<span class="ident">parser</span>::<span class="ident">ParseBuffer</span>::<span class="ident">new</span>(<span class="ident">input</span>) {
             <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -129,14 +126,13 @@
 
 <span class="doccomment">/// Functions related to processing parse tree events for a document.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">tree</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
-    <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
     <span class="doccomment">/// Handle a parse tree &quot;change&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">tree</span>.<span class="ident">lock</span>().<span class="kw">await</span>.<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_tree</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">lock</span>().<span class="kw">await</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">diagnostics</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">for_change</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="ident">tree</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
         <span class="ident">session</span>.<span class="ident">client</span>()<span class="question-mark">?</span>.<span class="ident">publish_diagnostics</span>(<span class="ident">uri</span>, <span class="ident">diagnostics</span>, <span class="ident">version</span>).<span class="kw">await</span>;
@@ -144,7 +140,7 @@
     }
 
     <span class="doccomment">/// Handle a parse tree &quot;close&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// clear diagnostics on tree close</span>
         <span class="comment">// FIXME: handle this properly</span>
         <span class="kw">let</span> <span class="ident">diagnostics</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
@@ -154,7 +150,7 @@
     }
 
     <span class="doccomment">/// Handle a parse tree &quot;open&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>::<span class="ident">change</span>(<span class="ident">session</span>, <span class="ident">uri</span>).<span class="kw">await</span>
     }
 }

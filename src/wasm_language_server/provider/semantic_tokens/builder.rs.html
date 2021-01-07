@@ -212,12 +212,10 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
-<span id="212">212</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Definitions for the semantic tokens encoder.</span>
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="ident">anyhow</span>;
-<span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="doccomment">/// The builder for the semantic tokens encoder. Encapsulates state during encoding.</span>
@@ -226,15 +224,15 @@
     <span class="ident">prev_start</span>: <span class="ident">u32</span>,
     <span class="ident">prev_line</span>: <span class="ident">u32</span>,
     <span class="ident">data_is_sorted_and_delta_encoded</span>: <span class="ident">bool</span>,
-    <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SemanticToken</span><span class="op">&gt;</span>,
-    <span class="ident">token_modifier_map</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SemanticTokenModifier</span>, <span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">token_type_map</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SemanticTokenType</span>, <span class="ident">u32</span><span class="op">&gt;</span>,
+    <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticToken</span><span class="op">&gt;</span>,
+    <span class="ident">token_modifier_map</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp</span>::<span class="ident">SemanticTokenModifier</span>, <span class="ident">u32</span><span class="op">&gt;</span>,
+    <span class="ident">token_type_map</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp</span>::<span class="ident">SemanticTokenType</span>, <span class="ident">u32</span><span class="op">&gt;</span>,
     <span class="ident">has_legend</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">SemanticTokensBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Construct a new builder given an optional tokens legend.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">legend</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SemanticTokensLegend</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">legend</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp</span>::<span class="ident">SemanticTokensLegend</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">data_is_sorted_and_delta_encoded</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">token_modifier_map</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
@@ -263,14 +261,14 @@
     }
 
     <span class="doccomment">/// Build and return the semantic tokenization result from the current encoder state.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SemanticTokens</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokens</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">data_is_sorted_and_delta_encoded</span> {
             <span class="self">Self</span>::<span class="ident">sort_and_delta_encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>)
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">data</span>
         };
 
-        <span class="prelude-val">Ok</span>(<span class="ident">SemanticTokens</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">lsp</span>::<span class="ident">SemanticTokens</span> {
             <span class="ident">data</span>,
             ..<span class="ident">Default</span>::<span class="ident">default</span>()
         })
@@ -279,9 +277,9 @@
     <span class="doccomment">/// Push a new semantic token onto the encoder state.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">push</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">range</span>: <span class="ident">Range</span>,
-        <span class="ident">token_type</span>: <span class="kw-2">&amp;</span><span class="ident">SemanticTokenType</span>,
-        <span class="ident">token_modifiers</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">SemanticTokenModifier</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">range</span>: <span class="ident">lsp</span>::<span class="ident">Range</span>,
+        <span class="ident">token_type</span>: <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokenType</span>,
+        <span class="ident">token_modifiers</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokenModifier</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_legend</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;Legend must be provided in constructor&quot;</span>));
@@ -366,7 +364,7 @@
             }
         }
 
-        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">SemanticToken</span> {
+        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">lsp</span>::<span class="ident">SemanticToken</span> {
             <span class="ident">delta_line</span>,
             <span class="ident">delta_start</span>,
             <span class="ident">length</span>,
@@ -381,7 +379,7 @@
     }
 
     <span class="doccomment">/// Sort and delta-encode a slice of semantic tokens.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">sort_and_delta_encode</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">SemanticToken</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SemanticToken</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">sort_and_delta_encode</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">lsp</span>::<span class="ident">SemanticToken</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticToken</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pos</span> <span class="op">=</span> (<span class="number">0</span> .. <span class="ident">data</span>.<span class="ident">len</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
             <span class="ident">pos</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> {
@@ -413,7 +411,7 @@
                 <span class="ident">token</span>.<span class="ident">delta_start</span>
             };
 
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">SemanticToken</span> {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">lsp</span>::<span class="ident">SemanticToken</span> {
                 <span class="ident">delta_line</span>,
                 <span class="ident">delta_start</span>,
                 ..<span class="ident">token</span>

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Session","Represents the current state of the LSP service."]]});

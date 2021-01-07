@@ -143,48 +143,29 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Synchronizes document changes between editor and server</span>
 
 <span class="doccomment">/// Functions related to processing events for a document.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">document</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">Session</span>;
-    <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>;
+    <span class="kw">use</span> <span class="ident">ropey</span>::<span class="ident">Rope</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
     <span class="doccomment">/// Handle a document &quot;change&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">DidChangeTextDocumentParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(
+        <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DidChangeTextDocumentParams</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_mut_document</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">for</span> <span class="ident">change</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">content_changes</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> (<span class="ident">start</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">range</span>) <span class="op">=</span> <span class="ident">change</span>.<span class="ident">range</span> {
-                    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">position</span>::<span class="ident">byte_index</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="kw-2">&amp;</span><span class="ident">range</span>.<span class="ident">start</span>)<span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">position</span>::<span class="ident">byte_index</span>(<span class="kw-2">&amp;</span><span class="ident">document</span>, <span class="kw-2">&amp;</span><span class="ident">range</span>.<span class="ident">end</span>)<span class="question-mark">?</span>;
-                    (<span class="ident">start</span>, <span class="ident">end</span>)
+                <span class="kw">if</span> <span class="ident">change</span>.<span class="ident">range</span>.<span class="ident">is_some</span>() {
+                    <span class="kw">let</span> <span class="ident">edit</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">build_edit</span>(<span class="ident">change</span>)<span class="question-mark">?</span>;
+                    <span class="ident">document</span>.<span class="ident">apply_edit</span>(<span class="kw-2">&amp;</span><span class="ident">edit</span>);
                 } <span class="kw">else</span> {
-                    <span class="ident">finished</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">change</span>.<span class="ident">text</span>.<span class="ident">len</span>();
-                    (<span class="ident">start</span>, <span class="ident">end</span>)
-                };
-
-                <span class="ident">document</span>.<span class="ident">rope</span>.<span class="ident">remove</span>(<span class="ident">start</span> .. <span class="ident">end</span>);
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">change</span>.<span class="ident">text</span>.<span class="ident">is_empty</span>() {
-                    <span class="ident">document</span>.<span class="ident">rope</span>.<span class="ident">insert</span>(<span class="ident">start</span>, <span class="ident">change</span>.<span class="ident">text</span>.<span class="ident">as_str</span>());
-                }
-
-                <span class="kw">if</span> <span class="ident">finished</span> {
-                    <span class="comment">// FIXME: For now just assume there really are no more edits, per spec.</span>
+                    <span class="ident">document</span>.<span class="ident">content</span> <span class="op">=</span> <span class="ident">Rope</span>::<span class="ident">from</span>(<span class="ident">change</span>.<span class="ident">text</span>.<span class="ident">as_str</span>());
                     <span class="kw">break</span>;
                 }
             }
@@ -204,19 +185,22 @@
     }
 
     <span class="doccomment">/// Handle a document &quot;close&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">DidCloseTextDocumentParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">DidCloseTextDocumentParams</span> {
-            <span class="ident">text_document</span>: <span class="ident">TextDocumentIdentifier</span> { <span class="ident">uri</span> },
-        } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">params</span>;
-        <span class="ident">session</span>.<span class="ident">remove_document</span>(<span class="ident">uri</span>)<span class="question-mark">?</span>;
-        <span class="kw">crate</span>::<span class="ident">provider</span>::<span class="ident">diagnostics</span>::<span class="ident">tree</span>::<span class="ident">close</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">uri</span>.<span class="ident">clone</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">close</span>(
+        <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DidCloseTextDocumentParams</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="ident">session</span>.<span class="ident">remove_document</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>)<span class="question-mark">?</span>;
+        <span class="kw">crate</span>::<span class="ident">provider</span>::<span class="ident">diagnostics</span>::<span class="ident">tree</span>::<span class="ident">close</span>(<span class="ident">session</span>, <span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Handle a document &quot;open&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">DidOpenTextDocumentParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">DidOpenTextDocumentParams</span> {
-            <span class="ident">text_document</span>: <span class="ident">TextDocumentItem</span> { <span class="ident">uri</span>, .. },
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span>(
+        <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DidOpenTextDocumentParams</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lsp</span>::<span class="ident">DidOpenTextDocumentParams</span> {
+            <span class="ident">text_document</span>: <span class="ident">lsp</span>::<span class="ident">TextDocumentItem</span> { <span class="ident">uri</span>, .. },
         } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">params</span>;
 
         <span class="comment">// spawn a parser and try to generate a syntax tree</span>
@@ -235,22 +219,22 @@
 
 <span class="doccomment">/// Functions related to processing parse tree events for a document.</span>
 <span class="kw">mod</span> <span class="ident">tree</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="ident">document</span>::<span class="ident">Document</span>, <span class="ident">language</span>, <span class="ident">rope</span>::<span class="ident">RopeExt</span>, <span class="ident">session</span>::<span class="ident">Session</span>};
-    <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">lsp_types</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>::{<span class="self">self</span>, <span class="ident">language</span>, <span class="ident">RopeExt</span>};
     <span class="kw">use</span> <span class="ident">ropey</span>::<span class="ident">Rope</span>;
     <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
     <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
 
     <span class="comment">// TODO: implement parser cancellation</span>
     <span class="doccomment">/// Handle a parse tree &quot;change&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_mut_document</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">change</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">uri</span>: <span class="ident">lsp</span>::<span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_document</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">parser</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+            <span class="kw">let</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_mut_parser</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
             <span class="comment">// FIXME: we reset the parser since we don&#39;t handle incremental changes yet</span>
             <span class="ident">parser</span>.<span class="ident">reset</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">callback</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">rope</span>.<span class="ident">chunk_walker</span>(<span class="number">0</span>).<span class="ident">callback_adapter</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">callback</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">content</span>.<span class="ident">chunk_walker</span>(<span class="number">0</span>).<span class="ident">callback_adapter</span>();
             <span class="comment">// TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.</span>
             <span class="kw">let</span> <span class="ident">old_tree</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="ident">parser</span>.<span class="ident">parse_with</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">callback</span>, <span class="ident">old_tree</span>)
@@ -258,7 +242,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">success</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tree</span>) <span class="op">=</span> <span class="ident">tree</span> {
-            <span class="ident">document</span>.<span class="ident">tree</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">tree</span>);
+            <span class="kw-2">*</span><span class="ident">session</span>.<span class="ident">get_mut_tree</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">value_mut</span>() <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">tree</span>);
             <span class="ident">success</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
@@ -267,9 +251,12 @@
 
     <span class="comment">// TODO: implement parser cancellation</span>
     <span class="doccomment">/// Handle a parse tree &quot;open&quot; event.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">DidOpenTextDocumentParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">DidOpenTextDocumentParams</span> {
-            <span class="ident">text_document</span>: <span class="ident">TextDocumentItem</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span>(
+        <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DidOpenTextDocumentParams</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lsp</span>::<span class="ident">DidOpenTextDocumentParams</span> {
+            <span class="ident">text_document</span>: <span class="ident">lsp</span>::<span class="ident">TextDocumentItem</span> {
                 <span class="ident">language_id</span>, <span class="ident">text</span>, <span class="ident">uri</span>, ..
             },
         } <span class="op">=</span> <span class="ident">params</span>;
@@ -288,14 +275,11 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">success</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tree</span>) <span class="op">=</span> <span class="ident">tree</span> {
-            <span class="comment">// let rope = Rope::from(text);</span>
-            <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">Document</span> {
+            <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">Document</span> {
                 <span class="ident">language</span>,
-                <span class="ident">rope</span>,
-                <span class="ident">parser</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">parser</span>),
-                <span class="ident">tree</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">tree</span>),
+                <span class="ident">content</span>: <span class="ident">rope</span>,
             };
-            <span class="ident">session</span>.<span class="ident">insert_document</span>(<span class="ident">uri</span>, <span class="ident">document</span>)<span class="question-mark">?</span>;
+            <span class="ident">session</span>.<span class="ident">insert_document</span>(<span class="ident">uri</span>, <span class="ident">document</span>, <span class="ident">parser</span>, <span class="ident">tree</span>)<span class="question-mark">?</span>;
             <span class="ident">success</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
