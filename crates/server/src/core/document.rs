@@ -28,7 +28,7 @@ impl Document {
     pub fn build_edit<'a>(&self, change: &'a lsp::TextDocumentContentChangeEvent) -> anyhow::Result<DocumentEdit<'a>> {
         let text = change.text.as_str();
         let text_bytes = text.as_bytes();
-        let text_end_byte_idx = text_bytes.len() - 1;
+        let text_end_byte_idx = text_bytes.len();
 
         let range = if let Some(range) = change.range {
             range
@@ -66,9 +66,13 @@ impl Document {
                 line_count += 1;
             }
 
+            if !change.text.is_empty() {
+                line_count -= 1;
+            }
+
             let row = start_position.row + line_count;
             let column = {
-                let padding = if line_count > 0 { 0 } else { old_end_byte };
+                let padding = if line_count > 0 { 0 } else { start_position.column };
                 padding + last_line.as_bytes().len()
             };
             tree_sitter::Point { row, column }
