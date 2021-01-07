@@ -115,6 +115,22 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core functionality related to documents.</span>
 
@@ -146,7 +162,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_edit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">change</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp</span>::<span class="ident">TextDocumentContentChangeEvent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DocumentEdit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">change</span>.<span class="ident">text</span>.<span class="ident">as_str</span>();
         <span class="kw">let</span> <span class="ident">text_bytes</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">as_bytes</span>();
-        <span class="kw">let</span> <span class="ident">text_end_byte_idx</span> <span class="op">=</span> <span class="ident">text_bytes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">let</span> <span class="ident">text_end_byte_idx</span> <span class="op">=</span> <span class="ident">text_bytes</span>.<span class="ident">len</span>();
 
         <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">range</span>) <span class="op">=</span> <span class="ident">change</span>.<span class="ident">range</span> {
             <span class="ident">range</span>
@@ -184,9 +200,13 @@
                 <span class="ident">line_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
 
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">change</span>.<span class="ident">text</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">line_count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+            }
+
             <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">start_position</span>.<span class="ident">row</span> <span class="op">+</span> <span class="ident">line_count</span>;
             <span class="kw">let</span> <span class="ident">column</span> <span class="op">=</span> {
-                <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">line_count</span> <span class="op">&gt;</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">old_end_byte</span> };
+                <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">line_count</span> <span class="op">&gt;</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">start_position</span>.<span class="ident">column</span> };
                 <span class="ident">padding</span> <span class="op">+</span> <span class="ident">last_line</span>.<span class="ident">as_bytes</span>().<span class="ident">len</span>()
             };
             <span class="ident">tree_sitter</span>::<span class="ident">Point</span> { <span class="ident">row</span>, <span class="ident">column</span> }
@@ -229,6 +249,18 @@
     <span class="kw">pub</span> <span class="ident">end_char_idx</span>: <span class="ident">usize</span>,
     <span class="doccomment">/// The text of the edit.</span>
     <span class="kw">pub</span> <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">DocumentEdit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Construct a [`tree_sitter::Range`] from a [`DocumentEdit`].</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">range</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">tree_sitter</span>::<span class="ident">Range</span> {
+        <span class="ident">tree_sitter</span>::<span class="ident">Range</span> {
+            <span class="ident">start_byte</span>: <span class="self">self</span>.<span class="ident">input_edit</span>.<span class="ident">start_byte</span>,
+            <span class="ident">end_byte</span>: <span class="self">self</span>.<span class="ident">input_edit</span>.<span class="ident">new_end_byte</span>,
+            <span class="ident">start_point</span>: <span class="self">self</span>.<span class="ident">input_edit</span>.<span class="ident">start_position</span>,
+            <span class="ident">end_point</span>: <span class="self">self</span>.<span class="ident">input_edit</span>.<span class="ident">new_end_position</span>,
+        }
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "wasm_language_server";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
