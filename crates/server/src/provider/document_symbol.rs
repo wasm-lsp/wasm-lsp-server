@@ -66,15 +66,21 @@ pub mod wast {
         core::{self, language::wast},
         provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
     };
+    use std::sync::Arc;
 
     /// Compute "textDocument/documentSymbols" for a given document.
-    pub async fn response(document: &core::Document) -> Option<lsp::DocumentSymbolResponse> {
+    pub async fn response(
+        session: Arc<core::Session>,
+        params: lsp::DocumentSymbolParams,
+        document: &core::Document,
+    ) -> anyhow::Result<Option<lsp::DocumentSymbolResponse>> {
+        // Prepare the syntax tree.
+        let tree = session.get_tree(&params.text_document.uri).await?;
+        let tree = tree.lock().await;
+        let node = tree.root_node();
+
         // Vector to collect document symbols into as they are constructed.
         let mut syms: Vec<lsp::DocumentSymbol> = vec![];
-
-        // Prepare the syntax tree.
-        let tree = document.tree.lock().await.clone();
-        let node = tree.root_node();
 
         // Prepare the stack machine:
         //   data: contains data for constructing upcoming DocumentSymbols
@@ -245,7 +251,7 @@ pub mod wast {
         // correct order. Note that children nodes are reversed _as the symbols are nested_.
         let results = syms.into_iter().rev().collect();
 
-        Some(lsp::DocumentSymbolResponse::Nested(results))
+        Ok(Some(lsp::DocumentSymbolResponse::Nested(results)))
     }
 }
 
@@ -257,15 +263,21 @@ pub mod wat {
         core::{self, language::wat},
         provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
     };
+    use std::sync::Arc;
 
     /// Compute "textDocument/documentSymbols" for a given document.
-    pub async fn response(document: &core::Document) -> Option<lsp::DocumentSymbolResponse> {
+    pub async fn response(
+        session: Arc<core::Session>,
+        params: lsp::DocumentSymbolParams,
+        document: &core::Document,
+    ) -> anyhow::Result<Option<lsp::DocumentSymbolResponse>> {
+        // Prepare the syntax tree.
+        let tree = session.get_tree(&params.text_document.uri).await?;
+        let tree = tree.lock().await;
+        let node = tree.root_node();
+
         // Vector to collect document symbols into as they are constructed.
         let mut syms: Vec<lsp::DocumentSymbol> = vec![];
-
-        // Prepare the syntax tree.
-        let tree = document.tree.lock().await.clone();
-        let node = tree.root_node();
 
         // Prepare the stack machine:
         //   data: contains data for constructing upcoming DocumentSymbols
@@ -429,6 +441,6 @@ pub mod wat {
         // correct order. Note that children nodes are reversed _as the symbols are nested_.
         let results = syms.into_iter().rev().collect();
 
-        Some(lsp::DocumentSymbolResponse::Nested(results))
+        Ok(Some(lsp::DocumentSymbolResponse::Nested(results)))
     }
 }

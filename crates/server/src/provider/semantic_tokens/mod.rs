@@ -28,21 +28,24 @@ pub mod wast {
 
     pub(crate) async fn full(
         session: Arc<core::Session>,
-        document: &core::Document,
         params: lsp::SemanticTokensParams,
+        document: &core::Document,
     ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
-        let params = lsp::SemanticTokensRangeParams {
-            work_done_progress_params: params.work_done_progress_params,
-            partial_result_params: params.partial_result_params,
-            text_document: params.text_document,
-            range: {
-                let tree = document.tree.lock().await;
-                let node = tree.root_node();
-                crate::util::node::range(&node)
-            },
+        let params = {
+            let tree = session.get_tree(&params.text_document.uri).await?;
+            lsp::SemanticTokensRangeParams {
+                work_done_progress_params: params.work_done_progress_params,
+                partial_result_params: params.partial_result_params,
+                text_document: params.text_document,
+                range: {
+                    let tree = tree.lock().await;
+                    let node = tree.root_node();
+                    crate::util::node::range(&node)
+                },
+            }
         };
 
-        let result = range(session, document, params).await?.map(|result| match result {
+        let result = range(session, params, document).await?.map(|result| match result {
             lsp::SemanticTokensRangeResult::Tokens(tokens) => lsp::SemanticTokensResult::Tokens(tokens),
             lsp::SemanticTokensRangeResult::Partial(partial) => lsp::SemanticTokensResult::Partial(partial),
         });
@@ -52,12 +55,15 @@ pub mod wast {
 
     pub(crate) async fn range(
         session: Arc<core::Session>,
-        document: &core::Document,
         params: lsp::SemanticTokensRangeParams,
+        document: &core::Document,
     ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
         let language = document.language;
         let legend = session.semantic_tokens_legend().await;
         let legend = legend.as_ref();
+
+        let tree = session.get_tree(&params.text_document.uri).await?;
+        let tree = tree.lock().await;
 
         if let Some(node) = {
             let start = tree_sitter::Point {
@@ -68,12 +74,7 @@ pub mod wast {
                 row: params.range.end.line as usize,
                 column: params.range.end.character as usize,
             };
-            document
-                .tree
-                .lock()
-                .await
-                .root_node()
-                .descendant_for_point_range(start, end)
+            tree.root_node().descendant_for_point_range(start, end)
         } {
             let mut handler = Handler::new(language, legend, node);
 
@@ -794,21 +795,24 @@ pub mod wat {
 
     pub(crate) async fn full(
         session: Arc<core::Session>,
-        document: &core::Document,
         params: lsp::SemanticTokensParams,
+        document: &core::Document,
     ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
-        let params = lsp::SemanticTokensRangeParams {
-            work_done_progress_params: params.work_done_progress_params,
-            partial_result_params: params.partial_result_params,
-            text_document: params.text_document,
-            range: {
-                let tree = document.tree.lock().await;
-                let node = tree.root_node();
-                crate::util::node::range(&node)
-            },
+        let params = {
+            let tree = session.get_tree(&params.text_document.uri).await?;
+            lsp::SemanticTokensRangeParams {
+                work_done_progress_params: params.work_done_progress_params,
+                partial_result_params: params.partial_result_params,
+                text_document: params.text_document,
+                range: {
+                    let tree = tree.lock().await;
+                    let node = tree.root_node();
+                    crate::util::node::range(&node)
+                },
+            }
         };
 
-        let result = range(session, document, params).await?.map(|result| match result {
+        let result = range(session, params, document).await?.map(|result| match result {
             lsp::SemanticTokensRangeResult::Tokens(tokens) => lsp::SemanticTokensResult::Tokens(tokens),
             lsp::SemanticTokensRangeResult::Partial(partial) => lsp::SemanticTokensResult::Partial(partial),
         });
@@ -818,12 +822,15 @@ pub mod wat {
 
     pub(crate) async fn range(
         session: Arc<core::Session>,
-        document: &core::Document,
         params: lsp::SemanticTokensRangeParams,
+        document: &core::Document,
     ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
         let language = document.language;
         let legend = session.semantic_tokens_legend().await;
         let legend = legend.as_ref();
+
+        let tree = session.get_tree(&params.text_document.uri).await?;
+        let tree = tree.lock().await;
 
         if let Some(node) = {
             let start = tree_sitter::Point {
@@ -834,12 +841,7 @@ pub mod wat {
                 row: params.range.end.line as usize,
                 column: params.range.end.character as usize,
             };
-            document
-                .tree
-                .lock()
-                .await
-                .root_node()
-                .descendant_for_point_range(start, end)
+            tree.root_node().descendant_for_point_range(start, end)
         } {
             let mut handler = Handler::new(language, legend, node);
 
