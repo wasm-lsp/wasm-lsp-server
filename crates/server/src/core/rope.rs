@@ -113,8 +113,7 @@ impl<'a> RopeExt<'a> for Rope {
         let character_byte_idx = {
             let utf16_cu_idx = position.character as usize;
             let char_idx = self.utf16_cu_to_char(utf16_cu_idx);
-            let byte_idx = self.char_to_byte(char_idx);
-            byte_idx
+            self.char_to_byte(char_idx)
         };
 
         let mut utf8_offset = 0usize;
