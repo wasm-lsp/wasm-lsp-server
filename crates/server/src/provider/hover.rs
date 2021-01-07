@@ -4,29 +4,18 @@ use crate::core::{
     self,
     language::{wast, wat},
 };
+use std::sync::Arc;
 
 /// Compute "textDocument/hover" for a given document.
-pub async fn response(document: &core::Document, params: &lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
-    let lsp::HoverParams {
-        text_document_position_params:
-            lsp::TextDocumentPositionParams {
-                text_document: lsp::TextDocumentIdentifier { uri, .. },
-                position,
-                ..
-            },
-        ..
-    } = params;
-    let range = lsp::Range::new(*position, *position);
-    let hover = hover_for_token_range(&uri, &document, range).await?;
-    Ok(hover)
-}
+pub async fn response(session: Arc<core::Session>, params: lsp::HoverParams) -> anyhow::Result<Option<lsp::Hover>> {
+    let document = session
+        .get_document(&params.text_document_position_params.text_document.uri)
+        .await?;
+    let range = lsp::Range::new(
+        params.text_document_position_params.position,
+        params.text_document_position_params.position,
+    );
 
-// FIXME
-async fn hover_for_token_range(
-    _uri: &lsp::Url,
-    document: &core::Document,
-    range: lsp::Range,
-) -> anyhow::Result<Option<lsp::Hover>> {
     let module_fields: &[u16] = &[
         *wast::kind::MODULE_FIELD_DATA,
         *wast::kind::MODULE_FIELD_ELEM,
@@ -44,13 +33,16 @@ async fn hover_for_token_range(
         *wat::kind::MODULE_FIELD_TYPE,
     ];
 
-    let start = crate::util::position::byte_index(document, &range.start)?;
-    let end = crate::util::position::byte_index(document, &range.end)?;
+    let start = crate::util::position::byte_index(&document, &range.start)?;
+    let end = crate::util::position::byte_index(&document, &range.end)?;
 
     let mut contents = vec![];
     let mut range = None;
 
-    let tree = document.tree.lock().await;
+    let tree = session
+        .get_tree(&params.text_document_position_params.text_document.uri)
+        .await?;
+    let tree = tree.lock().await;
     let node = tree.root_node();
 
     if let Some(mut child) = node.descendant_for_byte_range(start, end) {
@@ -126,16 +118,13 @@ mod tests {
         let text = String::from("(module)");
         let result = core::Document::new(language_id, text);
         assert!(result.is_ok());
-        if let Ok(option) = result {
-            assert!(option.is_some());
-            if let Some(ref document) = option {
-                let source = document.content.chunks().collect::<String>();
-                let source = source.as_str();
-                let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
-                let line_index = 1;
-                let result = crate::util::line::start(document, &line_starts, line_index);
-                assert!(result.is_ok())
-            }
+        if let Ok(ref document) = result {
+            let source = document.content.chunks().collect::<String>();
+            let source = source.as_str();
+            let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
+            let line_index = 1;
+            let result = crate::util::line::start(document, &line_starts, line_index);
+            assert!(result.is_ok())
         }
     }
 
@@ -145,16 +134,13 @@ mod tests {
         let text = String::from("(module)");
         let result = core::Document::new(language_id, text);
         assert!(result.is_ok());
-        if let Ok(option) = result {
-            assert!(option.is_some());
-            if let Some(ref document) = option {
-                let source = document.content.chunks().collect::<String>();
-                let source = source.as_str();
-                let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
-                let line_index = 2;
-                let result = crate::util::line::start(document, &line_starts, line_index);
-                assert!(result.is_err())
-            }
+        if let Ok(ref document) = result {
+            let source = document.content.chunks().collect::<String>();
+            let source = source.as_str();
+            let line_starts = crate::util::line::starts(source).collect::<Vec<_>>();
+            let line_index = 2;
+            let result = crate::util::line::start(document, &line_starts, line_index);
+            assert!(result.is_err())
         }
     }
 }

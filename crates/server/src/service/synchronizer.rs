@@ -43,11 +43,8 @@ pub(crate) mod document {
         session: Arc<core::Session>,
         params: lsp::DidCloseTextDocumentParams,
     ) -> anyhow::Result<()> {
-        let lsp::DidCloseTextDocumentParams {
-            text_document: lsp::TextDocumentIdentifier { uri },
-        } = &params;
-        session.remove_document(uri)?;
-        crate::provider::diagnostics::tree::close(session.clone(), uri.clone()).await?;
+        session.remove_document(&params.text_document.uri)?;
+        crate::provider::diagnostics::tree::close(session, params.text_document.uri).await?;
         Ok(())
     }
 
@@ -84,10 +81,11 @@ mod tree {
     // TODO: implement parser cancellation
     /// Handle a parse tree "change" event.
     pub(super) async fn change(session: Arc<core::Session>, uri: lsp::Url) -> anyhow::Result<bool> {
-        let mut document = session.get_mut_document(&uri).await?;
+        let document = session.get_document(&uri).await?;
 
         let tree = {
-            let mut parser = document.parser.lock().await;
+            let parser = session.get_mut_parser(&uri).await?;
+            let mut parser = parser.lock().await;
             // FIXME: we reset the parser since we don't handle incremental changes yet
             parser.reset();
             let mut callback = document.content.chunk_walker(0).callback_adapter();
@@ -98,7 +96,7 @@ mod tree {
 
         let mut success = false;
         if let Some(tree) = tree {
-            document.tree = Mutex::new(tree);
+            *session.get_mut_tree(&uri).await?.value_mut() = Mutex::new(tree);
             success = true;
         }
 
@@ -131,14 +129,11 @@ mod tree {
 
         let mut success = false;
         if let Some(tree) = tree {
-            // let rope = Rope::from(text);
             let document = core::Document {
                 language,
                 content: rope,
-                parser: Mutex::new(parser),
-                tree: Mutex::new(tree),
             };
-            session.insert_document(uri, document)?;
+            session.insert_document(uri, document, parser, tree)?;
             success = true;
         }
 

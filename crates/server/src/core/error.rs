@@ -1,5 +1,6 @@
 //! Core definitions related to runtime errors.
 
+use crate::core;
 use thiserror::Error;
 
 /// Runtime errors for the WebAssembly language server.
@@ -12,9 +13,12 @@ pub(crate) enum Error {
     /// Error that a given column index is out of bounds for a line of text in a document.
     #[error("ColumnOutOfBounds: given={given:?}, max={max:?}")]
     ColumnOutOfBounds { given: usize, max: usize },
-    /// Error that a given document could not be found.
-    #[error("core::DocumentNotFound: {0}")]
-    DocumentNotFound(lsp::Url),
+    /// Error that a given session resource (document, tree, parser) could not be found.
+    #[error("core::SessionResourceNotFound: kind={kind:?}, uri={uri:?}")]
+    SessionResourceNotFound {
+        kind: core::session::SessionResourceKind,
+        uri: lsp::Url,
+    },
     /// Error that a given line index is out of bounds for a document.
     #[error("LineOutOfBounds: given={given:?}, max={max:?}")]
     LineOutOfBounds { given: usize, max: usize },
