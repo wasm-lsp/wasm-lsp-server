@@ -116,3 +116,15 @@ pub struct DocumentEdit<'a> {
     /// The text of the edit.
     pub text: &'a str,
 }
+
+impl<'a> DocumentEdit<'a> {
+    /// Construct a [`tree_sitter::Range`] from a [`DocumentEdit`].
+    pub fn range(&self) -> tree_sitter::Range {
+        tree_sitter::Range {
+            start_byte: self.input_edit.start_byte,
+            end_byte: self.input_edit.new_end_byte,
+            start_point: self.input_edit.start_position,
+            end_point: self.input_edit.new_end_position,
+        }
+    }
+}
