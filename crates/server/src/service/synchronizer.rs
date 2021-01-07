@@ -15,8 +15,9 @@ pub(crate) mod document {
             let mut document = session.get_mut_document(&params.text_document.uri).await?;
 
             for change in &params.content_changes {
-                if let Some(range) = change.range {
-                    document.modify_lsp_range(range, &change.text)?;
+                if change.range.is_some() {
+                    let edit = document.build_edit(change)?;
+                    document.apply_edit(&edit);
                 } else {
                     document.content = Rope::from(change.text.as_str());
                     break;
