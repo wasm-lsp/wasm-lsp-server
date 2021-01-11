@@ -20,7 +20,7 @@ compression = ["wasm-language-server/compression"]
 threaded = ["wasm-language-server/threaded"]
 
 [dependencies]
-anyhow = "1.0.28"
+anyhow = "1.0.38"
 serde_json = { version = "1.0", features = ["preserve_order"] }
 lspower = { git = "https://github.com/rslint/lspower", branch = "tokio-1.0" }
 tower-test = "0.3.0"
