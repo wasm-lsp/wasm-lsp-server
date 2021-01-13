@@ -162,7 +162,7 @@ FLAGS:
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["build", "--package", "wasm-language-server"]);
+            cmd.args(&["build", "--package", "wasm-language-server-cli"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -195,6 +195,7 @@ FLAGS:
             cmd.args(&["check", "--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-cli"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);
@@ -231,6 +232,7 @@ FLAGS:
             cmd.args(&["clippy", "--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-cli"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);
@@ -385,7 +387,7 @@ FLAGS:
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["install", "--path", "crates/server"]);
+            cmd.args(&["install", "--path", "crates/cli"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -426,6 +428,7 @@ FLAGS:
                 "--packages",
                 "xtask",
                 "wasm-language-server",
+                "wasm-language-server-cli",
                 "wasm-language-server-macros",
                 "wasm-language-server-parsers",
                 "wasm-language-server-testing",
@@ -479,6 +482,7 @@ FLAGS:
             cmd.args(&["test", "--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-cli"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);
@@ -516,6 +520,7 @@ FLAGS:
             cmd.args(&["+nightly", "udeps", "--all-targets", "--all-features"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
+            cmd.args(&["--package", "wasm-language-server-cli"]);
             cmd.args(&["--package", "wasm-language-server-macros"]);
             cmd.args(&["--package", "wasm-language-server-parsers"]);
             cmd.args(&["--package", "wasm-language-server-testing"]);

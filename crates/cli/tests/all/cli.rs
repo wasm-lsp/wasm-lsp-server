@@ -1,4 +1,4 @@
-const BIN: &str = env!("CARGO_PKG_NAME");
+const BIN: &str = env!("CARGO_BIN_EXE_wasm-language-server");
 
 mod invoke {
     use crate::cli::BIN;
@@ -31,7 +31,6 @@ mod invoke {
         mod stdio {
             use crate::cli::BIN;
             use assert_cmd::Command;
-            use predicates::prelude::*;
             use wasm_language_server_testing as testing;
 
             #[test]
@@ -44,8 +43,11 @@ mod invoke {
                 Ok(())
             }
 
+            // FIXME: this test hangs with smol
+            #[cfg(feature = "runtime-tokio")]
             #[test]
             fn newline() -> anyhow::Result<()> {
+                use predicates::prelude::*;
                 #[rustfmt::skip]
                 const STDOUT: &str = "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"error\":{\"code\":-32700,\"message\":\"Parse error\"},\"id\":null}";
                 #[rustfmt::skip]

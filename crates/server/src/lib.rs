@@ -4,14 +4,11 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
-// Command-line interface for the WASM language server.
-pub mod cli;
-
 // Core functionality for the WASM language server.
 pub mod core;
 
 // Definitions related to the wasm-language-server crate.
-mod package;
+pub mod package;
 
 // Providers of the WebAssembly language server for LSP features.
 pub mod provider;
