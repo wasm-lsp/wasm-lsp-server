@@ -27,7 +27,6 @@ built = { version = "0.4", features = ["git2"] }
 
 [dependencies]
 anyhow = "1.0"
-blake3 = "0.3"
 clap = "2.33"
 dashmap = "4.0"
 env_logger = "0.8"
