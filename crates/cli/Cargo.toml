@@ -1,0 +1,68 @@
+[package]
+edition = "2018"
+name = "wasm-language-server-cli"
+version = "0.0.0"
+authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
+license = "Apache-2.0 WITH LLVM-exception"
+readme = "README.md"
+repository = "https://github.com/wasm-lsp/wasm-language-server"
+keywords = ["lsp", "wasm"]
+description = """
+A command-line interface for the WebAssembly language server.
+"""
+
+[badges]
+maintenance = { status = "experimental" }
+
+[[bin]]
+name = "wasm-language-server"
+path = "src/bin/main.rs"
+
+[features]
+default = ["compression", "runtime-tokio"]
+compression = ["wasm-language-server/compression", "wasm-language-server-testing/compression"]
+runtime-smol = [
+  "compression",
+  "lspower/runtime-agnostic",
+  "smol",
+  "wasm-language-server/runtime-agnostic",
+]
+runtime-tokio = [
+  "compression",
+  "lspower/runtime-tokio",
+  "tokio",
+  "wasm-language-server/runtime-tokio",
+]
+
+[build-dependencies]
+anyhow = "1.0"
+built = { version = "0.4", features = ["git2"] }
+
+[dependencies]
+anyhow = "1.0"
+clap = "2.33"
+env_logger = "0.8"
+
+[dependencies.lspower]
+git = "https://github.com/rslint/lspower"
+branch = "main"
+default-features = false
+
+[dependencies.smol]
+version = "1.2"
+optional = true
+
+[dependencies.tokio]
+version = "1.0"
+features = ["io-std", "macros", "sync"]
+optional = true
+
+[dependencies.wasm-language-server]
+version = "0.0"
+path = "../server"
+default-features = false
+
+[dev-dependencies]
+assert_cmd = "1.0"
+predicates = "1.0"
+wasm-language-server-testing = { path = "../testing", version = "0.0.0", default-features = false }
