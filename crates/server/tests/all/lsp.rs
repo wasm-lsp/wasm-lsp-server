@@ -757,7 +757,6 @@ mod text_document {
         Ok(())
     }
 
-    #[cfg(feature = "corpus")]
     mod did_open {
         use wasm_language_server_macros::corpus_tests;
 
