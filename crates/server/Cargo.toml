@@ -15,10 +15,11 @@ A language server implementation for WebAssembly.
 maintenance = { status = "experimental" }
 
 [features]
-default = ["compression", "threaded"]
+default = ["compression", "runtime-tokio"]
 compression = ["sled/compression"]
 goldenfiles = []
-threaded = ["tokio/rt-multi-thread"]
+runtime-agnostic = ["async-lock", "lspower/runtime-agnostic"]
+runtime-tokio = ["lspower/runtime-tokio", "tokio", "tokio/rt-multi-thread"]
 
 [build-dependencies]
 anyhow = "1.0"
@@ -32,17 +33,29 @@ env_logger = "0.8"
 futures = "0.3"
 log = "0.4"
 lsp = { version = "0.86", package = "lsp-types" }
-lspower = "0.3"
 ropey = "1.2"
 serde_json = "1.0"
 sled = "0.34"
 thiserror = "1.0"
-tokio = { version = "1.0", features = ["io-std", "macros", "sync"] }
 tree-sitter = "0.17"
 uuid = { version = "0.8", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
 wast = "30.0"
 zerocopy = "0.3"
+
+[dependencies.async-lock]
+version = "2.3"
+optional = true
+
+[dependencies.lspower]
+git = "https://github.com/rslint/lspower"
+branch = "main"
+default-features = false
+
+[dependencies.tokio]
+version = "1.0"
+features = ["io-std", "sync"]
+optional = true
 
 [dev-dependencies]
 criterion = "0.3"
@@ -51,10 +64,10 @@ glob = "0.3"
 goldenfile = "1.0"
 indoc = "1.0"
 lsp = { version = "0.86", package = "lsp-types" }
-lspower = "0.3"
-tokio = { version = "1.0" }
+lspower = { git = "https://github.com/rslint/lspower", branch = "main", default-features = false }
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 wasm-language-server-macros = { path = "../macros", version = "0.0.0" }
-wasm-language-server-testing = { path = "../testing", version = "0.0.0" }
+wasm-language-server-testing = { path = "../testing", version = "0.0.0", default-features = false }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["env_logger"]

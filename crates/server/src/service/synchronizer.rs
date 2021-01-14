@@ -76,6 +76,10 @@ mod tree {
     use crate::core::{self, language, RopeExt};
     use ropey::Rope;
     use std::{convert::TryFrom, sync::Arc};
+
+    #[cfg(feature = "runtime-agnostic")]
+    use async_lock::Mutex;
+    #[cfg(feature = "tokio")]
     use tokio::sync::Mutex;
 
     // TODO: implement parser cancellation
