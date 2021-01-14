@@ -15,15 +15,12 @@ Testing support framework for the WebAssembly language server.
 maintenance = { status = "experimental" }
 
 [features]
-default = ["compression", "runtime-tokio"]
-compression = ["wasm-language-server/compression"]
+default = ["runtime-tokio"]
 runtime-agnostic = [
-  "compression",
   "lspower/runtime-agnostic",
   "wasm-language-server/runtime-agnostic",
 ]
 runtime-tokio = [
-  "compression",
   "lspower/runtime-tokio",
   "wasm-language-server/runtime-tokio",
 ]
