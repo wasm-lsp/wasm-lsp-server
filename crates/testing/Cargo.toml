@@ -21,7 +21,7 @@ threaded = ["wasm-language-server/threaded"]
 
 [dependencies]
 anyhow = "1.0.28"
+lspower = { git = "https://github.com/rslint/lspower", branch = "main" }
 serde_json = { version = "1.0", features = ["preserve_order"] }
-lspower = "0.3"
 tower-test = "0.3.0"
 wasm-language-server = { path = "../server", version = "0.0.0" }
