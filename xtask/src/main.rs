@@ -124,7 +124,7 @@ FLAGS:
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
-            let (toolchain, zfeatures) = crate::util::configure_runtime("build", args, &mut cargo_args)?;
+            let toolchain = crate::util::configure_runtime("build", args, &mut cargo_args)?;
             crate::util::handle_unused(args)?;
 
             let cargo = metadata::cargo()?;
@@ -132,7 +132,6 @@ FLAGS:
             cmd.current_dir(metadata::project_root());
             cmd.args(toolchain);
             cmd.args(&["build"]);
-            cmd.args(zfeatures);
             cmd.args(&["--package", "wasm-language-server-cli"]);
             cmd.args(cargo_args);
             cmd.status()?;
@@ -160,7 +159,7 @@ FLAGS:
                 return Ok(());
             }
 
-            let (toolchain, zfeatures) = crate::util::configure_runtime("check", args, &mut cargo_args)?;
+            let toolchain = crate::util::configure_runtime("check", args, &mut cargo_args)?;
             crate::util::handle_unused(args)?;
 
             let cargo = metadata::cargo()?;
@@ -169,7 +168,6 @@ FLAGS:
             cmd.env("RUSTFLAGS", "-Dwarnings");
             cmd.args(toolchain);
             cmd.args(&["check"]);
-            cmd.args(zfeatures);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
@@ -206,14 +204,13 @@ FLAGS:
                 return Ok(());
             }
 
-            let (_, zfeatures) = crate::util::configure_runtime("clippy", args, &mut cargo_args)?;
+            crate::util::configure_runtime("clippy", args, &mut cargo_args)?;
             crate::util::handle_unused(args)?;
 
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "clippy"]);
-            cmd.args(zfeatures);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
@@ -321,7 +318,7 @@ FLAGS:
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
-            let (toolchain, zfeatures) = crate::util::configure_runtime("install", args, &mut cargo_args)?;
+            let toolchain = crate::util::configure_runtime("install", args, &mut cargo_args)?;
             crate::util::handle_unused(args)?;
 
             let cargo = metadata::cargo()?;
@@ -329,7 +326,6 @@ FLAGS:
             cmd.current_dir(metadata::project_root());
             cmd.args(toolchain);
             cmd.args(&["install"]);
-            cmd.args(zfeatures);
             cmd.args(&["--path", "crates/cli"]);
             cmd.args(cargo_args);
             cmd.status()?;
@@ -372,7 +368,6 @@ FLAGS:
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "tarpaulin"]);
-            cmd.args(&["-Zpackage-features"]);
             cmd.args(&["--out", "Xml"]);
             cmd.args(&[
                 "--packages",
@@ -426,7 +421,7 @@ FLAGS:
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
-            let (toolchain, zfeatures) = crate::util::configure_runtime("test", args, &mut cargo_args)?;
+            let toolchain = crate::util::configure_runtime("test", args, &mut cargo_args)?;
             crate::util::handle_unused(args)?;
 
             let cargo = metadata::cargo()?;
@@ -435,7 +430,6 @@ FLAGS:
             cmd.env("RUSTFLAGS", "-Dwarnings");
             cmd.args(toolchain);
             cmd.args(&["test"]);
-            cmd.args(zfeatures);
             cmd.args(&["--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
@@ -472,14 +466,13 @@ FLAGS:
                 return Ok(());
             }
 
-            let (_, zfeatures) = crate::util::configure_runtime("udep", args, &mut cargo_args)?;
+            crate::util::configure_runtime("udep", args, &mut cargo_args)?;
             crate::util::handle_unused(args)?;
 
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "udeps"]);
-            cmd.args(zfeatures);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
@@ -581,9 +574,8 @@ mod util {
         command_name: &str,
         args: &mut pico_args::Arguments,
         cargo_args: &mut Vec<std::ffi::OsString>,
-    ) -> crate::Fallible<(Vec<String>, Vec<String>)> {
+    ) -> crate::Fallible<Vec<String>> {
         let mut toolchain = vec![];
-        let mut zfeatures = vec![];
         if let Some(arg) = args.opt_value_from_str::<_, std::ffi::OsString>("--runtime")? {
             if arg == "agnostic" || arg == "smol" {
                 let mut features = vec![
@@ -596,14 +588,13 @@ mod util {
                 cargo_args.push("--no-default-features".into());
                 cargo_args.push(format!("--features={}", features.join(",")).into());
                 toolchain.push(String::from("+nightly"));
-                zfeatures.push(String::from("-Zpackage-features"));
             } else if arg == "tokio" {
             } else {
                 return Err(format!("unexpected runtime '{}'", arg.to_string_lossy()).into());
             }
         }
 
-        Ok((toolchain, zfeatures))
+        Ok(toolchain)
     }
 
     pub mod tree_sitter {
