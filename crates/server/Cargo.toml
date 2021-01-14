@@ -17,7 +17,6 @@ maintenance = { status = "experimental" }
 [features]
 default = ["compression", "threaded"]
 compression = ["sled/compression"]
-corpus = []
 goldenfiles = []
 threaded = ["tokio/rt-multi-thread"]
 
