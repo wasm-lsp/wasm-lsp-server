@@ -1,4 +1,3 @@
-#[cfg(feature = "corpus")]
 mod parse {
     use wasm_language_server_macros::corpus_tests;
 
