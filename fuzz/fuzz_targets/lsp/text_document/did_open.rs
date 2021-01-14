@@ -4,7 +4,6 @@
 use futures::stream::StreamExt;
 use libfuzzer_sys::fuzz_target;
 use serde_json::Value;
-use tokio::runtime::Runtime;
 use wasm_language_server_testing as testing;
 use wasm_smith::Module;
 
@@ -35,6 +34,15 @@ fuzz_target!(|module: Module| {
         let expected = testing::lsp::text_document::publish_diagnostics::notification(&uri, &[]);
         assert_eq!(actual, expected);
     };
-    let runtime = Runtime::new().unwrap();
-    runtime.block_on(future);
+
+    #[cfg(feature = "runtime-smol")]
+    {
+        smol::block_on(future);
+    }
+
+    #[cfg(feature = "runtime-tokio")]
+    {
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        runtime.block_on(future);
+    }
 });

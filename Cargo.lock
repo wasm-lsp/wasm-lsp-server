@@ -2085,6 +2085,7 @@ dependencies = [
  "lsp-types",
  "lspower",
  "serde_json",
+ "smol",
  "tokio 1.0.1",
  "wasm-language-server",
  "wasm-language-server-testing",
