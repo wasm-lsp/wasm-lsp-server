@@ -81,10 +81,10 @@ Nothing planned.
 - 🗹 document symbol provider
 - 🗹 syntax error diagnostics provider
 - 🗹 hover provider
+- 🗹 incremental document synchronization
 
 ## Language Server Feature Roadmap
 
-- ☐ incremental document synchronization
 - ☐ document validation
 - ☐ code action provider
 - ☐ code lens provider
