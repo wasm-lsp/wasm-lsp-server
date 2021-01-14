@@ -1,6 +1,6 @@
 use std::path::Path;
 
-fn compile_tree_sitter_grammars() -> anyhow::Result<()> {
+fn compile_tree_sitter_grammars() {
     let dir = Path::new("../../vendor/tree-sitter-wasm");
 
     println!("cargo:rerun-if-changed={:?}", dir.join("wast/src/parser.c"));
@@ -14,11 +14,8 @@ fn compile_tree_sitter_grammars() -> anyhow::Result<()> {
     cc.include(dir.join("wat/src"));
     cc.file(dir.join("wat/src/parser.c"));
     cc.compile("tree-sitter-wat");
-
-    Ok(())
 }
 
-fn main() -> anyhow::Result<()> {
-    compile_tree_sitter_grammars()?;
-    Ok(())
+fn main() {
+    compile_tree_sitter_grammars();
 }

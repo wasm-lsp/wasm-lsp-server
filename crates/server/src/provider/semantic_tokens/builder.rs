@@ -46,17 +46,17 @@ impl<'a> SemanticTokensBuilder<'a> {
     }
 
     /// Build and return the semantic tokenization result from the current encoder state.
-    pub(crate) fn build(self) -> anyhow::Result<lsp::SemanticTokens> {
+    pub(crate) fn build(self) -> lsp::SemanticTokens {
         let data = if !self.data_is_sorted_and_delta_encoded {
             Self::sort_and_delta_encode(&self.data)
         } else {
             self.data
         };
 
-        Ok(lsp::SemanticTokens {
+        lsp::SemanticTokens {
             data,
             ..Default::default()
-        })
+        }
     }
 
     /// Push a new semantic token onto the encoder state.
@@ -92,7 +92,7 @@ impl<'a> SemanticTokensBuilder<'a> {
                 }
             }
 
-            self.push_encoded(line, char, length, n_token_type, n_token_modifiers)?;
+            self.push_encoded(line, char, length, n_token_type, n_token_modifiers);
         } else {
             return Err(anyhow!("`token_type` is not in the provided legend"));
         }
@@ -101,14 +101,7 @@ impl<'a> SemanticTokensBuilder<'a> {
     }
 
     /// Push a new semantic token (in encoded form) onto the encoder state.
-    fn push_encoded(
-        &mut self,
-        line: u32,
-        char: u32,
-        length: u32,
-        token_type: u32,
-        token_modifiers_bitset: u32,
-    ) -> anyhow::Result<()> {
+    fn push_encoded(&mut self, line: u32, char: u32, length: u32, token_type: u32, token_modifiers_bitset: u32) {
         #[allow(clippy::clippy::collapsible_if)]
         if self.data_is_sorted_and_delta_encoded {
             if line < self.prev_line || (line == self.prev_line && char < self.prev_start) {
@@ -159,8 +152,6 @@ impl<'a> SemanticTokensBuilder<'a> {
 
         self.prev_line = line;
         self.prev_start = char;
-
-        Ok(())
     }
 
     /// Sort and delta-encode a slice of semantic tokens.
