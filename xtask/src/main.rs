@@ -587,13 +587,10 @@ mod util {
         if let Some(arg) = args.opt_value_from_str::<_, std::ffi::OsString>("--runtime")? {
             if arg == "agnostic" || arg == "smol" {
                 let mut features = vec![
-                    "wasm-language-server-cli/compression",
                     "wasm-language-server-cli/runtime-smol",
-                    "wasm-language-server/compression",
                     "wasm-language-server/runtime-agnostic",
                 ];
                 if command_name != "install" {
-                    features.push("wasm-language-server-testing/compression");
                     features.push("wasm-language-server-testing/runtime-agnostic");
                 }
                 cargo_args.push("--no-default-features".into());
