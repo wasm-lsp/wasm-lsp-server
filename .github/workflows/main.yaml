@@ -67,7 +67,7 @@ jobs:
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets --workspace -- -D warnings
+          args: --all-targets --workspace -- -D warnings
 
   # build the documentation
   cargo-docs:
@@ -93,7 +93,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: doc -- --all-features --no-deps --package wasm-language-server
+          args: doc -- --no-deps --package wasm-language-server
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -178,6 +178,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        runtime: [smol, tokio]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -194,5 +195,5 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: test -- --all-features
+          args: test --runtime=${{ matrix.runtime }}
 
