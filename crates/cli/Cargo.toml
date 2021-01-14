@@ -19,16 +19,13 @@ name = "wasm-language-server"
 path = "src/bin/main.rs"
 
 [features]
-default = ["compression", "runtime-tokio"]
-compression = ["wasm-language-server/compression", "wasm-language-server-testing/compression"]
+default = ["runtime-tokio"]
 runtime-smol = [
-  "compression",
   "lspower/runtime-agnostic",
   "smol",
   "wasm-language-server/runtime-agnostic",
 ]
 runtime-tokio = [
-  "compression",
   "lspower/runtime-tokio",
   "tokio",
   "wasm-language-server/runtime-tokio",
