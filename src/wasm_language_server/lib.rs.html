@@ -24,9 +24,6 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
-<span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The WebAssembly language server.</span>
 
@@ -34,14 +31,11 @@
 <span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="attribute">#![<span class="ident">deny</span>(<span class="ident">unsafe_code</span>)]</span>
 
-<span class="comment">// Command-line interface for the WASM language server.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">cli</span>;
-
 <span class="comment">// Core functionality for the WASM language server.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">core</span>;
 
 <span class="comment">// Definitions related to the wasm-language-server crate.</span>
-<span class="kw">mod</span> <span class="ident">package</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">package</span>;
 
 <span class="comment">// Providers of the WebAssembly language server for LSP features.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">provider</span>;
