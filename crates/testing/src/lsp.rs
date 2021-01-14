@@ -85,7 +85,7 @@ pub mod text_document {
 
         /// Definitions for constructing a `textDocument/didChange` notification.
         pub mod notification {
-            use lspower::lsp_types::*;
+            use lspower::lsp::*;
             use serde_json::{json, Value};
 
             /// Construct a `textDocument/didChange` notification with entire new text.
@@ -110,7 +110,7 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/didClose` messages.
     pub mod did_close {
-        use lspower::lsp_types::*;
+        use lspower::lsp::*;
         use serde_json::{json, Value};
 
         /// Construct a `textDocument/didClose` notification.
@@ -129,7 +129,7 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/didOpen` messages.
     pub mod did_open {
-        use lspower::lsp_types::*;
+        use lspower::lsp::*;
         use serde_json::{json, Value};
 
         /// Construct a `textDocument/didOpen` notification.
@@ -151,7 +151,7 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/documentSymbol` messages.
     pub mod document_symbol {
-        use lspower::lsp_types::*;
+        use lspower::lsp::*;
         use serde_json::{json, Value};
 
         /// Construct a `textDocument/documentSymbol` request.
@@ -180,7 +180,7 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/hover` messages.
     pub mod hover {
-        use lspower::lsp_types::*;
+        use lspower::lsp::*;
         use serde_json::{json, Value};
 
         /// Construct a `textDocument/hover` request.
@@ -211,7 +211,7 @@ pub mod text_document {
 
     /// Definitions for constructing `textDocument/publishDiagnostics` messages.
     pub mod publish_diagnostics {
-        use lspower::lsp_types::*;
+        use lspower::lsp::*;
         use serde_json::{json, Value};
 
         /// Construct a `textDocument/publishDiagnostics` notification.
