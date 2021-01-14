@@ -44,65 +44,34 @@ SUBCOMMANDS:
     };
 
     let mut args = pico_args::Arguments::from_vec(args);
-    match args.subcommand()?.as_deref() {
-        Some("build") => {
-            subcommand::cargo::build(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("check") => {
-            subcommand::cargo::check(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("clippy") => {
-            subcommand::cargo::clippy(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("doc") => {
-            subcommand::cargo::doc(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("format") => {
-            subcommand::cargo::format(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("help") => {
-            println!("{}\n", help);
-            return Ok(());
-        },
-        Some("init") => {
-            subcommand::init(args)?;
-            return Ok(());
-        },
-        Some("install") => {
-            subcommand::cargo::install(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("tarpaulin") => {
-            subcommand::cargo::tarpaulin(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("test") => {
-            subcommand::cargo::test(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("udeps") => {
-            subcommand::cargo::udeps(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some(subcommand) => {
-            return Err(format!("unknown subcommand: {}", subcommand).into());
-        },
+
+    let result = match args.subcommand()?.as_deref() {
         None => {
             if args.contains(["-h", "--help"]) {
                 println!("{}\n", help);
-                return Ok(());
             }
+            Ok(())
         },
-    }
+        Some("build") => subcommand::cargo::build(&mut args, cargo_args),
+        Some("check") => subcommand::cargo::check(&mut args, cargo_args),
+        Some("clippy") => subcommand::cargo::clippy(&mut args, cargo_args),
+        Some("doc") => subcommand::cargo::doc(&mut args, cargo_args),
+        Some("format") => subcommand::cargo::format(&mut args, cargo_args),
+        Some("init") => subcommand::init(&mut args),
+        Some("install") => subcommand::cargo::install(&mut args, cargo_args),
+        Some("tarpaulin") => subcommand::cargo::tarpaulin(&mut args, cargo_args),
+        Some("test") => subcommand::cargo::test(&mut args, cargo_args),
+        Some("udeps") => subcommand::cargo::udeps(&mut args, cargo_args),
+        Some("help") => {
+            println!("{}\n", help);
+            Ok(())
+        },
+        Some(subcommand) => Err(format!("unknown subcommand: {}", subcommand).into()),
+    };
+    crate::util::handle_result(result);
 
-    if let Err(pico_args::Error::UnusedArgsLeft(args)) = args.finish() {
-        return Err(format!("unrecognized arguments: {}", args.join(" ")).into());
-    }
+    let result = crate::util::handle_unused(&args);
+    crate::util::handle_result(result);
 
     Ok(())
 }
@@ -131,7 +100,7 @@ mod subcommand {
         use std::process::Command;
 
         // Run `cargo build` with custom options.
-        pub fn build(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn build(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-build
 
@@ -141,6 +110,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
+    --runtime=<arg>     Choice of runtime: agnostic, smol, tokio (default)
     -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
@@ -154,10 +124,16 @@ FLAGS:
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
+            let (toolchain, zfeatures) = crate::util::configure_runtime("build", args, &mut cargo_args)?;
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["build", "--package", "wasm-language-server-cli"]);
+            cmd.args(toolchain);
+            cmd.args(&["build"]);
+            cmd.args(zfeatures);
+            cmd.args(&["--package", "wasm-language-server-cli"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -165,7 +141,7 @@ FLAGS:
         }
 
         // Run `cargo check` with custom options.
-        pub fn check(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn check(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-check
 
@@ -174,6 +150,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
+    --runtime=<arg>     Choice of runtime: agnostic, smol, tokio (default)
     -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
@@ -183,11 +160,17 @@ FLAGS:
                 return Ok(());
             }
 
+            let (toolchain, zfeatures) = crate::util::configure_runtime("check", args, &mut cargo_args)?;
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.env("RUSTFLAGS", "-Dwarnings");
-            cmd.args(&["check", "--all-targets"]);
+            cmd.args(toolchain);
+            cmd.args(&["check"]);
+            cmd.args(zfeatures);
+            cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-cli"]);
@@ -199,11 +182,12 @@ FLAGS:
             }
             cmd.args(cargo_args);
             cmd.status()?;
+
             Ok(())
         }
 
         // Run `cargo clippy` with custom options.
-        pub fn clippy(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn clippy(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-clippy
 
@@ -212,6 +196,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
+    --runtime=<arg>     Choice of runtime: agnostic, smol, tokio (default)
     -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
@@ -221,10 +206,15 @@ FLAGS:
                 return Ok(());
             }
 
+            let (_, zfeatures) = crate::util::configure_runtime("clippy", args, &mut cargo_args)?;
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["clippy", "--all-targets"]);
+            cmd.args(&["+nightly", "clippy"]);
+            cmd.args(zfeatures);
+            cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-cli"]);
@@ -237,11 +227,12 @@ FLAGS:
             cmd.args(cargo_args);
             cmd.args(&["--", "-D", "warnings"]);
             cmd.status()?;
+
             Ok(())
         }
 
         // Run `cargo doc` with custom options.
-        pub fn doc(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn doc(args: &mut pico_args::Arguments, cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-doc
 
@@ -259,17 +250,20 @@ FLAGS:
                 return Ok(());
             }
 
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "doc"]);
             cmd.args(cargo_args);
             cmd.status()?;
+
             Ok(())
         }
 
         // Run `cargo format` with custom options.
-        pub fn format(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn format(args: &mut pico_args::Arguments, cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-format
 
@@ -287,17 +281,23 @@ FLAGS:
                 return Ok(());
             }
 
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.args(&["+nightly", "fmt", "--all"]);
             cmd.args(cargo_args);
             cmd.status()?;
+
             Ok(())
         }
 
         // Run `cargo install` with custom options.
-        pub fn install(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn install(
+            args: &mut pico_args::Arguments,
+            mut cargo_args: Vec<std::ffi::OsString>,
+        ) -> crate::Fallible<()> {
             let help = r#"
 xtask-install
 
@@ -307,6 +307,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
+    --runtime=<arg>     Choice of runtime: agnostic, smol, tokio (default)
     -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
@@ -320,10 +321,16 @@ FLAGS:
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
+            let (toolchain, zfeatures) = crate::util::configure_runtime("install", args, &mut cargo_args)?;
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["install", "--path", "crates/cli"]);
+            cmd.args(toolchain);
+            cmd.args(&["install"]);
+            cmd.args(zfeatures);
+            cmd.args(&["--path", "crates/cli"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -331,7 +338,10 @@ FLAGS:
         }
 
         // Run `cargo tarpaulin` with custom options.
-        pub fn tarpaulin(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn tarpaulin(
+            args: &mut pico_args::Arguments,
+            mut cargo_args: Vec<std::ffi::OsString>,
+        ) -> crate::Fallible<()> {
             let help = r#"
 xtask-tarpaulin
 
@@ -341,6 +351,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
+    --runtime=<arg>     Choice of runtime: agnostic, smol, tokio (default)
     -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
@@ -353,6 +364,9 @@ FLAGS:
             if args.contains("--rebuild-parsers") {
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
+
+            crate::util::configure_runtime("tarpaulin", args, &mut cargo_args)?;
+            crate::util::handle_unused(args)?;
 
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
@@ -388,7 +402,7 @@ FLAGS:
         }
 
         // Run `cargo test` with custom options.
-        pub fn test(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn test(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-test
 
@@ -398,6 +412,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
+    --runtime=<arg>     Choice of runtime: agnostic, smol, tokio (default)
     -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
@@ -411,11 +426,17 @@ FLAGS:
                 crate::util::tree_sitter::rebuild_parsers()?;
             }
 
+            let (toolchain, zfeatures) = crate::util::configure_runtime("test", args, &mut cargo_args)?;
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
             cmd.env("RUSTFLAGS", "-Dwarnings");
-            cmd.args(&["test", "--examples", "--lib", "--tests"]);
+            cmd.args(toolchain);
+            cmd.args(&["test"]);
+            cmd.args(zfeatures);
+            cmd.args(&["--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-cli"]);
@@ -432,7 +453,7 @@ FLAGS:
         }
 
         // Run `cargo udeps` with custom options.
-        pub fn udeps(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
+        pub fn udeps(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-udep
 
@@ -441,6 +462,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
+    --runtime=<arg>     Choice of runtime: agnostic, smol, tokio (default)
     -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
@@ -450,10 +472,15 @@ FLAGS:
                 return Ok(());
             }
 
+            let (_, zfeatures) = crate::util::configure_runtime("udep", args, &mut cargo_args)?;
+            crate::util::handle_unused(args)?;
+
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["+nightly", "udeps", "--all-targets"]);
+            cmd.args(&["+nightly", "udeps"]);
+            cmd.args(zfeatures);
+            cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-cli"]);
@@ -465,6 +492,7 @@ FLAGS:
             }
             cmd.args(cargo_args);
             cmd.status()?;
+
             Ok(())
         }
     }
@@ -476,7 +504,7 @@ FLAGS:
     };
 
     // Initialize submodules (e.g., for tree-sitter grammars and test suites)
-    pub fn init(mut args: pico_args::Arguments) -> crate::Fallible<()> {
+    pub fn init(args: &mut pico_args::Arguments) -> crate::Fallible<()> {
         let help = r#"
 xtask-init
 
@@ -493,6 +521,10 @@ FLAGS:
             return Ok(());
         }
 
+        let with_corpus = args.contains("--with-corpus");
+
+        crate::util::handle_unused(args)?;
+
         // initialize "vendor/tree-sitter-wasm" submodule
         let submodule = Path::new("vendor/tree-sitter-wasm").to_str().unwrap();
         let mut cmd = Command::new("git");
@@ -500,7 +532,7 @@ FLAGS:
         cmd.args(&["submodule", "update", "--init", "--depth", "1", "--", submodule]);
         cmd.status()?;
 
-        if args.contains("--with-corpus") {
+        if with_corpus {
             // initialize "vendor/corpus" submodule
             let submodule = Path::new("vendor/corpus").to_str().unwrap();
             let mut cmd = Command::new("git");
@@ -523,6 +555,60 @@ FLAGS:
 }
 
 mod util {
+    pub(super) fn handle_result<T>(result: crate::Fallible<T>) {
+        if let Err(err) = result {
+            println!("Error :: {}", err);
+            std::process::exit(1);
+        }
+    }
+
+    pub(super) fn handle_unused(args: &pico_args::Arguments) -> crate::Fallible<()> {
+        use std::borrow::Borrow;
+        let unused = args.clone().finish();
+        if !unused.is_empty() {
+            let mut message = String::new();
+            for str in unused {
+                message.push(' ');
+                message.push_str(str.to_string_lossy().borrow());
+            }
+            Err(format!("unrecognized arguments '{}'", message).into())
+        } else {
+            Ok(())
+        }
+    }
+
+    pub(super) fn configure_runtime(
+        command_name: &str,
+        args: &mut pico_args::Arguments,
+        cargo_args: &mut Vec<std::ffi::OsString>,
+    ) -> crate::Fallible<(Vec<String>, Vec<String>)> {
+        let mut toolchain = vec![];
+        let mut zfeatures = vec![];
+        if let Some(arg) = args.opt_value_from_str::<_, std::ffi::OsString>("--runtime")? {
+            if arg == "agnostic" || arg == "smol" {
+                let mut features = vec![
+                    "wasm-language-server-cli/compression",
+                    "wasm-language-server-cli/runtime-smol",
+                    "wasm-language-server/compression",
+                    "wasm-language-server/runtime-agnostic",
+                ];
+                if command_name != "install" {
+                    features.push("wasm-language-server-testing/compression");
+                    features.push("wasm-language-server-testing/runtime-agnostic");
+                }
+                cargo_args.push("--no-default-features".into());
+                cargo_args.push(format!("--features={}", features.join(",")).into());
+                toolchain.push(String::from("+nightly"));
+                zfeatures.push(String::from("-Zpackage-features"));
+            } else if arg == "tokio" {
+            } else {
+                return Err(format!("unexpected runtime '{}'", arg.to_string_lossy()).into());
+            }
+        }
+
+        Ok((toolchain, zfeatures))
+    }
+
     pub mod tree_sitter {
         use crate::metadata;
         use std::{
