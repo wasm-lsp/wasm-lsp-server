@@ -85,7 +85,7 @@ pub mod wast {
 
                 // handle "root"
                 if wast::kind::equals::ROOT(handler.walker.kind()) {
-                    handler.root()?;
+                    handler.root();
                     continue;
                 }
 
@@ -142,7 +142,7 @@ pub mod wast {
 
                 // handle "command"
                 if wast::kind::equals::COMMAND(handler.walker.kind()) {
-                    handler.command()?;
+                    handler.command();
                     continue;
                 }
 
@@ -234,7 +234,7 @@ pub mod wast {
                 handler.walker.goto_next();
             }
 
-            let tokens = handler.builder.build()?;
+            let tokens = handler.builder.build();
             let result = lsp::SemanticTokensRangeResult::Tokens(tokens);
 
             Ok(Some(result))
@@ -365,10 +365,8 @@ pub mod wast {
             Ok(())
         }
 
-        fn command(&mut self) -> anyhow::Result<()> {
+        fn command(&mut self) {
             self.walker.goto_first_child();
-
-            Ok(())
         }
 
         fn comment_block(&mut self) -> anyhow::Result<()> {
@@ -691,10 +689,8 @@ pub mod wast {
             Ok(())
         }
 
-        fn root(&mut self) -> anyhow::Result<()> {
+        fn root(&mut self) {
             self.walker.goto_next();
-
-            Ok(())
         }
 
         fn script_module_binary(&mut self) -> anyhow::Result<()> {
@@ -852,7 +848,7 @@ pub mod wat {
 
                 // handle "root"
                 if wat::kind::equals::ROOT(handler.walker.kind()) {
-                    handler.root()?;
+                    handler.root();
                     continue;
                 }
 
@@ -914,7 +910,7 @@ pub mod wat {
                 handler.walker.goto_next();
             }
 
-            let tokens = handler.builder.build()?;
+            let tokens = handler.builder.build();
             let result = lsp::SemanticTokensRangeResult::Tokens(tokens);
 
             Ok(Some(result))
@@ -1200,10 +1196,8 @@ pub mod wat {
             Ok(())
         }
 
-        fn root(&mut self) -> anyhow::Result<()> {
+        fn root(&mut self) {
             self.walker.goto_next();
-
-            Ok(())
         }
 
         fn type_use(&mut self) -> anyhow::Result<()> {
