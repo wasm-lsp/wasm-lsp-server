@@ -22,7 +22,6 @@ SUBCOMMANDS:
     clippy
     doc
     format
-    grcov
     help                Prints this message or the help of the subcommand(s)
     init
     install
@@ -64,10 +63,6 @@ SUBCOMMANDS:
         },
         Some("format") => {
             subcommand::cargo::format(args, &cargo_args)?;
-            return Ok(());
-        },
-        Some("grcov") => {
-            subcommand::cargo::grcov(args, &cargo_args)?;
             return Ok(());
         },
         Some("help") => {
@@ -298,65 +293,6 @@ FLAGS:
             cmd.args(&["+nightly", "fmt", "--all"]);
             cmd.args(cargo_args);
             cmd.status()?;
-            Ok(())
-        }
-
-        // Run `cargo grcov` with custom options.
-        pub fn grcov(mut args: pico_args::Arguments, cargo_args: &[std::ffi::OsString]) -> crate::Fallible<()> {
-            let help = r#"
-xtask-grcov
-
-USAGE:
-    xtask grcov
-
-FLAGS:
-    -h, --help          Prints help information
-    --rebuild-parsers   Rebuild tree-sitter parsers
-    -- '...'            Extra arguments to pass to the cargo command
-"#
-            .trim();
-
-            if args.contains(["-h", "--help"]) {
-                println!("{}\n", help);
-                return Ok(());
-            }
-
-            if args.contains("--rebuild-parsers") {
-                crate::util::tree_sitter::rebuild_parsers()?;
-            }
-
-            let cargo = metadata::cargo()?;
-            let mut cmd = Command::new(cargo);
-            cmd.current_dir(metadata::project_root());
-            cmd.env("CARGO_INCREMENTAL", "0");
-            #[rustfmt::skip]
-            cmd.env("RUSTFLAGS", "-Dwarnings -Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort");
-            cmd.env("RUSTDOCFLAGS", "-Cpanic=abort");
-            cmd.args(&[
-                "+nightly",
-                "test",
-                "--all-features",
-                "--benches",
-                "--examples",
-                "--lib",
-                "--tests",
-            ]);
-            cmd.args(&["--package", "wasm-language-server"]);
-            cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(cargo_args);
-            cmd.status()?;
-
-            let mut cmd = Command::new("grcov");
-            cmd.current_dir(metadata::project_root());
-            cmd.arg("./target/debug/");
-            cmd.args(&["--source-dir", "."]);
-            cmd.args(&["--output-type", "html"]);
-            cmd.args(&["--output-path", "./target/debug/coverage/"]);
-            cmd.args(&["--llvm", "--branch", "--ignore-not-existing"]);
-            cmd.args(&["--ignore", "crates/testing"]);
-            cmd.args(&["--ignore", "xpath"]);
-            cmd.status()?;
-
             Ok(())
         }
 
