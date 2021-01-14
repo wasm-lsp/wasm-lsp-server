@@ -23,7 +23,7 @@ SUBCOMMANDS:
     doc
     format
     grcov
-    help                Prints this message or the help of the given subcommand(s)
+    help                Prints this message or the help of the subcommand(s)
     init
     install
     tarpaulin
@@ -146,7 +146,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -179,7 +179,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -217,7 +217,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -255,7 +255,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -283,7 +283,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -312,7 +312,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -371,7 +371,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -405,7 +405,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -462,7 +462,7 @@ USAGE:
 FLAGS:
     -h, --help          Prints help information
     --rebuild-parsers   Rebuild tree-sitter parsers
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
@@ -505,7 +505,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
-    -- '...'        Extra arguments to pass to the underlying cargo command
+    -- '...'            Extra arguments to pass to the cargo command
 "#
             .trim();
 
