@@ -12,8 +12,12 @@ use dashmap::{
     mapref::one::{Ref, RefMut},
     DashMap,
 };
-use tokio::sync::{Mutex, RwLock};
 use zerocopy::AsBytes;
+
+#[cfg(feature = "runtime-agnostic")]
+use async_lock::{Mutex, RwLock};
+#[cfg(feature = "tokio")]
+use tokio::sync::{Mutex, RwLock};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SessionResourceKind {
