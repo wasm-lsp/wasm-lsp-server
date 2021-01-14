@@ -453,7 +453,7 @@ FLAGS:
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.args(&["+nightly", "udeps", "--all-targets", "--all-features"]);
+            cmd.args(&["+nightly", "udeps", "--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-language-server"]);
             cmd.args(&["--package", "wasm-language-server-cli"]);
