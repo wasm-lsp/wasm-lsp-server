@@ -24,8 +24,8 @@ cc = "1.0"
 
 [dependencies]
 anyhow = "1.0"
-thiserror = "1.0"
 lazy_static = "1.4"
+thiserror = "1.0"
 tree-sitter = "0.17"
 
 [dev-dependencies]
