@@ -1,7 +1,4 @@
-//! Cargo xtask definitions for the wasm-language-server project.
-
 #![deny(clippy::all)]
-#![deny(missing_docs)]
 #![deny(unsafe_code)]
 
 type Fallible<T> = Result<T, Box<dyn std::error::Error>>;
@@ -132,7 +129,7 @@ FLAGS:
             cmd.current_dir(metadata::project_root());
             cmd.args(toolchain);
             cmd.args(&["build"]);
-            cmd.args(&["--package", "wasm-language-server-cli"]);
+            cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -170,14 +167,10 @@ FLAGS:
             cmd.args(&["check"]);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
-            cmd.args(&["--package", "wasm-language-server"]);
-            cmd.args(&["--package", "wasm-language-server-cli"]);
-            cmd.args(&["--package", "wasm-language-server-macros"]);
-            cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-testing"]);
-            if cfg!(target_os = "linux") {
-                cmd.args(&["--package", "wasm-language-server-fuzz"]);
-            }
+            cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-macros"]);
+            cmd.args(&["--package", "wasm-lsp-parsers"]);
+            cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -213,14 +206,10 @@ FLAGS:
             cmd.args(&["+nightly", "clippy"]);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
-            cmd.args(&["--package", "wasm-language-server"]);
-            cmd.args(&["--package", "wasm-language-server-cli"]);
-            cmd.args(&["--package", "wasm-language-server-macros"]);
-            cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-testing"]);
-            if cfg!(target_os = "linux") {
-                cmd.args(&["--package", "wasm-language-server-fuzz"]);
-            }
+            cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-macros"]);
+            cmd.args(&["--package", "wasm-lsp-parsers"]);
+            cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.args(&["--", "-D", "warnings"]);
             cmd.status()?;
@@ -323,10 +312,13 @@ FLAGS:
 
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
-            cmd.current_dir(metadata::project_root());
+            let mut path = metadata::project_root();
+            path.push("crates");
+            path.push("cli");
+            cmd.current_dir(path);
             cmd.args(toolchain);
             cmd.args(&["install"]);
-            cmd.args(&["--path", "crates/cli"]);
+            cmd.args(&["--path", "."]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -372,11 +364,10 @@ FLAGS:
             cmd.args(&[
                 "--packages",
                 "xtask",
-                "wasm-language-server",
-                "wasm-language-server-cli",
-                "wasm-language-server-macros",
-                "wasm-language-server-parsers",
-                "wasm-language-server-testing",
+                "wasm-lsp-cli",
+                "wasm-lsp-macros",
+                "wasm-lsp-parsers",
+                "wasm-lsp-server",
             ]);
             cmd.args(&[
                 "--exclude-files",
@@ -384,7 +375,6 @@ FLAGS:
                 "crates/macros",
                 "crates/server/src/bin",
                 "crates/server/src/cli.rs",
-                "crates/testing",
                 "tests",
                 "vendor",
                 "**/stdio2.h",
@@ -432,14 +422,10 @@ FLAGS:
             cmd.args(&["test"]);
             cmd.args(&["--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "xtask"]);
-            cmd.args(&["--package", "wasm-language-server"]);
-            cmd.args(&["--package", "wasm-language-server-cli"]);
-            cmd.args(&["--package", "wasm-language-server-macros"]);
-            cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-testing"]);
-            if cfg!(target_os = "linux") {
-                cmd.args(&["--package", "wasm-language-server-fuzz"]);
-            }
+            cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-macros"]);
+            cmd.args(&["--package", "wasm-lsp-parsers"]);
+            cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -475,14 +461,10 @@ FLAGS:
             cmd.args(&["+nightly", "udeps"]);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
-            cmd.args(&["--package", "wasm-language-server"]);
-            cmd.args(&["--package", "wasm-language-server-cli"]);
-            cmd.args(&["--package", "wasm-language-server-macros"]);
-            cmd.args(&["--package", "wasm-language-server-parsers"]);
-            cmd.args(&["--package", "wasm-language-server-testing"]);
-            if cfg!(target_os = "linux") {
-                cmd.args(&["--package", "wasm-language-server-fuzz"]);
-            }
+            cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-macros"]);
+            cmd.args(&["--package", "wasm-lsp-parsers"]);
+            cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -491,10 +473,7 @@ FLAGS:
     }
 
     use crate::metadata;
-    use std::{
-        path::{Path, PathBuf},
-        process::Command,
-    };
+    use std::{path::Path, process::Command};
 
     // Initialize submodules (e.g., for tree-sitter grammars and test suites)
     pub fn init(args: &mut pico_args::Arguments) -> crate::Fallible<()> {
@@ -535,9 +514,9 @@ FLAGS:
 
             // initialize "vendor/corpus/..." submodules
             let mut cmd = Command::new("git");
-            let root = metadata::project_root();
-            let root = root.to_str().unwrap();
-            let path = [root, "vendor", "corpus"].iter().collect::<PathBuf>();
+            let mut path = metadata::project_root();
+            path.push("vendor");
+            path.push("corpus");
             cmd.current_dir(path);
             cmd.args(&["submodule", "update", "--init", "--depth", "1"]);
             cmd.status()?;
@@ -577,20 +556,35 @@ mod util {
     ) -> crate::Fallible<Vec<String>> {
         let mut toolchain = vec![];
         if let Some(arg) = args.opt_value_from_str::<_, std::ffi::OsString>("--runtime")? {
-            if arg == "agnostic" || arg == "smol" {
-                let mut features = vec![
-                    "wasm-language-server-cli/runtime-smol",
-                    "wasm-language-server/runtime-agnostic",
-                ];
-                if command_name != "install" {
-                    features.push("wasm-language-server-testing/runtime-agnostic");
+            if command_name == "install" {
+                if arg == "futures" {
+                    let features = vec!["runtime-futures"];
+                    cargo_args.push("--no-default-features".into());
+                    cargo_args.push(format!("--features={}", features.join(",")).into());
+                } else if arg == "smol" {
+                    let features = vec!["runtime-smol"];
+                    cargo_args.push("--no-default-features".into());
+                    cargo_args.push(format!("--features={}", features.join(",")).into());
+                } else if arg == "tokio" {
+                } else {
+                    return Err(format!("unexpected runtime '{}'", arg.to_string_lossy()).into());
                 }
-                cargo_args.push("--no-default-features".into());
-                cargo_args.push(format!("--features={}", features.join(",")).into());
-                toolchain.push(String::from("+nightly"));
-            } else if arg == "tokio" {
-            } else {
-                return Err(format!("unexpected runtime '{}'", arg.to_string_lossy()).into());
+            }
+            if command_name != "install" {
+                if arg == "futures" {
+                    let features = vec!["wasm-lsp-cli/runtime-futures", "wasm-lsp-server/runtime-agnostic"];
+                    cargo_args.push("--no-default-features".into());
+                    cargo_args.push(format!("--features={}", features.join(",")).into());
+                    toolchain.push(String::from("+nightly"));
+                } else if arg == "smol" {
+                    let features = vec!["wasm-lsp-cli/runtime-smol", "wasm-lsp-server/runtime-agnostic"];
+                    cargo_args.push("--no-default-features".into());
+                    cargo_args.push(format!("--features={}", features.join(",")).into());
+                    toolchain.push(String::from("+nightly"));
+                } else if arg == "tokio" {
+                } else {
+                    return Err(format!("unexpected runtime '{}'", arg.to_string_lossy()).into());
+                }
             }
         }
 

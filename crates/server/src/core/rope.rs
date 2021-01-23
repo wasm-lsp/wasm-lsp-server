@@ -1,14 +1,9 @@
-//! Core functionality related to working with ropes.
-
 use anyhow::anyhow;
 use ropey::{iter::Chunks, Rope};
 use std::convert::TryFrom;
 
-/// Convenience trait for working with [`Chunks`].
 trait ChunkExt<'a> {
-    /// Walk to the next string slice (or return the empty slice).
     fn next_str(&mut self) -> &'a str;
-    /// Walk to the previous string slice (or return the empty slice).
     fn prev_str(&mut self) -> &'a str;
 }
 
@@ -22,79 +17,53 @@ impl<'a> ChunkExt<'a> for Chunks<'a> {
     }
 }
 
-/// State structure used for building a tree-sitter parser callback adapter.
 pub(crate) struct ChunkWalker<'a> {
-    /// The underlying Rope to walk across.
     rope: &'a Rope,
-    /// The byte index of the current rope offset. Always resides on the 0th index of some slice.
     cursor: usize,
-    /// The current slice we are traversing (may be an empty slice).
     cursor_chunk: &'a str,
-    /// The underlying chunk iterator from the rope.
     chunks: Chunks<'a>,
 }
 
 impl<'a> ChunkWalker<'a> {
-    /// Walk to the previous chunk, adjusting state, and skipping empty chunks.
     fn prev_chunk(&mut self) {
         self.cursor -= self.cursor_chunk.len();
         self.cursor_chunk = self.chunks.prev_str();
-        // Skip over empty chunks.
         while 0 < self.cursor && self.cursor_chunk.is_empty() {
             self.cursor_chunk = self.chunks.prev_str();
         }
     }
 
-    /// Walk to the next chunk, adjusting state, and skipping empty chunks.
     fn next_chunk(&mut self) {
         self.cursor += self.cursor_chunk.len();
         self.cursor_chunk = self.chunks.next_str();
-        // Skip over empty chunks.
         while self.cursor < self.rope.len_bytes() && self.cursor_chunk.is_empty() {
             self.cursor_chunk = self.chunks.next_str();
         }
     }
 
-    /// Consume the [`ChunkWalker`] and return a callback for use with
-    /// [`tree_sitter::Parser::parse_with`].
     pub(crate) fn callback_adapter(mut self) -> impl FnMut(u32, tree_sitter::Point) -> &'a [u8] {
         move |byte_idx, _position| {
             let byte_idx = byte_idx as usize;
 
-            // Scan backward first if necessary.
             while byte_idx < self.cursor && 0 < self.cursor {
                 self.prev_chunk();
             }
 
-            // Otherwise scan forward if necessary.
             while byte_idx >= self.cursor + self.cursor_chunk.len() && byte_idx < self.rope.len_bytes() {
                 self.next_chunk();
             }
 
-            // Otherwise slice into the current chunk with the given index.
             &self.cursor_chunk.as_bytes()[byte_idx - self.cursor ..]
         }
     }
 }
 
-/// Extension trait for [`Rope`].
 pub(crate) trait RopeExt<'a> {
-    /// Build a [`ChunkWalker`] given an appropriate structure and a starting byte offset.
     fn chunk_walker(&'a self, byte_idx: usize) -> ChunkWalker<'a>;
-
-    /// Translate an [`lsp::Position`] to a utf8 offset.
     fn lsp_position_to_byte(&self, position: lsp::Position) -> anyhow::Result<u32>;
-
-    /// Translate an [`lsp::Position`] to a utf16 offset.
     fn lsp_position_to_utf16_cu(&self, position: lsp::Position) -> anyhow::Result<u32>;
-
-    /// Translate an [`lsp::Range`] to a [`tree_sitter::Range`].
     fn lsp_range_to_tree_sitter_range(&self, range: lsp::Range) -> anyhow::Result<tree_sitter::Range>;
-
-    /// Translate a utf8 offset to an [`lsp::Position`].
     fn byte_to_lsp_position(&self, offset: usize) -> lsp::Position;
-
-    /// Translate a utf8 offset to a [`tree_sitter::Point`].
     fn byte_to_tree_sitter_point(&self, offset: usize) -> tree_sitter::Point;
 }
 

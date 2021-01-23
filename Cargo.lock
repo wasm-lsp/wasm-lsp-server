@@ -25,15 +25,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afddf7f520a80dbf76e6f50a35bca42a2331ef227a28b3b6dc5c2e2338d114b1"
 
 [[package]]
-name = "arbitrary"
-version = "0.4.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db55d72333851e17d572bec876e390cd3b11eb1ef53ae821dd9f3b653d2b4569"
-dependencies = [
- "derive_arbitrary",
-]
-
-[[package]]
 name = "arrayvec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -522,17 +513,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "derive_arbitrary"
-version = "0.4.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1a012b5e473dc912f0db0546a1c9c6a194ce8494feb66fa0237160926f9e0e6"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "difference"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -791,12 +771,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62aca2aba2d62b4a7f5b33f3712cb1b0692779a56fb510499d5c0aa594daeaf3"
 
 [[package]]
-name = "hashbrown"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7afe4a420e3fe79967a00898cc1f4db7c8a49a9333a29f8a4bd76a253d5cd04"
-
-[[package]]
 name = "heck"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -829,16 +803,6 @@ dependencies = [
  "matches",
  "unicode-bidi",
  "unicode-normalization",
-]
-
-[[package]]
-name = "indexmap"
-version = "1.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb1fa934250de4de8aef298d81c729a7d33d8c239daa3a7575e6b92bfc7313b"
-dependencies = [
- "autocfg",
- "hashbrown",
 ]
 
 [[package]]
@@ -922,16 +886,6 @@ name = "libc"
 version = "0.2.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89203f3fba0a3795506acaad8ebce3c80c0af93f994d5a1d7a0b1eeb23271929"
-
-[[package]]
-name = "libfuzzer-sys"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcf184a4b6b274f82a5df6b357da6055d3e82272327bba281c28bbba6f1664ef"
-dependencies = [
- "arbitrary",
- "cc",
-]
 
 [[package]]
 name = "libgit2-sys"
@@ -1064,9 +1018,9 @@ dependencies = [
 
 [[package]]
 name = "nom"
-version = "6.0.1"
+version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88034cfd6b4a0d54dd14f4a507eceee36c0b70e5a02236c4e4df571102be17f0"
+checksum = "ab6f70b46d6325aa300f1c7bb3d470127dfc27806d8ea6bf294ee0ce643ce2b1"
 dependencies = [
  "bitvec",
  "lexical-core",
@@ -1153,26 +1107,6 @@ name = "pico-args"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d70072c20945e1ab871c472a285fc772aefd4f5407723c206242f2c6f94595d6"
-
-[[package]]
-name = "pin-project"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95b70b68509f17aa2857863b6fa00bf21fc93674c7a8893de2f469f6aa7ca2f2"
-dependencies = [
- "pin-project-internal",
-]
-
-[[package]]
-name = "pin-project-internal"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "caa25a6393f22ce819b0f50e0be89287292fda8d425be38ee0ca14c4931d9e71"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
 
 [[package]]
 name = "pin-project-lite"
@@ -1519,7 +1453,6 @@ version = "1.0.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fceb2595057b6891a4ee808f70054bd2d12f0e97f1cbb78689b59f676df325a"
 dependencies = [
- "indexmap",
  "itoa",
  "ryu",
  "serde",
@@ -1764,19 +1697,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tokio-test"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c7d205f6f59b03f9e824ac86eaba635a98395f287756ecc8a06464779c399bf"
-dependencies = [
- "async-stream",
- "bytes",
- "futures-core",
- "tokio",
- "tokio-stream",
-]
-
-[[package]]
 name = "tokio-util"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1802,30 +1722,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "tower-layer"
+name = "tower-service"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "343bc9466d3fe6b0f960ef45960509f84480bf4fd96f92901afe7ff3df9d3a62"
-
-[[package]]
-name = "tower-service"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e987b6bf443f4b5b3b6f38704195592cca41c5bb7aedd3c3693c7081f8289860"
-
-[[package]]
-name = "tower-test"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4546773ffeab9e4ea02b8872faa49bb616a80a7da66afc2f32688943f97efa7"
-dependencies = [
- "futures-util",
- "pin-project",
- "tokio",
- "tokio-test",
- "tower-layer",
- "tower-service",
-]
+checksum = "360dfd1d6d30e05fda32ace2c8c70e9c0a9da713275777f5a4dbb8a1893930c6"
 
 [[package]]
 name = "tree-sitter"
@@ -2031,16 +1931,54 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7e7811dd7f9398f14cc76efd356f98f03aa30419dea46aa810d71e819fc97158"
 
 [[package]]
-name = "wasm-encoder"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c75fa62cf1464aa6655479ae454202a159cc82b7b4d66e8f174409669c0654c5"
+name = "wasm-lsp-cli"
+version = "0.0.0"
 dependencies = [
- "leb128",
+ "anyhow",
+ "assert_cmd",
+ "blocking",
+ "built",
+ "clap",
+ "env_logger",
+ "futures-lite",
+ "lspower",
+ "predicates",
+ "smol",
+ "tokio",
+ "wasm-lsp-server",
 ]
 
 [[package]]
-name = "wasm-language-server"
+name = "wasm-lsp-macros"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "glob",
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+ "thiserror",
+ "wasm-lsp-parsers",
+]
+
+[[package]]
+name = "wasm-lsp-parsers"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "cc",
+ "criterion",
+ "glob",
+ "lazy_static",
+ "thiserror",
+ "tree-sitter",
+ "tree-sitter-facade",
+ "wasm-lsp-macros",
+]
+
+[[package]]
+name = "wasm-lsp-server"
 version = "0.0.0"
 dependencies = [
  "anyhow",
@@ -2064,113 +2002,10 @@ dependencies = [
  "tokio",
  "tree-sitter-facade",
  "uuid",
- "wasm-language-server-macros",
- "wasm-language-server-parsers",
- "wasm-language-server-testing",
+ "wasm-lsp-macros",
+ "wasm-lsp-parsers",
  "wast",
  "zerocopy",
-]
-
-[[package]]
-name = "wasm-language-server-cli"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "assert_cmd",
- "built",
- "clap",
- "env_logger",
- "lspower",
- "predicates",
- "smol",
- "tokio",
- "wasm-language-server",
- "wasm-language-server-testing",
-]
-
-[[package]]
-name = "wasm-language-server-fuzz"
-version = "0.0.0"
-dependencies = [
- "futures",
- "libfuzzer-sys",
- "lsp-types",
- "lspower",
- "serde_json",
- "smol",
- "tokio",
- "wasm-language-server",
- "wasm-language-server-testing",
- "wasm-smith",
- "wasmprinter",
-]
-
-[[package]]
-name = "wasm-language-server-macros"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "glob",
- "heck",
- "proc-macro2",
- "quote",
- "syn",
- "thiserror",
- "wasm-language-server-parsers",
-]
-
-[[package]]
-name = "wasm-language-server-parsers"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "cc",
- "criterion",
- "glob",
- "lazy_static",
- "thiserror",
- "tree-sitter",
- "tree-sitter-facade",
- "wasm-language-server-macros",
-]
-
-[[package]]
-name = "wasm-language-server-testing"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "lspower",
- "serde_json",
- "tower-test",
- "wasm-language-server",
-]
-
-[[package]]
-name = "wasm-smith"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b9b9b796bf4da5eb0523b136d6f0cc9a59c16a66ece8e0d5a14a9cdccf2864e"
-dependencies = [
- "arbitrary",
- "indexmap",
- "leb128",
- "wasm-encoder",
-]
-
-[[package]]
-name = "wasmparser"
-version = "0.73.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a15011eb23c404cdc1f6f60124a15921a11b060cca195486e36f4dc62e83c61d"
-
-[[package]]
-name = "wasmprinter"
-version = "0.2.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c467ab13e60cc347a17ed2c60bf761501eb45314d8916cad0d53ccc31078b20d"
-dependencies = [
- "anyhow",
- "wasmparser",
 ]
 
 [[package]]
@@ -2195,7 +2030,7 @@ dependencies = [
 [[package]]
 name = "web-tree-sitter-sys"
 version = "0.0.0"
-source = "git+https://github.com/hvithrafn/web-tree-sitter-sys?branch=main#7772c116221614b17e4c244fbcd8f7278cfd315e"
+source = "git+https://github.com/hvithrafn/web-tree-sitter-sys?branch=main#b734e68324ee14aadf9aa749c96ec01897fd4323"
 dependencies = [
  "js-sys",
  "wasm-bindgen",

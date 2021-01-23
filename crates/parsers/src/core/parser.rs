@@ -1,11 +1,6 @@
-//! Core functionality related to document parsers.
-
-// FIXME: move these to a subcrate
-
 use crate::core::language::{self, Language};
 use std::convert::TryFrom;
 
-/// Create a wast parser from the tree-sitter grammar.
 pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::wast::language();
     let mut parser = tree_sitter::Parser::new()?;
@@ -13,7 +8,6 @@ pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
     Ok(parser)
 }
 
-/// Create a wat parser from the tree-sitter grammar.
 pub fn wat() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::wat::language();
     let mut parser = tree_sitter::Parser::new()?;
