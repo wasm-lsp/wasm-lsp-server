@@ -1,6 +1,6 @@
 //! Definitions for the server instance.
 
-use crate::{core, provider, service};
+use crate::{core, service};
 use lspower::jsonrpc;
 use std::sync::Arc;
 
@@ -107,38 +107,5 @@ impl lspower::LanguageServer for Server {
     async fn did_close(&self, params: lsp::DidCloseTextDocumentParams) {
         let session = self.session.clone();
         service::synchronizer::document::close(session, params).await.unwrap()
-    }
-
-    async fn document_symbol(
-        &self,
-        params: lsp::DocumentSymbolParams,
-    ) -> jsonrpc::Result<Option<lsp::DocumentSymbolResponse>> {
-        let session = self.session.clone();
-        let result = provider::document_symbol(session, params).await;
-        Ok(result.map_err(core::IntoJsonRpcError)?)
-    }
-
-    async fn hover(&self, params: lsp::HoverParams) -> jsonrpc::Result<Option<lsp::Hover>> {
-        let session = self.session.clone();
-        let result = provider::hover(session, params).await;
-        Ok(result.map_err(core::IntoJsonRpcError)?)
-    }
-
-    async fn semantic_tokens_full(
-        &self,
-        params: lsp::SemanticTokensParams,
-    ) -> jsonrpc::Result<Option<lsp::SemanticTokensResult>> {
-        let session = self.session.clone();
-        let result = provider::semantic_tokens_full(session, params).await;
-        Ok(result.map_err(core::IntoJsonRpcError)?)
-    }
-
-    async fn semantic_tokens_range(
-        &self,
-        params: lsp::SemanticTokensRangeParams,
-    ) -> jsonrpc::Result<Option<lsp::SemanticTokensRangeResult>> {
-        let session = self.session.clone();
-        let result = provider::semantic_tokens_range(session, params).await;
-        Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 }

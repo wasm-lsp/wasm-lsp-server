@@ -1,19 +1,13 @@
-//! Core functionality related to documents.
-
 use crate::core::{language::Language, rope::RopeExt};
 use ropey::Rope;
 use std::convert::{TryFrom, TryInto};
 
-/// The current state of a document.
 pub struct Document {
-    /// The language type of the document, e.g., "wasm.wast"
     pub language: Language,
-    /// The current text content of the document.
     pub content: Rope,
 }
 
 impl Document {
-    /// Create a new [`Document`] for the given language id and text content.
     pub fn new(
         language_id: impl TryInto<Language, Error = anyhow::Error>,
         text: impl AsRef<str>,
@@ -24,7 +18,6 @@ impl Document {
         Ok(Document { language, content })
     }
 
-    /// Build a [`DocumentEdit`] from an [`lsp::TextDocumentContentChangeEvent`].
     pub fn build_edit<'a>(&self, change: &'a lsp::TextDocumentContentChangeEvent) -> anyhow::Result<DocumentEdit<'a>> {
         let text = change.text.as_str();
         let text_bytes = text.as_bytes();
@@ -105,7 +98,6 @@ impl Document {
         })
     }
 
-    /// Modify the given [`lsp::Range`] in the document.
     pub fn apply_edit(&mut self, edit: &DocumentEdit) {
         self.content.remove(edit.start_char_idx .. edit.end_char_idx);
         if !edit.text.is_empty() {
@@ -114,21 +106,15 @@ impl Document {
     }
 }
 
-/// A description of an edit to a [`Document`].
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DocumentEdit<'a> {
-    /// The input edit structure used for modifying the syntax tree.
     pub input_edit: tree_sitter::InputEdit,
-    /// The starting index (as character offset) of the edit's modification range.
     pub start_char_idx: usize,
-    /// The ending index (as character offset) of the edit's modification range.
     pub end_char_idx: usize,
-    /// The text of the edit.
     pub text: &'a str,
 }
 
 impl<'a> DocumentEdit<'a> {
-    /// Construct a [`tree_sitter::Range`] from a [`DocumentEdit`].
     pub fn range(&self) -> tree_sitter::Range {
         let start_byte = self.input_edit.start_byte();
         let end_byte = self.input_edit.new_end_byte();
