@@ -1,6 +1,6 @@
 [package]
 edition = "2018"
-name = "wasm-language-server-parsers"
+name = "wasm-lsp-parsers"
 version = "0.0.0"
 authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
@@ -13,10 +13,6 @@ Tree-sitter parsers for the WebAssembly language server.
 
 [badges]
 maintenance = { status = "experimental" }
-
-[[bench]]
-name = "all"
-harness = false
 
 [build-dependencies]
 anyhow = "1.0"
@@ -38,4 +34,4 @@ version = "0.17"
 [dev-dependencies]
 criterion = "0.3"
 glob = "0.3"
-wasm-language-server-macros = { path = "../macros", version = "0.0.0" }
+wasm-lsp-macros = { path = "../macros", version = "0.0.0" }

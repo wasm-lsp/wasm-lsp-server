@@ -1,19 +1,13 @@
-//! Core functionality related to document languages.
-
 use crate::core::error::Error::{InvalidLanguageId, OsStrToStrFailed, PathExtensionFailed};
 use std::{convert::TryFrom, path::Path};
 
-/// Languages supported by the server.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Language {
-    /// The `.wast` language.
     Wast,
-    /// The `.wat` language.
     Wat,
 }
 
 impl Language {
-    /// Compute the language id string for the given language.
     pub fn id(&self) -> &str {
         match self {
             Language::Wast => "wasm.wast",
@@ -45,12 +39,10 @@ impl TryFrom<&Path> for Language {
     }
 }
 
-/// Functions for working with the `.wast` grammar.
 pub mod wast {
     use lazy_static::lazy_static;
 
     #[allow(unsafe_code)]
-    /// Tree-sitter language for the `.wast` grammar.
     pub fn language() -> tree_sitter::Language {
         let inner = unsafe { crate::tree_sitter_wast() };
         inner.into()
@@ -636,11 +628,9 @@ pub mod wast {
     }
 }
 
-/// Functions for working with the `.wat` grammar.
 pub mod wat {
     use lazy_static::lazy_static;
 
-    /// Tree-sitter language for the `.wat` grammar.
     #[allow(unsafe_code)]
     pub fn language() -> tree_sitter::Language {
         let inner = unsafe { crate::tree_sitter_wat() };
