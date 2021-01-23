@@ -52,7 +52,8 @@ pub mod wast {
     #[allow(unsafe_code)]
     /// Tree-sitter language for the `.wast` grammar.
     pub fn language() -> tree_sitter::Language {
-        unsafe { crate::tree_sitter_wast() }
+        let inner = unsafe { crate::tree_sitter_wast() };
+        inner.into()
     }
 
     pub mod field {
@@ -642,7 +643,8 @@ pub mod wat {
     /// Tree-sitter language for the `.wat` grammar.
     #[allow(unsafe_code)]
     pub fn language() -> tree_sitter::Language {
-        unsafe { crate::tree_sitter_wat() }
+        let inner = unsafe { crate::tree_sitter_wat() };
+        inner.into()
     }
 
     pub mod field {

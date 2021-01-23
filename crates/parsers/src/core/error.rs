@@ -16,7 +16,4 @@ pub enum Error {
     /// Error that occurs when `Path::extension()` returns `None`.
     #[error("PathExtensionFailed: {0}")]
     PathExtensionFailed(PathBuf),
-    /// Error that occurs when attempting to set an invalid language for a tree-sitter parser.
-    #[error("tree_sitter::LanguageError: {0}")]
-    TreeSitterLanguageError(tree_sitter::LanguageError),
 }

@@ -66,13 +66,15 @@ pub mod wast {
         let tree = tree.lock().await;
 
         if let Some(node) = {
-            let start = tree_sitter::Point {
-                row: params.range.start.line as usize,
-                column: params.range.start.character as usize,
+            let start = {
+                let row = params.range.start.line;
+                let column = params.range.start.character;
+                tree_sitter::Point::new(row, column)
             };
-            let end = tree_sitter::Point {
-                row: params.range.end.line as usize,
-                column: params.range.end.character as usize,
+            let end = {
+                let row = params.range.end.line;
+                let column = params.range.end.character;
+                tree_sitter::Point::new(row, column)
             };
             tree.root_node().descendant_for_point_range(start, end)
         } {
@@ -829,13 +831,15 @@ pub mod wat {
         let tree = tree.lock().await;
 
         if let Some(node) = {
-            let start = tree_sitter::Point {
-                row: params.range.start.line as usize,
-                column: params.range.start.character as usize,
+            let start = {
+                let row = params.range.start.line;
+                let column = params.range.start.character;
+                tree_sitter::Point::new(row, column)
             };
-            let end = tree_sitter::Point {
-                row: params.range.end.line as usize,
-                column: params.range.end.character as usize,
+            let end = {
+                let row = params.range.end.line;
+                let column = params.range.end.character;
+                tree_sitter::Point::new(row, column)
             };
             tree.root_node().descendant_for_point_range(start, end)
         } {

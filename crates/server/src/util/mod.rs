@@ -4,20 +4,23 @@ pub(crate) mod character {
     pub(crate) mod line {
         use crate::core;
 
-        pub(crate) fn offset(line_text: &str, character: usize) -> anyhow::Result<usize> {
-            let mut offset = 0;
+        pub(crate) fn offset(line_text: &str, character: u32) -> anyhow::Result<usize> {
+            let character = character as usize;
+            let mut offset = 0usize;
 
             let mut chars = line_text.chars();
             while let Some(c) = chars.next() {
                 if offset == character {
-                    return Ok(line_text.len() - chars.as_str().len() - c.len_utf8());
+                    let result = line_text.len() - chars.as_str().len() - c.len_utf8();
+                    return Ok(result);
                 }
                 offset += c.len_utf16();
             }
 
             // Handle positions after the last character on the line
             if offset == character {
-                Ok(line_text.len())
+                let result = line_text.len();
+                Ok(result)
             } else {
                 Err(core::Error::ColumnOutOfBounds {
                     given: offset as usize,
@@ -32,12 +35,12 @@ pub(crate) mod character {
 pub(crate) mod line {
     use crate::core;
 
-    pub(crate) fn range(document: &core::Document, line_index: usize) -> Option<std::ops::Range<usize>> {
+    pub(crate) fn range(document: &core::Document, line_index: u32) -> Option<std::ops::Range<usize>> {
         let (start, end) = super::line::span(document, line_index).ok()?;
         Some(start .. end)
     }
 
-    fn span(document: &core::Document, line_index: usize) -> anyhow::Result<(usize, usize)> {
+    fn span(document: &core::Document, line_index: u32) -> anyhow::Result<(usize, usize)> {
         let source = document.content.chunks().collect::<String>();
         let source = source.as_str();
         let line_starts = super::line::starts(source).collect::<Vec<_>>();
@@ -46,8 +49,9 @@ pub(crate) mod line {
         Ok((this_start, next_start))
     }
 
-    pub(crate) fn start(document: &core::Document, line_starts: &[usize], line_index: usize) -> anyhow::Result<usize> {
+    pub(crate) fn start(document: &core::Document, line_starts: &[usize], line_index: u32) -> anyhow::Result<usize> {
         use std::cmp::Ordering;
+        let line_index = line_index as usize;
         match line_index.cmp(&line_starts.len()) {
             Ordering::Less => Ok(line_starts[line_index]),
             Ordering::Equal => Ok(document.content.len_bytes()),
@@ -70,14 +74,18 @@ pub(crate) mod node {
     mod position {
         /// Creates an lsp position from the starting position of a tree-sitter node.
         pub(crate) fn start(node: &tree_sitter::Node) -> lsp::Position {
-            let tree_sitter::Point { row, column } = node.start_position();
-            lsp::Position::new(row as u32, column as u32)
+            let position = node.start_position();
+            let line = position.row();
+            let character = position.column();
+            lsp::Position::new(line, character)
         }
 
         /// Creates an lsp position from the ending position of a tree-sitter node.
         pub(crate) fn end(node: &tree_sitter::Node) -> lsp::Position {
-            let tree_sitter::Point { row, column } = node.end_position();
-            lsp::Position::new(row as u32, column as u32)
+            let position = node.end_position();
+            let line = position.row();
+            let character = position.column();
+            lsp::Position::new(line, character)
         }
     }
 
@@ -89,15 +97,18 @@ pub(crate) mod node {
 
 pub(crate) mod position {
     use crate::core;
+    use std::convert::TryFrom;
 
-    pub(crate) fn byte_index(document: &core::Document, position: &lsp::Position) -> anyhow::Result<usize> {
+    pub(crate) fn byte_index(document: &core::Document, position: &lsp::Position) -> anyhow::Result<u32> {
         let source = document.content.chunks().collect::<String>();
         let source = source.as_str();
-        let line_index = position.line as usize;
+        let line_index = position.line;
         let line_span: std::ops::Range<usize> = super::line::range(document, line_index).unwrap();
         let line_text = source.get(line_span.clone()).unwrap();
-        let character = position.character as usize;
+        let character = position.character;
         let byte_offset = super::character::line::offset(line_text, character)?;
-        Ok(line_span.start + byte_offset)
+        let result = line_span.start + byte_offset;
+        let result = u32::try_from(result).unwrap();
+        Ok(result)
     }
 }

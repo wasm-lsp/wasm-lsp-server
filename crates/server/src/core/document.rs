@@ -2,7 +2,7 @@
 
 use crate::core::{language::Language, rope::RopeExt};
 use ropey::Rope;
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 
 /// The current state of a document.
 pub struct Document {
@@ -39,12 +39,12 @@ impl Document {
         };
 
         let start_char_idx = {
-            let start_offset = self.content.lsp_position_to_utf16_cu(range.start)?;
+            let start_offset = self.content.lsp_position_to_utf16_cu(range.start)? as usize;
             self.content.utf16_cu_to_char(start_offset)
         };
 
         let end_char_idx = {
-            let end_offset = self.content.lsp_position_to_utf16_cu(range.end)?;
+            let end_offset = self.content.lsp_position_to_utf16_cu(range.end)? as usize;
             self.content.utf16_cu_to_char(end_offset)
         };
 
@@ -70,21 +70,31 @@ impl Document {
                 line_count -= 1;
             }
 
-            let row = start_position.row + line_count;
+            let row = start_position.row() + line_count;
             let column = {
-                let padding = if line_count > 0 { 0 } else { start_position.column };
-                padding + last_line.as_bytes().len()
+                let padding = if line_count > 0 {
+                    0
+                } else {
+                    start_position.column() as usize
+                };
+                let result = padding + last_line.as_bytes().len();
+                u32::try_from(result).unwrap()
             };
-            tree_sitter::Point { row, column }
+            tree_sitter::Point::new(row, column)
         };
 
-        let input_edit = tree_sitter::InputEdit {
-            start_byte,
-            old_end_byte,
-            new_end_byte,
-            start_position,
-            old_end_position,
-            new_end_position,
+        let input_edit = {
+            let start_byte = u32::try_from(start_byte).unwrap();
+            let old_end_byte = u32::try_from(old_end_byte).unwrap();
+            let new_end_byte = u32::try_from(new_end_byte).unwrap();
+            tree_sitter::InputEdit::new(
+                start_byte,
+                old_end_byte,
+                new_end_byte,
+                &start_position,
+                &old_end_position,
+                &new_end_position,
+            )
         };
 
         Ok(DocumentEdit {
@@ -120,11 +130,10 @@ pub struct DocumentEdit<'a> {
 impl<'a> DocumentEdit<'a> {
     /// Construct a [`tree_sitter::Range`] from a [`DocumentEdit`].
     pub fn range(&self) -> tree_sitter::Range {
-        tree_sitter::Range {
-            start_byte: self.input_edit.start_byte,
-            end_byte: self.input_edit.new_end_byte,
-            start_point: self.input_edit.start_position,
-            end_point: self.input_edit.new_end_position,
-        }
+        let start_byte = self.input_edit.start_byte();
+        let end_byte = self.input_edit.new_end_byte();
+        let start_point = &self.input_edit.start_position();
+        let end_point = &self.input_edit.new_end_position();
+        tree_sitter::Range::new(start_byte, end_byte, start_point, end_point)
     }
 }

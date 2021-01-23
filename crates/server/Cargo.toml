@@ -36,7 +36,6 @@ ropey = "1.2"
 serde_json = "1.0"
 sled = { version = "0.34", features = ["compression"] }
 thiserror = "1.0"
-tree-sitter = "0.17"
 uuid = { version = "0.8", features = ["v4"] }
 wasm-language-server-parsers = { path = "../parsers" }
 wast = "30.0"
@@ -55,6 +54,10 @@ default-features = false
 version = "1.0"
 features = ["io-std", "sync"]
 optional = true
+
+[dependencies.tree-sitter]
+package = "tree-sitter-facade"
+path = "../../../tree-sitter-facade"
 
 [dev-dependencies]
 criterion = "0.3"

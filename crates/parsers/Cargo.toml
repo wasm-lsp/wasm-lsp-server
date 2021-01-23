@@ -26,7 +26,14 @@ cc = "1.0"
 anyhow = "1.0"
 lazy_static = "1.4"
 thiserror = "1.0"
-tree-sitter = "0.17"
+
+[dependencies.tree-sitter]
+package = "tree-sitter-facade"
+path = "../../../tree-sitter-facade"
+
+[dependencies.tree-sitter-sys]
+package = "tree-sitter"
+version = "0.17"
 
 [dev-dependencies]
 criterion = "0.3"
