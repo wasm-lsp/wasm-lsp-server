@@ -1978,6 +1978,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasm-lsp-rope"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "js-sys",
+ "lsp-types",
+ "ropey",
+ "tree-sitter-facade",
+ "wasm-bindgen",
+ "wee_alloc",
+]
+
+[[package]]
 name = "wasm-lsp-server"
 version = "0.0.0"
 dependencies = [
