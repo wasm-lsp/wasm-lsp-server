@@ -95,7 +95,7 @@ mod tree {
             let mut callback = document.content.chunk_walker(0).callback_adapter();
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
-            parser.parse_with(&mut callback, old_tree)
+            parser.parse_with(&mut callback, old_tree)?
         };
 
         let mut success = false;
@@ -125,10 +125,10 @@ mod tree {
         let rope = Rope::from(text);
 
         let tree = {
-            let mut callback = rope.chunk_walker(0).callback_adapter();
+            let callback = rope.chunk_walker(0).callback_adapter();
             // TODO: Fetch old_tree from cache and apply edits to prepare for incremental re-parsing.
             let old_tree = None;
-            parser.parse_with(&mut callback, old_tree)
+            parser.parse_with(callback, old_tree)?
         };
 
         let mut success = false;
