@@ -16,6 +16,9 @@ fn compile_tree_sitter_grammars() {
     cc.compile("tree-sitter-wat");
 }
 
-fn main() {
-    compile_tree_sitter_grammars();
+fn main() -> anyhow::Result<()> {
+    if std::env::var("CARGO_CFG_TARGET_ARCH")? != "wasm32" {
+        compile_tree_sitter_grammars();
+    }
+    Ok(())
 }
