@@ -1,30 +1,22 @@
-//! Core definitions related to runtime errors.
-
 use crate::core;
 use thiserror::Error;
 
-/// Runtime errors for the WebAssembly language server.
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Error, PartialEq)]
 pub(crate) enum Error {
-    /// Error that a given document could not be found.
     #[error("ClientNotInitialzed")]
     ClientNotInitialized,
-    /// Error that a given column index is out of bounds for a line of text in a document.
     #[error("ColumnOutOfBounds: given={given:?}, max={max:?}")]
     ColumnOutOfBounds { given: usize, max: usize },
-    /// Error that a given session resource (document, tree, parser) could not be found.
     #[error("core::SessionResourceNotFound: kind={kind:?}, uri={uri:?}")]
     SessionResourceNotFound {
         kind: core::session::SessionResourceKind,
         uri: lsp::Url,
     },
-    /// Error that a given line index is out of bounds for a document.
     #[error("LineOutOfBounds: given={given:?}, max={max:?}")]
     LineOutOfBounds { given: usize, max: usize },
 }
 
-/// Convenience newtype wrapper for convertion to jsonrpc_core::Error.
 pub(crate) struct IntoJsonRpcError(pub(crate) anyhow::Error);
 
 impl From<IntoJsonRpcError> for lspower::jsonrpc::Error {

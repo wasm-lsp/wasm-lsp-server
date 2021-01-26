@@ -1,26 +1,19 @@
-//! Definitions for the server instance.
-
 use crate::{core, service};
 use lspower::jsonrpc;
 use std::sync::Arc;
 
-/// The WASM language server instance.
 pub struct Server {
-    /// The LSP client handle.
     pub(crate) client: lspower::Client,
-    /// The current state of the server.
     pub(crate) session: Arc<core::Session>,
 }
 
 impl Server {
-    /// Create a new server.
     pub fn new(client: lspower::Client) -> anyhow::Result<Self> {
         let session = Arc::new(core::Session::new(Some(client.clone()))?);
         Ok(Server { client, session })
     }
 }
 
-/// Compute the server capabilities.
 pub fn capabilities() -> lsp::ServerCapabilities {
     let document_symbol_provider = Some(lsp::OneOf::Left(true));
 
@@ -74,9 +67,7 @@ pub fn capabilities() -> lsp::ServerCapabilities {
 #[lspower::async_trait]
 impl lspower::LanguageServer for Server {
     async fn initialize(&self, params: lsp::InitializeParams) -> jsonrpc::Result<lsp::InitializeResult> {
-        // Receive and store the client capabilities.
         *self.session.client_capabilities.write().await = Some(params.capabilities);
-        // Return the server capabilities.
         let capabilities = capabilities();
         Ok(lsp::InitializeResult {
             capabilities,
