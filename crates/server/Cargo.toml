@@ -34,12 +34,8 @@ log = "0.4"
 lsp = { version = "0.86", package = "lsp-types" }
 ropey = "1.2"
 serde_json = "1.0"
-sled = { version = "0.34", features = ["compression"] }
 thiserror = "1.0"
-uuid = { version = "0.8", features = ["v4"] }
 wasm-lsp-parsers = { path = "../parsers" }
-wast = "30.0"
-zerocopy = "0.3"
 
 [dependencies.async-lock]
 version = "2.3"
