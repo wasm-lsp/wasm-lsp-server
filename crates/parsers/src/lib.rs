@@ -2,6 +2,8 @@
 #![deny(unsafe_code)]
 
 pub mod core;
+
+#[cfg(not(target_arch = "wasm32"))]
 extern {
     #[allow(dead_code)]
     #[doc(hidden)]
