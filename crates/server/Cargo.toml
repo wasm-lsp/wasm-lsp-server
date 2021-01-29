@@ -2,7 +2,7 @@
 edition = "2018"
 name = "wasm-lsp-server"
 version = "0.0.0"
-authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
+authors = ["hvithrafn <hvithrafn@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
 readme = "README.md"
 repository = "https://github.com/wasm-lsp/wasm-language-server"
@@ -26,6 +26,7 @@ built = { version = "0.4", features = ["git2"] }
 
 [dependencies]
 anyhow = "1.0"
+bytes = "1.0"
 clap = "2.33"
 dashmap = "4.0"
 env_logger = "0.8"
@@ -53,7 +54,8 @@ optional = true
 
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
-path = "../../../tree-sitter-facade"
+git = "https://github.com/hvithrafn/tree-sitter-facade"
+branch = "main"
 
 [dev-dependencies]
 criterion = "0.3"

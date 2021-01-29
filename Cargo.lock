@@ -1205,9 +1205,9 @@ checksum = "941ba9d78d8e2f7ce474c015eea4d9c6d25b6a3327f9832ee29a4de27f91bbb8"
 
 [[package]]
 name = "rand"
-version = "0.8.2"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18519b42a40024d661e1714153e9ad0c3de27cd495760ceb09710920f1098b1e"
+checksum = "0ef9e7e66b4468674bfcb0c81af8b7fa0bb154fa9f28eb840da5c447baeb8d7e"
 dependencies = [
  "libc",
  "rand_chacha",
@@ -1662,6 +1662,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-facade"
 version = "0.0.0"
+source = "git+https://github.com/hvithrafn/tree-sitter-facade?branch=main#d92e953bd86cd8abc18816798497255f814433c5"
 dependencies = [
  "anyhow",
  "js-sys",
@@ -1910,6 +1911,7 @@ dependencies = [
  "anyhow",
  "async-lock",
  "built",
+ "bytes",
  "clap",
  "criterion",
  "dashmap",
@@ -1943,6 +1945,7 @@ dependencies = [
 [[package]]
 name = "web-tree-sitter-sys"
 version = "0.0.0"
+source = "git+https://github.com/hvithrafn/web-tree-sitter-sys?branch=main#2bdd0ff828246c5646d058196ed2243f91509c31"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
