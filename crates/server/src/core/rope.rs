@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use bytes::Bytes;
 use ropey::{iter::Chunks, Rope};
 use std::convert::TryFrom;
 
@@ -17,14 +18,14 @@ impl<'a> ChunkExt<'a> for Chunks<'a> {
     }
 }
 
-pub(crate) struct ChunkWalker<'a> {
-    rope: &'a Rope,
+pub(crate) struct ChunkWalker {
+    rope: Rope,
     cursor: usize,
-    cursor_chunk: &'a str,
-    chunks: Chunks<'a>,
+    cursor_chunk: &'static str,
+    chunks: Chunks<'static>,
 }
 
-impl<'a> ChunkWalker<'a> {
+impl ChunkWalker {
     fn prev_chunk(&mut self) {
         self.cursor -= self.cursor_chunk.len();
         self.cursor_chunk = self.chunks.prev_str();
@@ -41,25 +42,48 @@ impl<'a> ChunkWalker<'a> {
         }
     }
 
-    pub(crate) fn callback_adapter(mut self) -> impl FnMut(u32, tree_sitter::Point) -> &'a [u8] {
-        move |byte_idx, _position| {
-            let byte_idx = byte_idx as usize;
+    #[cfg(not(target_arch = "wasm32"))]
+    pub(crate) fn callback_adapter(mut self) -> impl FnMut(u32, tree_sitter::Point) -> Bytes {
+        move |start_index, _position| {
+            let start_index = start_index as usize;
 
-            while byte_idx < self.cursor && 0 < self.cursor {
+            while start_index < self.cursor && 0 < self.cursor {
                 self.prev_chunk();
             }
 
-            while byte_idx >= self.cursor + self.cursor_chunk.len() && byte_idx < self.rope.len_bytes() {
+            while start_index >= self.cursor + self.cursor_chunk.len() && start_index < self.rope.len_bytes() {
                 self.next_chunk();
             }
 
-            &self.cursor_chunk.as_bytes()[byte_idx - self.cursor ..]
+            let bytes = self.cursor_chunk.as_bytes();
+            let bytes = &bytes[start_index - self.cursor ..];
+            Bytes::from_static(bytes)
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    pub(crate) fn callback_adapter(mut self) -> impl FnMut(u32, Option<tree_sitter::Point>, Option<u32>) -> Bytes {
+        move |start_index, _position, end_index| {
+            let start_index = start_index as usize;
+
+            while start_index < self.cursor && 0 < self.cursor {
+                self.prev_chunk();
+            }
+
+            while start_index >= self.cursor + self.cursor_chunk.len() && start_index < self.rope.len_bytes() {
+                self.next_chunk();
+            }
+
+            let bytes = self.cursor_chunk.as_bytes();
+            let end_index = end_index.map(|i| i as usize).unwrap_or_else(|| bytes.len());
+            let bytes = &bytes[start_index - self.cursor .. end_index];
+            Bytes::from_static(bytes)
         }
     }
 }
 
-pub(crate) trait RopeExt<'a> {
-    fn chunk_walker(&'a self, byte_idx: usize) -> ChunkWalker<'a>;
+pub(crate) trait RopeExt {
+    fn chunk_walker(self, byte_idx: usize) -> ChunkWalker;
     fn lsp_position_to_byte(&self, position: lsp::Position) -> anyhow::Result<u32>;
     fn lsp_position_to_utf16_cu(&self, position: lsp::Position) -> anyhow::Result<u32>;
     fn lsp_range_to_tree_sitter_range(&self, range: lsp::Range) -> anyhow::Result<tree_sitter::Range>;
@@ -67,9 +91,11 @@ pub(crate) trait RopeExt<'a> {
     fn byte_to_tree_sitter_point(&self, offset: usize) -> tree_sitter::Point;
 }
 
-impl<'a> RopeExt<'a> for Rope {
-    fn chunk_walker(&'a self, byte_idx: usize) -> ChunkWalker<'a> {
-        let (mut chunks, chunk_byte_idx, ..) = self.chunks_at_byte(byte_idx);
+impl RopeExt for Rope {
+    #[allow(unsafe_code)]
+    fn chunk_walker(self, byte_idx: usize) -> ChunkWalker {
+        let this: &'static Rope = unsafe { std::mem::transmute::<_, _>(&self) };
+        let (mut chunks, chunk_byte_idx, ..) = this.chunks_at_byte(byte_idx);
         let cursor = chunk_byte_idx;
         let cursor_chunk = chunks.next_str();
         ChunkWalker {
