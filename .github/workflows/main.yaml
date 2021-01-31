@@ -197,3 +197,36 @@ jobs:
           command: xtask
           args: test --runtime=${{ matrix.runtime }}
 
+  # verify that tests pass for wasm target
+  cargo-test-wasm:
+    name: Run cargo test (wasm)
+    needs: [skip-commit]
+    runs-on: ubuntu-latest
+    env:
+      WASM_BINDGEN_CLI_VERSION: "0.2.70"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+      - run: rustup target add wasm32-unknown-unknown
+      - name: Cache wasm-bindgen-cli/bin
+        id: cache-wasm-bindgen-cli
+        uses: actions/cache@v1
+        with:
+          path: ${{ runner.tool_cache }}/wasm-bindgen-cli/bin
+          key: wasm-bindgen-cli-bin-${{ hashFiles('.github/caching/wasm-bindgen-cli.lock') }}
+      - name: Install wasm-bindgen-cli
+        if: "steps.cache-wasm-bindgen-cli.outputs.cache-hit != 'true'"
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --root ${{ runner.tool_cache }}/wasm-bindgen-cli --force wasm-bindgen-cli --version ${{ env.WASM_BINDGEN_CLI_VERSION }}
+      - name: Configure $PATH for wasm-bindgen-cli
+        run: echo "${{ runner.tool_cache }}/wasm-bindgen-cli/bin" >> $GITHUB_PATH
+      - name: Run cargo xtask test
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: test -- --target wasm32-unknown-unknown
