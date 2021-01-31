@@ -170,7 +170,6 @@ FLAGS:
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
-            cmd.args(&["--package", "wasm-lsp-rope"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.status()?;
@@ -210,7 +209,6 @@ FLAGS:
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
-            cmd.args(&["--package", "wasm-lsp-rope"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.args(&["--", "-D", "warnings"]);
@@ -369,7 +367,6 @@ FLAGS:
                 "wasm-lsp-cli",
                 "wasm-lsp-macros",
                 "wasm-lsp-parsers",
-                "wasm-lsp-rope",
                 "wasm-lsp-server",
             ]);
             cmd.args(&[
@@ -424,11 +421,8 @@ FLAGS:
             cmd.args(toolchain);
             cmd.args(&["test"]);
             cmd.args(&["--examples", "--lib", "--tests"]);
-            cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
-            cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
-            cmd.args(&["--package", "wasm-lsp-rope"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.status()?;
@@ -468,7 +462,6 @@ FLAGS:
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
-            cmd.args(&["--package", "wasm-lsp-rope"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(cargo_args);
             cmd.status()?;
