@@ -1647,7 +1647,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-facade"
 version = "0.0.0"
-source = "git+https://github.com/hvithrafn/tree-sitter-facade?branch=main#8cc880eb7f8163abb7d6a007650b6cd50884a907"
+source = "git+https://github.com/hvithrafn/tree-sitter-facade?branch=main#db76fd435228fbe53a2680eeb0f16f11c6f0437e"
 dependencies = [
  "anyhow",
  "js-sys",
@@ -1929,7 +1929,7 @@ dependencies = [
 [[package]]
 name = "web-tree-sitter-sys"
 version = "0.1.0"
-source = "git+https://github.com/hvithrafn/web-tree-sitter-sys?branch=main#0b555224b170b06665e7e54b2123b222d49d7dd1"
+source = "git+https://github.com/hvithrafn/web-tree-sitter-sys?branch=main#cd37b9d2079f358f97a66e1f30ae9e12c33bff82"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
