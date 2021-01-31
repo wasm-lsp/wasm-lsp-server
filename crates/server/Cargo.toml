@@ -26,6 +26,7 @@ built = { version = "0.4", features = ["git2"] }
 
 [dependencies]
 anyhow = "1.0"
+async-lock = { version = "2.3", optional = true }
 bytes = "1.0"
 clap = "2.33"
 dashmap = "4.0"
@@ -36,21 +37,13 @@ lsp = { version = "0.86", package = "lsp-types" }
 ropey = "1.2"
 serde_json = "1.0"
 thiserror = "1.0"
+tokio = { version = "1.0", features = ["io-std", "sync"], optional = true }
 wasm-lsp-parsers = { path = "../parsers" }
-
-[dependencies.async-lock]
-version = "2.3"
-optional = true
 
 [dependencies.lspower]
 git = "https://github.com/rslint/lspower"
 branch = "main"
 default-features = false
-
-[dependencies.tokio]
-version = "1.0"
-features = ["io-std", "sync"]
-optional = true
 
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
@@ -61,12 +54,18 @@ branch = "main"
 criterion = "0.3"
 futures = "0.3"
 glob = "0.3"
-goldenfile = "1.0"
 indoc = "1.0"
 lsp = { version = "0.86", package = "lsp-types" }
-lspower = { git = "https://github.com/rslint/lspower", branch = "main", default-features = false }
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 wasm-lsp-macros = { path = "../macros", version = "0.0.0" }
+
+[dev-dependencies.lspower]
+git = "https://github.com/rslint/lspower"
+branch = "main"
+default-features = false
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+goldenfile = "1.0"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 
 [package.metadata.cargo-udeps.ignore]
 normal = ["env_logger"]
