@@ -206,10 +206,13 @@ jobs:
       WASM_BINDGEN_CLI_VERSION: "0.2.70"
     steps:
       - uses: actions/checkout@v2
-      - name: Install Rust toolchain
+      - name: Install Rust toolchain (wasm32-unknown-unknown)
         uses: actions-rs/toolchain@v1
         with:
+          target: wasm32-unknown-unknown
+          toolchain: stable
           profile: minimal
+          override: true
       - run: rustup target add wasm32-unknown-unknown
       - name: Cache wasm-bindgen-cli/bin
         id: cache-wasm-bindgen-cli
@@ -217,6 +220,12 @@ jobs:
         with:
           path: ${{ runner.tool_cache }}/wasm-bindgen-cli/bin
           key: wasm-bindgen-cli-bin-${{ hashFiles('.github/caching/wasm-bindgen-cli.lock') }}
+      - name: Install Rust toolchain (native)
+        if: "steps.cache-wasm-bindgen-cli.outputs.cache-hit != 'true'"
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
       - name: Install wasm-bindgen-cli
         if: "steps.cache-wasm-bindgen-cli.outputs.cache-hit != 'true'"
         uses: actions-rs/cargo@v1
