@@ -18,6 +18,11 @@ maintenance = { status = "experimental" }
 name = "wasm-lsp"
 path = "src/bin/main.rs"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+test = false
+
 [features]
 default = ["runtime-tokio"]
 runtime-futures = [
