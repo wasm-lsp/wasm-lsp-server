@@ -1,7 +1,8 @@
 [package]
+publish = false
 name = "xtask"
 version = "0.1.0"
-authors = ["Darin Morrison <darinmorrison@users.noreply.github.com>"]
+authors = ["hvithrafn <hvithrafn@users.noreply.github.com>"]
 edition = "2018"
 
 [dependencies]
