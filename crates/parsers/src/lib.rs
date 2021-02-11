@@ -1,5 +1,7 @@
 #![deny(clippy::all)]
+// #![deny(missing_docs)]
 #![deny(unsafe_code)]
+#![recursion_limit = "512"]
 
 pub mod core;
 
