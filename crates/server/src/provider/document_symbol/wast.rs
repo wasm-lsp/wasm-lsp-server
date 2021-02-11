@@ -67,22 +67,20 @@ pub async fn document_symbol(
 
             Work::Node(node) if *wast::kind::ROOT == node.kind_id() => {
                 let mut cursor = node.walk();
-                let commands = node
+                let children = node
                     .children(&mut cursor)
-                    .filter(|it| {
-                        [&[*wast::kind::COMMAND], wast::MODULE_FIELDS.as_slice()]
-                            .concat()
-                            .contains(&it.kind_id())
-                    })
+                    .filter(|it| [*wast::kind::COMMAND, *wast::kind::MODULE_FIELD].contains(&it.kind_id()))
                     .map(Work::Node);
-                work.extend(commands);
+                work.extend(children);
             },
 
             Work::Node(node) if *wast::kind::COMMAND == node.kind_id() => {
-                debug_assert!(node.child_count() == 1);
-                if let Some(command) = node.named_child(0) {
-                    work.push(Work::Node(command));
-                }
+                let mut cursor = node.walk();
+                let children = node
+                    .children(&mut cursor)
+                    .filter(|it| [*wast::kind::SCRIPT_MODULE].contains(&it.kind_id()))
+                    .map(Work::Node);
+                work.extend(children);
             },
 
             Work::Node(node) if *wast::kind::MODULE == node.kind_id() => {
@@ -90,7 +88,7 @@ pub async fn document_symbol(
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if wast::MODULE_FIELDS.contains(&child.kind_id()) {
+                    if *wast::kind::MODULE_FIELD == child.kind_id() {
                         work.push(Work::Node(child));
                         children_count += 1;
                     }
@@ -102,6 +100,26 @@ pub async fn document_symbol(
                     kind: lsp::SymbolKind::Module,
                     name_hint: "module",
                 });
+            },
+
+            Work::Node(node) if *wast::kind::MODULE_FIELD == node.kind_id() => {
+                let mut cursor = node.walk();
+                let children = node
+                    .children(&mut cursor)
+                    .filter(|it| {
+                        [
+                            *wast::kind::MODULE_FIELD_DATA,
+                            *wast::kind::MODULE_FIELD_ELEM,
+                            *wast::kind::MODULE_FIELD_FUNC,
+                            *wast::kind::MODULE_FIELD_GLOBAL,
+                            *wast::kind::MODULE_FIELD_MEMORY,
+                            *wast::kind::MODULE_FIELD_TABLE,
+                            *wast::kind::MODULE_FIELD_TYPE,
+                        ]
+                        .contains(&it.kind_id())
+                    })
+                    .map(Work::Node);
+                work.extend(children);
             },
 
             Work::Node(node) if *wast::kind::MODULE_FIELD_DATA == node.kind_id() => {
@@ -172,6 +190,15 @@ pub async fn document_symbol(
                     kind: lsp::SymbolKind::TypeParameter,
                     name_hint: "type",
                 });
+            },
+
+            Work::Node(node) if *wast::kind::SCRIPT_MODULE == node.kind_id() => {
+                let mut cursor = node.walk();
+                let children = node
+                    .children(&mut cursor)
+                    .filter(|it| [*wast::kind::MODULE].contains(&it.kind_id()))
+                    .map(Work::Node);
+                work.extend(children);
             },
 
             _ => {},
