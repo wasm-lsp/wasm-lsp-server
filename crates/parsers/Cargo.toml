@@ -25,21 +25,15 @@ thiserror = "1.0"
 
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
-git = "https://github.com/hvithrafn/tree-sitter-facade"
-branch = "main"
+version = "0.0.0"
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-tree-sitter-sys = { package = "tree-sitter", version = "0.17" }
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies.web-tree-sitter-sys]
-git = "https://github.com/hvithrafn/web-tree-sitter-sys"
-branch = "main"
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies.tree-sitter-sys]
+package = "tree-sitter"
+version = "0.17"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-futures = { package = "futures-lite", version = "1.11" }
 wasm-bindgen = { version = "=0.2.70", features = ["strict-macro"] }
 wasm-bindgen-futures = "0.4"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies.web-tree-sitter-sys]
-git = "https://github.com/hvithrafn/web-tree-sitter-sys"
-branch = "main"
+version = "0.2.0"
