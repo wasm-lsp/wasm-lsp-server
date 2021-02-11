@@ -1,5 +1,3 @@
-use lazy_static::lazy_static;
-
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unsafe_code)]
 pub fn language() -> tree_sitter::Language {
@@ -38,6 +36,11 @@ pub mod kind {
     lazy_static! {
         pub static ref ACTION_GET: u16 = language().id_for_node_kind("action_get", true);
         pub static ref ACTION_INVOKE: u16 = language().id_for_node_kind("action_invoke", true);
+        pub static ref ACTION: u16 = language().id_for_node_kind("action", true);
+        pub static ref ALIGN_OFFSET_VALUE: u16 = language().id_for_node_kind("align_offset_value", true);
+        pub static ref ALIGN_VALUE: u16 = language().id_for_node_kind("align_value", true);
+        pub static ref ANNOTATION_PARENS: u16 = language().id_for_node_kind("annotation_parens", true);
+        pub static ref ANNOTATION_PART: u16 = language().id_for_node_kind("annotation_part", true);
         pub static ref ANNOTATION: u16 = language().id_for_node_kind("annotation", true);
         pub static ref ASSERT_EXHAUSTION: u16 = language().id_for_node_kind("assert_exhaustion", true);
         pub static ref ASSERT_INVALID: u16 = language().id_for_node_kind("assert_invalid", true);
@@ -50,20 +53,79 @@ pub mod kind {
         pub static ref ASSERT_TRAP_ACTION: u16 = language().id_for_node_kind("assert_trap_action", true);
         pub static ref ASSERT_TRAP_MODULE: u16 = language().id_for_node_kind("assert_trap_module", true);
         pub static ref ASSERT_UNLINKABLE: u16 = language().id_for_node_kind("assert_unlinkable", true);
+        pub static ref ASSERTION: u16 = language().id_for_node_kind("assertion", true);
+        pub static ref BLOCK_BLOCK: u16 = language().id_for_node_kind("block_block", true);
+        pub static ref BLOCK_IF: u16 = language().id_for_node_kind("block_if", true);
+        pub static ref BLOCK_LOOP: u16 = language().id_for_node_kind("block_loop", true);
         pub static ref COMMAND: u16 = language().id_for_node_kind("command", true);
         pub static ref COMMENT_BLOCK_ANNOT: u16 = language().id_for_node_kind("comment_block_annot", true);
         pub static ref COMMENT_BLOCK: u16 = language().id_for_node_kind("comment_block", true);
         pub static ref COMMENT_LINE_ANNOT: u16 = language().id_for_node_kind("comment_line_annot", true);
         pub static ref COMMENT_LINE: u16 = language().id_for_node_kind("comment_line", true);
+        pub static ref DEC_FLOAT: u16 = language().id_for_node_kind("dec_float", true);
+        pub static ref DEC_NAT: u16 = language().id_for_node_kind("dec_nat", true);
+        pub static ref ELEM_EXPR_EXPR: u16 = language().id_for_node_kind("elem_expr_expr", true);
+        pub static ref ELEM_EXPR_ITEM: u16 = language().id_for_node_kind("elem_expr_item", true);
+        pub static ref ELEM_EXPR: u16 = language().id_for_node_kind("elem_expr", true);
+        pub static ref ELEM_KIND: u16 = language().id_for_node_kind("elem_kind", true);
+        pub static ref ELEM_LIST: u16 = language().id_for_node_kind("elem_list", true);
+        pub static ref ESCAPE_SEQUENCE: u16 = language().id_for_node_kind("escape_sequence", true);
+        pub static ref EXPORT_DESC_FUNC: u16 = language().id_for_node_kind("export_desc_func", true);
+        pub static ref EXPORT_DESC_GLOBAL: u16 = language().id_for_node_kind("export_desc_global", true);
+        pub static ref EXPORT_DESC_MEMORY: u16 = language().id_for_node_kind("export_desc_memory", true);
+        pub static ref EXPORT_DESC_TABLE: u16 = language().id_for_node_kind("export_desc_table", true);
+        pub static ref EXPORT_DESC: u16 = language().id_for_node_kind("export_desc", true);
         pub static ref EXPORT: u16 = language().id_for_node_kind("export", true);
+        pub static ref EXPR_PLAIN_CONST: u16 = language().id_for_node_kind("expr_plain_const", true);
+        pub static ref EXPR: u16 = language().id_for_node_kind("expr", true);
+        pub static ref EXPR1_BLOCK: u16 = language().id_for_node_kind("expr1_block", true);
+        pub static ref EXPR1_CALL: u16 = language().id_for_node_kind("expr1_call", true);
+        pub static ref EXPR1_IF: u16 = language().id_for_node_kind("expr1_if", true);
+        pub static ref EXPR1_LOOP: u16 = language().id_for_node_kind("expr1_loop", true);
+        pub static ref EXPR1_PLAIN: u16 = language().id_for_node_kind("expr1_plain", true);
+        pub static ref EXPR1: u16 = language().id_for_node_kind("expr1", true);
+        pub static ref FLOAT: u16 = language().id_for_node_kind("float", true);
+        pub static ref FUNC_LOCALS_MANY: u16 = language().id_for_node_kind("func_locals_many", true);
+        pub static ref FUNC_LOCALS_ONE: u16 = language().id_for_node_kind("func_locals_one", true);
+        pub static ref FUNC_LOCALS: u16 = language().id_for_node_kind("func_locals", true);
+        pub static ref FUNC_TYPE_PARAMS_MANY: u16 = language().id_for_node_kind("func_type_params_many", true);
+        pub static ref FUNC_TYPE_PARAMS_ONE: u16 = language().id_for_node_kind("func_type_params_one", true);
+        pub static ref FUNC_TYPE_PARAMS: u16 = language().id_for_node_kind("func_type_params", true);
+        pub static ref FUNC_TYPE_RESULTS: u16 = language().id_for_node_kind("func_type_results", true);
+        pub static ref FUNC_TYPE: u16 = language().id_for_node_kind("func_type", true);
+        pub static ref GLOBAL_TYPE_IMM: u16 = language().id_for_node_kind("global_type_imm", true);
+        pub static ref GLOBAL_TYPE_MUT: u16 = language().id_for_node_kind("global_type_mut", true);
+        pub static ref GLOBAL_TYPE: u16 = language().id_for_node_kind("global_type", true);
+        pub static ref HEX_FLOAT: u16 = language().id_for_node_kind("hex_float", true);
+        pub static ref HEX_NAT: u16 = language().id_for_node_kind("hex_nat", true);
         pub static ref IDENTIFIER: u16 = language().id_for_node_kind("identifier", true);
+        pub static ref IF_BLOCK: u16 = language().id_for_node_kind("if_block", true);
+        pub static ref IMPORT_DESC_FUNC_TYPE: u16 = language().id_for_node_kind("import_desc_func_type", true);
+        pub static ref IMPORT_DESC_GLOBAL_TYPE: u16 = language().id_for_node_kind("import_desc_global_type", true);
+        pub static ref IMPORT_DESC_MEMORY_TYPE: u16 = language().id_for_node_kind("import_desc_memory_type", true);
+        pub static ref IMPORT_DESC_TABLE_TYPE: u16 = language().id_for_node_kind("import_desc_table_type", true);
+        pub static ref IMPORT_DESC_TYPE_USE: u16 = language().id_for_node_kind("import_desc_type_use", true);
+        pub static ref IMPORT_DESC: u16 = language().id_for_node_kind("import_desc", true);
         pub static ref IMPORT: u16 = language().id_for_node_kind("import", true);
         pub static ref INDEX: u16 = language().id_for_node_kind("index", true);
+        pub static ref INSTR_BLOCK: u16 = language().id_for_node_kind("instr_block", true);
+        pub static ref INSTR_CALL: u16 = language().id_for_node_kind("instr_call", true);
+        pub static ref INSTR_LIST: u16 = language().id_for_node_kind("instr_list", true);
         pub static ref INSTR_PLAIN: u16 = language().id_for_node_kind("instr_plain", true);
         pub static ref INSTR: u16 = language().id_for_node_kind("instr", true);
+        pub static ref INT: u16 = language().id_for_node_kind("int", true);
+        pub static ref LIMITS: u16 = language().id_for_node_kind("limits", true);
+        pub static ref LITERAL_NAN_ARITHMETIC: u16 = language().id_for_node_kind("literal_nan_arithmetic", true);
+        pub static ref LITERAL_NAN_CANONICAL: u16 = language().id_for_node_kind("literal_nan_canonical", true);
+        pub static ref LITERAL_NAN: u16 = language().id_for_node_kind("literal_nan", true);
+        pub static ref MEMORY_FIELDS_DATA: u16 = language().id_for_node_kind("memory_fields_data", true);
+        pub static ref MEMORY_FIELDS_TYPE: u16 = language().id_for_node_kind("memory_fields_type", true);
+        pub static ref MEMORY_TYPE: u16 = language().id_for_node_kind("memory_type", true);
+        pub static ref MEMORY_USE: u16 = language().id_for_node_kind("memory_use", true);
         pub static ref META_INPUT: u16 = language().id_for_node_kind("meta_input", true);
         pub static ref META_OUTPUT: u16 = language().id_for_node_kind("meta_output", true);
         pub static ref META_SCRIPT: u16 = language().id_for_node_kind("meta_script", true);
+        pub static ref META: u16 = language().id_for_node_kind("meta", true);
         pub static ref MODULE_FIELD_DATA: u16 = language().id_for_node_kind("module_field_data", true);
         pub static ref MODULE_FIELD_ELEM: u16 = language().id_for_node_kind("module_field_elem", true);
         pub static ref MODULE_FIELD_EXPORT: u16 = language().id_for_node_kind("module_field_export", true);
@@ -74,206 +136,65 @@ pub mod kind {
         pub static ref MODULE_FIELD_START: u16 = language().id_for_node_kind("module_field_start", true);
         pub static ref MODULE_FIELD_TABLE: u16 = language().id_for_node_kind("module_field_table", true);
         pub static ref MODULE_FIELD_TYPE: u16 = language().id_for_node_kind("module_field_type", true);
+        pub static ref MODULE_FIELD: u16 = language().id_for_node_kind("module_field", true);
         pub static ref MODULE: u16 = language().id_for_node_kind("module", true);
         pub static ref NAME: u16 = language().id_for_node_kind("name", true);
+        pub static ref NAN: u16 = language().id_for_node_kind("nan", true);
+        pub static ref NAT: u16 = language().id_for_node_kind("nat", true);
+        pub static ref NUM_TYPE_F32: u16 = language().id_for_node_kind("num_type_f32", true);
+        pub static ref NUM_TYPE_F64: u16 = language().id_for_node_kind("num_type_f64", true);
+        pub static ref NUM_TYPE_I32: u16 = language().id_for_node_kind("num_type_i32", true);
+        pub static ref NUM_TYPE_I64: u16 = language().id_for_node_kind("num_type_i64", true);
+        pub static ref NUM_TYPE_V128: u16 = language().id_for_node_kind("num_type_v128", true);
+        pub static ref NUM: u16 = language().id_for_node_kind("num", true);
+        pub static ref OFFSET_CONST_EXPR: u16 = language().id_for_node_kind("offset_const_expr", true);
+        pub static ref OFFSET_EXPR: u16 = language().id_for_node_kind("offset_expr", true);
+        pub static ref OFFSET_VALUE: u16 = language().id_for_node_kind("offset_value", true);
+        pub static ref OFFSET: u16 = language().id_for_node_kind("offset", true);
+        pub static ref OP_CONST_REF: u16 = language().id_for_node_kind("op_const_ref", true);
+        pub static ref OP_CONST: u16 = language().id_for_node_kind("op_const", true);
+        pub static ref OP_FUNC_BIND: u16 = language().id_for_node_kind("op_func_bind", true);
+        pub static ref OP_INDEX_OPT_OFFSET_OPT_ALIGN_OPT: u16 =
+            language().id_for_node_kind("op_index_opt_offset_opt_align_opt", true);
+        pub static ref OP_INDEX_OPT: u16 = language().id_for_node_kind("op_index_opt", true);
+        pub static ref OP_INDEX: u16 = language().id_for_node_kind("op_index", true);
+        pub static ref OP_LET: u16 = language().id_for_node_kind("op_let", true);
+        pub static ref OP_NULLARY: u16 = language().id_for_node_kind("op_nullary", true);
+        pub static ref OP_SELECT: u16 = language().id_for_node_kind("op_select", true);
+        pub static ref OP_SIMD_CONST: u16 = language().id_for_node_kind("op_simd_const", true);
+        pub static ref OP_SIMD_LANE: u16 = language().id_for_node_kind("op_simd_lane", true);
+        pub static ref OP_SIMD_OFFSET_OPT_ALIGN_OPT: u16 =
+            language().id_for_node_kind("opt_simd_offset_opt_align_opt", true);
+        pub static ref OP_TABLE_COPY: u16 = language().id_for_node_kind("op_table_copy", true);
+        pub static ref OP_TABLE_INIT: u16 = language().id_for_node_kind("op_table_init", true);
+        pub static ref REF_KIND: u16 = language().id_for_node_kind("ref_kind", true);
+        pub static ref REF_TYPE_EXTERNREF: u16 = language().id_for_node_kind("ref_type_externref", true);
+        pub static ref REF_TYPE_FUNCREF: u16 = language().id_for_node_kind("ref_type_funcref", true);
+        pub static ref REF_TYPE_REF: u16 = language().id_for_node_kind("ref_type_ref", true);
+        pub static ref REF_TYPE: u16 = language().id_for_node_kind("ref_type", true);
         pub static ref REGISTER: u16 = language().id_for_node_kind("register", true);
+        pub static ref RESERVED: u16 = language().id_for_node_kind("reserved", true);
+        pub static ref RESULT_CONST_NAN: u16 = language().id_for_node_kind("result_const_nan", true);
+        pub static ref RESULT_CONST: u16 = language().id_for_node_kind("result_const", true);
+        pub static ref RESULT_REF_EXTERN: u16 = language().id_for_node_kind("result_ref_extern", true);
+        pub static ref RESULT_REF_FUNC: u16 = language().id_for_node_kind("result_ref_func", true);
+        pub static ref RESULT_REF_NULL: u16 = language().id_for_node_kind("result_ref_null", true);
+        pub static ref RESULT: u16 = language().id_for_node_kind("result", true);
         pub static ref ROOT: u16 = language().id_for_node_kind("ROOT", true);
         pub static ref SCRIPT_MODULE_BINARY: u16 = language().id_for_node_kind("script_module_binary", true);
         pub static ref SCRIPT_MODULE_QUOTE: u16 = language().id_for_node_kind("script_module_quote", true);
+        pub static ref SCRIPT_MODULE: u16 = language().id_for_node_kind("script_module", true);
+        pub static ref SHARE: u16 = language().id_for_node_kind("share", true);
+        pub static ref STRING: u16 = language().id_for_node_kind("string", true);
+        pub static ref TABLE_FIELDS_ELEM: u16 = language().id_for_node_kind("table_fields_elem", true);
+        pub static ref TABLE_FIELDS_TYPE: u16 = language().id_for_node_kind("table_fields_type", true);
+        pub static ref TABLE_TYPE: u16 = language().id_for_node_kind("table_type", true);
+        pub static ref TABLE_USE: u16 = language().id_for_node_kind("table_use", true);
+        pub static ref TYPE_FIELD: u16 = language().id_for_node_kind("type_field", true);
         pub static ref TYPE_USE: u16 = language().id_for_node_kind("type_use", true);
-    }
-
-    pub mod equals {
-        #![allow(missing_docs)]
-        #![allow(non_snake_case)]
-
-        pub fn ACTION_GET(kind_id: u16) -> bool {
-            *super::ACTION_GET == kind_id
-        }
-
-        pub fn ACTION_INVOKE(kind_id: u16) -> bool {
-            *super::ACTION_INVOKE == kind_id
-        }
-
-        pub fn ANNOTATION(kind_id: u16) -> bool {
-            *super::ANNOTATION == kind_id
-        }
-
-        pub fn ASSERT_EXHAUSTION(kind_id: u16) -> bool {
-            *super::ASSERT_EXHAUSTION == kind_id
-        }
-
-        pub fn ASSERT_INVALID(kind_id: u16) -> bool {
-            *super::ASSERT_INVALID == kind_id
-        }
-
-        pub fn ASSERT_MALFORMED(kind_id: u16) -> bool {
-            *super::ASSERT_MALFORMED == kind_id
-        }
-
-        pub fn ASSERT_RETURN_ARITHMETIC_NAN(kind_id: u16) -> bool {
-            *super::ASSERT_RETURN_ARITHMETIC_NAN == kind_id
-        }
-
-        pub fn ASSERT_RETURN_CANONICAL_NAN(kind_id: u16) -> bool {
-            *super::ASSERT_RETURN_CANONICAL_NAN == kind_id
-        }
-
-        pub fn ASSERT_RETURN(kind_id: u16) -> bool {
-            *super::ASSERT_RETURN == kind_id
-        }
-
-        pub fn ASSERT_TRAP_ACTION(kind_id: u16) -> bool {
-            *super::ASSERT_TRAP_ACTION == kind_id
-        }
-
-        pub fn ASSERT_TRAP_MODULE(kind_id: u16) -> bool {
-            *super::ASSERT_TRAP_MODULE == kind_id
-        }
-
-        pub fn ASSERT_UNLINKABLE(kind_id: u16) -> bool {
-            *super::ASSERT_UNLINKABLE == kind_id
-        }
-
-        pub fn ASSERTION(kind_id: u16) -> bool {
-            [
-                ASSERT_EXHAUSTION,
-                ASSERT_INVALID,
-                ASSERT_MALFORMED,
-                ASSERT_RETURN,
-                ASSERT_RETURN_ARITHMETIC_NAN,
-                ASSERT_RETURN_CANONICAL_NAN,
-                ASSERT_TRAP_ACTION,
-                ASSERT_TRAP_MODULE,
-                ASSERT_UNLINKABLE,
-            ]
-            .iter()
-            .any(|pred| pred(kind_id))
-        }
-
-        pub fn COMMAND(kind_id: u16) -> bool {
-            *super::COMMAND == kind_id
-        }
-
-        pub fn COMMENT_BLOCK_ANNOT(kind_id: u16) -> bool {
-            *super::COMMENT_BLOCK_ANNOT == kind_id
-        }
-
-        pub fn COMMENT_BLOCK(kind_id: u16) -> bool {
-            *super::COMMENT_BLOCK == kind_id
-        }
-
-        pub fn COMMENT_LINE_ANNOT(kind_id: u16) -> bool {
-            *super::COMMENT_LINE_ANNOT == kind_id
-        }
-
-        pub fn COMMENT_LINE(kind_id: u16) -> bool {
-            *super::COMMENT_LINE == kind_id
-        }
-
-        pub fn EXPORT(kind_id: u16) -> bool {
-            *super::EXPORT == kind_id
-        }
-
-        pub fn IDENTIFIER(kind_id: u16) -> bool {
-            *super::IDENTIFIER == kind_id
-        }
-
-        pub fn IMPORT(kind_id: u16) -> bool {
-            *super::IMPORT == kind_id
-        }
-
-        pub fn INDEX(kind_id: u16) -> bool {
-            *super::INDEX == kind_id
-        }
-
-        pub fn INSTR_PLAIN(kind_id: u16) -> bool {
-            *super::INSTR_PLAIN == kind_id
-        }
-
-        pub fn INSTR(kind_id: u16) -> bool {
-            *super::INSTR == kind_id
-        }
-
-        pub fn META_INPUT(kind_id: u16) -> bool {
-            *super::META_INPUT == kind_id
-        }
-
-        pub fn META_OUTPUT(kind_id: u16) -> bool {
-            *super::META_OUTPUT == kind_id
-        }
-
-        pub fn META_SCRIPT(kind_id: u16) -> bool {
-            *super::META_SCRIPT == kind_id
-        }
-
-        pub fn MODULE_FIELD_DATA(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_DATA == kind_id
-        }
-
-        pub fn MODULE_FIELD_ELEM(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_ELEM == kind_id
-        }
-
-        pub fn MODULE_FIELD_EXPORT(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_EXPORT == kind_id
-        }
-
-        pub fn MODULE_FIELD_FUNC(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_FUNC == kind_id
-        }
-
-        pub fn MODULE_FIELD_GLOBAL(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_GLOBAL == kind_id
-        }
-
-        pub fn MODULE_FIELD_IMPORT(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_IMPORT == kind_id
-        }
-
-        pub fn MODULE_FIELD_MEMORY(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_MEMORY == kind_id
-        }
-
-        pub fn MODULE_FIELD_START(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_START == kind_id
-        }
-
-        pub fn MODULE_FIELD_TABLE(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_TABLE == kind_id
-        }
-
-        pub fn MODULE_FIELD_TYPE(kind_id: u16) -> bool {
-            *super::MODULE_FIELD_TYPE == kind_id
-        }
-
-        pub fn MODULE(kind_id: u16) -> bool {
-            *super::MODULE == kind_id
-        }
-
-        pub fn NAME(kind_id: u16) -> bool {
-            *super::NAME == kind_id
-        }
-
-        pub fn REGISTER(kind_id: u16) -> bool {
-            *super::REGISTER == kind_id
-        }
-
-        pub fn ROOT(kind_id: u16) -> bool {
-            *super::ROOT == kind_id
-        }
-
-        pub fn SCRIPT_MODULE_BINARY(kind_id: u16) -> bool {
-            *super::SCRIPT_MODULE_BINARY == kind_id
-        }
-
-        pub fn SCRIPT_MODULE_QUOTE(kind_id: u16) -> bool {
-            *super::SCRIPT_MODULE_QUOTE == kind_id
-        }
-
-        pub fn TYPE_USE(kind_id: u16) -> bool {
-            *super::TYPE_USE == kind_id
-        }
+        pub static ref VALUE_TYPE_NUM_TYPE: u16 = language().id_for_node_kind("value_type_num_type", true);
+        pub static ref VALUE_TYPE_REF_TYPE: u16 = language().id_for_node_kind("value_type_ref_type", true);
+        pub static ref VALUE_TYPE: u16 = language().id_for_node_kind("value_type", true);
     }
 
     pub mod token {
@@ -345,255 +266,5 @@ pub mod kind {
             pub static ref TYPE: u16 = language().id_for_node_kind("type", false);
             pub static ref V128: u16 = language().id_for_node_kind("v128", false);
         }
-
-        pub mod equals {
-            #![allow(missing_docs)]
-            #![allow(non_snake_case)]
-
-            pub fn ALIGN(kind_id: u16) -> bool {
-                *super::ALIGN == kind_id
-            }
-
-            pub fn ASSERT_EXHAUSTION(kind_id: u16) -> bool {
-                *super::ASSERT_EXHAUSTION == kind_id
-            }
-
-            pub fn ASSERT_INVALID(kind_id: u16) -> bool {
-                *super::ASSERT_INVALID == kind_id
-            }
-
-            pub fn ASSERT_MALFORMED(kind_id: u16) -> bool {
-                *super::ASSERT_MALFORMED == kind_id
-            }
-
-            pub fn ASSERT_RETURN_ARITHMETIC_NAN(kind_id: u16) -> bool {
-                *super::ASSERT_RETURN_ARITHMETIC_NAN == kind_id
-            }
-
-            pub fn ASSERT_RETURN_CANONICAL_NAN(kind_id: u16) -> bool {
-                *super::ASSERT_RETURN_CANONICAL_NAN == kind_id
-            }
-
-            pub fn ASSERT_RETURN(kind_id: u16) -> bool {
-                *super::ASSERT_RETURN == kind_id
-            }
-
-            pub fn ASSERT_TRAP(kind_id: u16) -> bool {
-                *super::ASSERT_TRAP == kind_id
-            }
-
-            pub fn ASSERT_UNLINKABLE(kind_id: u16) -> bool {
-                *super::ASSERT_UNLINKABLE == kind_id
-            }
-
-            pub fn BINARY(kind_id: u16) -> bool {
-                *super::BINARY == kind_id
-            }
-
-            pub fn BLOCK(kind_id: u16) -> bool {
-                *super::BLOCK == kind_id
-            }
-
-            pub fn BR_TABLE(kind_id: u16) -> bool {
-                *super::BR_TABLE == kind_id
-            }
-
-            pub fn CALL_INDIRECT(kind_id: u16) -> bool {
-                *super::CALL_INDIRECT == kind_id
-            }
-
-            pub fn DATA(kind_id: u16) -> bool {
-                *super::DATA == kind_id
-            }
-
-            pub fn DECLARE(kind_id: u16) -> bool {
-                *super::DECLARE == kind_id
-            }
-
-            pub fn DOLLAR_SIGN(kind_id: u16) -> bool {
-                *super::DOLLAR_SIGN == kind_id
-            }
-
-            pub fn ELEM(kind_id: u16) -> bool {
-                *super::ELEM == kind_id
-            }
-
-            pub fn ELSE(kind_id: u16) -> bool {
-                *super::ELSE == kind_id
-            }
-
-            pub fn END(kind_id: u16) -> bool {
-                *super::END == kind_id
-            }
-
-            pub fn EQUALS(kind_id: u16) -> bool {
-                *super::EQUALS == kind_id
-            }
-
-            pub fn EXPORT(kind_id: u16) -> bool {
-                *super::EXPORT == kind_id
-            }
-
-            pub fn EXTERNREF(kind_id: u16) -> bool {
-                *super::EXTERNREF == kind_id
-            }
-
-            pub fn F32(kind_id: u16) -> bool {
-                *super::F32 == kind_id
-            }
-
-            pub fn F64(kind_id: u16) -> bool {
-                *super::F64 == kind_id
-            }
-
-            pub fn FULL_STOP(kind_id: u16) -> bool {
-                *super::FULL_STOP == kind_id
-            }
-
-            pub fn FUNC(kind_id: u16) -> bool {
-                *super::FUNC == kind_id
-            }
-
-            pub fn FUNCREF(kind_id: u16) -> bool {
-                *super::FUNCREF == kind_id
-            }
-
-            pub fn GET(kind_id: u16) -> bool {
-                *super::GET == kind_id
-            }
-
-            pub fn GLOBAL(kind_id: u16) -> bool {
-                *super::GLOBAL == kind_id
-            }
-
-            pub fn I32(kind_id: u16) -> bool {
-                *super::I32 == kind_id
-            }
-
-            pub fn I64(kind_id: u16) -> bool {
-                *super::I64 == kind_id
-            }
-
-            pub fn IF(kind_id: u16) -> bool {
-                *super::IF == kind_id
-            }
-
-            pub fn IMPORT(kind_id: u16) -> bool {
-                *super::IMPORT == kind_id
-            }
-
-            pub fn INF(kind_id: u16) -> bool {
-                *super::INF == kind_id
-            }
-
-            pub fn INPUT(kind_id: u16) -> bool {
-                *super::INPUT == kind_id
-            }
-
-            pub fn INVOKE(kind_id: u16) -> bool {
-                *super::INVOKE == kind_id
-            }
-
-            pub fn ITEM(kind_id: u16) -> bool {
-                *super::ITEM == kind_id
-            }
-
-            pub fn LOCAL(kind_id: u16) -> bool {
-                *super::LOCAL == kind_id
-            }
-
-            pub fn LOOP(kind_id: u16) -> bool {
-                *super::LOOP == kind_id
-            }
-
-            pub fn LPAREN_AMPERSAND(kind_id: u16) -> bool {
-                *super::LPAREN_AMPERSAND == kind_id
-            }
-
-            pub fn LPAREN_SEMICOLON(kind_id: u16) -> bool {
-                *super::LPAREN_SEMICOLON == kind_id
-            }
-
-            pub fn LPAREN(kind_id: u16) -> bool {
-                *super::LPAREN == kind_id
-            }
-
-            pub fn MEMORY(kind_id: u16) -> bool {
-                *super::MEMORY == kind_id
-            }
-
-            pub fn MUT(kind_id: u16) -> bool {
-                *super::MUT == kind_id
-            }
-
-            pub fn OFFSET(kind_id: u16) -> bool {
-                *super::OFFSET == kind_id
-            }
-
-            pub fn OUTPUT(kind_id: u16) -> bool {
-                *super::OUTPUT == kind_id
-            }
-
-            pub fn PARAM(kind_id: u16) -> bool {
-                *super::PARAM == kind_id
-            }
-
-            pub fn QUOTE(kind_id: u16) -> bool {
-                *super::QUOTE == kind_id
-            }
-
-            pub fn REF(kind_id: u16) -> bool {
-                *super::REF == kind_id
-            }
-
-            pub fn REGISTER(kind_id: u16) -> bool {
-                *super::REGISTER == kind_id
-            }
-
-            pub fn RESULT(kind_id: u16) -> bool {
-                *super::RESULT == kind_id
-            }
-
-            pub fn REVERSE_SOLIDUS_REVERSE_SOLIDUS(kind_id: u16) -> bool {
-                *super::REVERSE_SOLIDUS_REVERSE_SOLIDUS == kind_id
-            }
-
-            pub fn RPAREN(kind_id: u16) -> bool {
-                *super::RPAREN == kind_id
-            }
-
-            pub fn SEMICOLON_SEMICOLON(kind_id: u16) -> bool {
-                *super::SEMICOLON_SEMICOLON == kind_id
-            }
-
-            pub fn TABLE(kind_id: u16) -> bool {
-                *super::TABLE == kind_id
-            }
-
-            pub fn THEN(kind_id: u16) -> bool {
-                *super::THEN == kind_id
-            }
-
-            pub fn TYPE(kind_id: u16) -> bool {
-                *super::TYPE == kind_id
-            }
-
-            pub fn V128(kind_id: u16) -> bool {
-                *super::V128 == kind_id
-            }
-        }
     }
-}
-
-lazy_static! {
-    #[allow(missing_docs)]
-    pub static ref MODULE_FIELDS: Vec<u16> = vec![
-        *kind::MODULE_FIELD_DATA,
-        *kind::MODULE_FIELD_ELEM,
-        *kind::MODULE_FIELD_FUNC,
-        *kind::MODULE_FIELD_GLOBAL,
-        *kind::MODULE_FIELD_MEMORY,
-        *kind::MODULE_FIELD_TABLE,
-        *kind::MODULE_FIELD_TYPE,
-    ];
 }
