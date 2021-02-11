@@ -70,9 +70,17 @@ pub async fn document_symbol(
                 let commands = node
                     .children(&mut cursor)
                     .filter(|it| {
-                        [&[*wat::kind::MODULE], wat::MODULE_FIELDS.as_slice()]
-                            .concat()
-                            .contains(&it.kind_id())
+                        [
+                            *wat::kind::MODULE,
+                            *wat::kind::MODULE_FIELD_DATA,
+                            *wat::kind::MODULE_FIELD_ELEM,
+                            *wat::kind::MODULE_FIELD_FUNC,
+                            *wat::kind::MODULE_FIELD_GLOBAL,
+                            *wat::kind::MODULE_FIELD_MEMORY,
+                            *wat::kind::MODULE_FIELD_TABLE,
+                            *wat::kind::MODULE_FIELD_TYPE,
+                        ]
+                        .contains(&it.kind_id())
                     })
                     .map(Work::Node);
                 work.extend(commands);
@@ -83,7 +91,7 @@ pub async fn document_symbol(
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if wat::MODULE_FIELDS.contains(&child.kind_id()) {
+                    if *wat::kind::MODULE_FIELD == child.kind_id() {
                         work.push(Work::Node(child));
                         children_count += 1;
                     }
@@ -95,6 +103,26 @@ pub async fn document_symbol(
                     kind: lsp::SymbolKind::Module,
                     name_hint: "module",
                 });
+            },
+
+            Work::Node(node) if *wat::kind::MODULE_FIELD == node.kind_id() => {
+                let mut cursor = node.walk();
+                let children = node
+                    .children(&mut cursor)
+                    .filter(|it| {
+                        [
+                            *wat::kind::MODULE_FIELD_DATA,
+                            *wat::kind::MODULE_FIELD_ELEM,
+                            *wat::kind::MODULE_FIELD_FUNC,
+                            *wat::kind::MODULE_FIELD_GLOBAL,
+                            *wat::kind::MODULE_FIELD_MEMORY,
+                            *wat::kind::MODULE_FIELD_TABLE,
+                            *wat::kind::MODULE_FIELD_TYPE,
+                        ]
+                        .contains(&it.kind_id())
+                    })
+                    .map(Work::Node);
+                work.extend(children);
             },
 
             Work::Node(node) if *wat::kind::MODULE_FIELD_DATA == node.kind_id() => {
