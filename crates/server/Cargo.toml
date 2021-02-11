@@ -34,21 +34,16 @@ env_logger = "0.8"
 futures = "0.3"
 log = "0.4"
 lsp = { version = "0.86", package = "lsp-types" }
+lspower = { version = "0.6", default-features = false }
 ropey = "1.2"
 serde_json = "1.0"
 thiserror = "1.0"
 tokio = { version = "1.0", features = ["io-std", "sync"], optional = true }
 wasm-lsp-parsers = { path = "../parsers" }
 
-[dependencies.lspower]
-git = "https://github.com/rslint/lspower"
-branch = "main"
-default-features = false
-
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
-git = "https://github.com/hvithrafn/tree-sitter-facade"
-branch = "main"
+version = "0.0.0"
 
 [dev-dependencies]
 criterion = "0.3"
@@ -56,11 +51,6 @@ futures = "0.3"
 glob = "0.3"
 indoc = "1.0"
 wasm-lsp-macros = { path = "../macros", version = "0.0.0" }
-
-[dev-dependencies.lspower]
-git = "https://github.com/rslint/lspower"
-branch = "main"
-default-features = false
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 goldenfile = "1.0"
