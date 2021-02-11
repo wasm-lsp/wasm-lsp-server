@@ -26,14 +26,33 @@ The server has not yet had a stable release. You can build and install it locall
 
 ### Installing the Server
 
+#### Prebuilt Binaries
+
+The easiest way to install the server is to grab one of the prebuilt binaries under [releases](https://github.com/wasm-lsp/wasm-language-server/releases).
+
+#### Building from Source
+
 First ensure you have the [rust toolchain](https://rustup.rs/) installed, then proceed as follows:
 
 ```bash
 git clone https://github.com/wasm-lsp/wasm-language-server
 cd wasm-language-server
-cargo xtask init    # use 'cargo xtask init --with-corpus' to initialize full test suite
+cargo xtask init
 cargo xtask install
 ```
+
+##### Selecting the Async Runtime
+
+The server is runtime agnostic and can be configured to run on [`async-std`](https://github.com/async-rs/async-std), [`futures`](https://github.com/rust-lang/futures-rs), [`smol`](https://github.com/smol-rs/smol), or [`tokio`](https://github.com/tokio-rs/tokio).
+
+The table below describes how to select a runtime. The `tokio` runtime is selected by default.
+
+| runtime     | command                                   |
+| ----------- | ----------------------------------------- |
+| `async-std` | `cargo xtask install --runtime=async-std` |
+| `futures`   | `cargo xtask install --runtime=futures`   |
+| `smol`      | `cargo xtask install --runtime=smol`      |
+| `tokio`     | `cargo xtask install --runtime=tokio`     |
 
 ### Installing the Client Extension
 
