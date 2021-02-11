@@ -39,45 +39,6 @@ impl TryFrom<&Path> for Language {
     }
 }
 
-pub mod wast {
-    #[cfg(not(target_arch = "wasm32"))]
-    #[allow(unsafe_code)]
-    pub fn language() -> tree_sitter::Language {
-        let inner = unsafe { crate::tree_sitter_wast() };
-        inner.into()
-    }
+pub mod wast;
 
-    #[cfg(target_arch = "wasm32")]
-    pub fn language() -> tree_sitter::Language {
-        use wasm_bindgen::JsCast;
-        use wasm_bindgen_futures::JsFuture;
-        let bytes: &[u8] = include_bytes!("../../../../vendor/tree-sitter-wasm/wast/tree-sitter-wast.wasm");
-        let promise = web_tree_sitter_sys::Language::load_bytes(&bytes.into());
-        let future = JsFuture::from(promise);
-        let result = futures::future::block_on(future).unwrap();
-        let inner = result.unchecked_into::<web_tree_sitter_sys::Language>();
-        inner.into()
-    }
-}
-
-pub mod wat {
-    #[cfg(not(target_arch = "wasm32"))]
-    #[allow(unsafe_code)]
-    pub fn language() -> tree_sitter::Language {
-        let inner = unsafe { crate::tree_sitter_wat() };
-        inner.into()
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    #[allow(unsafe_code)]
-    pub fn language() -> tree_sitter::Language {
-        use wasm_bindgen::JsCast;
-        use wasm_bindgen_futures::JsFuture;
-        let bytes: &[u8] = include_bytes!("../../../../vendor/tree-sitter-wasm/wat/tree-sitter-wat.wasm");
-        let promise = web_tree_sitter_sys::Language::load_bytes(&bytes.into());
-        let future = JsFuture::from(promise);
-        let result = futures::future::block_on(future).unwrap();
-        let inner = result.unchecked_into::<web_tree_sitter_sys::Language>();
-        inner.into()
-    }
-}
+pub mod wat;

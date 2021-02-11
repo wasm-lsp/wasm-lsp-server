@@ -3,7 +3,7 @@ use thiserror::Error;
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Error, PartialEq)]
-pub(crate) enum Error {
+pub enum Error {
     #[error("ClientNotInitialzed")]
     ClientNotInitialized,
     #[error("ColumnOutOfBounds: given={given:?}, max={max:?}")]
@@ -17,7 +17,7 @@ pub(crate) enum Error {
     LineOutOfBounds { given: usize, max: usize },
 }
 
-pub(crate) struct IntoJsonRpcError(pub(crate) anyhow::Error);
+pub struct IntoJsonRpcError(pub anyhow::Error);
 
 impl From<IntoJsonRpcError> for lspower::jsonrpc::Error {
     fn from(error: IntoJsonRpcError) -> Self {

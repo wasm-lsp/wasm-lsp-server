@@ -1,10 +1,10 @@
-use crate::{core, service};
+use crate::{core, handler};
 use lspower::jsonrpc;
 use std::sync::Arc;
 
 pub struct Server {
-    pub(crate) client: lspower::Client,
-    pub(crate) session: Arc<core::Session>,
+    pub client: lspower::Client,
+    pub session: Arc<core::Session>,
 }
 
 impl Server {
@@ -17,35 +17,6 @@ impl Server {
 pub fn capabilities() -> lsp::ServerCapabilities {
     let document_symbol_provider = Some(lsp::OneOf::Left(true));
 
-    let hover_provider = Some(lsp::HoverProviderCapability::Simple(true));
-
-    let semantic_tokens_provider = {
-        let token_types = vec![
-            lsp::SemanticTokenType::COMMENT,
-            lsp::SemanticTokenType::FUNCTION,
-            lsp::SemanticTokenType::KEYWORD,
-            lsp::SemanticTokenType::NAMESPACE,
-            lsp::SemanticTokenType::OPERATOR,
-            lsp::SemanticTokenType::PARAMETER,
-            lsp::SemanticTokenType::STRING,
-            lsp::SemanticTokenType::TYPE,
-            lsp::SemanticTokenType::TYPE_PARAMETER,
-            lsp::SemanticTokenType::VARIABLE,
-        ];
-        let token_modifiers = Default::default();
-
-        let options = lsp::SemanticTokensOptions {
-            legend: lsp::SemanticTokensLegend {
-                token_types,
-                token_modifiers,
-            },
-            range: Some(true),
-            full: Some(lsp::SemanticTokensFullOptions::Bool(true)),
-            ..Default::default()
-        };
-        Some(lsp::SemanticTokensServerCapabilities::SemanticTokensOptions(options))
-    };
-
     let text_document_sync = {
         let options = lsp::TextDocumentSyncOptions {
             open_close: Some(true),
@@ -57,8 +28,6 @@ pub fn capabilities() -> lsp::ServerCapabilities {
 
     lsp::ServerCapabilities {
         document_symbol_provider,
-        hover_provider,
-        semantic_tokens_provider,
         text_document_sync,
         ..Default::default()
     }
@@ -87,16 +56,25 @@ impl lspower::LanguageServer for Server {
 
     async fn did_open(&self, params: lsp::DidOpenTextDocumentParams) {
         let session = self.session.clone();
-        service::synchronizer::document::open(session, params).await.unwrap()
+        handler::text_document::did_open(session, params).await.unwrap()
     }
 
     async fn did_change(&self, params: lsp::DidChangeTextDocumentParams) {
         let session = self.session.clone();
-        service::synchronizer::document::change(session, params).await.unwrap()
+        handler::text_document::did_change(session, params).await.unwrap()
     }
 
     async fn did_close(&self, params: lsp::DidCloseTextDocumentParams) {
         let session = self.session.clone();
-        service::synchronizer::document::close(session, params).await.unwrap()
+        handler::text_document::did_close(session, params).await.unwrap()
+    }
+
+    async fn document_symbol(
+        &self,
+        params: lsp::DocumentSymbolParams,
+    ) -> jsonrpc::Result<Option<lsp::DocumentSymbolResponse>> {
+        let session = self.session.clone();
+        let result = handler::text_document::document_symbol(session, params).await;
+        Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 }
