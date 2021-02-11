@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Document","The current state of a document."],["DocumentEdit","A description of an edit to a [`Document`]."]]});

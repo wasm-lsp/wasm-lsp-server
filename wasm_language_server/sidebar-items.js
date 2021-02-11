@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["core","Core functionality for the WASM language server."],["package","Definitions related to the wasm-language-server crate."],["provider","Providers of the WebAssembly language server for LSP features."],["server","Definitions for the server instance."],["service","Services (components) of the WebAssembly language server."]]});

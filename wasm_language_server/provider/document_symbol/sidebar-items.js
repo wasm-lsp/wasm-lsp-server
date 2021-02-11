@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["wast","Document symbol definitions for \".wast\" files."],["wat","Document symbol definitions for \".wat\" files."]]});
