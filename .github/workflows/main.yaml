@@ -178,7 +178,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        runtime: [smol, tokio]
+        runtime: [async-std, futures, smol, tokio]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
