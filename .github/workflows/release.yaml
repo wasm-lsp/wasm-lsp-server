@@ -37,16 +37,16 @@ jobs:
         include:
           - name: linux
             os: ubuntu-latest
-            artifact_name: wasm-language-server
-            asset_name: wasm-language-server-linux
+            artifact_name: wasm-lsp
+            asset_name: wasm-lsp-linux
           - name: windows
             os: windows-latest
-            artifact_name: wasm-language-server.exe
-            asset_name: wasm-language-server-windows
+            artifact_name: wasm-lsp.exe
+            asset_name: wasm-lsp-windows
           - name: macos
             os: macos-latest
-            artifact_name: wasm-language-server
-            asset_name: wasm-language-server-macos
+            artifact_name: wasm-lsp
+            asset_name: wasm-lsp-macos
     steps:
       - uses: actions/checkout@v2
       - name: Install Rust toolchain
