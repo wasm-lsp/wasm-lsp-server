@@ -21,7 +21,7 @@ pub mod text_document {
         }
 
         if let Some(tree) = core::Document::change(session.clone(), uri, &text.content, &edits).await? {
-            let diagnostics = provider::diagnostics(&tree, &text.content);
+            let diagnostics = provider::diagnostics(&tree, &text);
             let version = Default::default();
             session
                 .client()?
@@ -48,7 +48,7 @@ pub mod text_document {
             let tree = document.tree.clone();
             let text = document.text();
             session.insert_document(uri.clone(), document)?;
-            let diagnostics = provider::diagnostics(&tree, &text.content);
+            let diagnostics = provider::diagnostics(&tree, &text);
             let version = Default::default();
             session.client()?.publish_diagnostics(uri, diagnostics, version).await;
         } else {
