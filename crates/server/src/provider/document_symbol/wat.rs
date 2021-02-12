@@ -69,19 +69,7 @@ pub async fn document_symbol(
                 let mut cursor = node.walk();
                 let commands = node
                     .children(&mut cursor)
-                    .filter(|it| {
-                        [
-                            *wat::kind::MODULE,
-                            *wat::kind::MODULE_FIELD_DATA,
-                            *wat::kind::MODULE_FIELD_ELEM,
-                            *wat::kind::MODULE_FIELD_FUNC,
-                            *wat::kind::MODULE_FIELD_GLOBAL,
-                            *wat::kind::MODULE_FIELD_MEMORY,
-                            *wat::kind::MODULE_FIELD_TABLE,
-                            *wat::kind::MODULE_FIELD_TYPE,
-                        ]
-                        .contains(&it.kind_id())
-                    })
+                    .filter(|it| [*wat::kind::MODULE, *wat::kind::MODULE_FIELD].contains(&it.kind_id()))
                     .map(Work::Node);
                 work.extend(commands);
             },
