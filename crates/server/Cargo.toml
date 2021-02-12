@@ -17,8 +17,15 @@ maintenance = { status = "experimental" }
 [features]
 default = ["runtime-tokio"]
 goldenfiles = []
-runtime-agnostic = ["async-lock", "lspower/runtime-agnostic"]
-runtime-tokio = ["lspower/runtime-tokio", "tokio", "tokio/rt-multi-thread"]
+runtime-agnostic = [
+  "async-lock",
+  "lspower/runtime-agnostic",
+]
+runtime-tokio = [
+  "lspower/runtime-tokio",
+  "tokio",
+  "tokio/rt-multi-thread",
+]
 
 [build-dependencies]
 anyhow = "1.0"
@@ -51,6 +58,7 @@ criterion = "0.3"
 futures = "0.3"
 glob = "0.3"
 indoc = "1.0"
+testing = { package = "wasm-lsp-testing", version = "0.0", path = "../testing" }
 wasm-lsp-macros = { version = "0.0", path = "../macros" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]

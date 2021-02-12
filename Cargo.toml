@@ -9,6 +9,8 @@ members = [
   "crates/macros",
   "crates/parsers",
   "crates/server",
+  "crates/testing",
+  "fuzz",
   "xtask"
 ]
 default-members = ["crates/cli"]
