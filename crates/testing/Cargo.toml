@@ -1,0 +1,22 @@
+[package]
+edition = "2018"
+name = "wasm-lsp-testing"
+version = "0.0.0"
+authors = ["hvithrafn <hvithrafn@users.noreply.github.com>"]
+license = "Apache-2.0 WITH LLVM-exception"
+readme = "README.md"
+repository = "https://github.com/wasm-lsp/wasm-language-server"
+keywords = []
+description = """
+Testing support framework for the WebAssembly language server.
+"""
+
+[badges]
+maintenance = { status = "experimental" }
+
+[dependencies]
+anyhow = "1.0.28"
+lspower = { version = "0.6", default-features = false }
+serde_json = { version = "1.0", features = ["preserve_order"] }
+tower-test = "0.4.0"
+wasm-lsp-server = { version = "0.0", path = "../server" }

@@ -171,6 +171,10 @@ FLAGS:
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-lsp-fuzz"]);
+            }
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -210,6 +214,10 @@ FLAGS:
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-lsp-fuzz"]);
+            }
             cmd.args(cargo_args);
             cmd.args(&["--", "-D", "warnings"]);
             cmd.status()?;
@@ -368,6 +376,7 @@ FLAGS:
                 "wasm-lsp-macros",
                 "wasm-lsp-parsers",
                 "wasm-lsp-server",
+                "wasm-lsp-testing",
             ]);
             cmd.args(&[
                 "--exclude-files",
@@ -375,6 +384,7 @@ FLAGS:
                 "crates/macros",
                 "crates/server/src/bin",
                 "crates/server/src/cli.rs",
+                "crates/testing",
                 "tests",
                 "vendor",
                 "**/stdio2.h",
@@ -424,6 +434,10 @@ FLAGS:
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-lsp-fuzz"]);
+            }
             cmd.args(cargo_args);
             cmd.status()?;
 
@@ -436,7 +450,7 @@ FLAGS:
 xtask-udep
 
 USAGE:
-    xtask udep
+    xtask udeps
 
 FLAGS:
     -h, --help          Prints help information
@@ -463,6 +477,10 @@ FLAGS:
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-lsp-fuzz"]);
+            }
             cmd.args(cargo_args);
             cmd.status()?;
 
