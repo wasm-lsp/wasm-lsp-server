@@ -43,7 +43,7 @@ pub async fn document_symbol(
                     } = { symbol_range(content, node, name_hint, *wat::field::IDENTIFIER) };
 
                     #[allow(deprecated)]
-                    let this = lsp::DocumentSymbol {
+                    let sym = lsp::DocumentSymbol {
                         children: if syms.is_empty() {
                             None
                         } else {
@@ -61,7 +61,7 @@ pub async fn document_symbol(
                         selection_range,
                         tags: Default::default(),
                     };
-                    syms.push(this);
+                    syms.push(sym);
                 }
             },
 
