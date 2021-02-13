@@ -268,3 +268,19 @@ pub mod kind {
         }
     }
 }
+
+pub mod grouped {
+    use lazy_static::lazy_static;
+
+    lazy_static! {
+        pub static ref MODULE_FIELDS: Vec<u16> = vec![
+            *super::kind::MODULE_FIELD_DATA,
+            *super::kind::MODULE_FIELD_ELEM,
+            *super::kind::MODULE_FIELD_FUNC,
+            *super::kind::MODULE_FIELD_GLOBAL,
+            *super::kind::MODULE_FIELD_MEMORY,
+            *super::kind::MODULE_FIELD_TABLE,
+            *super::kind::MODULE_FIELD_TYPE,
+        ];
+    }
+}
