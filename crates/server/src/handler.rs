@@ -1,5 +1,8 @@
 pub mod text_document {
-    use crate::{core, provider};
+    use crate::{
+        core::{self, Language},
+        provider,
+    };
     use lsp_text::RopeExt;
     use std::sync::Arc;
 
@@ -63,5 +66,29 @@ pub mod text_document {
         params: lsp::DocumentSymbolParams,
     ) -> anyhow::Result<Option<lsp::DocumentSymbolResponse>> {
         provider::document_symbol(session, params).await
+    }
+
+    pub async fn semantic_tokens_full(
+        session: Arc<core::Session>,
+        params: lsp::SemanticTokensParams,
+    ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
+        let text = session.get_text(&params.text_document.uri).await?;
+        let response = match text.language {
+            Language::Wast => provider::semantic_tokens::wast::full(session.clone(), params, &text).await?,
+            Language::Wat => provider::semantic_tokens::wat::full(session.clone(), params, &text).await?,
+        };
+        Ok(response)
+    }
+
+    pub async fn semantic_tokens_range(
+        session: Arc<core::Session>,
+        params: lsp::SemanticTokensRangeParams,
+    ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
+        let text = session.get_text(&params.text_document.uri).await?;
+        let response = match text.language {
+            Language::Wast => provider::semantic_tokens::wast::range(session.clone(), params, &text).await?,
+            Language::Wat => provider::semantic_tokens::wat::range(session.clone(), params, &text).await?,
+        };
+        Ok(response)
     }
 }
