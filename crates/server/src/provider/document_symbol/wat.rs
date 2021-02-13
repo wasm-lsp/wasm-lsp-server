@@ -1,5 +1,5 @@
 use crate::{
-    core::{self, language::wat},
+    core::{self, language::wat, NodeExt},
     provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
 };
 use std::sync::Arc;
@@ -79,7 +79,7 @@ pub async fn document_symbol(
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if *wat::kind::MODULE_FIELD == child.kind_id() {
+                    if child.matches_subtypes(*wat::kind::MODULE_FIELD, &*wat::grouped::MODULE_FIELDS) {
                         work.push(Work::Node(child));
                         children_count += 1;
                     }
@@ -97,18 +97,7 @@ pub async fn document_symbol(
                 let mut cursor = node.walk();
                 let children = node
                     .children(&mut cursor)
-                    .filter(|it| {
-                        [
-                            *wat::kind::MODULE_FIELD_DATA,
-                            *wat::kind::MODULE_FIELD_ELEM,
-                            *wat::kind::MODULE_FIELD_FUNC,
-                            *wat::kind::MODULE_FIELD_GLOBAL,
-                            *wat::kind::MODULE_FIELD_MEMORY,
-                            *wat::kind::MODULE_FIELD_TABLE,
-                            *wat::kind::MODULE_FIELD_TYPE,
-                        ]
-                        .contains(&it.kind_id())
-                    })
+                    .filter(|it| wat::grouped::MODULE_FIELDS.contains(&it.kind_id()))
                     .map(Work::Node);
                 work.extend(children);
             },
