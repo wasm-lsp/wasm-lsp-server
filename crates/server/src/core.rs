@@ -9,4 +9,7 @@ pub use document::*;
 pub use error::*;
 pub use session::*;
 pub use text::*;
-pub use wasm_lsp_parsers::core::language::{self, Language};
+pub use wasm_lsp_parsers::core::{
+    language::{self, Language},
+    NodeExt,
+};
