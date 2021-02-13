@@ -17,6 +17,33 @@ impl Server {
 pub fn capabilities() -> lsp::ServerCapabilities {
     let document_symbol_provider = Some(lsp::OneOf::Left(true));
 
+    let semantic_tokens_provider = {
+        let token_types = vec![
+            lsp::SemanticTokenType::COMMENT,
+            lsp::SemanticTokenType::FUNCTION,
+            lsp::SemanticTokenType::KEYWORD,
+            lsp::SemanticTokenType::NAMESPACE,
+            lsp::SemanticTokenType::OPERATOR,
+            lsp::SemanticTokenType::PARAMETER,
+            lsp::SemanticTokenType::STRING,
+            lsp::SemanticTokenType::TYPE,
+            lsp::SemanticTokenType::TYPE_PARAMETER,
+            lsp::SemanticTokenType::VARIABLE,
+        ];
+        let token_modifiers = Default::default();
+
+        let options = lsp::SemanticTokensOptions {
+            legend: lsp::SemanticTokensLegend {
+                token_types,
+                token_modifiers,
+            },
+            range: Some(true),
+            full: Some(lsp::SemanticTokensFullOptions::Bool(true)),
+            ..Default::default()
+        };
+        Some(lsp::SemanticTokensServerCapabilities::SemanticTokensOptions(options))
+    };
+
     let text_document_sync = {
         let options = lsp::TextDocumentSyncOptions {
             open_close: Some(true),
@@ -28,6 +55,7 @@ pub fn capabilities() -> lsp::ServerCapabilities {
 
     lsp::ServerCapabilities {
         document_symbol_provider,
+        semantic_tokens_provider,
         text_document_sync,
         ..Default::default()
     }
@@ -75,6 +103,24 @@ impl lspower::LanguageServer for Server {
     ) -> jsonrpc::Result<Option<lsp::DocumentSymbolResponse>> {
         let session = self.session.clone();
         let result = handler::text_document::document_symbol(session, params).await;
+        Ok(result.map_err(core::IntoJsonRpcError)?)
+    }
+
+    async fn semantic_tokens_full(
+        &self,
+        params: lsp::SemanticTokensParams,
+    ) -> jsonrpc::Result<Option<lsp::SemanticTokensResult>> {
+        let session = self.session.clone();
+        let result = handler::text_document::semantic_tokens_full(session, params).await;
+        Ok(result.map_err(core::IntoJsonRpcError)?)
+    }
+
+    async fn semantic_tokens_range(
+        &self,
+        params: lsp::SemanticTokensRangeParams,
+    ) -> jsonrpc::Result<Option<lsp::SemanticTokensRangeResult>> {
+        let session = self.session.clone();
+        let result = handler::text_document::semantic_tokens_range(session, params).await;
         Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 }
