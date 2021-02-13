@@ -10,13 +10,13 @@ pub async fn document_symbol(
     params: lsp::DocumentSymbolParams,
     content: &ropey::Rope,
 ) -> anyhow::Result<Option<lsp::DocumentSymbolResponse>> {
+    // Vector to collect document symbols into as they are constructed.
+    let mut syms: Vec<lsp::DocumentSymbol> = vec![];
+
     // Prepare the syntax tree.
     let tree = session.get_tree(&params.text_document.uri).await?;
     let tree = tree.lock().await;
     let node = tree.root_node();
-
-    // Vector to collect document symbols into as they are constructed.
-    let mut syms: Vec<lsp::DocumentSymbol> = vec![];
 
     // Prepare the stack machine:
     //   data: contains data for constructing upcoming DocumentSymbols
