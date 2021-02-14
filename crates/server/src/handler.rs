@@ -74,8 +74,8 @@ pub mod text_document {
     ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
         let text = session.get_text(&params.text_document.uri).await?;
         let response = match text.language {
-            Language::Wast => provider::semantic_tokens::wast::full(session.clone(), params, &text).await?,
-            Language::Wat => provider::semantic_tokens::wat::full(session.clone(), params, &text).await?,
+            Language::Wast => provider::semantic_tokens::wast::full(session.clone(), params, &text.content).await?,
+            Language::Wat => provider::semantic_tokens::wat::full(session.clone(), params, &text.content).await?,
         };
         Ok(response)
     }
@@ -86,8 +86,8 @@ pub mod text_document {
     ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
         let text = session.get_text(&params.text_document.uri).await?;
         let response = match text.language {
-            Language::Wast => provider::semantic_tokens::wast::range(session.clone(), params, &text).await?,
-            Language::Wat => provider::semantic_tokens::wat::range(session.clone(), params, &text).await?,
+            Language::Wast => provider::semantic_tokens::wast::range(session.clone(), params, &text.content).await?,
+            Language::Wat => provider::semantic_tokens::wat::range(session.clone(), params, &text.content).await?,
         };
         Ok(response)
     }
