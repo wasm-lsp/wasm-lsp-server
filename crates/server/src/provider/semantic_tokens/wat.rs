@@ -153,7 +153,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn comment_block(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
+        let token_type = &lsp::SemanticTokenType::COMMENT;
+        let token_modifiers = Default::default();
+        self.builder.push(node, token_type, token_modifiers)?;
 
         self.walker.goto_next();
 
@@ -162,7 +164,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn comment_block_annot(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
+        let token_type = &lsp::SemanticTokenType::COMMENT;
+        let token_modifiers = Default::default();
+        self.builder.push(node, token_type, token_modifiers)?;
 
         self.walker.goto_next();
 
@@ -171,7 +175,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn comment_line(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
+        let token_type = &lsp::SemanticTokenType::COMMENT;
+        let token_modifiers = Default::default();
+        self.builder.push(node, token_type, token_modifiers)?;
 
         self.walker.goto_next();
 
@@ -180,7 +186,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn comment_line_annot(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
+        let token_type = &lsp::SemanticTokenType::COMMENT;
+        let token_modifiers = Default::default();
+        self.builder.push(node, token_type, token_modifiers)?;
 
         self.walker.goto_next();
 
@@ -195,14 +203,18 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         // $.name
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::STRING, None)?;
+            let token_type = &lsp::SemanticTokenType::STRING;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         // skip ")"
@@ -221,21 +233,27 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         // $.name
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::STRING, None)?;
+            let token_type = &lsp::SemanticTokenType::STRING;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         // $.name
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::STRING, None)?;
+            let token_type = &lsp::SemanticTokenType::STRING;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         // skip ")"
@@ -248,7 +266,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -258,7 +278,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_data(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -268,7 +290,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_elem(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -278,7 +302,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_export(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -294,14 +320,18 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
             self.walker.goto_next_sibling();
         }
 
         // optional($.identifier)
         if *wat::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::FUNCTION, None)?;
+            let token_type = &lsp::SemanticTokenType::FUNCTION;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
             self.walker.goto_next_sibling();
         }
 
@@ -333,14 +363,18 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
             self.walker.goto_next_sibling();
         }
 
         // optional($.identifier)
         if *wat::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::FUNCTION, None)?;
+            let token_type = &lsp::SemanticTokenType::FUNCTION;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
             self.walker.goto_next_sibling();
         }
 
@@ -361,7 +395,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_import(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -371,7 +407,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_memory(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -381,7 +419,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_start(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -391,7 +431,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_table(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -401,7 +443,9 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_type(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         self.walker.goto_next();
@@ -421,14 +465,18 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
+            let token_type = &lsp::SemanticTokenType::KEYWORD;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         // $.index
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            self.builder.push(node, &lsp::SemanticTokenType::VARIABLE, None)?;
+            let token_type = &lsp::SemanticTokenType::VARIABLE;
+            let token_modifiers = Default::default();
+            self.builder.push(node, token_type, token_modifiers)?;
         }
 
         // skip ")"
