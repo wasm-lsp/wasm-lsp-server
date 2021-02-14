@@ -1,23 +1,25 @@
 //! Definitions for the semantic tokens encoder.
 
 use anyhow::anyhow;
+use lsp_text::RopeExt;
 use std::collections::HashMap;
 
 /// The builder for the semantic tokens encoder. Encapsulates state during encoding.
-#[derive(Clone, Debug, Default)]
-pub(crate) struct SemanticTokensBuilder<'a> {
+#[derive(Clone, Debug)]
+pub(crate) struct SemanticTokensBuilder<'text, 'tree> {
+    content: &'text ropey::Rope,
     prev_start: u32,
     prev_line: u32,
     data_is_sorted_and_delta_encoded: bool,
     data: Vec<lsp::SemanticToken>,
-    token_modifier_map: HashMap<&'a lsp::SemanticTokenModifier, u32>,
-    token_type_map: HashMap<&'a lsp::SemanticTokenType, u32>,
+    token_modifier_map: HashMap<&'tree lsp::SemanticTokenModifier, u32>,
+    token_type_map: HashMap<&'tree lsp::SemanticTokenType, u32>,
     has_legend: bool,
 }
 
-impl<'a> SemanticTokensBuilder<'a> {
+impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
     /// Construct a new builder given an optional tokens legend.
-    pub(crate) fn new(legend: Option<&'a lsp::SemanticTokensLegend>) -> Self {
+    pub(crate) fn new(content: &'text ropey::Rope, legend: Option<&'tree lsp::SemanticTokensLegend>) -> Self {
         let data_is_sorted_and_delta_encoded = true;
 
         let mut token_modifier_map = HashMap::new();
@@ -37,11 +39,14 @@ impl<'a> SemanticTokensBuilder<'a> {
         }
 
         SemanticTokensBuilder {
+            content,
+            prev_start: Default::default(),
+            prev_line: Default::default(),
             data_is_sorted_and_delta_encoded,
+            data: Default::default(),
             token_modifier_map,
             token_type_map,
             has_legend,
-            ..Default::default()
         }
     }
 
@@ -62,13 +67,19 @@ impl<'a> SemanticTokensBuilder<'a> {
     /// Push a new semantic token onto the encoder state.
     pub(crate) fn push(
         &mut self,
-        range: lsp::Range,
+        node: tree_sitter::Node,
         token_type: &lsp::SemanticTokenType,
         token_modifiers: Option<Vec<&lsp::SemanticTokenModifier>>,
     ) -> anyhow::Result<()> {
         if !self.has_legend {
             return Err(anyhow!("Legend must be provided in constructor"));
         }
+
+        if node.has_error() {
+            return Ok(());
+        }
+
+        let range = self.content.tree_sitter_range_to_lsp_range(node.range());
 
         // FIXME: support multiline
         if range.start.line != range.end.line {

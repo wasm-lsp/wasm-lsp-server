@@ -12,7 +12,7 @@ use std::sync::Arc;
 pub(crate) async fn full(
     session: Arc<core::Session>,
     params: lsp::SemanticTokensParams,
-    text: &core::Text,
+    content: &ropey::Rope,
 ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
     let params = {
         let tree = session.get_tree(&params.text_document.uri).await?;
@@ -23,12 +23,12 @@ pub(crate) async fn full(
             range: {
                 let tree = tree.lock().await;
                 let node = tree.root_node();
-                text.content.tree_sitter_range_to_lsp_range(node.range())
+                content.tree_sitter_range_to_lsp_range(node.range())
             },
         }
     };
 
-    let result = range(session, params, text).await?.map(|result| match result {
+    let result = range(session, params, content).await?.map(|result| match result {
         lsp::SemanticTokensRangeResult::Tokens(tokens) => lsp::SemanticTokensResult::Tokens(tokens),
         lsp::SemanticTokensRangeResult::Partial(partial) => lsp::SemanticTokensResult::Partial(partial),
     });
@@ -39,7 +39,7 @@ pub(crate) async fn full(
 pub(crate) async fn range(
     session: Arc<core::Session>,
     params: lsp::SemanticTokensRangeParams,
-    text: &core::Text,
+    content: &ropey::Rope,
 ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
     let legend = session.semantic_tokens_legend().await;
     let legend = legend.as_ref();
@@ -48,12 +48,12 @@ pub(crate) async fn range(
     let tree = tree.lock().await;
 
     if let Some(node) = {
-        let range = text.content.lsp_range_to_tree_sitter_range(params.range)?;
+        let range = content.lsp_range_to_tree_sitter_range(params.range)?;
         let start = range.start_point();
         let end = range.end_point();
         tree.root_node().descendant_for_point_range(start, end)
     } {
-        let mut handler = Handler::new(text, legend, node);
+        let mut handler = Handler::new(content, legend, node);
 
         loop {
             if handler.walker.done {
@@ -135,27 +135,25 @@ pub(crate) async fn range(
 
 // Move to the next appropriate node in the syntax tree.
 struct Handler<'text, 'tree> {
-    text: &'text core::Text,
-    builder: SemanticTokensBuilder<'tree>,
+    builder: SemanticTokensBuilder<'text, 'tree>,
     walker: NodeWalker<'tree>,
 }
 
 impl<'text, 'tree> Handler<'text, 'tree> {
     fn new(
-        text: &'text core::Text,
+        content: &'text ropey::Rope,
         legend: Option<&'tree lsp::SemanticTokensLegend>,
         node: tree_sitter::Node<'tree>,
     ) -> Self {
         let language = Language::Wat;
-        let builder = SemanticTokensBuilder::new(legend);
+        let builder = SemanticTokensBuilder::new(content, legend);
         let walker = NodeWalker::new(language, node);
-        Self { text, builder, walker }
+        Self { builder, walker }
     }
 
     fn comment_block(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-        self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
+        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
 
         self.walker.goto_next();
 
@@ -164,8 +162,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn comment_block_annot(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-        self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
+        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
 
         self.walker.goto_next();
 
@@ -174,8 +171,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn comment_line(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-        self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
+        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
 
         self.walker.goto_next();
 
@@ -184,8 +180,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn comment_line_annot(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
-        let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-        self.builder.push(range, &lsp::SemanticTokenType::COMMENT, None)?;
+        self.builder.push(node, &lsp::SemanticTokenType::COMMENT, None)?;
 
         self.walker.goto_next();
 
@@ -200,16 +195,14 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         // $.name
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::STRING, None)?;
         }
 
         // skip ")"
@@ -228,24 +221,21 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         // $.name
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::STRING, None)?;
         }
 
         // $.name
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::STRING, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::STRING, None)?;
         }
 
         // skip ")"
@@ -258,8 +248,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -269,8 +258,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_data(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -280,8 +268,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_elem(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -291,8 +278,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_export(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -308,16 +294,14 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
             self.walker.goto_next_sibling();
         }
 
         // optional($.identifier)
         if *wat::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::FUNCTION, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::FUNCTION, None)?;
             self.walker.goto_next_sibling();
         }
 
@@ -349,16 +333,14 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
             self.walker.goto_next_sibling();
         }
 
         // optional($.identifier)
         if *wat::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::FUNCTION, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::FUNCTION, None)?;
             self.walker.goto_next_sibling();
         }
 
@@ -379,8 +361,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_import(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -390,8 +371,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_memory(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -401,8 +381,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_start(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -412,8 +391,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_table(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -423,8 +401,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
 
     fn module_field_type(&mut self) -> anyhow::Result<()> {
         if let Some(node) = self.walker.node().child(1) {
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         self.walker.goto_next();
@@ -444,16 +421,14 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::KEYWORD, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::KEYWORD, None)?;
         }
 
         // $.index
         self.walker.goto_next_sibling();
         {
             let node = self.walker.node();
-            let range = self.text.content.tree_sitter_range_to_lsp_range(node.range());
-            self.builder.push(range, &lsp::SemanticTokenType::VARIABLE, None)?;
+            self.builder.push(node, &lsp::SemanticTokenType::VARIABLE, None)?;
         }
 
         // skip ")"
