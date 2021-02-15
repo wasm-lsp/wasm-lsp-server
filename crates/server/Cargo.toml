@@ -38,7 +38,7 @@ bytes = "1.0"
 clap = "2.33"
 dashmap = "4.0"
 env_logger = "0.8"
-funty = ">= 1.1.0, < 1.2.0" # FIXME: remove once unbroken upstream
+funty = ">= 1.1.0, < 1.3.0" # FIXME: remove once unbroken upstream
 futures = "0.3"
 log = "0.4"
 lsp = { version = "0.86", package = "lsp-types" }
