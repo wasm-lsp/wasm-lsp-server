@@ -1,26 +1,24 @@
-//! Definitions for the semantic tokens encoder.
-
 use anyhow::anyhow;
+use lsp::SemanticTokensFullDeltaResult;
 use lsp_text::RopeExt;
-use std::collections::HashMap;
+use std::{collections::HashMap, convert::TryFrom};
 
-/// The builder for the semantic tokens encoder. Encapsulates state during encoding.
 #[derive(Clone, Debug)]
-pub(crate) struct SemanticTokensBuilder<'text, 'tree> {
-    content: &'text ropey::Rope,
-    prev_start: u32,
-    prev_line: u32,
-    data_is_sorted_and_delta_encoded: bool,
-    data: Vec<lsp::SemanticToken>,
-    token_modifier_map: HashMap<&'tree lsp::SemanticTokenModifier, u32>,
-    token_type_map: HashMap<&'tree lsp::SemanticTokenType, u32>,
-    has_legend: bool,
+pub struct SemanticTokensBuilder<'text, 'tree> {
+    pub content: &'text ropey::Rope,
+    id: u128,
+    pub prev_row: u32,
+    pub prev_col: u32,
+    pub prev_data: Option<Vec<lsp::SemanticToken>>,
+    pub data: Vec<lsp::SemanticToken>,
+    pub token_modifier_map: HashMap<&'tree lsp::SemanticTokenModifier, u32>,
+    pub token_type_map: HashMap<&'tree lsp::SemanticTokenType, u32>,
+    pub has_legend: bool,
 }
 
 impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
-    /// Construct a new builder given an optional tokens legend.
-    pub(crate) fn new(content: &'text ropey::Rope, legend: Option<&'tree lsp::SemanticTokensLegend>) -> Self {
-        let data_is_sorted_and_delta_encoded = true;
+    pub fn new(content: &'text ropey::Rope, legend: Option<&'tree lsp::SemanticTokensLegend>) -> anyhow::Result<Self> {
+        use std::time::{SystemTime, UNIX_EPOCH};
 
         let mut token_modifier_map = HashMap::new();
         let mut token_type_map = HashMap::new();
@@ -38,34 +36,133 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
             }
         }
 
-        SemanticTokensBuilder {
+        Ok(Self {
             content,
-            prev_start: Default::default(),
-            prev_line: Default::default(),
-            data_is_sorted_and_delta_encoded,
+            id: SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis(),
+            prev_row: Default::default(),
+            prev_col: Default::default(),
+            prev_data: Default::default(),
             data: Default::default(),
             token_modifier_map,
             token_type_map,
             has_legend,
-        }
+        })
     }
 
-    /// Build and return the semantic tokenization result from the current encoder state.
-    pub(crate) fn build(self) -> lsp::SemanticTokens {
-        let data = if !self.data_is_sorted_and_delta_encoded {
-            Self::sort_and_delta_encode(&self.data)
-        } else {
-            self.data
-        };
-
+    pub fn build(&mut self) -> lsp::SemanticTokens {
+        self.prev_data = None;
         lsp::SemanticTokens {
-            data,
-            ..Default::default()
+            result_id: Some(self.id()),
+            data: self.data.clone(),
         }
     }
 
-    /// Push a new semantic token onto the encoder state.
-    pub(crate) fn push(
+    pub fn build_delta(&mut self) -> anyhow::Result<lsp::SemanticTokensFullDeltaResult> {
+        if let Some(prev_data) = &self.prev_data {
+            let mut start_idx = 0;
+            while start_idx < self.data.len()
+                && start_idx < prev_data.len()
+                && prev_data[start_idx] == self.data[start_idx]
+            {
+                start_idx += 1;
+            }
+
+            if start_idx < self.data.len() && start_idx < prev_data.len() {
+                let mut end_idx = 0;
+                while end_idx < self.data.len()
+                    && end_idx < prev_data.len()
+                    && prev_data[prev_data.len() - 1 - end_idx] == self.data[self.data.len() - 1 - end_idx]
+                {
+                    end_idx += 1;
+                }
+
+                let edit = {
+                    let start = u32::try_from(start_idx)?;
+                    let delete_count = u32::try_from(prev_data.len() - end_idx - start_idx)?;
+                    let data = Some(self.data[start_idx .. self.data.len() - end_idx].to_vec());
+                    lsp::SemanticTokensEdit {
+                        start,
+                        delete_count,
+                        data,
+                    }
+                };
+
+                let tokens_delta = lsp::SemanticTokensDelta {
+                    result_id: Some(self.id()),
+                    edits: vec![edit],
+                };
+
+                Ok(lsp::SemanticTokensFullDeltaResult::TokensDelta(tokens_delta))
+            } else if start_idx < self.data.len() {
+                let edit = {
+                    let start = u32::try_from(start_idx)?;
+                    let delete_count = 0;
+                    let data = Some(self.data[start_idx ..].to_vec());
+                    lsp::SemanticTokensEdit {
+                        start,
+                        delete_count,
+                        data,
+                    }
+                };
+
+                let tokens_delta = lsp::SemanticTokensDelta {
+                    result_id: Some(self.id()),
+                    edits: vec![edit],
+                };
+
+                Ok(lsp::SemanticTokensFullDeltaResult::TokensDelta(tokens_delta))
+            } else if start_idx < prev_data.len() {
+                let edit = {
+                    let start = u32::try_from(start_idx)?;
+                    let delete_count = u32::try_from(prev_data.len() - start_idx)?;
+                    let data = None;
+                    lsp::SemanticTokensEdit {
+                        start,
+                        delete_count,
+                        data,
+                    }
+                };
+
+                let tokens_delta = lsp::SemanticTokensDelta {
+                    result_id: Some(self.id()),
+                    edits: vec![edit],
+                };
+
+                Ok(lsp::SemanticTokensFullDeltaResult::TokensDelta(tokens_delta))
+            } else {
+                let tokens_delta = lsp::SemanticTokensDelta {
+                    result_id: Some(self.id()),
+                    edits: vec![],
+                };
+
+                Ok(lsp::SemanticTokensFullDeltaResult::TokensDelta(tokens_delta))
+            }
+        } else {
+            self.prev_data = None;
+            let semantic_tokens = lsp::SemanticTokens {
+                result_id: Some(self.id()),
+                data: self.data.clone(),
+            };
+            Ok(SemanticTokensFullDeltaResult::Tokens(semantic_tokens))
+        }
+    }
+
+    pub fn can_build_edits(&self) -> bool {
+        self.prev_data.is_some()
+    }
+
+    pub fn id(&self) -> String {
+        self.id.to_string()
+    }
+
+    pub fn prev_result(&mut self, id: &str) -> anyhow::Result<()> {
+        if self.id() == id {
+            self.prev_data = Some(self.data.clone());
+        }
+        self.reset()
+    }
+
+    pub fn push(
         &mut self,
         node: tree_sitter::Node,
         token_type: &lsp::SemanticTokenType,
@@ -81,7 +178,6 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
 
         let range = self.content.tree_sitter_range_to_lsp_range(node.range());
 
-        // FIXME: support multiline
         if range.start.line != range.end.line {
             return Err(anyhow!("`range` cannot span multiple lines"));
         }
@@ -111,103 +207,38 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         Ok(())
     }
 
-    /// Push a new semantic token (in encoded form) onto the encoder state.
-    fn push_encoded(&mut self, line: u32, char: u32, length: u32, token_type: u32, token_modifiers_bitset: u32) {
-        #[allow(clippy::clippy::collapsible_if)]
-        if self.data_is_sorted_and_delta_encoded {
-            if line < self.prev_line || (line == self.prev_line && char < self.prev_start) {
-                // Push calls were ordered and are no longer ordered.
-                self.data_is_sorted_and_delta_encoded = false;
+    pub fn push_encoded(&mut self, row: u32, col: u32, len: u32, token_type: u32, token_mods: u32) {
+        let mut push_row = row;
+        let mut push_col = col;
 
-                // Remove delta encoding from data.
-                let mut prev_line = 0;
-                let mut prev_start = 0;
-
-                for i in 0 .. self.data.len() {
-                    let mut delta_line = self.data[i].delta_line;
-                    let mut delta_start = self.data[i].delta_start;
-
-                    if delta_line == 0 {
-                        delta_line = prev_line;
-                        delta_start += prev_start;
-                    } else {
-                        delta_line += prev_line;
-                    }
-
-                    self.data[i].delta_line = delta_line;
-                    self.data[i].delta_start = delta_start;
-
-                    prev_line = delta_line;
-                    prev_start = delta_start;
-                }
+        if self.data.len() > 0 {
+            push_row -= self.prev_row;
+            if push_row == 0 {
+                push_col -= self.prev_col;
             }
         }
 
-        let mut delta_line = line;
-        let mut delta_start = char;
-
-        if self.data_is_sorted_and_delta_encoded && !self.data.is_empty() {
-            delta_line -= self.prev_line;
-            if delta_line == 0 {
-                delta_start -= self.prev_start;
-            }
-        }
-
-        self.data.push(lsp::SemanticToken {
-            delta_line,
-            delta_start,
-            length,
+        let semantic_token = lsp::SemanticToken {
+            delta_line: push_row,
+            delta_start: push_col,
+            length: len,
             token_type,
-            token_modifiers_bitset,
-        });
-
-        self.prev_line = line;
-        self.prev_start = char;
-    }
-
-    /// Sort and delta-encode a slice of semantic tokens.
-    pub(crate) fn sort_and_delta_encode(data: &[lsp::SemanticToken]) -> Vec<lsp::SemanticToken> {
-        let pos = {
-            let mut pos = (0 .. data.len()).collect::<Vec<_>>();
-            pos.sort_by(|&a, &b| {
-                let a_line = data[a].delta_line;
-                let b_line = data[b].delta_line;
-
-                if a_line == b_line {
-                    let a_start = data[a].delta_start;
-                    let b_start = data[b].delta_start;
-                    a_start.partial_cmp(&b_start).unwrap()
-                } else {
-                    a_line.partial_cmp(&b_line).unwrap()
-                }
-            });
-            pos
+            token_modifiers_bitset: token_mods,
         };
 
-        let mut result = Vec::with_capacity(data.len());
-        let mut prev_line = 0;
-        let mut prev_start = 0;
+        self.data.push(semantic_token);
 
-        for i in 0 .. data.len() {
-            let token = data[pos[i]];
+        self.prev_row = row;
+        self.prev_col = col;
+    }
 
-            let delta_line = token.delta_line - prev_line;
-            let delta_start = if delta_line == 0 {
-                token.delta_start - prev_start
-            } else {
-                token.delta_start
-            };
-
-            result.push(lsp::SemanticToken {
-                delta_line,
-                delta_start,
-                ..token
-            });
-
-            prev_line = delta_line;
-            prev_start = delta_start;
-        }
-
-        result
+    pub fn reset(&mut self) -> anyhow::Result<()> {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        self.id = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();
+        self.prev_row = Default::default();
+        self.prev_col = Default::default();
+        self.prev_data = Default::default();
+        self.data = Default::default();
+        Ok(())
     }
 }

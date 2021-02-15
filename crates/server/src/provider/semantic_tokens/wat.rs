@@ -53,7 +53,7 @@ pub(crate) async fn range(
         let end = range.end_point();
         tree.root_node().descendant_for_point_range(start, end)
     } {
-        let mut handler = Handler::new(content, legend, node);
+        let mut handler = Handler::new(content, legend, node)?;
 
         loop {
             if handler.walker.done {
@@ -144,11 +144,11 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         content: &'text ropey::Rope,
         legend: Option<&'tree lsp::SemanticTokensLegend>,
         node: tree_sitter::Node<'tree>,
-    ) -> Self {
+    ) -> anyhow::Result<Self> {
         let language = Language::Wat;
-        let builder = SemanticTokensBuilder::new(content, legend);
+        let builder = SemanticTokensBuilder::new(content, legend)?;
         let walker = NodeWalker::new(language, node);
-        Self { builder, walker }
+        Ok(Self { builder, walker })
     }
 
     fn comment_block(&mut self) -> anyhow::Result<()> {
