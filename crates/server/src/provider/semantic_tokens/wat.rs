@@ -68,10 +68,12 @@ pub(crate) async fn range(
 
             // handle {"comment_block", "comment_block_annot", "comment_line", "comment_line_annot"}
             if *wat::kind::COMMENT_BLOCK == handler.walker.kind() {
-                handler.comment_block()?;
+                // NOTE: We ignore these for now since we can't highlight multiline tokens.
+                // handler.comment_block()?;
                 continue;
             } else if *wat::kind::COMMENT_BLOCK_ANNOT == handler.walker.kind() {
-                handler.comment_block_annot()?;
+                // NOTE: We ignore these for now since we can't highlight multiline tokens.
+                // handler.comment_block_annot()?;
                 continue;
             } else if *wat::kind::COMMENT_LINE == handler.walker.kind() {
                 handler.comment_line()?;
@@ -151,27 +153,27 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         Ok(Self { builder, walker })
     }
 
-    fn comment_block(&mut self) -> anyhow::Result<()> {
-        let node = self.walker.node();
-        let token_type = &lsp::SemanticTokenType::COMMENT;
-        let token_modifiers = Default::default();
-        self.builder.push(node, token_type, token_modifiers)?;
+    // fn comment_block(&mut self) -> anyhow::Result<()> {
+    //     let node = self.walker.node();
+    //     let token_type = &lsp::SemanticTokenType::COMMENT;
+    //     let token_modifiers = Default::default();
+    //     self.builder.push(node, token_type, token_modifiers)?;
 
-        self.walker.goto_next();
+    //     self.walker.goto_next();
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
-    fn comment_block_annot(&mut self) -> anyhow::Result<()> {
-        let node = self.walker.node();
-        let token_type = &lsp::SemanticTokenType::COMMENT;
-        let token_modifiers = Default::default();
-        self.builder.push(node, token_type, token_modifiers)?;
+    // fn comment_block_annot(&mut self) -> anyhow::Result<()> {
+    //     let node = self.walker.node();
+    //     let token_type = &lsp::SemanticTokenType::COMMENT;
+    //     let token_modifiers = Default::default();
+    //     self.builder.push(node, token_type, token_modifiers)?;
 
-        self.walker.goto_next();
+    //     self.walker.goto_next();
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
     fn comment_line(&mut self) -> anyhow::Result<()> {
         let node = self.walker.node();
