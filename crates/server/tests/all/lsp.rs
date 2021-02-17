@@ -671,6 +671,7 @@ mod text_document {
         }
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     mod did_open {
         use wasm_lsp_macros::corpus_tests;
 
