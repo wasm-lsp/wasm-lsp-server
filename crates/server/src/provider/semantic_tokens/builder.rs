@@ -211,7 +211,7 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         let mut push_row = row;
         let mut push_col = col;
 
-        if self.data.len() > 0 {
+        if !self.data.is_empty() {
             push_row -= self.prev_row;
             if push_row == 0 {
                 push_col -= self.prev_col;
