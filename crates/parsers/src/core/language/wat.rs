@@ -10,7 +10,7 @@ pub fn language() -> tree_sitter::Language {
 pub fn language() -> tree_sitter::Language {
     use wasm_bindgen::JsCast;
     use wasm_bindgen_futures::JsFuture;
-    let bytes: &[u8] = include_bytes!("../../../../vendor/tree-sitter-wasm/wat/tree-sitter-wat.wasm");
+    let bytes: &[u8] = include_bytes!("../../../../../vendor/tree-sitter-wasm/wat/tree-sitter-wat.wasm");
     let promise = web_tree_sitter_sys::Language::load_bytes(&bytes.into());
     let future = JsFuture::from(promise);
     let result = futures::future::block_on(future).unwrap();
