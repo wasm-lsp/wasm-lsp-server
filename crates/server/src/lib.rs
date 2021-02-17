@@ -1,5 +1,6 @@
 #![deny(clippy::all)]
 #![deny(unsafe_code)]
+#![allow(clippy::if_same_then_else)]
 #![allow(clippy::needless_lifetimes)]
 
 pub mod core;
