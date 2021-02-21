@@ -1,7 +1,7 @@
 use crate::core::language::Language;
 // use std::slice::SliceIndex;
 
-/// The current node stack along with it's hash. Used for context comparison.
+/// The current node stack. Used for context comparison.
 #[derive(Debug, Default, Clone)]
 pub(super) struct NodeWalkerStack<'tree> {
     nodes: Vec<tree_sitter::Node<'tree>>,
