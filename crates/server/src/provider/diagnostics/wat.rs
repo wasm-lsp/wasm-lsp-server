@@ -1,19 +1,24 @@
+use crate::{core, util::NodeWalker};
 use lsp_text::RopeExt;
 
 pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::Diagnostic> {
     let mut diagnostics = vec![];
-    let mut work = vec![tree.root_node()];
-    let mut cursor = tree.root_node().walk();
+    let mut walker = {
+        let language = core::Language::Wat;
+        let node = tree.root_node();
+        NodeWalker::new(language, node)
+    };
 
-    while let Some(node) = work.pop() {
-        let range = {
-            let start = content.byte_to_lsp_position(node.start_byte() as usize);
-            let end = content.byte_to_lsp_position(node.end_byte() as usize);
-            lsp::Range { start, end }
-        };
+    loop {
+        if walker.done {
+            break;
+        }
+
+        let node = walker.node();
 
         if node.is_error() {
             let message = String::from("ERROR node");
+            let range = content.tree_sitter_range_to_lsp_range(node.range());
             let severity = Some(lsp::DiagnosticSeverity::Error);
             diagnostics.push(lsp::Diagnostic {
                 message,
@@ -21,11 +26,13 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
                 severity,
                 ..Default::default()
             });
+            walker.goto_next_has_error();
             continue;
         }
 
         if node.is_missing() {
             let message = String::from("MISSING node");
+            let range = content.tree_sitter_range_to_lsp_range(node.range());
             let severity = Some(lsp::DiagnosticSeverity::Error);
             diagnostics.push(lsp::Diagnostic {
                 message,
@@ -33,14 +40,14 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
                 severity,
                 ..Default::default()
             });
+            walker.goto_next_has_error();
             continue;
         }
 
-        if node.has_error() {
-            cursor.reset(node.clone());
-            work.extend(node.named_children(&mut cursor));
-        }
+        // catch all case
+        walker.goto_next_has_error();
     }
 
+    diagnostics.reverse();
     diagnostics
 }
