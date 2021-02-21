@@ -213,7 +213,11 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-      - run: rustup target add wasm32-unknown-unknown
+      - name: Run cargo xtask init
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: init --with-corpus
       - name: Cache wasm-bindgen-cli/bin
         id: cache-wasm-bindgen-cli
         uses: actions/cache@v1
