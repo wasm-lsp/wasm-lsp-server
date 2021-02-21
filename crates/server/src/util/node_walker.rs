@@ -1,4 +1,4 @@
-use crate::core::language::Language;
+use crate::core::language::{wast, wat, Language};
 // use std::slice::SliceIndex;
 
 /// The current node stack. Used for context comparison.
@@ -76,10 +76,10 @@ impl<'tree> NodeWalker<'tree> {
 
     // Move the cursor to the first child node.
     pub fn goto_first_child(&mut self) -> bool {
-        let prev = self.cursor.node();
+        let node = self.cursor.node();
         let moved = self.cursor.goto_first_child();
         if moved {
-            self.stack.push(prev);
+            self.stack.push(node);
         }
         moved
     }
@@ -91,32 +91,73 @@ impl<'tree> NodeWalker<'tree> {
 
     // Move cursor to the next accessible node.
     pub fn goto_next(&mut self) -> bool {
-        let prev = self.cursor.node();
+        let node = self.cursor.node();
         let mut moved;
 
         // First try to descend to the first child node.
         moved = self.cursor.goto_first_child();
         if moved {
-            self.stack.push(prev);
+            self.stack.push(node);
         } else {
             // Otherwise try to move to the next sibling node.
             moved = self.cursor.goto_next_sibling();
             if !moved {
-                let mut finished = true;
-                // Otherwise continue to ascend to parent nodes...
-                while self.cursor.goto_parent() {
-                    moved = true;
-                    self.stack.pop();
-                    // ... until we can move to a sibling node.
-                    if self.cursor.goto_next_sibling() {
-                        finished = false;
-                        break;
-                    }
-                    // Otherwise we set `done = true` and stop the outer loop.
-                }
-                self.done = finished;
+                moved = self.goto_next_ancestor_sibling();
             }
         }
+
+        moved
+    }
+
+    // Move cursor to the next accessible node that has an error.
+    pub fn goto_next_has_error(&mut self) -> bool {
+        let node = self.cursor.node();
+        let mut moved;
+
+        // Only descend if the current node has an error in the subtree.
+        if node.has_error()
+            && ![
+                *wast::kind::COMMENT_BLOCK_ANNOT,
+                *wast::kind::COMMENT_BLOCK,
+                *wast::kind::COMMENT_LINE_ANNOT,
+                *wast::kind::COMMENT_LINE,
+                *wat::kind::COMMENT_BLOCK_ANNOT,
+                *wat::kind::COMMENT_BLOCK,
+                *wat::kind::COMMENT_LINE_ANNOT,
+                *wat::kind::COMMENT_LINE,
+            ]
+            .contains(&node.kind_id())
+        {
+            moved = self.goto_next();
+        } else {
+            // Otherwise try to move to the next sibling node.
+            moved = self.cursor.goto_next_sibling();
+            if !moved {
+                moved = self.goto_next_ancestor_sibling();
+            }
+        }
+
+        moved
+    }
+
+    // Move the cursor to the next ancestor sibling node.
+    pub fn goto_next_ancestor_sibling(&mut self) -> bool {
+        let mut moved = false;
+        let mut finished = true;
+
+        // Otherwise continue to ascend to parent nodes...
+        while self.cursor.goto_parent() {
+            moved = true;
+            self.stack.pop();
+            // ... until we can move to a sibling node.
+            if self.cursor.goto_next_sibling() {
+                finished = false;
+                break;
+            }
+            // Otherwise we set `done = true` and stop the outer loop.
+        }
+
+        self.done = finished;
         moved
     }
 
@@ -141,7 +182,6 @@ impl<'tree> NodeWalker<'tree> {
 
     // Reconstruct the context stack from the current node position.
     fn reconstruct_stack(&mut self) {
-        use crate::core::language::{wast, wat};
         use Language::{Wast, Wat};
 
         let language = self.language;
