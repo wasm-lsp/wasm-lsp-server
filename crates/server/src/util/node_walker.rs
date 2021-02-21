@@ -3,7 +3,7 @@ use crate::core::language::Language;
 
 /// The current node stack. Used for context comparison.
 #[derive(Debug, Default, Clone)]
-pub(super) struct NodeWalkerStack<'tree> {
+pub struct NodeWalkerStack<'tree> {
     nodes: Vec<tree_sitter::Node<'tree>>,
 }
 
@@ -41,15 +41,15 @@ impl<'tree> NodeWalkerStack<'tree> {
 }
 
 // The current state of the node walking and token encoding algorithm.
-pub(super) struct NodeWalker<'tree> {
+pub struct NodeWalker<'tree> {
     language: Language,
     stack: NodeWalkerStack<'tree>,
     cursor: tree_sitter::TreeCursor<'tree>,
-    pub(super) done: bool,
+    pub done: bool,
 }
 
 impl<'tree> NodeWalker<'tree> {
-    pub(super) fn new(language: Language, node: tree_sitter::Node<'tree>) -> Self {
+    pub fn new(language: Language, node: tree_sitter::Node<'tree>) -> Self {
         let stack = NodeWalkerStack::new();
         let cursor = node.walk();
         let done = false;
@@ -63,19 +63,19 @@ impl<'tree> NodeWalker<'tree> {
         walker
     }
 
-    // pub(super) fn context<I>(&self, index: I, kinds: &[u16]) -> bool
+    // pub fn context<I>(&self, index: I, kinds: &[u16]) -> bool
     // where
     //     I: SliceIndex<[tree_sitter::Node<'tree>], Output = [tree_sitter::Node<'tree>]>,
     // {
     //     self.stack.matches(index, kinds)
     // }
 
-    // pub(super) fn depth(&self) -> usize {
+    // pub fn depth(&self) -> usize {
     //     self.stack.nodes.len()
     // }
 
     // Move the cursor to the first child node.
-    pub(super) fn goto_first_child(&mut self) -> bool {
+    pub fn goto_first_child(&mut self) -> bool {
         let prev = self.cursor.node();
         let moved = self.cursor.goto_first_child();
         if moved {
@@ -85,12 +85,12 @@ impl<'tree> NodeWalker<'tree> {
     }
 
     // Move the cursor to the next sibling node.
-    pub(super) fn goto_next_sibling(&mut self) -> bool {
+    pub fn goto_next_sibling(&mut self) -> bool {
         self.cursor.goto_next_sibling()
     }
 
     // Move cursor to the next accessible node.
-    pub(super) fn goto_next(&mut self) -> bool {
+    pub fn goto_next(&mut self) -> bool {
         let prev = self.cursor.node();
         let mut moved;
 
@@ -121,7 +121,7 @@ impl<'tree> NodeWalker<'tree> {
     }
 
     // Move the cursor to the parent node.
-    pub(super) fn goto_parent(&mut self) -> bool {
+    pub fn goto_parent(&mut self) -> bool {
         let moved = self.cursor.goto_parent();
         if moved {
             self.stack.pop();
@@ -130,12 +130,12 @@ impl<'tree> NodeWalker<'tree> {
     }
 
     // Return the current node's kind id.
-    pub(super) fn kind(&self) -> u16 {
+    pub fn kind(&self) -> u16 {
         self.cursor.node().kind_id()
     }
 
     // Return the current node for the cursor.
-    pub(super) fn node(&self) -> tree_sitter::Node<'tree> {
+    pub fn node(&self) -> tree_sitter::Node<'tree> {
         self.cursor.node()
     }
 
