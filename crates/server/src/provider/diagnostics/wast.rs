@@ -1,4 +1,4 @@
-use crate::{core, util::NodeWalker};
+use crate::core::{self, node::NodeWalker};
 use lsp_text::RopeExt;
 
 pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::Diagnostic> {
