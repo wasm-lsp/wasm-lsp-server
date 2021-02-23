@@ -1,5 +1,5 @@
 use crate::{
-    core::{self, language::wat, NodeExt},
+    core::{self, language::wat, node::NodeExt},
     provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
 };
 use std::sync::Arc;
