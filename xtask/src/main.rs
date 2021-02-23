@@ -169,8 +169,8 @@ FLAGS:
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
-            cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-syntax"]);
             cmd.args(&["--package", "wasm-lsp-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-lsp-fuzz"]);
@@ -212,8 +212,8 @@ FLAGS:
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
-            cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-syntax"]);
             cmd.args(&["--package", "wasm-lsp-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-lsp-fuzz"]);
@@ -374,8 +374,8 @@ FLAGS:
                 "xtask",
                 "wasm-lsp-cli",
                 "wasm-lsp-macros",
-                "wasm-lsp-parsers",
                 "wasm-lsp-server",
+                "wasm-lsp-syntax",
                 "wasm-lsp-testing",
             ]);
             cmd.args(&[
@@ -432,8 +432,8 @@ FLAGS:
             cmd.args(&["test"]);
             cmd.args(&["--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
-            cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-syntax"]);
             cmd.args(&["--package", "wasm-lsp-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-lsp-fuzz"]);
@@ -475,8 +475,8 @@ FLAGS:
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
-            cmd.args(&["--package", "wasm-lsp-parsers"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-syntax"]);
             cmd.args(&["--package", "wasm-lsp-testing"]);
             if cfg!(target_os = "linux") {
                 cmd.args(&["--package", "wasm-lsp-fuzz"]);
