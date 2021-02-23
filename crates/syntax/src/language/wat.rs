@@ -1,3 +1,6 @@
+//! Functions for working with the `.wat` grammar.
+
+/// Tree-sitter language for the `.wat` grammar.
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unsafe_code)]
 pub fn language() -> tree_sitter::Language {
@@ -5,6 +8,7 @@ pub fn language() -> tree_sitter::Language {
     inner.into()
 }
 
+/// Tree-sitter language for the `.wat` grammar.
 #[cfg(target_arch = "wasm32")]
 #[allow(unsafe_code)]
 pub fn language() -> tree_sitter::Language {
@@ -242,6 +246,8 @@ pub mod kind {
 }
 
 pub mod grouped {
+    #![allow(missing_docs)]
+
     use lazy_static::lazy_static;
 
     lazy_static! {

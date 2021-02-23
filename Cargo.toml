@@ -7,8 +7,8 @@ opt-level = "z"
 members = [
   "crates/cli",
   "crates/macros",
-  "crates/parsers",
   "crates/server",
+  "crates/syntax",
   "crates/testing",
   "fuzz",
   "xtask"
