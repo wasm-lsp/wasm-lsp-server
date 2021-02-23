@@ -1,13 +1,19 @@
-use crate::core::error::Error::{InvalidLanguageId, OsStrToStrFailed, PathExtensionFailed};
+//! Functionality related to [`tree-sitter::Language`].
+
+use crate::error::Error::{InvalidLanguageId, OsStrToStrFailed, PathExtensionFailed};
 use std::{convert::TryFrom, path::Path};
 
+/// Languages supported by the server.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Language {
+    /// The `.wast` language.
     Wast,
+    /// The `.wat` language.
     Wat,
 }
 
 impl Language {
+    /// Compute the language id string for the given language.
     pub fn id(&self) -> &str {
         match self {
             Language::Wast => "wasm.wast",
@@ -39,6 +45,8 @@ impl TryFrom<&Path> for Language {
     }
 }
 
+/// Functions for working with the `.wast` grammar.
 pub mod wast;
 
+/// Functions for working with the `.wat` grammar.
 pub mod wat;

@@ -1,6 +1,9 @@
-use crate::core::language::{self, Language};
+//! Functionality related to [`tree-sitter::Parser`].
+
+use crate::language::{self, Language};
 use std::convert::TryFrom;
 
+/// Create a `.wast` parser from the tree-sitter grammar.
 pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::wast::language();
     let mut parser = tree_sitter::Parser::new()?;
@@ -8,6 +11,7 @@ pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
     Ok(parser)
 }
 
+/// Create a `.wat` parser from the tree-sitter grammar.
 pub fn wat() -> anyhow::Result<tree_sitter::Parser> {
     let language = language::wat::language();
     let mut parser = tree_sitter::Parser::new()?;
