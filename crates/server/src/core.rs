@@ -11,5 +11,5 @@ pub use session::*;
 pub use text::*;
 pub use wasm_lsp_syntax::{
     language::{self, Language},
-    NodeExt,
+    node,
 };

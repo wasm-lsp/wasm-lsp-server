@@ -1,4 +1,4 @@
-pub mod diagnostics;
+mod diagnostics;
 pub mod document_symbol;
 pub mod semantic_tokens;
 
