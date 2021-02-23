@@ -1,17 +1,17 @@
 <div align="center">
-  <h1><code>wasm-language-server</code></h1>
+  <h1><code>wasm-lsp-server</code></h1>
   <p>
     <strong>A language server implementation for WebAssembly</strong>
   </p>
   <p style="margin-bottom: 0.5ex;">
-    <a href="https://wasm-lsp.github.io/wasm-language-server/wasm_language_server"><img
+    <a href="https://wasm-lsp.github.io/wasm-lsp-server/wasm_language_server"><img
         src="https://img.shields.io/badge/docs-latest-blueviolet?logo=Read-the-docs&logoColor=white"
         /></a>
-    <a href="https://github.com/wasm-lsp/wasm-language-server/actions"><img
-        src="https://github.com/wasm-lsp/wasm-language-server/workflows/main/badge.svg"
+    <a href="https://github.com/wasm-lsp/wasm-lsp-server/actions"><img
+        src="https://github.com/wasm-lsp/wasm-lsp-server/workflows/main/badge.svg"
         /></a>
-    <a href="https://codecov.io/gh/wasm-lsp/wasm-language-server"><img
-        src="https://codecov.io/gh/wasm-lsp/wasm-language-server/branches/main/graph/badge.svg"
+    <a href="https://codecov.io/gh/wasm-lsp/wasm-lsp-server"><img
+        src="https://codecov.io/gh/wasm-lsp/wasm-lsp-server/branches/main/graph/badge.svg"
         /></a>
   </p>
 </div>
@@ -28,15 +28,15 @@ The server has not yet had a stable release. You can build and install it locall
 
 #### Prebuilt Binaries
 
-The easiest way to install the server is to grab one of the prebuilt binaries under [releases](https://github.com/wasm-lsp/wasm-language-server/releases).
+The easiest way to install the server is to grab one of the prebuilt binaries under [releases](https://github.com/wasm-lsp/wasm-lsp-server/releases).
 
 #### Building from Source
 
 First ensure you have the [rust toolchain](https://rustup.rs/) installed, then proceed as follows:
 
 ```bash
-git clone https://github.com/wasm-lsp/wasm-language-server
-cd wasm-language-server
+git clone https://github.com/wasm-lsp/wasm-lsp-server
+cd wasm-lsp-server
 cargo xtask init
 cargo xtask install
 ```

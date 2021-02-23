@@ -93,7 +93,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: doc -- --no-deps --package wasm-language-server
+          args: doc -- --no-deps --package wasm-lsp-server
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
