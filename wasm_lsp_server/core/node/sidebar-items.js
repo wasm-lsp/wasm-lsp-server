@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["NodeWalker","The current state of the node walking and token encoding algorithm."],["NodeWalkerStack","The current node stack. Used for context comparison."]],"trait":[["NodeExt","Utility trait for working with [`tree_sitter::Node`]."]]});

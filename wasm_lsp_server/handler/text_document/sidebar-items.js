@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["did_change",""],["did_close",""],["did_open",""],["document_symbol",""],["semantic_tokens_full",""],["semantic_tokens_range",""]]});
