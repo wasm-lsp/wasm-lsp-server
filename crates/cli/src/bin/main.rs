@@ -1,4 +1,7 @@
+//! Command-line interface for the WebAssembly Language Server
+
 #![deny(clippy::all)]
+#![deny(missing_docs)]
 #![deny(unsafe_code)]
 
 use clap::App;
@@ -19,6 +22,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 #[cfg(feature = "runtime-async-std")]
+/// Run the server with the async-std runtime.
 fn run() -> anyhow::Result<()> {
     env_logger::try_init()?;
     cli();
@@ -32,6 +36,7 @@ fn run() -> anyhow::Result<()> {
 }
 
 #[cfg(feature = "runtime-futures")]
+/// Run the server with the futures runtime.
 fn run() -> anyhow::Result<()> {
     env_logger::try_init()?;
     cli();
@@ -45,6 +50,7 @@ fn run() -> anyhow::Result<()> {
 }
 
 #[cfg(feature = "runtime-smol")]
+/// Run the server with the smol runtime.
 fn run() -> anyhow::Result<()> {
     env_logger::try_init()?;
     cli();
@@ -58,6 +64,7 @@ fn run() -> anyhow::Result<()> {
 }
 
 #[cfg(feature = "runtime-tokio")]
+/// Run the server with the tokio runtime.
 fn run() -> anyhow::Result<()> {
     env_logger::try_init()?;
     cli();
