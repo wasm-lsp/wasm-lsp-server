@@ -4,7 +4,7 @@
     <strong>A language server implementation for WebAssembly</strong>
   </p>
   <p style="margin-bottom: 0.5ex;">
-    <a href="https://wasm-lsp.github.io/wasm-lsp-server/wasm_language_server"><img
+    <a href="https://wasm-lsp.github.io/wasm-lsp-server/wasm_lsp_server"><img
         src="https://img.shields.io/badge/docs-latest-blueviolet?logo=Read-the-docs&logoColor=white"
         /></a>
     <a href="https://github.com/wasm-lsp/wasm-lsp-server/actions"><img
