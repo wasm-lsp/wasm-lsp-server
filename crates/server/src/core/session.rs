@@ -124,10 +124,4 @@ impl Session {
             core::Error::SessionResourceNotFound { kind, uri }.into()
         })
     }
-
-    pub async fn tree_has_error(&self, uri: &lsp::Url) -> anyhow::Result<bool> {
-        let tree = self.get_tree(uri).await?;
-        let tree = tree.lock().await;
-        Ok(tree.root_node().has_error())
-    }
 }
