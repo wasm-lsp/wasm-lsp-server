@@ -90,33 +90,33 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         exclude,
         handler,
     } = syn::parse_macro_input!(input as corpus::TestsMacroInput);
-    // compute a string representation for the corpus name
+    // Compute a string representation for the corpus name.
     let corpus_name = corpus.to_string();
     let corpus_name = corpus_name.as_str();
 
-    // compute the paths from the glob pattern
+    // Compute the paths from the glob pattern.
     let paths = glob(&include).unwrap();
 
-    // prepare the vector of syntax items; these items are the individual test
-    // functions that will be enclosed in the generated test submodule
+    // Prepare the vector of syntax items; these items are the individual test
+    // functions that will be enclosed in the generated test submodule.
     let mut content = vec![];
 
     for path in paths {
-        // ensure the path is canonicalized and absolute
+        // Ensure the path is canonicalized and absolute
         let path = path.unwrap().canonicalize().unwrap();
         let path_name = path.to_str().unwrap();
         let file_name = path.file_name().unwrap().to_str().unwrap();
 
-        // skip the file if contained in the exclude list; otherwise continue
+        // Skip the file if contained in the exclude list; otherwise continue.
         if !exclude.contains(&String::from(file_name)) {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
             let test_name = heck::SnakeCase::to_snake_case(file_stem);
             let test_name = format!("r#{}", test_name);
 
-            // compute the test identifier
+            // Compute the test identifier.
             let test = syn::parse_str::<syn::Ident>(&test_name).unwrap();
 
-            // generate the individual test function for the given file
+            // Generate the individual test function for the given file.
             let item = quote! {
                 #[test]
                 fn #test() {
@@ -127,10 +127,10 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         }
     }
 
-    // generate the enclosing test submodule for the given corpus
+    // Generate the enclosing test submodule for the given corpus.
     let module = quote! {
         mod #corpus {
-            // include the test functions generated from the corpus files
+            // Include the test functions generated from the corpus files.
             #(#content)*
         }
     };
