@@ -1,4 +1,4 @@
-use crate::language::Language;
+use crate::language::{wast, wat, Language};
 use std::slice::SliceIndex;
 
 /// The current node stack. Used for context comparison.
@@ -119,7 +119,19 @@ impl<'tree> NodeWalker<'tree> {
         let mut moved;
 
         // Only descend if the current node has an error in the subtree.
-        if node.has_error() {
+        if node.has_error()
+            && ![
+                *wast::kind::COMMENT_BLOCK_ANNOT,
+                *wast::kind::COMMENT_BLOCK,
+                *wast::kind::COMMENT_LINE_ANNOT,
+                *wast::kind::COMMENT_LINE,
+                *wat::kind::COMMENT_BLOCK_ANNOT,
+                *wat::kind::COMMENT_BLOCK,
+                *wat::kind::COMMENT_LINE_ANNOT,
+                *wat::kind::COMMENT_LINE,
+            ]
+            .contains(&node.kind_id())
+        {
             moved = self.goto_next();
         } else {
             // Otherwise try to move to the next sibling node.
@@ -174,7 +186,6 @@ impl<'tree> NodeWalker<'tree> {
 
     /// Reconstruct the context stack from the current node position.
     fn reconstruct_stack(&mut self) {
-        use crate::language::{wast, wat};
         use Language::{Wast, Wat};
 
         let language = self.language;
