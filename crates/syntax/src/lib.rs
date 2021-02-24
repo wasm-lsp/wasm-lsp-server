@@ -8,13 +8,13 @@
 /// Functionality related to runtime errors.
 pub mod error;
 
-/// Functionality related to [`tree-sitter::Language`].
+/// Functionality related to [`tree_sitter::Language`].
 pub mod language;
 
-/// Functionality related to [`tree-sitter::Node`].
+/// Functionality related to [`tree_sitter::Node`].
 pub mod node;
 
-/// Functionality related to [`tree-sitter::Parser`].
+/// Functionality related to [`tree_sitter::Parser`].
 pub mod parser;
 
 #[cfg(not(target_arch = "wasm32"))]

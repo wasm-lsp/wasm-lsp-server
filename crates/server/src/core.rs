@@ -1,9 +1,16 @@
-#![allow(unused)]
+//! Core definitions for server functionality.
 
-mod document;
-mod error;
-mod session;
-mod text;
+/// Definitions related to LSP documents.
+pub mod document;
+
+/// Definitions related to runtime errors.
+pub mod error;
+
+/// Definitions related to the LSP session.
+pub mod session;
+
+/// Definitions related to working with textual content.
+pub mod text;
 
 pub use document::*;
 pub use error::*;

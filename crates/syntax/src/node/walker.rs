@@ -50,7 +50,7 @@ pub struct NodeWalker<'tree> {
 }
 
 impl<'tree> NodeWalker<'tree> {
-    /// Create a new [`NodeWalker`].
+    /// Create a new [NodeWalker].
     pub fn new(language: Language, node: tree_sitter::Node<'tree>) -> Self {
         let stack = NodeWalkerStack::new();
         let cursor = node.walk();
@@ -65,8 +65,7 @@ impl<'tree> NodeWalker<'tree> {
         walker
     }
 
-    /// Given a slice of [`tree_sitter::Node`] kind ids, determine whether they form the current
-    /// context.
+    /// Determine whether a given a slice of [`tree_sitter::Node`] kind ids forms the context.
     pub fn context<I>(&self, index: I, kind_ids: &[u16]) -> bool
     where
         I: SliceIndex<[tree_sitter::Node<'tree>], Output = [tree_sitter::Node<'tree>]>,

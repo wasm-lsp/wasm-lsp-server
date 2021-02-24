@@ -8,7 +8,7 @@ use clap::App;
 use lspower::{LspService, Server};
 
 fn cli() {
-    use wasm_lsp_server::package::metadata;
+    use wasm_lsp_server::metadata;
     App::new(metadata::PKG_NAME)
         .author(metadata::PKG_AUTHORS)
         .version(metadata::PKG_VERSION)

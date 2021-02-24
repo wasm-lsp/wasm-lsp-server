@@ -1,6 +1,9 @@
+//! Provider definitions for LSP `textDocument/publishDiagnostics` for `.wat` documents.
+
 use crate::core::{self, node::NodeWalker};
 use lsp_text::RopeExt;
 
+/// Provider function for LSP `textDocument/publishDiagnostics` for `.wat` documents.
 pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::Diagnostic> {
     let mut diagnostics = vec![];
     let mut walker = {
