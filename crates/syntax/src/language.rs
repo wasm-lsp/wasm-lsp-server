@@ -1,4 +1,4 @@
-//! Functionality related to [`tree-sitter::Language`].
+//! Functionality related to [`tree_sitter::Language`].
 
 use crate::error::Error::{InvalidLanguageId, OsStrToStrFailed, PathExtensionFailed};
 use std::{convert::TryFrom, path::Path};

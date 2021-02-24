@@ -1,3 +1,5 @@
+//! Definitions related to LSP documents.
+
 use crate::core::{self};
 use lsp_text::{RopeExt, TextEdit};
 use std::{convert::TryFrom, sync::Arc};
@@ -7,14 +9,20 @@ use async_lock::Mutex;
 #[cfg(feature = "runtime-tokio")]
 use tokio::sync::Mutex;
 
+/// Documents for the LSP session.
 pub struct Document {
+    /// The language-id of the document.
     pub language: core::Language,
+    /// The textual content of the document.
     pub content: ropey::Rope,
+    /// The active parser for the document.
     pub parser: tree_sitter::Parser,
+    /// The current syntax tree for the document.
     pub tree: tree_sitter::Tree,
 }
 
 impl Document {
+    /// Create a new [`Document`] given [`lsp::DidOpenTextDocumentParams`].
     pub fn open(params: lsp::DidOpenTextDocumentParams) -> anyhow::Result<Option<Self>> {
         let language = core::Language::try_from(params.text_document.language_id.as_str())?;
         let mut parser = tree_sitter::Parser::try_from(language)?;
@@ -34,6 +42,7 @@ impl Document {
         }))
     }
 
+    ///
     pub async fn change<'changes>(
         session: Arc<core::Session>,
         uri: &lsp::Url,
@@ -72,6 +81,7 @@ impl Document {
         }
     }
 
+    /// Return the language-id and textual content portion of the [`Document`].
     pub fn text(&self) -> core::Text {
         core::Text {
             language: self.language,

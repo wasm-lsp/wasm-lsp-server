@@ -1,22 +1,26 @@
+//! Definitions for the semantic tokens builder used during tokenization.
+
 use anyhow::anyhow;
 use lsp::SemanticTokensFullDeltaResult;
 use lsp_text::RopeExt;
 use std::{collections::HashMap, convert::TryFrom};
 
+/// Manages tokenization state for encoding semantic token data.
 #[derive(Clone, Debug)]
 pub struct SemanticTokensBuilder<'text, 'tree> {
-    pub content: &'text ropey::Rope,
+    content: &'text ropey::Rope,
     id: u128,
-    pub prev_row: u32,
-    pub prev_col: u32,
-    pub prev_data: Option<Vec<lsp::SemanticToken>>,
-    pub data: Vec<lsp::SemanticToken>,
-    pub token_modifier_map: HashMap<&'tree lsp::SemanticTokenModifier, u32>,
-    pub token_type_map: HashMap<&'tree lsp::SemanticTokenType, u32>,
-    pub has_legend: bool,
+    prev_row: u32,
+    prev_col: u32,
+    prev_data: Option<Vec<lsp::SemanticToken>>,
+    data: Vec<lsp::SemanticToken>,
+    token_modifier_map: HashMap<&'tree lsp::SemanticTokenModifier, u32>,
+    token_type_map: HashMap<&'tree lsp::SemanticTokenType, u32>,
+    has_legend: bool,
 }
 
 impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
+    /// Create a new [`SemanticTokensBuilder`].
     pub fn new(content: &'text ropey::Rope, legend: Option<&'tree lsp::SemanticTokensLegend>) -> anyhow::Result<Self> {
         use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -49,6 +53,7 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         })
     }
 
+    /// Build the [`lsp::SemanticTokens`] data from the tokenization state.
     pub fn build(&mut self) -> lsp::SemanticTokens {
         self.prev_data = None;
         lsp::SemanticTokens {
@@ -57,6 +62,7 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         }
     }
 
+    /// Build the [`lsp::SemanticTokensFullDeltaResult`] data from the current tokenization state.
     pub fn build_delta(&mut self) -> anyhow::Result<lsp::SemanticTokensFullDeltaResult> {
         if let Some(prev_data) = &self.prev_data {
             let mut start_idx = 0;
@@ -147,14 +153,12 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         }
     }
 
-    pub fn can_build_edits(&self) -> bool {
-        self.prev_data.is_some()
-    }
-
+    /// Return the ID for the current tokenization state.
     pub fn id(&self) -> String {
         self.id.to_string()
     }
 
+    /// Rollback tokenization state to previous data.
     pub fn prev_result(&mut self, id: &str) -> anyhow::Result<()> {
         if self.id() == id {
             self.prev_data = Some(self.data.clone());
@@ -162,6 +166,7 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         self.reset()
     }
 
+    /// Push and encode a token into the tokenization state.
     pub fn push(
         &mut self,
         node: tree_sitter::Node,
@@ -207,6 +212,7 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         Ok(())
     }
 
+    /// Push a token in encoded form into the tokenization state.
     pub fn push_encoded(&mut self, row: u32, col: u32, len: u32, token_type: u32, token_mods: u32) {
         let mut push_row = row;
         let mut push_col = col;
@@ -232,6 +238,7 @@ impl<'text, 'tree> SemanticTokensBuilder<'text, 'tree> {
         self.prev_col = col;
     }
 
+    /// Reset tokenization state to defaults.
     pub fn reset(&mut self) -> anyhow::Result<()> {
         use std::time::{SystemTime, UNIX_EPOCH};
         self.id = SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis();

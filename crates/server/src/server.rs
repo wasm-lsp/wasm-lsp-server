@@ -1,19 +1,26 @@
+//! LSP server capabilities and server instance.
+
 use crate::{core, handler};
 use lspower::jsonrpc;
 use std::sync::Arc;
 
+/// The WebAssembly language server structure.
 pub struct Server {
+    /// Reference to the LSP client.
     pub client: lspower::Client,
+    /// Reference to the LSP session.
     pub session: Arc<core::Session>,
 }
 
 impl Server {
+    /// Create a new [`Server`] instance.
     pub fn new(client: lspower::Client) -> anyhow::Result<Self> {
         let session = Arc::new(core::Session::new(Some(client.clone()))?);
         Ok(Server { client, session })
     }
 }
 
+/// Convenience function for building [`lsp::ServerCapabilities`] for [Server].
 pub fn capabilities() -> lsp::ServerCapabilities {
     let document_symbol_provider = Some(lsp::OneOf::Left(true));
 
@@ -111,7 +118,7 @@ impl lspower::LanguageServer for Server {
         params: lsp::SemanticTokensParams,
     ) -> jsonrpc::Result<Option<lsp::SemanticTokensResult>> {
         let session = self.session.clone();
-        let result = handler::text_document::semantic_tokens_full(session, params).await;
+        let result = handler::text_document::semantic_tokens::full(session, params).await;
         Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 
@@ -120,7 +127,7 @@ impl lspower::LanguageServer for Server {
         params: lsp::SemanticTokensRangeParams,
     ) -> jsonrpc::Result<Option<lsp::SemanticTokensRangeResult>> {
         let session = self.session.clone();
-        let result = handler::text_document::semantic_tokens_range(session, params).await;
+        let result = handler::text_document::semantic_tokens::range(session, params).await;
         Ok(result.map_err(core::IntoJsonRpcError)?)
     }
 }

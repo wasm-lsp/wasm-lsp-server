@@ -1,10 +1,12 @@
+//! Provider definitions for LSP `textDocument/documentSymbol` for `.wast` documents.
+
 use crate::{
     core::{self, language::wast, node::NodeExt},
     provider::document_symbol::{symbol_range, Data, SymbolRange, Work},
 };
 use std::sync::Arc;
 
-// Document symbol provider definitions for ".wast" files.
+/// Provider function for LSP `textDocument/documentSymbol` for `.wast` documents.
 pub async fn document_symbol(
     session: Arc<core::Session>,
     params: lsp::DocumentSymbolParams,

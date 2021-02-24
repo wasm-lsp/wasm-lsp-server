@@ -1,4 +1,4 @@
-//! Functionality related to [`tree-sitter::Parser`].
+//! Functionality related to [`tree_sitter::Parser`].
 
 use crate::language::{self, Language};
 use std::convert::TryFrom;
