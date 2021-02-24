@@ -202,14 +202,18 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">//! Provider definitions for LSP `textDocument/documentSymbol` for `.wast` documents.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">core</span>::{<span class="self">self</span>, <span class="ident">language</span>::<span class="ident">wast</span>, <span class="ident">node</span>::<span class="ident">NodeExt</span>},
     <span class="ident">provider</span>::<span class="ident">document_symbol</span>::{<span class="ident">symbol_range</span>, <span class="ident">Data</span>, <span class="ident">SymbolRange</span>, <span class="ident">Work</span>},
 };
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
-<span class="comment">// Document symbol provider definitions for &quot;.wast&quot; files.</span>
+<span class="doccomment">/// Provider function for LSP `textDocument/documentSymbol` for `.wast` documents.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(
     <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
     <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DocumentSymbolParams</span>,

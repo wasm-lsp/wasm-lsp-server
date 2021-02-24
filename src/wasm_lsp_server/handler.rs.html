@@ -95,15 +95,18 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">//! LSP message handler functions.</span>
+
+<span class="doccomment">/// LSP message handler functions for `textDocument/*`.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">text_document</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">core</span>::{<span class="self">self</span>, <span class="ident">Language</span>},
-        <span class="ident">provider</span>,
-    };
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core</span>, <span class="ident">provider</span>};
     <span class="kw">use</span> <span class="ident">lsp_text</span>::<span class="ident">RopeExt</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
+    <span class="doccomment">/// LSP message handler function for `textDocument/didChange`.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">did_change</span>(
         <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
         <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DidChangeTextDocumentParams</span>,
@@ -133,6 +136,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="doccomment">/// LSP message handler function for `textDocument/didClose`.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">did_close</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DidCloseTextDocumentParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>;
         <span class="ident">session</span>.<span class="ident">remove_document</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>)<span class="question-mark">?</span>;
@@ -142,6 +146,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="doccomment">/// LSP message handler function for `textDocument/didOpen`.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">did_open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DidOpenTextDocumentParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>.<span class="ident">clone</span>();
 
@@ -159,6 +164,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="doccomment">/// LSP message handler function for `textDocument/documentSymbol`.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(
         <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
         <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DocumentSymbolParams</span>,
@@ -166,28 +172,26 @@
         <span class="ident">provider</span>::<span class="ident">document_symbol</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="kw">await</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_full</span>(
-        <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
-        <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">SemanticTokensParams</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokensResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_text</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">text</span>.<span class="ident">language</span> {
-            <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">provider</span>::<span class="ident">semantic_tokens</span>::<span class="ident">wast</span>::<span class="ident">full</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">text</span>.<span class="ident">content</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-            <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">provider</span>::<span class="ident">semantic_tokens</span>::<span class="ident">wat</span>::<span class="ident">full</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">text</span>.<span class="ident">content</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-        };
-        <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
-    }
+    <span class="doccomment">/// LSP message handler function for `textDocument/semanticTokens/*`.</span>
+    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">semantic_tokens</span> {
+        <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core</span>, <span class="ident">provider</span>};
+        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">semantic_tokens_range</span>(
-        <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
-        <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">SemanticTokensRangeParams</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokensRangeResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">session</span>.<span class="ident">get_text</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">text</span>.<span class="ident">language</span> {
-            <span class="ident">Language</span>::<span class="ident">Wast</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">provider</span>::<span class="ident">semantic_tokens</span>::<span class="ident">wast</span>::<span class="ident">range</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">text</span>.<span class="ident">content</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-            <span class="ident">Language</span>::<span class="ident">Wat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">provider</span>::<span class="ident">semantic_tokens</span>::<span class="ident">wat</span>::<span class="ident">range</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">text</span>.<span class="ident">content</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-        };
-        <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
+        <span class="doccomment">/// LSP message handler function for `textDocument/semanticTokens/full`.</span>
+        <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">full</span>(
+            <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
+            <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">SemanticTokensParams</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokensResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="ident">provider</span>::<span class="ident">semantic_tokens</span>::<span class="ident">full</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="kw">await</span>
+        }
+
+        <span class="doccomment">/// LSP message handler function for `textDocument/semanticTokens/range`.</span>
+        <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">range</span>(
+            <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
+            <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">SemanticTokensRangeParams</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokensRangeResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="ident">provider</span>::<span class="ident">semantic_tokens</span>::<span class="ident">range</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="kw">await</span>
+        }
     }
 }
 </pre></div>

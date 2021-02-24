@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["core",""],["handler",""],["package",""],["provider",""],["server",""]]});
+initSidebarItems({"mod":[["core","Core definitions for server functionality. Core definitions for server functionality."],["handler","LSP message handler functions. LSP message handler functions."],["metadata","Build-time metadata for the server. Build-time metadata for the server."],["provider","LSP feature provider functions. LSP feature provider functions."],["server","LSP server capabilities and server instance. LSP server capabilities and server instance."]]});

@@ -16,13 +16,27 @@
 <span id="13">13</span>
 <span id="14">14</span>
 <span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+<span class="doccomment">//! Core definitions for server functionality.</span>
 
-<span class="kw">mod</span> <span class="ident">document</span>;
-<span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">mod</span> <span class="ident">session</span>;
-<span class="kw">mod</span> <span class="ident">text</span>;
+<span class="doccomment">/// Definitions related to LSP documents.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">document</span>;
+
+<span class="doccomment">/// Definitions related to runtime errors.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
+
+<span class="doccomment">/// Definitions related to the LSP session.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">session</span>;
+
+<span class="doccomment">/// Definitions related to working with textual content.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">text</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">document</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::<span class="kw-2">*</span>;

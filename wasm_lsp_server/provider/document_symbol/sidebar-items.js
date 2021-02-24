@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["document_symbol","Compute “textDocument/documentSymbols” for a given document."]]});
+initSidebarItems({"fn":[["document_symbol","Provider function for LSP `textDocument/documentSymbol`."]],"mod":[["wast","Provider definitions for LSP `textDocument/documentSymbol` for `.wast` documents. Provider definitions for LSP `textDocument/documentSymbol` for `.wast` documents."],["wat","Provider definitions for LSP `textDocument/documentSymbol` for `.wat` documents. Provider definitions for LSP `textDocument/documentSymbol` for `.wat` documents."]]});

@@ -48,26 +48,34 @@
 <span id="45">45</span>
 <span id="46">46</span>
 <span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">//! Definitions related to runtime errors.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">core</span>;
 <span class="kw">use</span> <span class="ident">thiserror</span>::<span class="ident">Error</span>;
 
+<span class="doccomment">/// Runtime errors for the LSP server.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">enum_variant_names</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
+    <span class="doccomment">/// Error that occurs when [`core::Session.client`] is accessed and is `None`.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;ClientNotInitialzed&quot;</span>)]</span>
     <span class="ident">ClientNotInitialized</span>,
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;ColumnOutOfBounds: given={given:?}, max={max:?}&quot;</span>)]</span>
-    <span class="ident">ColumnOutOfBounds</span> { <span class="ident">given</span>: <span class="ident">usize</span>, <span class="ident">max</span>: <span class="ident">usize</span> },
+    <span class="doccomment">/// Error that occurs when a session resource is requested and does not exist.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;core::SessionResourceNotFound: kind={kind:?}, uri={uri:?}&quot;</span>)]</span>
     <span class="ident">SessionResourceNotFound</span> {
+        <span class="doccomment">/// The kind of the requested session resource.</span>
         <span class="ident">kind</span>: <span class="ident">core</span>::<span class="ident">session</span>::<span class="ident">SessionResourceKind</span>,
+        <span class="doccomment">/// The URL of the requested session resource.</span>
         <span class="ident">uri</span>: <span class="ident">lsp</span>::<span class="ident">Url</span>,
     },
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;LineOutOfBounds: given={given:?}, max={max:?}&quot;</span>)]</span>
-    <span class="ident">LineOutOfBounds</span> { <span class="ident">given</span>: <span class="ident">usize</span>, <span class="ident">max</span>: <span class="ident">usize</span> },
 }
 
+<span class="doccomment">/// Wrapper struct for converting [`anyhow::Error`] into [`lspower::jsonrpc::Error`].</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntoJsonRpcError</span>(<span class="kw">pub</span> <span class="ident">anyhow</span>::<span class="ident">Error</span>);
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">IntoJsonRpcError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">lspower</span>::<span class="ident">jsonrpc</span>::<span class="ident">Error</span> {

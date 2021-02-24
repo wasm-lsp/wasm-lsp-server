@@ -127,23 +127,37 @@
 <span id="124">124</span>
 <span id="125">125</span>
 <span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">//! LSP server capabilities and server instance.</span>
+
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core</span>, <span class="ident">handler</span>};
 <span class="kw">use</span> <span class="ident">lspower</span>::<span class="ident">jsonrpc</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
+<span class="doccomment">/// The WebAssembly language server structure.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Server</span> {
+    <span class="doccomment">/// Reference to the LSP client.</span>
     <span class="kw">pub</span> <span class="ident">client</span>: <span class="ident">lspower</span>::<span class="ident">Client</span>,
+    <span class="doccomment">/// Reference to the LSP session.</span>
     <span class="kw">pub</span> <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Server</span> {
+    <span class="doccomment">/// Create a new [`Server`] instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="ident">lspower</span>::<span class="ident">Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">core</span>::<span class="ident">Session</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="ident">client</span>.<span class="ident">clone</span>()))<span class="question-mark">?</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">Server</span> { <span class="ident">client</span>, <span class="ident">session</span> })
     }
 }
 
+<span class="doccomment">/// Convenience function for building [`lsp::ServerCapabilities`] for [Server].</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capabilities</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">lsp</span>::<span class="ident">ServerCapabilities</span> {
     <span class="kw">let</span> <span class="ident">document_symbol_provider</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lsp</span>::<span class="ident">OneOf</span>::<span class="ident">Left</span>(<span class="bool-val">true</span>));
 
@@ -241,7 +255,7 @@
         <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">SemanticTokensParams</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">jsonrpc</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokensResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">handler</span>::<span class="ident">text_document</span>::<span class="ident">semantic_tokens_full</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">handler</span>::<span class="ident">text_document</span>::<span class="ident">semantic_tokens</span>::<span class="ident">full</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="kw">await</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">core</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
     }
 
@@ -250,7 +264,7 @@
         <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">SemanticTokensRangeParams</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">jsonrpc</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokensRangeResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">session</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">handler</span>::<span class="ident">text_document</span>::<span class="ident">semantic_tokens_range</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">handler</span>::<span class="ident">text_document</span>::<span class="ident">semantic_tokens</span>::<span class="ident">range</span>(<span class="ident">session</span>, <span class="ident">params</span>).<span class="kw">await</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">core</span>::<span class="ident">IntoJsonRpcError</span>)<span class="question-mark">?</span>)
     }
 }

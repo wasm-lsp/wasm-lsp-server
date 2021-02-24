@@ -81,6 +81,9 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
 
@@ -88,8 +91,11 @@
 <span class="kw">use</span> <span class="ident">lsp_text</span>::<span class="ident">RopeExt</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
-<span class="kw">mod</span> <span class="ident">wast</span>;
-<span class="kw">mod</span> <span class="ident">wat</span>;
+<span class="doccomment">/// Provider definitions for LSP `textDocument/documentSymbol` for `.wast` documents.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">wast</span>;
+
+<span class="doccomment">/// Provider definitions for LSP `textDocument/documentSymbol` for `.wat` documents.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">wat</span>;
 
 <span class="doccomment">/// Encodes data for constructing upcoming DocumentSymbols.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
@@ -149,7 +155,7 @@
     }
 }
 
-<span class="doccomment">/// Compute &quot;textDocument/documentSymbols&quot; for a given document.</span>
+<span class="doccomment">/// Provider function for LSP `textDocument/documentSymbol`.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">document_symbol</span>(
     <span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">Session</span><span class="op">&gt;</span>,
     <span class="ident">params</span>: <span class="ident">lsp</span>::<span class="ident">DocumentSymbolParams</span>,
