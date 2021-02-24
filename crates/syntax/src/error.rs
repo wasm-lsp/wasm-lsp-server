@@ -10,10 +10,10 @@ pub enum Error {
     /// Error that occurs when parsing an invalid language-id string.
     #[error("InvalidLanguageId: {0}")]
     InvalidLanguageId(String),
-    /// Error that occurs when `OsStr::to_str()` returns `None`.
+    /// Error that occurs when [`std::ffi::OsStr::to_str`] returns `None`.
     #[error("OsStrToStrFailed")]
     OsStrToStrFailed,
-    /// Error that occurs when `Path::extension()` returns `None`.
+    /// Error that occurs when [`std::path::Path::extension`] returns `None`.
     #[error("PathExtensionFailed: {0}")]
     PathExtensionFailed(PathBuf),
 }

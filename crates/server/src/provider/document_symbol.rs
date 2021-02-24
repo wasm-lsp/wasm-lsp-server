@@ -4,8 +4,11 @@ use crate::core::{self};
 use lsp_text::RopeExt;
 use std::sync::Arc;
 
-mod wast;
-mod wat;
+/// Provider definitions for LSP `textDocument/documentSymbol` for `.wast` documents.
+pub mod wast;
+
+/// Provider definitions for LSP `textDocument/documentSymbol` for `.wat` documents.
+pub mod wat;
 
 /// Encodes data for constructing upcoming DocumentSymbols.
 #[derive(Clone, Debug)]
@@ -65,7 +68,7 @@ pub(self) fn symbol_range(
     }
 }
 
-/// Compute "textDocument/documentSymbols" for a given document.
+/// Provider function for LSP `textDocument/documentSymbol`.
 pub async fn document_symbol(
     session: Arc<core::Session>,
     params: lsp::DocumentSymbolParams,
