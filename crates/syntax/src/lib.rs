@@ -17,6 +17,9 @@ pub mod node;
 /// Functionality related to [`tree_sitter::Parser`].
 pub mod parser;
 
+/// Functionality related to [`tree_sitter::Range`].
+pub mod range;
+
 #[cfg(not(target_arch = "wasm32"))]
 extern {
     #[allow(dead_code)]
