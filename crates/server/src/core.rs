@@ -19,4 +19,5 @@ pub use text::*;
 pub use wasm_lsp_syntax::{
     language::{self, Language},
     node,
+    range,
 };
