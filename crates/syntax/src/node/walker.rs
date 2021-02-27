@@ -5,6 +5,7 @@ use std::slice::SliceIndex;
 #[derive(Debug, Default, Clone)]
 pub struct NodeWalkerStack<'tree> {
     nodes: Vec<tree_sitter::Node<'tree>>,
+    kinds: Vec<u16>,
 }
 
 impl<'tree> NodeWalkerStack<'tree> {
@@ -14,28 +15,23 @@ impl<'tree> NodeWalkerStack<'tree> {
 
     fn matches<I>(&self, index: I, kind_ids: &[u16]) -> bool
     where
-        I: SliceIndex<[tree_sitter::Node<'tree>], Output = [tree_sitter::Node<'tree>]>,
+        I: SliceIndex<[u16], Output = [u16]>,
     {
-        if let Some(nodes) = self.nodes.get(index) {
-            if nodes.len() == kind_ids.len() {
-                let mut result = false;
-                for i in 0 .. kind_ids.len() {
-                    result = kind_ids[i] == nodes[i].kind_id();
-                }
-                result
-            } else {
-                false
-            }
+        let that = kind_ids;
+        if let Some(this) = self.kinds.get(index) {
+            this == that
         } else {
             false
         }
     }
 
     fn pop(&mut self) -> Option<tree_sitter::Node<'tree>> {
+        self.kinds.pop();
         self.nodes.pop()
     }
 
     fn push(&mut self, node: tree_sitter::Node<'tree>) {
+        self.kinds.push(node.kind_id());
         self.nodes.push(node);
     }
 }
@@ -66,11 +62,23 @@ impl<'tree> NodeWalker<'tree> {
     }
 
     /// Determine whether a given a slice of [`tree_sitter::Node`] kind ids forms the context.
-    pub fn context<I>(&self, index: I, kind_ids: &[u16]) -> bool
+    pub fn context_matches<I>(&self, index: I, kind_ids: &[u16]) -> bool
     where
-        I: SliceIndex<[tree_sitter::Node<'tree>], Output = [tree_sitter::Node<'tree>]>,
+        I: SliceIndex<[u16], Output = [u16]>,
     {
         self.stack.matches(index, kind_ids)
+    }
+
+    /// Return the slice of [`tree_sitter::Node`] kind ids that form the context.
+    pub fn context_kinds<'walker>(&'walker self) -> &'walker [u16]
+    {
+        &self.stack.kinds
+    }
+
+    /// Return the slice of [`tree_sitter::Node`] that form the context.
+    pub fn context_nodes<'walker>(&'walker self) -> &'walker [tree_sitter::Node<'tree>]
+    {
+        &self.stack.nodes
     }
 
     /// Return the depth of the current context.
