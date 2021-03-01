@@ -1017,7 +1017,7 @@ checksum = "46560039addc43039db7f0d0b0994a1c13c66f5dedd7681fec86589d47d8386f"
 dependencies = [
  "anyhow",
  "bytes",
- "lsp-types",
+ "lsp-types 0.86.0",
  "ropey",
  "tree-sitter-facade",
 ]
@@ -1037,10 +1037,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "lspower"
-version = "0.6.2"
+name = "lsp-types"
+version = "0.88.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43b90d933edadae6d725ab7594ebb488ef8b3123ddaba63d5e3bdf305db965cd"
+checksum = "d8e8e042772e4e10b3785822f63c82399d0dd233825de44d2596f7fa86e023e0"
+dependencies = [
+ "bitflags",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "url",
+]
+
+[[package]]
+name = "lspower"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8fccd14df7a29f1d004c767da191a4674e358b986288f2dcb6cdfba7ba5288e"
 dependencies = [
  "anyhow",
  "async-codec-lite",
@@ -1050,7 +1063,7 @@ dependencies = [
  "dashmap",
  "futures",
  "log",
- "lsp-types",
+ "lsp-types 0.88.0",
  "lspower-macros",
  "nom",
  "serde",
@@ -2087,7 +2100,7 @@ dependencies = [
  "blocking",
  "futures",
  "libfuzzer-sys",
- "lsp-types",
+ "lsp-types 0.86.0",
  "lspower",
  "serde_json",
  "smol",
@@ -2130,7 +2143,7 @@ dependencies = [
  "indoc",
  "log",
  "lsp-text",
- "lsp-types",
+ "lsp-types 0.86.0",
  "lspower",
  "ropey",
  "serde_json",
