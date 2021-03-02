@@ -36,9 +36,9 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
             let range = content.tree_sitter_range_to_lsp_range(range);
             let severity = Some(lsp::DiagnosticSeverity::Error);
             diagnostics.push(lsp::Diagnostic {
-                message,
                 range,
                 severity,
+                message,
                 ..Default::default()
             });
             walker.goto_next_has_error();
@@ -60,9 +60,9 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
             let range = content.tree_sitter_range_to_lsp_range(range);
             let severity = Some(lsp::DiagnosticSeverity::Error);
             diagnostics.push(lsp::Diagnostic {
-                message,
                 range,
                 severity,
+                message,
                 ..Default::default()
             });
             walker.goto_next_has_error();
