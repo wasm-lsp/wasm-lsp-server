@@ -61,9 +61,9 @@ pub fn capabilities() -> lsp::ServerCapabilities {
     };
 
     lsp::ServerCapabilities {
+        text_document_sync,
         document_symbol_provider,
         semantic_tokens_provider,
-        text_document_sync,
         ..Default::default()
     }
 }
