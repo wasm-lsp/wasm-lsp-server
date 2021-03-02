@@ -30,7 +30,7 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
                 },
                 _ => {
                     covering_error_range = Some(range.clone());
-                }
+                },
             }
             let message = String::from("ERROR node");
             let range = content.tree_sitter_range_to_lsp_range(range);
@@ -54,7 +54,7 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
                 },
                 _ => {
                     covering_error_range = Some(range.clone());
-                }
+                },
             }
             let message = String::from("MISSING node");
             let range = content.tree_sitter_range_to_lsp_range(range);
