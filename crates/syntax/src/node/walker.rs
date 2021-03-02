@@ -70,14 +70,12 @@ impl<'tree> NodeWalker<'tree> {
     }
 
     /// Return the slice of [`tree_sitter::Node`] kind ids that form the context.
-    pub fn context_kinds<'walker>(&'walker self) -> &'walker [u16]
-    {
+    pub fn context_kinds<'walker>(&'walker self) -> &'walker [u16] {
         &self.stack.kinds
     }
 
     /// Return the slice of [`tree_sitter::Node`] that form the context.
-    pub fn context_nodes<'walker>(&'walker self) -> &'walker [tree_sitter::Node<'tree>]
-    {
+    pub fn context_nodes<'walker>(&'walker self) -> &'walker [tree_sitter::Node<'tree>] {
         &self.stack.nodes
     }
 
