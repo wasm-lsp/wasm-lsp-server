@@ -1006,9 +1006,9 @@ dependencies = [
 
 [[package]]
 name = "lspower"
-version = "0.8.1"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38bcdeb89d2a8d0025dd1cfacdb81f4efab55a3ee5e145ee1b0d19d4af4696b9"
+checksum = "afaeb01db018cafb557d24bb0bf630fd0c4af1693371a91b5307e17ce3486516"
 dependencies = [
  "anyhow",
  "async-codec-lite",
