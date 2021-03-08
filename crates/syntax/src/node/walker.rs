@@ -8,7 +8,7 @@ pub struct NodeWalkerLevel<'tree> {
     prefixed: Vec<tree_sitter::Node<'tree>>,
 }
 
-/// The current node stack. Used for context comparison.
+/// The current node context.
 #[derive(Debug, Default, Clone)]
 pub struct NodeWalkerContext<'tree> {
     stack: Vec<NodeWalkerLevel<'tree>>,
@@ -75,7 +75,8 @@ impl<'tree> NodeWalkerContext<'tree> {
 /// The current state of the node walking and token encoding algorithm.
 pub struct NodeWalker<'tree> {
     language: Language,
-    context: NodeWalkerContext<'tree>,
+    /// The current node context.
+    pub context: NodeWalkerContext<'tree>,
     cursor: tree_sitter::TreeCursor<'tree>,
     /// Whether the [`NodeWalker`] has finished traversing the origin [`tree_sitter::Tree`].
     pub done: bool,
@@ -169,19 +170,7 @@ impl<'tree> NodeWalker<'tree> {
         let mut moved;
 
         // Only descend if the current node has an error in the subtree.
-        if node.has_error()
-            && ![
-                wast::kind::COMMENT_BLOCK_ANNOT,
-                wast::kind::COMMENT_BLOCK,
-                wast::kind::COMMENT_LINE_ANNOT,
-                wast::kind::COMMENT_LINE,
-                wat::kind::COMMENT_BLOCK_ANNOT,
-                wat::kind::COMMENT_BLOCK,
-                wat::kind::COMMENT_LINE_ANNOT,
-                wat::kind::COMMENT_LINE,
-            ]
-            .contains(&node.kind_id())
-        {
+        if node.has_error() && !crate::language::COMMENT_NODES.contains(&node.kind_id()) {
             moved = self.goto_next();
         } else {
             // Otherwise try to move to the next sibling node.
