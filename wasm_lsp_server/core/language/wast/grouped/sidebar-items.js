@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["MODULE_FIELDS",""]]});
+initSidebarItems({"constant":[["MODULE_FIELDS",""]]});

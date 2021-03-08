@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["IDENTIFIER",""]]});
+initSidebarItems({"constant":[["IDENTIFIER",""]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["language","Tree-sitter language for the `.wat` grammar."]],"mod":[["field",""],["grouped",""],["kind",""]]});
+initSidebarItems({"mod":[["field",""],["grouped",""],["kind",""]]});

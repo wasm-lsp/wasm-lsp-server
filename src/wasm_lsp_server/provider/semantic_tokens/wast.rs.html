@@ -881,150 +881,150 @@
             }
 
             <span class="comment">// handle &quot;root&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ROOT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ROOT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">root</span>();
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;_action&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ACTION_GET</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ACTION_GET</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">action_get</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">token</span>::<span class="ident">GET</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">token</span>::<span class="ident">GET</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">token_get</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ACTION_INVOKE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ACTION_INVOKE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">action_invoke</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">token</span>::<span class="ident">INVOKE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">token</span>::<span class="ident">INVOKE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">token_invoke</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;_assertion&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_EXHAUSTION</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_EXHAUSTION</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_exhaustion</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_INVALID</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_INVALID</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_invalid</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_EXHAUSTION</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_EXHAUSTION</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_exhaustion</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_INVALID</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_INVALID</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_invalid</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_MALFORMED</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_MALFORMED</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_malformed</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_RETURN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_RETURN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_return</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_RETURN_ARITHMETIC_NAN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_RETURN_ARITHMETIC_NAN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_return_arithmetic_nan</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_RETURN_CANONICAL_NAN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_RETURN_CANONICAL_NAN</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_return_canonical_nan</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_TRAP_ACTION</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_TRAP_ACTION</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_trap_action</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_TRAP_MODULE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_TRAP_MODULE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_trap_module</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_UNLINKABLE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">ASSERT_UNLINKABLE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">assert_unlinkable</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;command&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMAND</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMAND</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">command</span>();
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle {&quot;comment_block&quot;, &quot;comment_block_annot&quot;, &quot;comment_line&quot;, &quot;comment_line_annot&quot;}</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_BLOCK</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_BLOCK</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="comment">// NOTE: We ignore these for now since we can&#39;t highlight multiline tokens.</span>
                 <span class="comment">// handler.comment_block()?;</span>
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_BLOCK_ANNOT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_BLOCK_ANNOT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="comment">// NOTE: We ignore these for now since we can&#39;t highlight multiline tokens.</span>
                 <span class="comment">// handler.comment_block_annot()?;</span>
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_LINE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_LINE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">comment_line</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_LINE_ANNOT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">COMMENT_LINE_ANNOT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">comment_line_annot</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;_meta&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">META_INPUT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">META_INPUT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">meta_input</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">META_OUTPUT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">META_OUTPUT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">meta_output</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">META_SCRIPT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">META_SCRIPT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">meta_script</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;module&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;_module_field&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_DATA</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_DATA</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_data</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_ELEM</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_ELEM</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_elem</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_EXPORT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_EXPORT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_export</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_FUNC</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_FUNC</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_func</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_GLOBAL</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_GLOBAL</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_global</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_IMPORT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_IMPORT</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_import</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_MEMORY</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_MEMORY</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_memory</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_START</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_START</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_start</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TABLE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TABLE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_table</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TYPE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE_FIELD_TYPE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">module_field_type</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;register&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">REGISTER</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">REGISTER</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">register</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
 
             <span class="comment">// handle &quot;_script_module&quot;</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">MODULE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="comment">// handled earlier</span>
                 <span class="macro">unreachable</span><span class="macro">!</span>();
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">SCRIPT_MODULE_BINARY</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">SCRIPT_MODULE_BINARY</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">script_module_binary</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">SCRIPT_MODULE_QUOTE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">SCRIPT_MODULE_QUOTE</span> <span class="op">=</span><span class="op">=</span> <span class="ident">handler</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
                 <span class="ident">handler</span>.<span class="ident">script_module_quote</span>()<span class="question-mark">?</span>;
                 <span class="kw">continue</span>;
             }
@@ -1402,7 +1402,7 @@
         }
 
         <span class="comment">// optional($.identifier)</span>
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IDENTIFIER</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+        <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IDENTIFIER</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
             <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">node</span>();
             <span class="kw">let</span> <span class="ident">token_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokenType</span>::<span class="ident">FUNCTION</span>;
             <span class="kw">let</span> <span class="ident">token_modifiers</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
@@ -1411,17 +1411,17 @@
         }
 
         <span class="comment">// repeat($.export)</span>
-        <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">EXPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+        <span class="kw">while</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">EXPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
             <span class="self">self</span>.<span class="ident">export</span>()<span class="question-mark">?</span>;
         }
 
         <span class="comment">// optional($.import)</span>
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IMPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+        <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IMPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
             <span class="self">self</span>.<span class="ident">import</span>()<span class="question-mark">?</span>;
         }
 
         <span class="comment">// optional($.type_use)</span>
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">TYPE_USE</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+        <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">TYPE_USE</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
             <span class="self">self</span>.<span class="ident">type_use</span>()<span class="question-mark">?</span>;
         }
 
@@ -1445,7 +1445,7 @@
         }
 
         <span class="comment">// optional($.identifier)</span>
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IDENTIFIER</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+        <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IDENTIFIER</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
             <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">node</span>();
             <span class="kw">let</span> <span class="ident">token_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lsp</span>::<span class="ident">SemanticTokenType</span>::<span class="ident">FUNCTION</span>;
             <span class="kw">let</span> <span class="ident">token_modifiers</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
@@ -1454,12 +1454,12 @@
         }
 
         <span class="comment">// repeat($.export)</span>
-        <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">EXPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+        <span class="kw">while</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">EXPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
             <span class="self">self</span>.<span class="ident">export</span>()<span class="question-mark">?</span>;
         }
 
         <span class="comment">// optional($.import)</span>
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IMPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
+        <span class="kw">if</span> <span class="ident">wast</span>::<span class="ident">kind</span>::<span class="ident">IMPORT</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">walker</span>.<span class="ident">kind</span>() {
             <span class="self">self</span>.<span class="ident">import</span>()<span class="question-mark">?</span>;
         }
 
