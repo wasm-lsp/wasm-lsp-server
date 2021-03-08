@@ -2047,6 +2047,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasm-lsp-languages"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "cc",
+ "futures",
+ "tree-sitter",
+ "tree-sitter-facade",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-tree-sitter-sys",
+]
+
+[[package]]
 name = "wasm-lsp-macros"
 version = "0.0.0"
 dependencies = [
@@ -2057,6 +2071,8 @@ dependencies = [
  "quote",
  "syn",
  "thiserror",
+ "tree-sitter",
+ "wasm-lsp-languages",
 ]
 
 [[package]]
@@ -2094,14 +2110,14 @@ name = "wasm-lsp-syntax"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "cc",
  "futures",
- "lazy_static",
  "thiserror",
  "tree-sitter",
  "tree-sitter-facade",
  "wasm-bindgen",
  "wasm-bindgen-futures",
+ "wasm-lsp-languages",
+ "wasm-lsp-macros",
  "web-tree-sitter-sys",
 ]
 

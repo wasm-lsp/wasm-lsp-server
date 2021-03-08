@@ -62,63 +62,63 @@ pub(crate) async fn range(
             }
 
             // handle "root"
-            if *wat::kind::ROOT == handler.walker.kind() {
+            if wat::kind::ROOT == handler.walker.kind() {
                 handler.root();
                 continue;
             }
 
             // handle {"comment_block", "comment_block_annot", "comment_line", "comment_line_annot"}
-            if *wat::kind::COMMENT_BLOCK == handler.walker.kind() {
+            if wat::kind::COMMENT_BLOCK == handler.walker.kind() {
                 // NOTE: We ignore these for now since we can't highlight multiline tokens.
                 // handler.comment_block()?;
                 continue;
-            } else if *wat::kind::COMMENT_BLOCK_ANNOT == handler.walker.kind() {
+            } else if wat::kind::COMMENT_BLOCK_ANNOT == handler.walker.kind() {
                 // NOTE: We ignore these for now since we can't highlight multiline tokens.
                 // handler.comment_block_annot()?;
                 continue;
-            } else if *wat::kind::COMMENT_LINE == handler.walker.kind() {
+            } else if wat::kind::COMMENT_LINE == handler.walker.kind() {
                 handler.comment_line()?;
                 continue;
-            } else if *wat::kind::COMMENT_LINE_ANNOT == handler.walker.kind() {
+            } else if wat::kind::COMMENT_LINE_ANNOT == handler.walker.kind() {
                 handler.comment_line_annot()?;
                 continue;
             }
 
             // handle "module"
-            if *wat::kind::MODULE == handler.walker.kind() {
+            if wat::kind::MODULE == handler.walker.kind() {
                 handler.module()?;
                 continue;
             }
 
             // handle "_module_field"
-            if *wat::kind::MODULE_FIELD_DATA == handler.walker.kind() {
+            if wat::kind::MODULE_FIELD_DATA == handler.walker.kind() {
                 handler.module_field_data()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_ELEM == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_ELEM == handler.walker.kind() {
                 handler.module_field_elem()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_EXPORT == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_EXPORT == handler.walker.kind() {
                 handler.module_field_export()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_FUNC == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_FUNC == handler.walker.kind() {
                 handler.module_field_func()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_GLOBAL == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_GLOBAL == handler.walker.kind() {
                 handler.module_field_global()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_IMPORT == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_IMPORT == handler.walker.kind() {
                 handler.module_field_import()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_MEMORY == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_MEMORY == handler.walker.kind() {
                 handler.module_field_memory()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_START == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_START == handler.walker.kind() {
                 handler.module_field_start()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_TABLE == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_TABLE == handler.walker.kind() {
                 handler.module_field_table()?;
                 continue;
-            } else if *wat::kind::MODULE_FIELD_TYPE == handler.walker.kind() {
+            } else if wat::kind::MODULE_FIELD_TYPE == handler.walker.kind() {
                 handler.module_field_type()?;
                 continue;
             }
@@ -330,7 +330,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // optional($.identifier)
-        if *wat::kind::IDENTIFIER == self.walker.kind() {
+        if wat::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
             let token_type = &lsp::SemanticTokenType::FUNCTION;
             let token_modifiers = Default::default();
@@ -339,17 +339,17 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // repeat($.export)
-        while *wat::kind::EXPORT == self.walker.kind() {
+        while wat::kind::EXPORT == self.walker.kind() {
             self.export()?;
         }
 
         // optional($.import)
-        if *wat::kind::IMPORT == self.walker.kind() {
+        if wat::kind::IMPORT == self.walker.kind() {
             self.import()?;
         }
 
         // optional($.type_use)
-        if *wat::kind::TYPE_USE == self.walker.kind() {
+        if wat::kind::TYPE_USE == self.walker.kind() {
             self.type_use()?;
         }
 
@@ -373,7 +373,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // optional($.identifier)
-        if *wat::kind::IDENTIFIER == self.walker.kind() {
+        if wat::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
             let token_type = &lsp::SemanticTokenType::FUNCTION;
             let token_modifiers = Default::default();
@@ -382,12 +382,12 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // repeat($.export)
-        while *wat::kind::EXPORT == self.walker.kind() {
+        while wat::kind::EXPORT == self.walker.kind() {
             self.export()?;
         }
 
         // optional($.import)
-        if *wat::kind::IMPORT == self.walker.kind() {
+        if wat::kind::IMPORT == self.walker.kind() {
             self.import()?;
         }
 

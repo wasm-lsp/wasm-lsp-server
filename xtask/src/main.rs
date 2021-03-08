@@ -168,6 +168,7 @@ FLAGS:
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-languages"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(&["--package", "wasm-lsp-syntax"]);
@@ -211,6 +212,7 @@ FLAGS:
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-languages"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(&["--package", "wasm-lsp-syntax"]);
@@ -373,6 +375,7 @@ FLAGS:
                 "--packages",
                 "xtask",
                 "wasm-lsp-cli",
+                "wasm-lsp-languages",
                 "wasm-lsp-macros",
                 "wasm-lsp-server",
                 "wasm-lsp-syntax",
@@ -432,6 +435,7 @@ FLAGS:
             cmd.args(&["test"]);
             cmd.args(&["--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-languages"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(&["--package", "wasm-lsp-syntax"]);
             cmd.args(&["--package", "wasm-lsp-testing"]);
@@ -474,6 +478,7 @@ FLAGS:
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(&["--package", "wasm-lsp-languages"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
             cmd.args(&["--package", "wasm-lsp-server"]);
             cmd.args(&["--package", "wasm-lsp-syntax"]);

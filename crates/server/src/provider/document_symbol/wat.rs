@@ -42,7 +42,7 @@ pub async fn document_symbol(
                         name,
                         range,
                         selection_range,
-                    } = { symbol_range(content, node, name_hint, *wat::field::IDENTIFIER) };
+                    } = { symbol_range(content, node, name_hint, wat::field::IDENTIFIER) };
 
                     #[allow(deprecated)]
                     let sym = lsp::DocumentSymbol {
@@ -67,21 +67,21 @@ pub async fn document_symbol(
                 }
             },
 
-            Work::Node(node) if *wat::kind::ROOT == node.kind_id() => {
+            Work::Node(node) if wat::kind::ROOT == node.kind_id() => {
                 let mut cursor = node.walk();
                 let commands = node
                     .children(&mut cursor)
-                    .filter(|it| [*wat::kind::MODULE, *wat::kind::MODULE_FIELD].contains(&it.kind_id()))
+                    .filter(|it| [wat::kind::MODULE, wat::kind::MODULE_FIELD].contains(&it.kind_id()))
                     .map(Work::Node);
                 work.extend(commands);
             },
 
-            Work::Node(node) if *wat::kind::MODULE == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE == node.kind_id() => {
                 work.push(Work::Data);
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if child.matches_subtypes(*wat::kind::MODULE_FIELD, &*wat::grouped::MODULE_FIELDS) {
+                    if child.matches_subtypes(wat::kind::MODULE_FIELD, &*wat::grouped::MODULE_FIELDS) {
                         work.push(Work::Node(child));
                         children_count += 1;
                     }
@@ -95,7 +95,7 @@ pub async fn document_symbol(
                 });
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD == node.kind_id() => {
                 let mut cursor = node.walk();
                 let children = node
                     .children(&mut cursor)
@@ -104,7 +104,7 @@ pub async fn document_symbol(
                 work.extend(children);
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD_DATA == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD_DATA == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -114,7 +114,7 @@ pub async fn document_symbol(
                 });
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD_ELEM == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD_ELEM == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -124,7 +124,7 @@ pub async fn document_symbol(
                 });
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD_FUNC == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD_FUNC == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -134,7 +134,7 @@ pub async fn document_symbol(
                 });
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD_GLOBAL == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD_GLOBAL == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -144,7 +144,7 @@ pub async fn document_symbol(
                 });
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD_MEMORY == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD_MEMORY == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -154,7 +154,7 @@ pub async fn document_symbol(
                 });
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD_TABLE == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD_TABLE == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
@@ -164,7 +164,7 @@ pub async fn document_symbol(
                 });
             },
 
-            Work::Node(node) if *wat::kind::MODULE_FIELD_TYPE == node.kind_id() => {
+            Work::Node(node) if wat::kind::MODULE_FIELD_TYPE == node.kind_id() => {
                 work.push(Work::Data);
                 data.push(Data {
                     node,
