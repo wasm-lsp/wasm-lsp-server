@@ -4,6 +4,10 @@
 #![deny(missing_docs)]
 #![deny(unsafe_code)]
 
+use glob::glob;
+use proc_macro::TokenStream;
+use quote::quote;
+
 mod corpus {
     mod keyword {
         syn::custom_keyword!(corpus);
@@ -60,10 +64,6 @@ mod corpus {
         }
     }
 }
-
-use glob::glob;
-use proc_macro::TokenStream;
-use quote::quote;
 
 /// Generate tests from a corpus of wasm modules on the filesystem.
 ///
