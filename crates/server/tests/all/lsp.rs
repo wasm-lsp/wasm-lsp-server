@@ -708,24 +708,42 @@ mod text_document {
         corpus_tests! {
             corpus: annotations,
             include: "vendor/corpus/vendor/WebAssembly/annotations/test/core/*.wast",
+            exclude: [
+                "annotations.wast",
+                "comments.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
         corpus_tests! {
             corpus: bulk_memory_operations,
             include: "vendor/corpus/vendor/WebAssembly/bulk-memory-operations/test/core/*.wast",
+            exclude: [
+                "comments.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
         corpus_tests! {
             corpus: exception_handling,
             include: "vendor/corpus/vendor/WebAssembly/exception-handling/test/core/*.wast",
+            exclude: [
+                "comments.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
         corpus_tests! {
             corpus: function_references,
             include: "vendor/corpus/vendor/WebAssembly/function-references/test/core/*.wast",
+            exclude: [
+                "comments.wast",
+                "let.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
@@ -748,30 +766,51 @@ mod text_document {
         corpus_tests! {
             corpus: multi_memory,
             include: "vendor/corpus/vendor/WebAssembly/multi-memory/test/core/*.wast",
+            exclude: [
+                "comments.wast",
+                "local_set.wast",
+                "memory_grow.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
         corpus_tests! {
             corpus: reference_types,
             include: "vendor/corpus/vendor/WebAssembly/reference-types/test/core/*.wast",
+            exclude: [
+                "comments.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
         corpus_tests! {
             corpus: simd,
             include: "vendor/corpus/vendor/WebAssembly/simd/test/core/**/*.wast",
+            exclude: [
+                "comments.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
         corpus_tests! {
             corpus: spec,
             include: "vendor/corpus/vendor/WebAssembly/spec/test/core/*.wast",
+            exclude: [
+                "comments.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
 
         corpus_tests! {
             corpus: threads,
             include: "vendor/corpus/vendor/WebAssembly/threads/test/core/*.wast",
+            exclude: [
+                "comments.wast",
+                "local_set.wast",
+            ],
             handler: crate::lsp::text_document::did_open::handler,
         }
     }
