@@ -9,14 +9,14 @@ use proc_macro::TokenStream;
 use quote::quote;
 
 mod corpus_tests {
+    use syn::parse::{Parse, ParseStream};
+
     mod keyword {
         syn::custom_keyword!(corpus);
         syn::custom_keyword!(include);
         syn::custom_keyword!(exclude);
         syn::custom_keyword!(handler);
     }
-
-    use syn::parse::{Parse, ParseStream};
 
     pub(crate) struct MacroInput {
         pub(crate) corpus: syn::Ident,
@@ -136,4 +136,204 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
     };
 
     module.into()
+}
+
+mod language {
+    use std::convert::TryFrom;
+    use syn::parse::{Parse, ParseStream};
+
+    pub(crate) enum Language {
+        Wast,
+        Wat,
+    }
+
+    impl TryFrom<String> for Language {
+        type Error = ();
+
+        fn try_from(value: String) -> Result<Self, ()> {
+            match value.as_str() {
+                "wast" => Ok(Language::Wast),
+                "wat" => Ok(Language::Wat),
+                _ => Err(()),
+            }
+        }
+    }
+
+    impl Parse for Language {
+        fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+            let language = input.parse::<syn::Ident>()?;
+            let language = language.to_string();
+            let language = Language::try_from(language).map_err(|_| input.error("invalid language identifier"))?;
+            Ok(language)
+        }
+    }
+}
+
+mod field_ids {
+    use syn::parse::{Parse, ParseStream};
+
+    mod keyword {
+        syn::custom_keyword!(language);
+        syn::custom_keyword!(fields);
+    }
+
+    pub(crate) struct Field {
+        pub(crate) ident: syn::Ident,
+        pub(crate) name: String,
+    }
+
+    impl Parse for Field {
+        fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+            let content;
+            syn::parenthesized!(content in input);
+            let ident = content.parse()?;
+            content.parse::<syn::Token![,]>()?;
+            let name = content.parse::<syn::LitStr>()?.value();
+            Ok(Field { ident, name })
+        }
+    }
+
+    pub(crate) struct MacroInput {
+        pub(crate) language: super::language::Language,
+        pub(crate) fields: Vec<Field>,
+    }
+
+    impl Parse for MacroInput {
+        fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+            input.parse::<keyword::language>()?;
+            input.parse::<syn::Token![:]>()?;
+            let language = input.parse()?;
+            input.parse::<syn::Token![,]>()?;
+
+            input.parse::<keyword::fields>()?;
+            input.parse::<syn::Token![:]>()?;
+            let fields = {
+                let content;
+                syn::bracketed!(content in input);
+                content
+                    .parse_terminated::<Field, syn::Token![,]>(|b| b.parse())?
+                    .into_iter()
+                    .collect()
+            };
+            input.parse::<syn::Token![,]>().ok();
+
+            Ok(MacroInput { language, fields })
+        }
+    }
+}
+
+#[allow(missing_docs)]
+#[proc_macro]
+pub fn field_ids(input: TokenStream) -> TokenStream {
+    let macro_input = syn::parse_macro_input!(input as field_ids::MacroInput);
+
+    #[allow(unsafe_code)]
+    let language = match macro_input.language {
+        language::Language::Wast => wasm_lsp_languages::wast(),
+        language::Language::Wat => wasm_lsp_languages::wat(),
+    };
+
+    let mut content = vec![];
+
+    for field in macro_input.fields {
+        let ident = field.ident;
+        let name = field.name.as_str();
+        let value = language.field_id_for_name(name).unwrap();
+        let item = quote! {
+            pub const #ident: u16 = #value;
+        };
+        content.push(item);
+    }
+
+    let result = quote! {
+        #(#content)*
+    };
+
+    result.into()
+}
+
+mod node_kind_ids {
+    use syn::parse::{Parse, ParseStream};
+
+    mod keyword {
+        syn::custom_keyword!(language);
+        syn::custom_keyword!(node_kinds);
+    }
+
+    pub(crate) struct NodeKind {
+        pub(crate) ident: syn::Ident,
+        pub(crate) kind: String,
+        pub(crate) named: bool,
+    }
+
+    impl Parse for NodeKind {
+        fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+            let content;
+            syn::parenthesized!(content in input);
+            let ident = content.parse()?;
+            content.parse::<syn::Token![,]>()?;
+            let kind = content.parse::<syn::LitStr>()?.value();
+            content.parse::<syn::Token![,]>()?;
+            let named = content.parse::<syn::LitBool>()?.value();
+            Ok(NodeKind { ident, kind, named })
+        }
+    }
+
+    pub(crate) struct MacroInput {
+        pub(crate) language: super::language::Language,
+        pub(crate) node_kinds: Vec<NodeKind>,
+    }
+
+    impl Parse for MacroInput {
+        fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+            input.parse::<keyword::language>()?;
+            input.parse::<syn::Token![:]>()?;
+            let language = input.parse()?;
+            input.parse::<syn::Token![,]>()?;
+
+            input.parse::<keyword::node_kinds>()?;
+            input.parse::<syn::Token![:]>()?;
+            let node_kinds = {
+                let content;
+                syn::bracketed!(content in input);
+                content
+                    .parse_terminated::<NodeKind, syn::Token![,]>(|b| b.parse())?
+                    .into_iter()
+                    .collect()
+            };
+            input.parse::<syn::Token![,]>().ok();
+
+            Ok(MacroInput { language, node_kinds })
+        }
+    }
+}
+
+#[allow(missing_docs)]
+#[proc_macro]
+pub fn node_kind_ids(input: TokenStream) -> TokenStream {
+    let macro_input = syn::parse_macro_input!(input as node_kind_ids::MacroInput);
+
+    #[allow(unsafe_code)]
+    let language = match macro_input.language {
+        language::Language::Wast => wasm_lsp_languages::wast(),
+        language::Language::Wat => wasm_lsp_languages::wat(),
+    };
+
+    let mut content = vec![];
+
+    for node_kind in macro_input.node_kinds {
+        let ident = node_kind.ident;
+        let kind = node_kind.kind.as_str();
+        let value = language.id_for_node_kind(kind, node_kind.named);
+        let item = quote! {
+            pub const #ident: u16 = #value;
+        };
+        content.push(item);
+    }
+
+    let result = quote! {
+        #(#content)*
+    };
+
+    result.into()
 }

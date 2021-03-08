@@ -68,150 +68,150 @@ pub(crate) async fn range(
             }
 
             // handle "root"
-            if *wast::kind::ROOT == handler.walker.kind() {
+            if wast::kind::ROOT == handler.walker.kind() {
                 handler.root();
                 continue;
             }
 
             // handle "_action"
-            if *wast::kind::ACTION_GET == handler.walker.kind() {
+            if wast::kind::ACTION_GET == handler.walker.kind() {
                 handler.action_get()?;
                 continue;
-            } else if *wast::kind::token::GET == handler.walker.kind() {
+            } else if wast::kind::token::GET == handler.walker.kind() {
                 handler.token_get()?;
                 continue;
-            } else if *wast::kind::ACTION_INVOKE == handler.walker.kind() {
+            } else if wast::kind::ACTION_INVOKE == handler.walker.kind() {
                 handler.action_invoke()?;
                 continue;
-            } else if *wast::kind::token::INVOKE == handler.walker.kind() {
+            } else if wast::kind::token::INVOKE == handler.walker.kind() {
                 handler.token_invoke()?;
                 continue;
             }
 
             // handle "_assertion"
-            if *wast::kind::ASSERT_EXHAUSTION == handler.walker.kind() {
+            if wast::kind::ASSERT_EXHAUSTION == handler.walker.kind() {
                 handler.assert_exhaustion()?;
                 continue;
-            } else if *wast::kind::ASSERT_INVALID == handler.walker.kind() {
+            } else if wast::kind::ASSERT_INVALID == handler.walker.kind() {
                 handler.assert_invalid()?;
                 continue;
-            } else if *wast::kind::ASSERT_EXHAUSTION == handler.walker.kind() {
+            } else if wast::kind::ASSERT_EXHAUSTION == handler.walker.kind() {
                 handler.assert_exhaustion()?;
                 continue;
-            } else if *wast::kind::ASSERT_INVALID == handler.walker.kind() {
+            } else if wast::kind::ASSERT_INVALID == handler.walker.kind() {
                 handler.assert_invalid()?;
                 continue;
-            } else if *wast::kind::ASSERT_MALFORMED == handler.walker.kind() {
+            } else if wast::kind::ASSERT_MALFORMED == handler.walker.kind() {
                 handler.assert_malformed()?;
                 continue;
-            } else if *wast::kind::ASSERT_RETURN == handler.walker.kind() {
+            } else if wast::kind::ASSERT_RETURN == handler.walker.kind() {
                 handler.assert_return()?;
                 continue;
-            } else if *wast::kind::ASSERT_RETURN_ARITHMETIC_NAN == handler.walker.kind() {
+            } else if wast::kind::ASSERT_RETURN_ARITHMETIC_NAN == handler.walker.kind() {
                 handler.assert_return_arithmetic_nan()?;
                 continue;
-            } else if *wast::kind::ASSERT_RETURN_CANONICAL_NAN == handler.walker.kind() {
+            } else if wast::kind::ASSERT_RETURN_CANONICAL_NAN == handler.walker.kind() {
                 handler.assert_return_canonical_nan()?;
                 continue;
-            } else if *wast::kind::ASSERT_TRAP_ACTION == handler.walker.kind() {
+            } else if wast::kind::ASSERT_TRAP_ACTION == handler.walker.kind() {
                 handler.assert_trap_action()?;
                 continue;
-            } else if *wast::kind::ASSERT_TRAP_MODULE == handler.walker.kind() {
+            } else if wast::kind::ASSERT_TRAP_MODULE == handler.walker.kind() {
                 handler.assert_trap_module()?;
                 continue;
-            } else if *wast::kind::ASSERT_UNLINKABLE == handler.walker.kind() {
+            } else if wast::kind::ASSERT_UNLINKABLE == handler.walker.kind() {
                 handler.assert_unlinkable()?;
                 continue;
             }
 
             // handle "command"
-            if *wast::kind::COMMAND == handler.walker.kind() {
+            if wast::kind::COMMAND == handler.walker.kind() {
                 handler.command();
                 continue;
             }
 
             // handle {"comment_block", "comment_block_annot", "comment_line", "comment_line_annot"}
-            if *wast::kind::COMMENT_BLOCK == handler.walker.kind() {
+            if wast::kind::COMMENT_BLOCK == handler.walker.kind() {
                 // NOTE: We ignore these for now since we can't highlight multiline tokens.
                 // handler.comment_block()?;
                 continue;
-            } else if *wast::kind::COMMENT_BLOCK_ANNOT == handler.walker.kind() {
+            } else if wast::kind::COMMENT_BLOCK_ANNOT == handler.walker.kind() {
                 // NOTE: We ignore these for now since we can't highlight multiline tokens.
                 // handler.comment_block_annot()?;
                 continue;
-            } else if *wast::kind::COMMENT_LINE == handler.walker.kind() {
+            } else if wast::kind::COMMENT_LINE == handler.walker.kind() {
                 handler.comment_line()?;
                 continue;
-            } else if *wast::kind::COMMENT_LINE_ANNOT == handler.walker.kind() {
+            } else if wast::kind::COMMENT_LINE_ANNOT == handler.walker.kind() {
                 handler.comment_line_annot()?;
                 continue;
             }
 
             // handle "_meta"
-            if *wast::kind::META_INPUT == handler.walker.kind() {
+            if wast::kind::META_INPUT == handler.walker.kind() {
                 handler.meta_input()?;
                 continue;
-            } else if *wast::kind::META_OUTPUT == handler.walker.kind() {
+            } else if wast::kind::META_OUTPUT == handler.walker.kind() {
                 handler.meta_output()?;
                 continue;
-            } else if *wast::kind::META_SCRIPT == handler.walker.kind() {
+            } else if wast::kind::META_SCRIPT == handler.walker.kind() {
                 handler.meta_script()?;
                 continue;
             }
 
             // handle "module"
-            if *wast::kind::MODULE == handler.walker.kind() {
+            if wast::kind::MODULE == handler.walker.kind() {
                 handler.module()?;
                 continue;
             }
 
             // handle "_module_field"
-            if *wast::kind::MODULE_FIELD_DATA == handler.walker.kind() {
+            if wast::kind::MODULE_FIELD_DATA == handler.walker.kind() {
                 handler.module_field_data()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_ELEM == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_ELEM == handler.walker.kind() {
                 handler.module_field_elem()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_EXPORT == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_EXPORT == handler.walker.kind() {
                 handler.module_field_export()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_FUNC == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_FUNC == handler.walker.kind() {
                 handler.module_field_func()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_GLOBAL == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_GLOBAL == handler.walker.kind() {
                 handler.module_field_global()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_IMPORT == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_IMPORT == handler.walker.kind() {
                 handler.module_field_import()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_MEMORY == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_MEMORY == handler.walker.kind() {
                 handler.module_field_memory()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_START == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_START == handler.walker.kind() {
                 handler.module_field_start()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_TABLE == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_TABLE == handler.walker.kind() {
                 handler.module_field_table()?;
                 continue;
-            } else if *wast::kind::MODULE_FIELD_TYPE == handler.walker.kind() {
+            } else if wast::kind::MODULE_FIELD_TYPE == handler.walker.kind() {
                 handler.module_field_type()?;
                 continue;
             }
 
             // handle "register"
-            if *wast::kind::REGISTER == handler.walker.kind() {
+            if wast::kind::REGISTER == handler.walker.kind() {
                 handler.register()?;
                 continue;
             }
 
             // handle "_script_module"
-            if *wast::kind::MODULE == handler.walker.kind() {
+            if wast::kind::MODULE == handler.walker.kind() {
                 // handled earlier
                 unreachable!();
-            } else if *wast::kind::SCRIPT_MODULE_BINARY == handler.walker.kind() {
+            } else if wast::kind::SCRIPT_MODULE_BINARY == handler.walker.kind() {
                 handler.script_module_binary()?;
                 continue;
-            } else if *wast::kind::SCRIPT_MODULE_QUOTE == handler.walker.kind() {
+            } else if wast::kind::SCRIPT_MODULE_QUOTE == handler.walker.kind() {
                 handler.script_module_quote()?;
                 continue;
             }
@@ -589,7 +589,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // optional($.identifier)
-        if *wast::kind::IDENTIFIER == self.walker.kind() {
+        if wast::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
             let token_type = &lsp::SemanticTokenType::FUNCTION;
             let token_modifiers = Default::default();
@@ -598,17 +598,17 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // repeat($.export)
-        while *wast::kind::EXPORT == self.walker.kind() {
+        while wast::kind::EXPORT == self.walker.kind() {
             self.export()?;
         }
 
         // optional($.import)
-        if *wast::kind::IMPORT == self.walker.kind() {
+        if wast::kind::IMPORT == self.walker.kind() {
             self.import()?;
         }
 
         // optional($.type_use)
-        if *wast::kind::TYPE_USE == self.walker.kind() {
+        if wast::kind::TYPE_USE == self.walker.kind() {
             self.type_use()?;
         }
 
@@ -632,7 +632,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // optional($.identifier)
-        if *wast::kind::IDENTIFIER == self.walker.kind() {
+        if wast::kind::IDENTIFIER == self.walker.kind() {
             let node = self.walker.node();
             let token_type = &lsp::SemanticTokenType::FUNCTION;
             let token_modifiers = Default::default();
@@ -641,12 +641,12 @@ impl<'text, 'tree> Handler<'text, 'tree> {
         }
 
         // repeat($.export)
-        while *wast::kind::EXPORT == self.walker.kind() {
+        while wast::kind::EXPORT == self.walker.kind() {
             self.export()?;
         }
 
         // optional($.import)
-        if *wast::kind::IMPORT == self.walker.kind() {
+        if wast::kind::IMPORT == self.walker.kind() {
             self.import()?;
         }
 

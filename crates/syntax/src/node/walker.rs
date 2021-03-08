@@ -127,14 +127,14 @@ impl<'tree> NodeWalker<'tree> {
         // Only descend if the current node has an error in the subtree.
         if node.has_error()
             && ![
-                *wast::kind::COMMENT_BLOCK_ANNOT,
-                *wast::kind::COMMENT_BLOCK,
-                *wast::kind::COMMENT_LINE_ANNOT,
-                *wast::kind::COMMENT_LINE,
-                *wat::kind::COMMENT_BLOCK_ANNOT,
-                *wat::kind::COMMENT_BLOCK,
-                *wat::kind::COMMENT_LINE_ANNOT,
-                *wat::kind::COMMENT_LINE,
+                wast::kind::COMMENT_BLOCK_ANNOT,
+                wast::kind::COMMENT_BLOCK,
+                wast::kind::COMMENT_LINE_ANNOT,
+                wast::kind::COMMENT_LINE,
+                wat::kind::COMMENT_BLOCK_ANNOT,
+                wat::kind::COMMENT_BLOCK,
+                wat::kind::COMMENT_LINE_ANNOT,
+                wat::kind::COMMENT_LINE,
             ]
             .contains(&node.kind_id())
         {
@@ -199,7 +199,7 @@ impl<'tree> NodeWalker<'tree> {
         let kind = node.kind_id();
 
         // Reconstruct the stack by traversing upward if the current node isn't ROOT.
-        if (language == Wast && *wast::kind::ROOT != kind) || (language == Wat && *wat::kind::ROOT != kind) {
+        if (language == Wast && wast::kind::ROOT != kind) || (language == Wat && wat::kind::ROOT != kind) {
             while self.cursor.goto_parent() {
                 self.stack.push(self.cursor.node());
             }

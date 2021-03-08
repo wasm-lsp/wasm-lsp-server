@@ -1,6 +1,6 @@
 [package]
 edition = "2018"
-name = "wasm-lsp-syntax"
+name = "wasm-lsp-languages"
 version = "0.0.0"
 authors = ["hvithrafn <hvithrafn@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
@@ -8,17 +8,15 @@ readme = "README.md"
 repository = "https://github.com/wasm-lsp/wasm-lsp-server"
 keywords = []
 description = """
-Syntax related definitions for the WebAssembly language server.
+Tree-sitter languages for the WebAssembly language server.
 """
 
 [badges]
 maintenance = { status = "experimental" }
 
-[dependencies]
+[build-dependencies]
 anyhow = "1.0"
-thiserror = "1.0"
-wasm-lsp-languages = { version = "0.0", path = "../languages" }
-wasm-lsp-macros = { version = "0.0", path = "../macros" }
+cc = "1.0"
 
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
