@@ -8,7 +8,7 @@ use glob::glob;
 use proc_macro::TokenStream;
 use quote::quote;
 
-mod corpus {
+mod corpus_tests {
     mod keyword {
         syn::custom_keyword!(corpus);
         syn::custom_keyword!(include);
@@ -18,14 +18,14 @@ mod corpus {
 
     use syn::parse::{Parse, ParseStream};
 
-    pub(crate) struct TestsMacroInput {
+    pub(crate) struct MacroInput {
         pub(crate) corpus: syn::Ident,
         pub(crate) include: String,
         pub(crate) exclude: Vec<String>,
         pub(crate) handler: syn::Expr,
     }
 
-    impl Parse for TestsMacroInput {
+    impl Parse for MacroInput {
         fn parse(input: ParseStream) -> syn::parse::Result<Self> {
             input.parse::<keyword::corpus>()?;
             input.parse::<syn::Token![:]>()?;
@@ -55,7 +55,7 @@ mod corpus {
             let handler = input.parse()?;
             input.parse::<syn::Token![,]>().ok();
 
-            Ok(TestsMacroInput {
+            Ok(MacroInput {
                 corpus,
                 include,
                 exclude,
@@ -84,12 +84,12 @@ mod corpus {
 /// ```
 #[proc_macro]
 pub fn corpus_tests(input: TokenStream) -> TokenStream {
-    let corpus::TestsMacroInput {
+    let corpus_tests::MacroInput {
         corpus,
         include,
         exclude,
         handler,
-    } = syn::parse_macro_input!(input as corpus::TestsMacroInput);
+    } = syn::parse_macro_input!(input as corpus_tests::MacroInput);
     // Compute a string representation for the corpus name.
     let corpus_name = corpus.to_string();
     let corpus_name = corpus_name.as_str();
