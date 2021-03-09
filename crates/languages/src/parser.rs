@@ -5,7 +5,7 @@ use std::convert::TryFrom;
 
 /// Create a `.wast` parser from the tree-sitter grammar.
 pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
-    let language = wasm_lsp_languages::wast();
+    let language = crate::language::wast();
     let mut parser = tree_sitter::Parser::new()?;
     parser.set_language(&language)?;
     Ok(parser)
@@ -13,7 +13,7 @@ pub fn wast() -> anyhow::Result<tree_sitter::Parser> {
 
 /// Create a `.wat` parser from the tree-sitter grammar.
 pub fn wat() -> anyhow::Result<tree_sitter::Parser> {
-    let language = wasm_lsp_languages::wat();
+    let language = crate::language::wat();
     let mut parser = tree_sitter::Parser::new()?;
     parser.set_language(&language)?;
     Ok(parser)

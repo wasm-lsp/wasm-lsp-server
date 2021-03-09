@@ -16,8 +16,5 @@ pub use document::*;
 pub use error::*;
 pub use session::*;
 pub use text::*;
-pub use wasm_lsp_syntax::{
-    language::{self, Language},
-    node,
-    range,
-};
+pub use wasm_lsp_languages::{language::Language, parser};
+pub use wasm_lsp_syntax::{language, node, range};

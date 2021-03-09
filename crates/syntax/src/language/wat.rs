@@ -4,7 +4,7 @@ pub mod field {
     #![allow(missing_docs)]
 
     wasm_lsp_macros::field_ids! {
-        language: wat,
+        language: "wasm.wat",
         fields: [
             (IDENTIFIER, "identifier"),
         ],
@@ -15,7 +15,7 @@ pub mod kind {
     #![allow(missing_docs)]
 
     wasm_lsp_macros::node_kind_ids! {
-        language: wat,
+        language: "wasm.wat",
         node_kinds: [
             (ALIGN_OFFSET_VALUE, "align_offset_value", true),
             (ALIGN_VALUE, "align_value", true),
@@ -148,7 +148,7 @@ pub mod kind {
         #![allow(missing_docs)]
 
         wasm_lsp_macros::node_kind_ids! {
-            language: wat,
+            language: "wasm.wat",
             node_kinds: [
                 (ALIGN, "align", false),
                 (ASSERT_EXHAUSTION, "assert_exhaustion", false),

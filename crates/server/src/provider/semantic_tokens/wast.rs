@@ -1,11 +1,7 @@
 //! Semantic tokens provider definitions for ".wast" files.
 
 use super::builder::SemanticTokensBuilder;
-use crate::core::{
-    self,
-    language::{wast, Language},
-    node::NodeWalker,
-};
+use crate::core::{self, language::wast, node::NodeWalker, Language};
 use anyhow::anyhow;
 use lsp_text::RopeExt;
 use std::sync::Arc;

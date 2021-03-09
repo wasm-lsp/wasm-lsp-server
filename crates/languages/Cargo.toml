@@ -18,6 +18,10 @@ maintenance = { status = "experimental" }
 anyhow = "1.0"
 cc = "1.0"
 
+[dependencies]
+anyhow = "1.0"
+thiserror = "1.0"
+
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
 version = "0.0"
