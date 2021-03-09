@@ -47,6 +47,7 @@ ropey = "1.2"
 serde_json = "1.0"
 thiserror = "1.0"
 tokio = { version = "1.0", features = ["io-std", "sync"], optional = true }
+wasm-lsp-languages = { version = "0.0", path = "../languages" }
 wasm-lsp-syntax = { version = "0.0", path = "../syntax" }
 
 [dependencies.tree-sitter]

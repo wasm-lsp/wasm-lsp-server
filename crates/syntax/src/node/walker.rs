@@ -1,4 +1,4 @@
-use crate::language::{wast, wat, Language};
+use wasm_lsp_languages::language::Language;
 // use std::slice::SliceIndex;
 
 ///
@@ -232,6 +232,7 @@ impl<'tree> NodeWalker<'tree> {
     /// Reconstruct the context stack from the current node position.
     #[inline]
     fn reconstruct_stack(&mut self) {
+        use crate::language::{wast, wat};
         use Language::{Wast, Wat};
 
         let language = self.language;

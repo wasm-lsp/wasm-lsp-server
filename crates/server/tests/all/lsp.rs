@@ -651,7 +651,7 @@ mod text_document {
             use futures::stream::StreamExt;
             use serde_json::Value;
             use std::convert::TryFrom;
-            use wasm_lsp_syntax::language::Language;
+            use wasm_lsp_server::core::Language;
 
             async fn handler(path: &str) -> anyhow::Result<()> {
                 let uri = lsp::Url::from_file_path(path).unwrap();

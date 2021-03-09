@@ -141,30 +141,16 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
 mod language {
     use std::convert::TryFrom;
     use syn::parse::{Parse, ParseStream};
+    use wasm_lsp_languages::language;
 
-    pub(crate) enum Language {
-        Wast,
-        Wat,
-    }
-
-    impl TryFrom<String> for Language {
-        type Error = ();
-
-        fn try_from(value: String) -> Result<Self, ()> {
-            match value.as_str() {
-                "wast" => Ok(Language::Wast),
-                "wat" => Ok(Language::Wat),
-                _ => Err(()),
-            }
-        }
-    }
+    pub(crate) struct Language(pub(crate) language::Language);
 
     impl Parse for Language {
         fn parse(input: ParseStream) -> syn::parse::Result<Self> {
-            let language = input.parse::<syn::Ident>()?;
-            let language = language.to_string();
-            let language = Language::try_from(language).map_err(|_| input.error("invalid language identifier"))?;
-            Ok(language)
+            let language = input.parse::<syn::LitStr>()?.value();
+            let language = language::Language::try_from(language.as_str());
+            let language = language.map_err(|_| input.error("invalid language identifier"))?;
+            Ok(Language(language))
         }
     }
 }
@@ -225,12 +211,14 @@ mod field_ids {
 #[allow(missing_docs)]
 #[proc_macro]
 pub fn field_ids(input: TokenStream) -> TokenStream {
+    use wasm_lsp_languages::language;
+
     let macro_input = syn::parse_macro_input!(input as field_ids::MacroInput);
 
     #[allow(unsafe_code)]
-    let language = match macro_input.language {
-        language::Language::Wast => wasm_lsp_languages::wast(),
-        language::Language::Wat => wasm_lsp_languages::wat(),
+    let language = match macro_input.language.0 {
+        language::Language::Wast => language::wast(),
+        language::Language::Wat => language::wat(),
     };
 
     let mut content = vec![];
@@ -311,12 +299,14 @@ mod node_kind_ids {
 #[allow(missing_docs)]
 #[proc_macro]
 pub fn node_kind_ids(input: TokenStream) -> TokenStream {
+    use wasm_lsp_languages::language;
+
     let macro_input = syn::parse_macro_input!(input as node_kind_ids::MacroInput);
 
     #[allow(unsafe_code)]
-    let language = match macro_input.language {
-        language::Language::Wast => wasm_lsp_languages::wast(),
-        language::Language::Wat => wasm_lsp_languages::wat(),
+    let language = match macro_input.language.0 {
+        language::Language::Wast => language::wast(),
+        language::Language::Wat => language::wat(),
     };
 
     let mut content = vec![];
