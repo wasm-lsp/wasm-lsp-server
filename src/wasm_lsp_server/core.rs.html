@@ -21,9 +21,6 @@
 <span id="18">18</span>
 <span id="19">19</span>
 <span id="20">20</span>
-<span id="21">21</span>
-<span id="22">22</span>
-<span id="23">23</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Core definitions for server functionality.</span>
 
@@ -43,11 +40,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">session</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">text</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_lsp_syntax</span>::{
-    <span class="ident">language</span>::{<span class="self">self</span>, <span class="ident">Language</span>},
-    <span class="ident">node</span>,
-    <span class="ident">range</span>,
-};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_lsp_languages</span>::{<span class="ident">language</span>::<span class="ident">Language</span>, <span class="ident">parser</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_lsp_syntax</span>::{<span class="ident">language</span>, <span class="ident">node</span>, <span class="ident">range</span>};
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="wasm_lsp_server" data-search-js="../../search-index.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
