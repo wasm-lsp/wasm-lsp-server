@@ -1,11 +1,7 @@
 //! Semantic tokens provider definitions for ".wat" files.
 
 use super::builder::SemanticTokensBuilder;
-use crate::core::{
-    self,
-    language::{wat, Language},
-    node::NodeWalker,
-};
+use crate::core::{self, language::wat, node::NodeWalker, Language};
 use anyhow::anyhow;
 use lsp_text::RopeExt;
 use std::sync::Arc;

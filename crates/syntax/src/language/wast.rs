@@ -4,7 +4,7 @@ pub mod field {
     #![allow(missing_docs)]
 
     wasm_lsp_macros::field_ids! {
-        language: wast,
+        language: "wasm.wast",
         fields: [
             (IDENTIFIER, "identifier"),
         ],
@@ -15,7 +15,7 @@ pub mod kind {
     #![allow(missing_docs)]
 
     wasm_lsp_macros::node_kind_ids! {
-        language: wast,
+        language: "wasm.wast",
         node_kinds: [
             (ACTION_GET, "action_get", true),
             (ACTION_INVOKE, "action_invoke", true),
@@ -181,7 +181,7 @@ pub mod kind {
         #![allow(missing_docs)]
 
         wasm_lsp_macros::node_kind_ids! {
-            language: wast,
+            language: "wasm.wast",
             node_kinds: [
                 (ALIGN, "align", false),
                 (ASSERT_EXHAUSTION, "assert_exhaustion", false),
