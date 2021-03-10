@@ -45,7 +45,7 @@ blocking = { version = "1.0", optional = true }
 futures = "0.3"
 libfuzzer-sys = "0.4"
 lsp = { version = "0.88", package = "lsp-types" }
-lspower = { version = "0.8", default-features = false }
+lspower = { version = "0.9", default-features = false }
 serde_json = "1.0"
 smol = { version = "1.2", optional = true }
 testing = { package = "wasm-lsp-testing", version = "0.0", path = "../crates/testing" }

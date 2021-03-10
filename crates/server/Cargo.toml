@@ -42,7 +42,7 @@ futures = "0.3"
 log = "0.4"
 lsp = { version = "0.88", package = "lsp-types" }
 lsp-text = "0.0"
-lspower = { version = "0.8", default-features = false }
+lspower = { version = "0.9", default-features = false }
 ropey = "1.2"
 serde_json = "1.0"
 thiserror = "1.0"
