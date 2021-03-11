@@ -1,6 +1,6 @@
 //! Provider definitions for LSP `textDocument/publishDiagnostics` for `.wast` documents.
 
-use crate::core::{self, node::NodeWalker, range::RangeExt};
+use crate::core::{self, node::TraceNodeWalker, range::RangeExt};
 use lsp_text::RopeExt;
 
 /// Provider function for LSP `textDocument/publishDiagnostics` for `.wast` documents.
@@ -9,7 +9,7 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
     let mut walker = {
         let language = core::Language::Wast;
         let node = tree.root_node();
-        NodeWalker::new(language, node)
+        TraceNodeWalker::new(language, node)
     };
 
     let mut previous = walker.node();
