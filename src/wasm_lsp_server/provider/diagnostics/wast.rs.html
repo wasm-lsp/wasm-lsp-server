@@ -79,6 +79,12 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Provider definitions for LSP `textDocument/publishDiagnostics` for `.wast` documents.</span>
 
@@ -94,6 +100,7 @@
         <span class="ident">NodeWalker</span>::<span class="ident">new</span>(<span class="ident">language</span>, <span class="ident">node</span>)
     };
 
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">previous</span> <span class="op">=</span> <span class="ident">walker</span>.<span class="ident">node</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">covering_error_range</span> <span class="op">=</span> <span class="prelude-val">None</span>::<span class="op">&lt;</span><span class="ident">tree_sitter</span>::<span class="ident">Range</span><span class="op">&gt;</span>;
 
     <span class="kw">loop</span> {
@@ -101,13 +108,14 @@
             <span class="kw">break</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">walker</span>.<span class="ident">node</span>();
+        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">walker</span>.<span class="ident">node</span>();
 
-        <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">is_error</span>() {
-            <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">range</span>();
+        <span class="kw">if</span> <span class="ident">current</span>.<span class="ident">is_error</span>() {
+            <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">current</span>.<span class="ident">range</span>();
             <span class="kw">match</span> <span class="ident">covering_error_range</span> {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">error_range</span>) <span class="kw">if</span> <span class="ident">error_range</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">range</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">walker</span>.<span class="ident">goto_next_has_error</span>();
+                    <span class="ident">previous</span> <span class="op">=</span> <span class="ident">current</span>;
+                    <span class="ident">walker</span>.<span class="ident">goto_next</span>();
                     <span class="kw">continue</span>;
                 },
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -123,22 +131,24 @@
                 <span class="ident">message</span>,
                 ..<span class="ident">Default</span>::<span class="ident">default</span>()
             });
-            <span class="ident">walker</span>.<span class="ident">goto_next_has_error</span>();
+            <span class="ident">previous</span> <span class="op">=</span> <span class="ident">current</span>;
+            <span class="ident">walker</span>.<span class="ident">goto_next</span>();
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">is_missing</span>() {
-            <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">range</span>();
+        <span class="kw">if</span> <span class="ident">current</span>.<span class="ident">is_missing</span>() {
+            <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">current</span>.<span class="ident">range</span>();
             <span class="kw">match</span> <span class="ident">covering_error_range</span> {
                 <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">error_range</span>) <span class="kw">if</span> <span class="ident">error_range</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">range</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">walker</span>.<span class="ident">goto_next_has_error</span>();
+                    <span class="ident">previous</span> <span class="op">=</span> <span class="ident">current</span>;
+                    <span class="ident">walker</span>.<span class="ident">goto_next</span>();
                     <span class="kw">continue</span>;
                 },
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">covering_error_range</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">range</span>.<span class="ident">clone</span>());
                 },
             }
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;MISSING node&quot;</span>);
+            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">r#&quot;expected &quot;{}&quot; after &quot;{}&quot;&quot;#</span>, <span class="ident">current</span>.<span class="ident">kind</span>(), <span class="ident">previous</span>.<span class="ident">kind</span>());
             <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">tree_sitter_range_to_lsp_range</span>(<span class="ident">range</span>);
             <span class="kw">let</span> <span class="ident">severity</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lsp</span>::<span class="ident">DiagnosticSeverity</span>::<span class="ident">Error</span>);
             <span class="ident">diagnostics</span>.<span class="ident">push</span>(<span class="ident">lsp</span>::<span class="ident">Diagnostic</span> {
@@ -147,12 +157,14 @@
                 <span class="ident">message</span>,
                 ..<span class="ident">Default</span>::<span class="ident">default</span>()
             });
-            <span class="ident">walker</span>.<span class="ident">goto_next_has_error</span>();
+            <span class="ident">previous</span> <span class="op">=</span> <span class="ident">current</span>;
+            <span class="ident">walker</span>.<span class="ident">goto_next</span>();
             <span class="kw">continue</span>;
         }
 
         <span class="comment">// catch all case</span>
-        <span class="ident">walker</span>.<span class="ident">goto_next_has_error</span>();
+        <span class="ident">previous</span> <span class="op">=</span> <span class="ident">current</span>;
+        <span class="ident">walker</span>.<span class="ident">goto_next</span>();
     }
 
     <span class="ident">diagnostics</span>.<span class="ident">reverse</span>();
