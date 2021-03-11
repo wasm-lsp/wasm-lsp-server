@@ -1,7 +1,7 @@
 //! Semantic tokens provider definitions for ".wast" files.
 
 use super::builder::SemanticTokensBuilder;
-use crate::core::{self, language::wast, node::NodeWalker, Language};
+use crate::core::{self, language::wast, node::BasicNodeWalker, Language};
 use anyhow::anyhow;
 use lsp_text::RopeExt;
 use std::sync::Arc;
@@ -9,7 +9,7 @@ use std::sync::Arc;
 // Move to the next appropriate node in the syntax tree.
 struct Handler<'text, 'tree> {
     builder: SemanticTokensBuilder<'text, 'tree>,
-    walker: NodeWalker<'tree>,
+    walker: BasicNodeWalker<'tree>,
 }
 
 pub(crate) async fn full(
@@ -233,7 +233,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
     ) -> anyhow::Result<Self> {
         let language = Language::Wast;
         let builder = SemanticTokensBuilder::new(content, legend)?;
-        let walker = NodeWalker::new(language, node);
+        let walker = BasicNodeWalker::new(language, node);
         Ok(Self { builder, walker })
     }
 

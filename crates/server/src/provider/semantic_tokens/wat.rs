@@ -1,7 +1,7 @@
 //! Semantic tokens provider definitions for ".wat" files.
 
 use super::builder::SemanticTokensBuilder;
-use crate::core::{self, language::wat, node::NodeWalker, Language};
+use crate::core::{self, language::wat, node::BasicNodeWalker, Language};
 use anyhow::anyhow;
 use lsp_text::RopeExt;
 use std::sync::Arc;
@@ -135,7 +135,7 @@ pub(crate) async fn range(
 // Move to the next appropriate node in the syntax tree.
 struct Handler<'text, 'tree> {
     builder: SemanticTokensBuilder<'text, 'tree>,
-    walker: NodeWalker<'tree>,
+    walker: BasicNodeWalker<'tree>,
 }
 
 impl<'text, 'tree> Handler<'text, 'tree> {
@@ -146,7 +146,7 @@ impl<'text, 'tree> Handler<'text, 'tree> {
     ) -> anyhow::Result<Self> {
         let language = Language::Wat;
         let builder = SemanticTokensBuilder::new(content, legend)?;
-        let walker = NodeWalker::new(language, node);
+        let walker = BasicNodeWalker::new(language, node);
         Ok(Self { builder, walker })
     }
 

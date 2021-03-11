@@ -1,92 +1,129 @@
 use wasm_lsp_languages::language::Language;
-// use std::slice::SliceIndex;
 
-///
-#[derive(Debug, Clone)]
-pub struct NodeWalkerLevel<'tree> {
-    ancestor: tree_sitter::Node<'tree>,
-    prefixed: Vec<tree_sitter::Node<'tree>>,
-}
+#[allow(missing_docs)]
+pub mod context {
+    use tree_sitter::Node;
 
-/// The current node context.
-#[derive(Debug, Default, Clone)]
-pub struct NodeWalkerContext<'tree> {
-    stack: Vec<NodeWalkerLevel<'tree>>,
-}
+    pub trait Context<'tree> {
+        type Level;
 
-impl<'tree> NodeWalkerContext<'tree> {
-    fn new() -> Self {
-        Self { ..Default::default() }
+        fn new() -> Self;
+
+        fn pop(&mut self) -> Option<Self::Level>;
+
+        fn push(&mut self, level: Self::Level);
+
+        fn push_ancestor(&mut self, ancestor: Node<'tree>, prefixed: Vec<Node<'tree>>);
+
+        fn push_prefix(&mut self, prefix: Node<'tree>);
+
+        fn reverse(&mut self);
     }
 
-    // fn matches<I>(&self, index: I, kind_ids: &[u16]) -> bool
-    // where
-    //     I: SliceIndex<[u16], Output = [u16]>,
-    // {
-    //     let that = kind_ids;
-    //     if let Some(this) = self.kinds.get(index) {
-    //         this == that
-    //     } else {
-    //         false
-    //     }
-    // }
+    pub mod basic {
+        use std::convert::Infallible;
+        use tree_sitter::Node;
 
-    #[inline]
-    fn pop(&mut self) -> Option<NodeWalkerLevel<'tree>> {
-        self.stack.pop()
+        #[derive(Debug, Clone, Eq, Hash, PartialEq)]
+        pub struct Level<'tree> {
+            phantom: std::marker::PhantomData<&'tree Infallible>,
+        }
+
+        #[derive(Debug, Default, Clone, Eq, Hash, PartialEq)]
+        pub struct Context<'tree> {
+            phantom: std::marker::PhantomData<&'tree Infallible>,
+        }
+
+        impl<'tree> super::Context<'tree> for Context<'tree> {
+            type Level = Level<'tree>;
+
+            fn new() -> Self {
+                Self::default()
+            }
+
+            fn pop(&mut self) -> Option<Self::Level> {
+                None
+            }
+
+            fn push(&mut self, _: Self::Level) {
+            }
+
+            fn push_ancestor(&mut self, _: Node<'tree>, _: Vec<Node<'tree>>) {
+            }
+
+            fn push_prefix(&mut self, _: Node<'tree>) {
+            }
+
+            fn reverse(&mut self) {
+            }
+        }
     }
 
-    // #[inline]
-    // fn pop_level(&mut self) -> Option<tree_sitter::Node<'tree>> {
-    //     self.stack.pop().map(|level| level.ancestor)
-    // }
+    pub mod trace {
+        use tree_sitter::Node;
 
-    // #[inline]
-    // fn pop_prefix(&mut self) -> Option<tree_sitter::Node<'tree>> {
-    //     if let Some(level) = self.stack.last_mut() {
-    //         level.prefixed.pop()
-    //     } else {
-    //         None
-    //     }
-    // }
+        #[derive(Debug, Clone, Eq, Hash, PartialEq)]
+        pub struct Level<'tree> {
+            ancestor: Node<'tree>,
+            prefixed: Vec<Node<'tree>>,
+        }
 
-    #[inline]
-    fn push(&mut self, level: NodeWalkerLevel<'tree>) {
-        self.stack.push(level);
-    }
+        /// The current node context.
+        #[derive(Debug, Default, Clone, Eq, Hash, PartialEq)]
+        pub struct Context<'tree> {
+            stack: Vec<Level<'tree>>,
+        }
 
-    #[inline]
-    fn push_ancestor(&mut self, ancestor: tree_sitter::Node<'tree>) {
-        let prefixed = Default::default();
-        let level = NodeWalkerLevel { ancestor, prefixed };
-        self.stack.push(level);
-    }
+        impl<'tree> super::Context<'tree> for Context<'tree> {
+            type Level = Level<'tree>;
 
-    #[inline]
-    fn push_prefix(&mut self, prefix: tree_sitter::Node<'tree>) {
-        if let Some(level) = self.stack.last_mut() {
-            level.prefixed.push(prefix);
-        } else {
-            unreachable!("NodeWalkerContext::push_prefix should never be callable wihout an active level");
+            fn new() -> Self {
+                Self::default()
+            }
+
+            fn pop(&mut self) -> Option<Self::Level> {
+                self.stack.pop()
+            }
+
+            fn push(&mut self, level: Self::Level) {
+                self.stack.push(level);
+            }
+
+            fn push_ancestor(&mut self, ancestor: Node<'tree>, prefixed: Vec<Node<'tree>>) {
+                let level = Level { ancestor, prefixed };
+                self.stack.push(level);
+            }
+
+            fn push_prefix(&mut self, prefix: Node<'tree>) {
+                if let Some(level) = self.stack.last_mut() {
+                    level.prefixed.push(prefix);
+                } else {
+                    unreachable!("NodeWalkerContext::push_prefix should never be callable wihout an active level");
+                }
+            }
+
+            fn reverse(&mut self) {
+                self.stack.reverse();
+            }
         }
     }
 }
 
-/// The current state of the node walking and token encoding algorithm.
-pub struct NodeWalker<'tree> {
+pub use context::Context;
+
+#[allow(missing_docs)]
+pub struct NodeWalker<'tree, C> {
     language: Language,
-    /// The current node context.
-    pub context: NodeWalkerContext<'tree>,
+    pub context: C,
     cursor: tree_sitter::TreeCursor<'tree>,
-    /// Whether the [`NodeWalker`] has finished traversing the origin [`tree_sitter::Tree`].
     pub done: bool,
 }
 
-impl<'tree> NodeWalker<'tree> {
+impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     /// Create a new [NodeWalker].
     #[inline]
     pub fn new(language: Language, node: tree_sitter::Node<'tree>) -> Self {
-        let context = NodeWalkerContext::new();
+        let context = C::new();
         let cursor = node.walk();
         let done = false;
         let mut walker = Self {
@@ -99,37 +136,14 @@ impl<'tree> NodeWalker<'tree> {
         walker
     }
 
-    // /// Determine whether a given a slice of [`tree_sitter::Node`] kind ids forms the context.
-    // pub fn context_matches<I>(&self, index: I, kind_ids: &[u16]) -> bool
-    // where
-    //     I: SliceIndex<[u16], Output = [u16]>,
-    // {
-    //     self.stack.matches(index, kind_ids)
-    // }
-
-    // /// Return the slice of [`tree_sitter::Node`] kind ids that form the context.
-    // pub fn context_kinds(&self) -> &[u16] {
-    //     &self.stack.kinds
-    // }
-
-    // /// Return the slice of [`tree_sitter::Node`] that form the context.
-    // pub fn context_nodes(&self) -> &[tree_sitter::Node] {
-    //     &self.stack.nodes
-    // }
-
-    /// Return the depth of the current context.
-    #[inline]
-    pub fn depth(&self) -> usize {
-        self.context.stack.len()
-    }
-
     /// Move the cursor to the first child node.
     #[inline]
     pub fn goto_first_child(&mut self) -> bool {
         let ancestor = self.cursor.node();
         let moved = self.cursor.goto_first_child();
         if moved {
-            self.context.push_ancestor(ancestor);
+            let prefixed = Default::default();
+            self.context.push_ancestor(ancestor, prefixed);
         }
         moved
     }
@@ -250,15 +264,20 @@ impl<'tree> NodeWalker<'tree> {
                         .children(cursor)
                         .take_while(|node| node.id() != previous.id())
                         .collect();
-                    let level = NodeWalkerLevel { ancestor, prefixed };
-                    self.context.push(level);
+                    self.context.push_ancestor(ancestor, prefixed)
                 } else {
                     break;
                 }
             }
 
-            self.context.stack.reverse();
+            self.context.reverse();
             self.cursor.reset(node);
         }
     }
 }
+
+#[allow(missing_docs)]
+pub type BasicNodeWalker<'tree> = NodeWalker<'tree, context::basic::Context<'tree>>;
+
+#[allow(missing_docs)]
+pub type TraceNodeWalker<'tree> = NodeWalker<'tree, context::trace::Context<'tree>>;
