@@ -1,5 +1,7 @@
 //! Functions for working with the `.wast` grammar.
 
+use crate::node::{NodeWalker, SyntaxErrors};
+
 pub mod field {
     #![allow(missing_docs)]
 
@@ -226,6 +228,7 @@ pub mod kind {
                 (LPAREN_SEMICOLON, "(;", false),
                 (LPAREN, "(", false),
                 (MEMORY, "memory", false),
+                (MODULE, "module", false),
                 (MUT, "mut", false),
                 (OFFSET, "offset", false),
                 (OUTPUT, "output", false),
@@ -259,4 +262,2009 @@ pub mod grouped {
         super::kind::MODULE_FIELD_TABLE,
         super::kind::MODULE_FIELD_TYPE,
     ];
+}
+
+#[allow(missing_docs)]
+pub trait Visit<'tree,  C: crate::node::Context<'tree> + 'tree> {
+    fn walker(&mut self) -> &'tree mut NodeWalker<'tree, C>;
+
+    fn visit_action_get(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::action_get(self, node)
+    }
+
+    fn visit_action_invoke(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::action_invoke(self, node)
+    }
+
+    fn visit_action(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::action(self, node)
+    }
+
+    fn visit_align_offset_value(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::align_offset_value(self, node)
+    }
+
+    fn visit_align_value(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::align_value(self, node)
+    }
+
+    fn visit_annotation_parens(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::annotation_parens(self, node)
+    }
+
+    fn visit_annotation_part(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::annotation_part(self, node)
+    }
+
+    fn visit_annotation(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::annotation(self, node)
+    }
+
+    fn visit_assert_exhaustion(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_exhaustion(self, node)
+    }
+
+    fn visit_assert_invalid(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_invalid(self, node)
+    }
+
+    fn visit_assert_malformed(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_malformed(self, node)
+    }
+
+    fn visit_assert_return_arithmetic_nan(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_return_arithmetic_nan(self, node)
+    }
+
+    fn visit_assert_return_canonical_nan(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_return_canonical_nan(self, node)
+    }
+
+    fn visit_assert_return(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_return(self, node)
+    }
+
+    fn visit_assert_trap_action(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_trap_action(self, node)
+    }
+
+    fn visit_assert_trap_module(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_trap_module(self, node)
+    }
+
+    fn visit_assert_unlinkable(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assert_unlinkable(self, node)
+    }
+
+    fn visit_assertion(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::assertion(self, node)
+    }
+
+    fn visit_block_block(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::block_block(self, node)
+    }
+
+    fn visit_block_if(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::block_if(self, node)
+    }
+
+    fn visit_block_loop(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::block_loop(self, node)
+    }
+
+    fn visit_command(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::command(self, node)
+    }
+
+    fn visit_comment_block_annot(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::comment_block_annot(self, node)
+    }
+
+    fn visit_comment_block(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::comment_block(self, node)
+    }
+
+    fn visit_comment_line_annot(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::comment_line_annot(self, node)
+    }
+
+    fn visit_comment_line(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::comment_line(self, node)
+    }
+
+    fn visit_dec_float(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::dec_float(self, node)
+    }
+
+    fn visit_dec_nat(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::dec_nat(self, node)
+    }
+
+    fn visit_elem_expr_expr(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::elem_expr_expr(self, node)
+    }
+
+    fn visit_elem_expr_item(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::elem_expr_item(self, node)
+    }
+
+    fn visit_elem_expr(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::elem_expr(self, node)
+    }
+
+    fn visit_elem_kind(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::elem_kind(self, node)
+    }
+
+    fn visit_elem_list(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::elem_list(self, node)
+    }
+
+    fn visit_escape_sequence(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::escape_sequence(self, node)
+    }
+
+    fn visit_export_desc_func(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::export_desc_func(self, node)
+    }
+
+    fn visit_export_desc_global(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::export_desc_global(self, node)
+    }
+
+    fn visit_export_desc_memory(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::export_desc_memory(self, node)
+    }
+
+    fn visit_export_desc_table(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::export_desc_table(self, node)
+    }
+
+    fn visit_export_desc(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::export_desc(self, node)
+    }
+
+    fn visit_export(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::export(self, node)
+    }
+
+    fn visit_expr_plain_const(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr_plain_const(self, node)
+    }
+
+    fn visit_expr(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr(self, node)
+    }
+
+    fn visit_expr1_block(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr1_block(self, node)
+    }
+
+    fn visit_expr1_call(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr1_call(self, node)
+    }
+
+    fn visit_expr1_if(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr1_if(self, node)
+    }
+
+    fn visit_expr1_loop(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr1_loop(self, node)
+    }
+
+    fn visit_expr1_plain(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr1_plain(self, node)
+    }
+
+    fn visit_expr1(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::expr1(self, node)
+    }
+
+    fn visit_float(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::float(self, node)
+    }
+
+    fn visit_func_locals_many(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_locals_many(self, node)
+    }
+
+    fn visit_func_locals_one(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_locals_one(self, node)
+    }
+
+    fn visit_func_locals(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_locals(self, node)
+    }
+
+    fn visit_func_type_params_many(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_type_params_many(self, node)
+    }
+
+    fn visit_func_type_params_one(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_type_params_one(self, node)
+    }
+
+    fn visit_func_type_params(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_type_params(self, node)
+    }
+
+    fn visit_func_type_results(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_type_results(self, node)
+    }
+
+    fn visit_func_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::func_type(self, node)
+    }
+
+    fn visit_global_type_imm(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::global_type_imm(self, node)
+    }
+
+    fn visit_global_type_mut(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::global_type_mut(self, node)
+    }
+
+    fn visit_global_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::global_type(self, node)
+    }
+
+    fn visit_hex_float(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::hex_float(self, node)
+    }
+
+    fn visit_hex_nat(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::hex_nat(self, node)
+    }
+
+    fn visit_identifier(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::identifier(self, node)
+    }
+
+    fn visit_if_block(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::if_block(self, node)
+    }
+
+    fn visit_import_desc_func_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::import_desc_func_type(self, node)
+    }
+
+    fn visit_import_desc_global_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::import_desc_global_type(self, node)
+    }
+
+    fn visit_import_desc_memory_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::import_desc_memory_type(self, node)
+    }
+
+    fn visit_import_desc_table_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::import_desc_table_type(self, node)
+    }
+
+    fn visit_import_desc_type_use(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::import_desc_type_use(self, node)
+    }
+
+    fn visit_import_desc(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::import_desc(self, node)
+    }
+
+    fn visit_import(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::import(self, node)
+    }
+
+    fn visit_index(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::index(self, node)
+    }
+
+    fn visit_instr_block(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::instr_block(self, node)
+    }
+
+    fn visit_instr_call(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::instr_call(self, node)
+    }
+
+    fn visit_instr_list(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::instr_list(self, node)
+    }
+
+    fn visit_instr_plain(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::instr_plain(self, node)
+    }
+
+    fn visit_instr(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::instr(self, node)
+    }
+
+    fn visit_int(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::int(self, node)
+    }
+
+    fn visit_limits(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::limits(self, node)
+    }
+
+    fn visit_literal_nan_arithmetic(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::literal_nan_arithmetic(self, node)
+    }
+
+    fn visit_literal_nan_canonical(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::literal_nan_canonical(self, node)
+    }
+
+    fn visit_literal_nan(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::literal_nan(self, node)
+    }
+
+    fn visit_memory_fields_data(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::memory_fields_data(self, node)
+    }
+
+    fn visit_memory_fields_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::memory_fields_type(self, node)
+    }
+
+    fn visit_memory_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::memory_type(self, node)
+    }
+
+    fn visit_memory_use(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::memory_use(self, node)
+    }
+
+    fn visit_meta_input(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::meta_input(self, node)
+    }
+
+    fn visit_meta_output(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::meta_output(self, node)
+    }
+
+    fn visit_meta_script(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::meta_script(self, node)
+    }
+
+    fn visit_meta(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::meta(self, node)
+    }
+
+    fn visit_module_field_data(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_data(self, node)
+    }
+
+    fn visit_module_field_elem(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_elem(self, node)
+    }
+
+    fn visit_module_field_export(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_export(self, node)
+    }
+
+    fn visit_module_field_func(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_func(self, node)
+    }
+
+    fn visit_module_field_global(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_global(self, node)
+    }
+
+    fn visit_module_field_import(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_import(self, node)
+    }
+
+    fn visit_module_field_memory(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_memory(self, node)
+    }
+
+    fn visit_module_field_start(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_start(self, node)
+    }
+
+    fn visit_module_field_table(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_table(self, node)
+    }
+
+    fn visit_module_field_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field_type(self, node)
+    }
+
+    fn visit_module_field(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module_field(self, node)
+    }
+
+    fn visit_module(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::module(self, node)
+    }
+
+    fn visit_name(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::name(self, node)
+    }
+
+    fn visit_nan(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::nan(self, node)
+    }
+
+    fn visit_nat(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::nat(self, node)
+    }
+
+    fn visit_num_type_f32(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::num_type_f32(self, node)
+    }
+
+    fn visit_num_type_f64(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::num_type_f64(self, node)
+    }
+
+    fn visit_num_type_i32(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::num_type_i32(self, node)
+    }
+
+    fn visit_num_type_i64(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::num_type_i64(self, node)
+    }
+
+    fn visit_num_type_v128(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::num_type_v128(self, node)
+    }
+
+    fn visit_num(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::num(self, node)
+    }
+
+    fn visit_offset_const_expr(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::offset_const_expr(self, node)
+    }
+
+    fn visit_offset_expr(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::offset_expr(self, node)
+    }
+
+    fn visit_offset_value(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::offset_value(self, node)
+    }
+
+    fn visit_offset(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::offset(self, node)
+    }
+
+    fn visit_op_const_ref(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_const_ref(self, node)
+    }
+
+    fn visit_op_const(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_const(self, node)
+    }
+
+    fn visit_op_func_bind(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_func_bind(self, node)
+    }
+
+    fn visit_op_index_opt_offset_opt_align_opt(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_index_opt_offset_opt_align_opt(self, node)
+    }
+
+    fn visit_op_index_opt(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_index_opt(self, node)
+    }
+
+    fn visit_op_index(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_index(self, node)
+    }
+
+    fn visit_op_let(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_let(self, node)
+    }
+
+    fn visit_op_nullary(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_nullary(self, node)
+    }
+
+    fn visit_op_select(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_select(self, node)
+    }
+
+    fn visit_op_simd_const(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_simd_const(self, node)
+    }
+
+    fn visit_op_simd_lane(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_simd_lane(self, node)
+    }
+
+    fn visit_op_simd_offset_opt_align_opt(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_simd_offset_opt_align_opt(self, node)
+    }
+
+    fn visit_op_table_copy(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_table_copy(self, node)
+    }
+
+    fn visit_op_table_init(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::op_table_init(self, node)
+    }
+
+    fn visit_ref_kind(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::ref_kind(self, node)
+    }
+
+    fn visit_ref_type_externref(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::ref_type_externref(self, node)
+    }
+
+    fn visit_ref_type_funcref(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::ref_type_funcref(self, node)
+    }
+
+    fn visit_ref_type_ref(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::ref_type_ref(self, node)
+    }
+
+    fn visit_ref_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::ref_type(self, node)
+    }
+
+    fn visit_register(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::register(self, node)
+    }
+
+    fn visit_reserved(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::reserved(self, node)
+    }
+
+    fn visit_result_const_nan(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::result_const_nan(self, node)
+    }
+
+    fn visit_result_const(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::result_const(self, node)
+    }
+
+    fn visit_result_ref_extern(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::result_ref_extern(self, node)
+    }
+
+    fn visit_result_ref_func(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::result_ref_func(self, node)
+    }
+
+    fn visit_result_ref_null(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::result_ref_null(self, node)
+    }
+
+    fn visit_result(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::result(self, node)
+    }
+
+    fn visit_root(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::root(self, node)
+    }
+
+    fn visit_script_module_binary(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::script_module_binary(self, node)
+    }
+
+    fn visit_script_module_quote(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::script_module_quote(self, node)
+    }
+
+    fn visit_script_module(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::script_module(self, node)
+    }
+
+    fn visit_share(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::share(self, node)
+    }
+
+    fn visit_string(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::string(self, node)
+    }
+
+    fn visit_table_fields_elem(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::table_fields_elem(self, node)
+    }
+
+    fn visit_table_fields_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::table_fields_type(self, node)
+    }
+
+    fn visit_table_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::table_type(self, node)
+    }
+
+    fn visit_table_use(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::table_use(self, node)
+    }
+
+    fn visit_type_field(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::type_field(self, node)
+    }
+
+    fn visit_type_use(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::type_use(self, node)
+    }
+
+    fn visit_value_type_num_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::value_type_num_type(self, node)
+    }
+
+    fn visit_value_type_ref_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::value_type_ref_type(self, node)
+    }
+
+    fn visit_value_type(&mut self, node: &tree_sitter::Node) -> Result<(), SyntaxErrors> {
+        visit::value_type(self, node)
+    }
+}
+
+pub mod visit {
+    #![allow(missing_docs)]
+    #![allow(unused)]
+
+    use super::*;
+    use crate::node::{Context, SyntaxError};
+
+    macro_rules! repeat {
+        ($name:ident, $visitor:expr, $node:expr, $life:lifetime, $errors:expr) => {{
+            let mut node: tree_sitter::Node<$life> = $node.clone();
+            let mut success = false;
+            loop {
+                let result = module_field($visitor, &node);
+                if result.is_ok() {
+                    success = true;
+                }
+                if let Err(mut errs) = result {
+                    if success {
+                        $visitor.walker().reset(node.clone());
+                        break;
+                    }
+                    $errors.append(&mut errs);
+                    return Err($errors);
+                }
+                node = $visitor.walker().node();
+            }
+        }};
+    }
+
+    pub fn action_get<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn action_invoke<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn action<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn align_offset_value<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn align_value<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn annotation_parens<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn annotation_part<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn annotation<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_exhaustion<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_invalid<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_malformed<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_return_arithmetic_nan<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_return_canonical_nan<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_return<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_trap_action<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_trap_module<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assert_unlinkable<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn assertion<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn block_block<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn block_if<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn block_loop<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn command<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn comment_block_annot<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn comment_block<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn comment_line_annot<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn comment_line<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn dec_float<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn dec_nat<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn elem_expr_expr<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn elem_expr_item<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn elem_expr<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn elem_kind<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn elem_list<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn escape_sequence<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn export_desc_func<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn export_desc_global<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn export_desc_memory<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn export_desc_table<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn export_desc<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn export<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr_plain_const<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr1_block<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr1_call<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr1_if<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr1_loop<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr1_plain<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn expr1<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn float<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_locals_many<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_locals_one<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_locals<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_type_params_many<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_type_params_one<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_type_params<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_type_results<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn func_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn global_type_imm<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn global_type_mut<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn global_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn hex_float<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn hex_nat<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn identifier<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn if_block<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn import_desc_func_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn import_desc_global_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn import_desc_memory_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn import_desc_table_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn import_desc_type_use<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn import_desc<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn import<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn index<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn instr_block<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn instr_call<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn instr_list<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn instr_plain<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn instr<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn int<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn limits<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn literal_nan_arithmetic<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn literal_nan_canonical<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn literal_nan<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn memory_fields_data<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn memory_fields_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn memory_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn memory_use<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn meta_input<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn meta_output<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn meta_script<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn meta<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_data<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_elem<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_export<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_func<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_global<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_import<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_memory<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_start<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_table<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module_field<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn module<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        let mut errors = SyntaxErrors::new();
+        let mut walker = visitor.walker();
+
+        walker.step(kind::token::LPAREN, false)?;
+        walker.step(kind::token::MODULE, false)?;
+        identifier(visitor, node);
+
+        {
+            let mut node: tree_sitter::Node<$life> = node.clone();
+            let mut success = false;
+            loop {
+                let result = module_field($visitor, &node);
+                if result.is_ok() {
+                    success = true;
+                }
+                if let Err(mut errs) = result {
+                    if success {
+                        $visitor.walker().reset(node.clone());
+                        break;
+                    }
+                    $errors.append(&mut errs);
+                    return Err($errors);
+                }
+                node = $visitor.walker().node();
+            }
+        }
+        repeat!(module_field, visitor, node, 'tree, errors);
+
+
+        walker.step(kind::token::RPAREN, false)?;
+
+        Ok(())
+    }
+
+    pub fn name<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn nan<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn nat<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn num_type_f32<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn num_type_f64<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn num_type_i32<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn num_type_i64<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn num_type_v128<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn num<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn offset_const_expr<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn offset_expr<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn offset_value<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn offset<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_const_ref<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_const<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_func_bind<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_index_opt_offset_opt_align_opt<'tree, C, V>(
+        visitor: &mut V,
+        node: &tree_sitter::Node,
+    ) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_index_opt<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_index<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_let<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_nullary<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_select<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_simd_const<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_simd_lane<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_simd_offset_opt_align_opt<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_table_copy<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn op_table_init<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn ref_kind<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn ref_type_externref<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn ref_type_funcref<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn ref_type_ref<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn ref_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn register<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn reserved<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn result_const_nan<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn result_const<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn result_ref_extern<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn result_ref_func<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn result_ref_null<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn result<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    // pub fn root<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    // where
+    //     C: Context<'tree> + 'tree,
+    //     V: Visit<'tree, C> + ?Sized,
+    // {
+    //     let mut errors = SyntaxErrors::new();
+
+    //     if let Err(mut errs) = module(visitor, node) {
+    //         errors.append(&mut errs);
+    //     } else {
+    //         return Ok(());
+    //     }
+
+    //     let mut module_field_success = false;
+    //     loop {
+    //         if visitor.walker().done {
+    //             if module_field_success {
+    //                 return Ok(());
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+    //         if let Err(mut errs) = module_field(visitor, node) {
+    //             errors.append(&mut errs);
+    //             break;
+    //         } else {
+    //             module_field_success = true;
+    //         }
+    //     }
+
+    //     Err(errors)
+    // }
+
+    pub fn root<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        let mut errors = SyntaxErrors::new();
+
+        let mut command_success = false;
+        loop {
+            if visitor.walker().done {
+                if command_success {
+                    return Ok(());
+                } else {
+                    break;
+                }
+            }
+            if let Err(mut errs) = module_field(visitor, node) {
+                errors.append(&mut errs);
+                break;
+            } else {
+                module_field_success = true;
+            }
+        }
+
+        Err(errors)
+    }
+
+    pub fn script_module_binary<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn script_module_quote<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn script_module<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn share<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn string<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn table_fields_elem<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn table_fields_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn table_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn table_use<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn type_field<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn type_use<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn value_type_num_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn value_type_ref_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn value_type<'tree, C, V>(visitor: &mut V, node: &tree_sitter::Node) -> Result<(), SyntaxErrors>
+    where
+        C: Context<'tree> + 'tree,
+        V: Visit<'tree, C> + ?Sized,
+    {
+        Ok(())
+    }
 }

@@ -1,3 +1,4 @@
+use crate::node::SyntaxError;
 use wasm_lsp_languages::language::Language;
 
 #[allow(missing_docs)]
@@ -37,23 +38,29 @@ pub mod context {
         impl<'tree> super::Context<'tree> for Context<'tree> {
             type Level = Level<'tree>;
 
+            #[inline]
             fn new() -> Self {
                 Self::default()
             }
 
+            #[inline]
             fn pop(&mut self) -> Option<Self::Level> {
                 None
             }
 
+            #[inline]
             fn push(&mut self, _: Self::Level) {
             }
 
+            #[inline]
             fn push_ancestor(&mut self, _: Node<'tree>, _: Vec<Node<'tree>>) {
             }
 
+            #[inline]
             fn push_prefix(&mut self, _: Node<'tree>) {
             }
 
+            #[inline]
             fn reverse(&mut self) {
             }
         }
@@ -77,23 +84,28 @@ pub mod context {
         impl<'tree> super::Context<'tree> for Context<'tree> {
             type Level = Level<'tree>;
 
+            #[inline]
             fn new() -> Self {
                 Self::default()
             }
 
+            #[inline]
             fn pop(&mut self) -> Option<Self::Level> {
                 self.stack.pop()
             }
 
+            #[inline]
             fn push(&mut self, level: Self::Level) {
                 self.stack.push(level);
             }
 
+            #[inline]
             fn push_ancestor(&mut self, ancestor: Node<'tree>, prefixed: Vec<Node<'tree>>) {
                 let level = Level { ancestor, prefixed };
                 self.stack.push(level);
             }
 
+            #[inline]
             fn push_prefix(&mut self, prefix: Node<'tree>) {
                 if let Some(level) = self.stack.last_mut() {
                     level.prefixed.push(prefix);
@@ -102,6 +114,7 @@ pub mod context {
                 }
             }
 
+            #[inline]
             fn reverse(&mut self) {
                 self.stack.reverse();
             }
@@ -110,6 +123,14 @@ pub mod context {
 }
 
 pub use context::Context;
+
+#[allow(missing_docs)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub enum StepValue<'tree> {
+    Done,
+    None,
+    Some(tree_sitter::Node<'tree>),
+}
 
 #[allow(missing_docs)]
 pub struct NodeWalker<'tree, C> {
@@ -272,6 +293,68 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
 
             self.context.reverse();
             self.cursor.reset(node);
+        }
+    }
+
+    #[allow(missing_docs)]
+    #[inline]
+    pub fn reset(&mut self, node: tree_sitter::Node<'tree>) {
+        self.cursor.reset(node);
+    }
+
+    #[allow(missing_docs)]
+    #[inline]
+    pub fn step_choice(&mut self, those_ids: &[u16], optional: bool) -> Result<StepValue, SyntaxError> {
+        let prev = self.node();
+
+        if self.goto_next() {
+            let node = self.node();
+            let this_id = node.kind_id();
+
+            if those_ids.contains(&this_id) {
+                return Ok(StepValue::Some(node));
+            }
+
+            if optional {
+                self.cursor.reset(prev);
+                return Ok(StepValue::None);
+            }
+
+            let expected = those_ids.to_vec();
+            let found = node.into();
+            let error = SyntaxError { expected, found };
+
+            Err(error)
+        } else {
+            Ok(StepValue::Done)
+        }
+    }
+
+    #[allow(missing_docs)]
+    #[inline]
+    pub fn step(&mut self, that_id: u16, optional: bool) -> Result<StepValue, SyntaxError> {
+        let prev = self.node();
+
+        if self.goto_next() {
+            let node = self.node();
+            let this_id = node.kind_id();
+
+            if that_id == this_id {
+                return Ok(StepValue::Some(node));
+            }
+
+            if optional {
+                self.cursor.reset(prev);
+                return Ok(StepValue::None);
+            }
+
+            let expected = vec![that_id];
+            let found = node.into();
+            let error = SyntaxError { expected, found };
+
+            Err(error)
+        } else {
+            Ok(StepValue::Done)
         }
     }
 }
