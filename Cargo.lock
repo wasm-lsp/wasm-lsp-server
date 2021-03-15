@@ -2086,6 +2086,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "futures",
+ "log",
  "thiserror",
  "tree-sitter",
  "tree-sitter-facade",

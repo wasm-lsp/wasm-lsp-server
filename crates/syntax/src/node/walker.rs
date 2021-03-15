@@ -1,4 +1,4 @@
-use crate::node::SyntaxError;
+use crate::node::{NodeError, SyntaxError};
 use wasm_lsp_languages::language::Language;
 
 #[allow(missing_docs)]
@@ -302,60 +302,81 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
         self.cursor.reset(node);
     }
 
+    // #[allow(missing_docs)]
+    // #[inline]
+    // pub fn step_choice(&mut self, those_ids: &[u16], optional: bool) -> Result<StepValue,
+    // SyntaxError> {     let prev = self.node();
+
+    //     if self.goto_next() {
+    //         let node = self.node();
+    //         let this_id = node.kind_id();
+
+    //         if those_ids.contains(&this_id) {
+    //             return Ok(StepValue::Some(node));
+    //         }
+
+    //         if optional {
+    //             self.cursor.reset(prev);
+    //             return Ok(StepValue::None);
+    //         }
+
+    //         let expected = those_ids.to_vec();
+    //         let found = node.into();
+    //         let error = NodeError { expected, found }.into();
+
+    //         Err(error)
+    //     } else {
+    //         Ok(StepValue::Done)
+    //     }
+    // }
+
+    // #[allow(missing_docs)]
+    // #[inline]
+    // pub fn step(&mut self, that_id: u16, optional: bool) -> Result<StepValue, SyntaxError> {
+    //     let prev = self.node();
+
+    //     if self.goto_next() {
+    //         let node = self.node();
+    //         let this_id = node.kind_id();
+
+    //         if that_id == this_id {
+    //             return Ok(StepValue::Some(node));
+    //         }
+
+    //         if optional {
+    //             self.cursor.reset(prev);
+    //             return Ok(StepValue::None);
+    //         }
+
+    //         let expected = vec![that_id];
+    //         let found = node.into();
+    //         let error = NodeError { expected, found }.into();
+
+    //         Err(error)
+    //     } else {
+    //         Ok(StepValue::Done)
+    //     }
+    // }
+
     #[allow(missing_docs)]
     #[inline]
-    pub fn step_choice(&mut self, those_ids: &[u16], optional: bool) -> Result<StepValue, SyntaxError> {
-        let prev = self.node();
-
+    pub fn step(&mut self, that_id: u16) -> Result<(), SyntaxError> {
         if self.goto_next() {
             let node = self.node();
-            let this_id = node.kind_id();
-
-            if those_ids.contains(&this_id) {
-                return Ok(StepValue::Some(node));
+            if that_id != node.kind_id() {
+                let language = self.language.clone().into();
+                let expected = vec![that_id];
+                let found = node.kind_id();
+                let error = NodeError {
+                    language,
+                    expected,
+                    found,
+                }
+                .into();
+                return Err(error);
             }
-
-            if optional {
-                self.cursor.reset(prev);
-                return Ok(StepValue::None);
-            }
-
-            let expected = those_ids.to_vec();
-            let found = node.into();
-            let error = SyntaxError { expected, found };
-
-            Err(error)
-        } else {
-            Ok(StepValue::Done)
         }
-    }
-
-    #[allow(missing_docs)]
-    #[inline]
-    pub fn step(&mut self, that_id: u16, optional: bool) -> Result<StepValue, SyntaxError> {
-        let prev = self.node();
-
-        if self.goto_next() {
-            let node = self.node();
-            let this_id = node.kind_id();
-
-            if that_id == this_id {
-                return Ok(StepValue::Some(node));
-            }
-
-            if optional {
-                self.cursor.reset(prev);
-                return Ok(StepValue::None);
-            }
-
-            let expected = vec![that_id];
-            let found = node.into();
-            let error = SyntaxError { expected, found };
-
-            Err(error)
-        } else {
-            Ok(StepValue::Done)
-        }
+        Ok(())
     }
 }
 

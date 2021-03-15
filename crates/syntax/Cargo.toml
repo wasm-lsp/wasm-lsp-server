@@ -16,6 +16,7 @@ maintenance = { status = "experimental" }
 
 [dependencies]
 anyhow = "1.0"
+log = "*"
 thiserror = "1.0"
 wasm-lsp-languages = { version = "0.0", path = "../languages" }
 wasm-lsp-macros = { version = "0.0", path = "../macros" }

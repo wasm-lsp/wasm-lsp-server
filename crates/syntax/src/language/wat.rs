@@ -208,6 +208,7 @@ pub mod kind {
                 (RPAREN, ")", false),
                 (SCRIPT, "script", false),
                 (SEMICOLON_SEMICOLON, ";;", false),
+                (START, "start", false),
                 (TABLE, "table", false),
                 (THEN, "then", false),
                 (TYPE, "type", false),
@@ -1395,14 +1396,14 @@ pub mod visit {
         C: Context<'tree> + 'tree,
         V: Visit<'tree, C> + ?Sized,
     {
-        let mut errors = SyntaxErrors::new();
-        let mut walker = visitor.walker();
+        // let mut errors = SyntaxErrors::new();
+        // let mut walker = visitor.walker();
 
-        walker.step(kind::token::LPAREN, false)?;
-        walker.step(kind::token::MODULE, false)?;
-        identifier(visitor, node);
-        repeat!(module_field, visitor, node, errors);
-        walker.step(kind::token::RPAREN, false)?;
+        // walker.step(kind::token::LPAREN, false)?;
+        // walker.step(kind::token::MODULE, false)?;
+        // identifier(visitor, node);
+        // repeat!(module_field, visitor, node, errors);
+        // walker.step(kind::token::RPAREN, false)?;
 
         Ok(())
     }

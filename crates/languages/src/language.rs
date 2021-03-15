@@ -87,3 +87,12 @@ impl TryFrom<&Path> for Language {
         Language::try_from(language_id.as_str())
     }
 }
+
+impl From<Language> for tree_sitter::Language {
+    fn from(value: Language) -> tree_sitter::Language {
+        match value {
+            Language::Wast => wast(),
+            Language::Wat => wat(),
+        }
+    }
+}
