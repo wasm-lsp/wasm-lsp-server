@@ -2,15 +2,35 @@ mod walker;
 
 pub use walker::*;
 
-// #[allow(missing_docs)]
-// #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-// pub struct NodeErrorData;
+#[allow(missing_docs)]
+#[derive(Clone, PartialEq)]
+pub struct NodeErrorData {
+    language: tree_sitter::Language,
+    kind_id: u16,
+    range: tree_sitter::Range,
+}
 
-// impl<'tree> From<tree_sitter::Node<'tree>> for NodeErrorData {
-//     fn from(_: tree_sitter::Node<'tree>) -> Self {
-//         Self
-//     }
-// }
+impl std::fmt::Debug for NodeErrorData {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let kind_id = self
+            .language
+            .node_kind_for_id(self.kind_id)
+            .unwrap_or("<unknown>".into());
+        f.debug_struct("NodeErrorData")
+            .field("kind_id", &kind_id)
+            .field("range", &self.range)
+            .finish()
+    }
+}
+
+impl<'tree> From<tree_sitter::Node<'tree>> for NodeErrorData {
+    fn from(node: tree_sitter::Node<'tree>) -> Self {
+        let language = node.language();
+        let kind_id = node.kind_id();
+        let range = node.range();
+        NodeErrorData { language, kind_id, range }
+    }
+}
 
 /// Utility trait for working with [`tree_sitter::Node`].
 pub trait NodeExt {
@@ -33,7 +53,7 @@ impl<'tree> NodeExt for tree_sitter::Node<'tree> {
 pub struct NodeError {
     language: tree_sitter::Language,
     expected: Vec<u16>,
-    found: u16,
+    found: NodeErrorData,
 }
 
 impl NodeError {
@@ -43,7 +63,7 @@ impl NodeError {
     }
 
     #[allow(missing_docs)]
-    pub fn found(&self) -> &u16 {
+    pub fn found(&self) -> &NodeErrorData {
         &self.found
     }
 }
@@ -61,10 +81,9 @@ impl std::fmt::Debug for NodeError {
             .iter()
             .map(|&id| self.language.node_kind_for_id(id).unwrap_or("<unknown>".into()))
             .collect::<Vec<_>>();
-        let found = self.language.node_kind_for_id(self.found).unwrap_or("<unknown>".into());
         f.debug_struct("SyntaxError")
             .field("expected", &expected)
-            .field("found", &found)
+            .field("found", &self.found)
             .finish()
     }
 }
@@ -76,10 +95,9 @@ impl std::fmt::Display for NodeError {
             .iter()
             .map(|&id| self.language.node_kind_for_id(id).unwrap_or("<unknown>".into()))
             .collect::<Vec<_>>();
-        let found = self.language.node_kind_for_id(self.found).unwrap_or("<unknown>".into());
         f.debug_struct("SyntaxError")
             .field("expected", &expected)
-            .field("found", &found)
+            .field("found", &self.found)
             .finish()
     }
 }
@@ -88,6 +106,7 @@ impl std::fmt::Display for NodeError {
 #[derive(Clone, Debug, PartialEq)]
 pub enum SyntaxError {
     DoneEarly,
+    MissingNode(NodeErrorData),
     MoreNodes,
     NodeError(NodeError),
 }

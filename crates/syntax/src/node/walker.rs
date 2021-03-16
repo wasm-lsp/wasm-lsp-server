@@ -161,12 +161,27 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     #[inline]
     pub fn goto_first_child(&mut self) -> bool {
         let ancestor = self.cursor.node();
-        let moved = self.cursor.goto_first_child();
-        if moved {
-            let prefixed = Default::default();
-            self.context.push_ancestor(ancestor, prefixed);
+        if ancestor.is_error() {
+            let moved;
+            if let Some(child) = ancestor.child(0) {
+                log::info!("child(0) succeeded");
+                let prefixed = Default::default();
+                self.context.push_ancestor(ancestor, prefixed);
+                self.cursor.reset(child);
+                moved = true;
+            } else {
+                log::info!("child(0) failed");
+                moved = false;
+            }
+            moved
+        } else {
+            let moved = self.cursor.goto_first_child();
+            if moved {
+                let prefixed = Default::default();
+                self.context.push_ancestor(ancestor, prefixed);
+            }
+            moved
         }
-        moved
     }
 
     /// Move the cursor to the next sibling node.
@@ -302,77 +317,51 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
         self.cursor.reset(node);
     }
 
-    // #[allow(missing_docs)]
-    // #[inline]
-    // pub fn step_choice(&mut self, those_ids: &[u16], optional: bool) -> Result<StepValue,
-    // SyntaxError> {     let prev = self.node();
-
-    //     if self.goto_next() {
-    //         let node = self.node();
-    //         let this_id = node.kind_id();
-
-    //         if those_ids.contains(&this_id) {
-    //             return Ok(StepValue::Some(node));
-    //         }
-
-    //         if optional {
-    //             self.cursor.reset(prev);
-    //             return Ok(StepValue::None);
-    //         }
-
-    //         let expected = those_ids.to_vec();
-    //         let found = node.into();
-    //         let error = NodeError { expected, found }.into();
-
-    //         Err(error)
-    //     } else {
-    //         Ok(StepValue::Done)
-    //     }
-    // }
-
-    // #[allow(missing_docs)]
-    // #[inline]
-    // pub fn step(&mut self, that_id: u16, optional: bool) -> Result<StepValue, SyntaxError> {
-    //     let prev = self.node();
-
-    //     if self.goto_next() {
-    //         let node = self.node();
-    //         let this_id = node.kind_id();
-
-    //         if that_id == this_id {
-    //             return Ok(StepValue::Some(node));
-    //         }
-
-    //         if optional {
-    //             self.cursor.reset(prev);
-    //             return Ok(StepValue::None);
-    //         }
-
-    //         let expected = vec![that_id];
-    //         let found = node.into();
-    //         let error = NodeError { expected, found }.into();
-
-    //         Err(error)
-    //     } else {
-    //         Ok(StepValue::Done)
-    //     }
-    // }
-
     #[allow(missing_docs)]
     #[inline]
     pub fn step(&mut self, that_id: u16) -> Result<(), SyntaxError> {
+        let prev = self.node();
         if self.goto_next() {
             let node = self.node();
+            {
+                let language: tree_sitter::Language = self.language.into();
+                let expected = language.node_kind_for_id(that_id).unwrap();
+                let found = node.kind();
+                log::info!("expected: {}, found: {}", expected, found);
+            }
             if that_id != node.kind_id() {
+                if node.is_error() {
+                    log::info!(
+                        "node is ERROR with subnodes {:#?}",
+                        node.children(&mut node.walk()).collect::<Vec<_>>()
+                    );
+                    // if self.goto_next() {
+                    //     let node = self.node();
+                    //     log::info!("stepped again to {:#?}", node);
+                    //     if that_id == node.kind_id() {
+                    //         log::info!("stepped into ERROR");
+                    //         return Ok(());
+                    //     }
+                    // } else {
+                    //     log::info!("couldn't step into ERROR");
+                    // }
+                    return Ok(());
+                }
                 let language = self.language.clone().into();
                 let expected = vec![that_id];
-                let found = node.kind_id();
+                let found = node.into();
                 let error = NodeError {
                     language,
                     expected,
                     found,
                 }
                 .into();
+                return Err(error);
+            }
+            if node.is_missing() {
+                self.reset(prev);
+                let data = node.into();
+                let error = SyntaxError::MissingNode(data);
                 return Err(error);
             }
         }
