@@ -1,4 +1,4 @@
-use crate::node::{NodeError, SyntaxError};
+use crate::node::{NodeError, NodeErrorData, SyntaxError};
 use wasm_lsp_languages::language::Language;
 
 #[allow(missing_docs)]
@@ -138,6 +138,7 @@ pub struct NodeWalker<'tree, C> {
     pub context: C,
     cursor: tree_sitter::TreeCursor<'tree>,
     pub done: bool,
+    pub error_state: Vec<u16>,
 }
 
 impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
@@ -146,12 +147,14 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     pub fn new(language: Language, node: tree_sitter::Node<'tree>) -> Self {
         let context = C::new();
         let cursor = node.walk();
-        let done = false;
+        let done = Default::default();
+        let error_state = Default::default();
         let mut walker = Self {
             language,
             context,
             cursor,
             done,
+            error_state,
         };
         walker.reconstruct_stack();
         walker
@@ -161,27 +164,12 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     #[inline]
     pub fn goto_first_child(&mut self) -> bool {
         let ancestor = self.cursor.node();
-        if ancestor.is_error() {
-            let moved;
-            if let Some(child) = ancestor.child(0) {
-                log::info!("child(0) succeeded");
-                let prefixed = Default::default();
-                self.context.push_ancestor(ancestor, prefixed);
-                self.cursor.reset(child);
-                moved = true;
-            } else {
-                log::info!("child(0) failed");
-                moved = false;
-            }
-            moved
-        } else {
-            let moved = self.cursor.goto_first_child();
-            if moved {
-                let prefixed = Default::default();
-                self.context.push_ancestor(ancestor, prefixed);
-            }
-            moved
+        let moved = self.cursor.goto_first_child();
+        if moved {
+            let prefixed = Default::default();
+            self.context.push_ancestor(ancestor, prefixed);
         }
+        moved
     }
 
     /// Move the cursor to the next sibling node.
@@ -317,39 +305,33 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
         self.cursor.reset(node);
     }
 
-    #[allow(missing_docs)]
     #[inline]
-    pub fn step(&mut self, that_id: u16) -> Result<(), SyntaxError> {
+    fn step(&mut self, that_id: u16, descend_into_error: bool) -> Result<(), SyntaxError> {
         let prev = self.node();
         if self.goto_next() {
-            let node = self.node();
+            let next = self.node();
+            let next_id = next.kind_id();
             {
                 let language: tree_sitter::Language = self.language.into();
                 let expected = language.node_kind_for_id(that_id).unwrap();
-                let found = node.kind();
+                let found = next.kind();
                 log::info!("expected: {}, found: {}", expected, found);
             }
-            if that_id != node.kind_id() {
-                if node.is_error() {
-                    log::info!(
-                        "node is ERROR with subnodes {:#?}",
-                        node.children(&mut node.walk()).collect::<Vec<_>>()
-                    );
-                    // if self.goto_next() {
-                    //     let node = self.node();
-                    //     log::info!("stepped again to {:#?}", node);
-                    //     if that_id == node.kind_id() {
-                    //         log::info!("stepped into ERROR");
-                    //         return Ok(());
-                    //     }
-                    // } else {
-                    //     log::info!("couldn't step into ERROR");
-                    // }
+            if that_id != next_id {
+                if next.is_error() && !self.within_error() && descend_into_error {
+                    self.error_state.push(that_id);
                     return Ok(());
                 }
+
+                if !next.is_error() && self.within_error() && descend_into_error {
+                    self.error_state.push(that_id);
+                    self.reset(prev);
+                    return Ok(());
+                }
+
                 let language = self.language.clone().into();
                 let expected = vec![that_id];
-                let found = node.into();
+                let found = NodeErrorData::new(next, self.error_state.clone());
                 let error = NodeError {
                     language,
                     expected,
@@ -358,14 +340,34 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
                 .into();
                 return Err(error);
             }
-            if node.is_missing() {
+            if next.is_missing() {
                 self.reset(prev);
-                let data = node.into();
+                let data = NodeErrorData::new(next, self.error_state.clone());
                 let error = SyntaxError::MissingNode(data);
                 return Err(error);
             }
         }
         Ok(())
+    }
+
+    #[allow(missing_docs)]
+    #[inline]
+    pub fn rule(&mut self, that_id: u16) -> Result<(), SyntaxError> {
+        let descend_into_error = true;
+        self.step(that_id, descend_into_error)
+    }
+
+    #[allow(missing_docs)]
+    #[inline]
+    pub fn token(&mut self, that_id: u16) -> Result<(), SyntaxError> {
+        let descend_into_error = false;
+        self.step(that_id, descend_into_error)
+    }
+
+    #[allow(missing_docs)]
+    #[inline]
+    pub fn within_error(&self) -> bool {
+        !self.error_state.is_empty()
     }
 }
 

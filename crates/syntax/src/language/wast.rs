@@ -1973,7 +1973,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().step(kind::DEC_NAT)?;
+        visitor.walker().token(kind::DEC_NAT)?;
         Ok(())
     }
 
@@ -2280,7 +2280,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().step(kind::HEX_NAT)?;
+        visitor.walker().token(kind::HEX_NAT)?;
         Ok(())
     }
 
@@ -2290,7 +2290,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().step(kind::IDENTIFIER)?;
+        visitor.walker().token(kind::IDENTIFIER)?;
         log::info!("after identifier");
         Ok(())
     }
@@ -2373,8 +2373,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().step(kind::INDEX)?;
-        log::info!("after index");
+        visitor.walker().rule(kind::INDEX)?;
         utils::choice((nat, identifier))(visitor)
     }
 
@@ -2609,7 +2608,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().step(kind::MODULE_FIELD_START)?;
+        visitor.walker().rule(kind::MODULE_FIELD_START)?;
         utils::seq((token::lparen, token::start, index, token::rparen))(visitor)
     }
 
@@ -2637,7 +2636,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().step(kind::MODULE_FIELD)?;
+        visitor.walker().rule(kind::MODULE_FIELD)?;
         utils::choice((
             // module_field_type,
             // module_field_global,
@@ -2690,8 +2689,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().step(kind::NAT)?;
-        log::info!("after nat");
+        visitor.walker().rule(kind::NAT)?;
         utils::choice((dec_nat, hex_nat))(visitor)
     }
 
@@ -3174,8 +3172,7 @@ pub mod visit {
             Ctx: Context<'tree> + 'tree,
             Vis: Visitor<'tree, Ctx> + ?Sized,
         {
-            visitor.walker().step(kind::token::LPAREN)?;
-            log::info!("after lparen");
+            visitor.walker().token(kind::token::LPAREN)?;
             Ok(())
         }
 
@@ -3185,7 +3182,7 @@ pub mod visit {
             Ctx: Context<'tree> + 'tree,
             Vis: Visitor<'tree, Ctx> + ?Sized,
         {
-            visitor.walker().step(kind::token::MODULE)?;
+            visitor.walker().rule(kind::token::MODULE)?;
             Ok(())
         }
 
@@ -3195,8 +3192,7 @@ pub mod visit {
             Ctx: Context<'tree> + 'tree,
             Vis: Visitor<'tree, Ctx> + ?Sized,
         {
-            visitor.walker().step(kind::token::RPAREN)?;
-            log::info!("after rparen");
+            visitor.walker().token(kind::token::RPAREN)?;
             Ok(())
         }
 
@@ -3206,7 +3202,7 @@ pub mod visit {
             Ctx: Context<'tree> + 'tree,
             Vis: Visitor<'tree, Ctx> + ?Sized,
         {
-            visitor.walker().step(kind::token::START)?;
+            visitor.walker().token(kind::token::START)?;
             Ok(())
         }
     }

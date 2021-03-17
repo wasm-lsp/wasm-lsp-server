@@ -8,6 +8,7 @@ pub struct NodeErrorData {
     language: tree_sitter::Language,
     kind_id: u16,
     range: tree_sitter::Range,
+    error_state: Vec<u16>,
 }
 
 impl std::fmt::Debug for NodeErrorData {
@@ -16,19 +17,30 @@ impl std::fmt::Debug for NodeErrorData {
             .language
             .node_kind_for_id(self.kind_id)
             .unwrap_or("<unknown>".into());
+        let error_state = self
+            .error_state
+            .iter()
+            .map(|&id| self.language.node_kind_for_id(id).unwrap_or("<unknown>".into()))
+            .collect::<Vec<_>>();
         f.debug_struct("NodeErrorData")
             .field("kind_id", &kind_id)
             .field("range", &self.range)
+            .field("error_state", &error_state)
             .finish()
     }
 }
 
-impl<'tree> From<tree_sitter::Node<'tree>> for NodeErrorData {
-    fn from(node: tree_sitter::Node<'tree>) -> Self {
+impl NodeErrorData {
+    fn new(node: tree_sitter::Node, error_state: Vec<u16>) -> Self {
         let language = node.language();
         let kind_id = node.kind_id();
         let range = node.range();
-        NodeErrorData { language, kind_id, range }
+        NodeErrorData {
+            language,
+            kind_id,
+            range,
+            error_state,
+        }
     }
 }
 
