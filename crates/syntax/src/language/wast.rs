@@ -198,6 +198,7 @@ pub mod kind {
                 (BLOCK, "block", false),
                 (BR_TABLE, "br_table", false),
                 (CALL_INDIRECT, "call_indirect", false),
+                (CONST, "const", false),
                 (DATA, "data", false),
                 (DECLARE, "declare", false),
                 (DOLLAR_SIGN, "$", false),
@@ -230,10 +231,15 @@ pub mod kind {
                 (MEMORY, "memory", false),
                 (MODULE, "module", false),
                 (MUT, "mut", false),
+                (NAN_ARITHMETIC, "nan:arithmetic", false),
+                (NAN_CANONICAL, "nan:canonical", false),
                 (OFFSET, "offset", false),
                 (OUTPUT, "output", false),
                 (PARAM, "param", false),
                 (QUOTE, "quote", false),
+                (REF_EXTERN, "ref.extern", false),
+                (REF_FUNC, "ref.func", false),
+                (REF_NULL, "ref.null", false),
                 (REF, "ref", false),
                 (REGISTER, "register", false),
                 (RESULT, "result", false),
@@ -1739,7 +1745,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ACTION_INVOKE)?;
+        utils::seq((
+            token::LPAREN,
+            token::INVOKE,
+            utils::optional(identifier),
+            name,
+            utils::repeat(expr_plain_const),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1748,7 +1762,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ACTION)?;
+        utils::choice((action_invoke, action_get))(visitor)
     }
 
     #[inline]
@@ -1802,7 +1817,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_EXHAUSTION)?;
+        utils::seq((token::LPAREN, token::ASSERT_EXHAUSTION, action, string, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -1811,7 +1827,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_INVALID)?;
+        utils::seq((
+            token::LPAREN,
+            token::ASSERT_INVALID,
+            script_module,
+            string,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1820,7 +1843,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_MALFORMED)?;
+        utils::seq((
+            token::LPAREN,
+            token::ASSERT_MALFORMED,
+            script_module,
+            string,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1829,7 +1859,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_RETURN_ARITHMETIC_NAN)?;
+        utils::seq((
+            token::LPAREN,
+            token::ASSERT_RETURN_ARITHMETIC_NAN,
+            action,
+            utils::repeat(result),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1838,7 +1875,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_RETURN_CANONICAL_NAN)?;
+        utils::seq((
+            token::LPAREN,
+            token::ASSERT_RETURN_CANONICAL_NAN,
+            action,
+            utils::repeat(result),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1847,7 +1891,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_RETURN)?;
+        utils::seq((
+            token::LPAREN,
+            token::ASSERT_RETURN,
+            action,
+            utils::repeat(result),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1856,7 +1907,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_TRAP_ACTION)?;
+        utils::seq((token::LPAREN, token::ASSERT_TRAP, action, string, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -1865,7 +1917,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_TRAP_MODULE)?;
+        utils::seq((token::LPAREN, token::ASSERT_TRAP, script_module, string, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -1874,7 +1927,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERT_UNLINKABLE)?;
+        utils::seq((
+            token::LPAREN,
+            token::ASSERT_UNLINKABLE,
+            script_module,
+            string,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1883,7 +1943,18 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ASSERTION)?;
+        utils::choice((
+            assert_malformed,
+            assert_invalid,
+            assert_unlinkable,
+            assert_trap_action,
+            assert_trap_module,
+            assert_return,
+            assert_return_canonical_nan,
+            assert_return_arithmetic_nan,
+            assert_exhaustion,
+        ))(visitor)
     }
 
     #[inline]
@@ -1919,7 +1990,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        utils::choice((script_module,))(visitor)
+        visitor.walker().rule(kind::COMMAND)?;
+        utils::choice((action, assertion, meta, register, script_module))(visitor)
     }
 
     #[inline]
@@ -2091,7 +2163,12 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR_PLAIN_CONST)?;
+        utils::seq((
+            token::LPAREN,
+            utils::choice((op_const_ref, op_simd_const)),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2446,7 +2523,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::LITERAL_NAN_ARITHMETIC)?;
+        token::NAN_ARITHMETIC(visitor)
     }
 
     #[inline]
@@ -2455,7 +2533,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::LITERAL_NAN_CANONICAL)?;
+        token::NAN_CANONICAL(visitor)
     }
 
     #[inline]
@@ -2464,7 +2543,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::LITERAL_NAN)?;
+        utils::choice((literal_nan_arithmetic, literal_nan_canonical))(visitor)
     }
 
     #[inline]
@@ -2509,7 +2589,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::META_INPUT)?;
+        utils::seq((
+            token::LPAREN,
+            token::INPUT,
+            utils::optional(identifier),
+            string,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2518,7 +2605,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::META_OUTPUT)?;
+        utils::seq((
+            token::LPAREN,
+            token::OUTPUT,
+            utils::optional(identifier),
+            utils::optional(string),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2527,7 +2621,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::META_SCRIPT)?;
+        utils::seq((
+            token::LPAREN,
+            token::SCRIPT,
+            utils::optional(identifier),
+            utils::repeat(command),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2536,7 +2637,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::META)?;
+        utils::choice((meta_script, meta_input, meta_output))(visitor)
     }
 
     #[inline]
@@ -2609,7 +2711,7 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::MODULE_FIELD_START)?;
-        utils::seq((token::lparen, token::start, index, token::rparen))(visitor)
+        utils::seq((token::LPAREN, token::START, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2658,10 +2760,10 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         utils::seq((
-            token::lparen,
+            token::LPAREN,
             utils::optional(identifier),
             utils::repeat(module_field),
-            token::rparen,
+            token::RPAREN,
         ))(visitor)
     }
 
@@ -2780,7 +2882,12 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_CONST_REF)?;
+        utils::choice((
+            op_const,
+            utils::seq((token::REF_NULL, utils::choice((ref_kind, index)))),
+            utils::seq((token::REF_EXTERN, nat)),
+        ))(visitor)
     }
 
     #[inline]
@@ -2960,7 +3067,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::REGISTER)?;
+        utils::seq((
+            token::LPAREN,
+            token::REGISTER,
+            name,
+            utils::optional(identifier),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2978,7 +3092,13 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::RESULT_CONST_NAN)?;
+        utils::seq((
+            utils::choice((token::F32, token::F64, token::I32, token::I64)),
+            token::FULL_STOP,
+            token::CONST,
+            literal_nan,
+        ))(visitor)
     }
 
     #[inline]
@@ -2987,7 +3107,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::RESULT_CONST)?;
+        utils::choice((op_const_ref, op_simd_const))(visitor)
     }
 
     #[inline]
@@ -2996,7 +3117,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::RESULT_REF_EXTERN)?;
+        token::REF_EXTERN(visitor)
     }
 
     #[inline]
@@ -3005,7 +3127,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::RESULT_REF_FUNC)?;
+        token::REF_FUNC(visitor)
     }
 
     #[inline]
@@ -3014,7 +3137,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::RESULT_REF_NULL)?;
+        token::REF_NULL(visitor)
     }
 
     #[inline]
@@ -3023,7 +3147,18 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::RESULT)?;
+        utils::seq((
+            token::LPAREN,
+            utils::choice((
+                result_const,
+                result_const_nan,
+                result_ref_func,
+                result_ref_extern,
+                result_ref_null,
+            )),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -3043,7 +3178,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::SCRIPT_MODULE_BINARY)?;
+        utils::choice((
+            token::LPAREN,
+            token::MODULE,
+            utils::optional(identifier),
+            token::BINARY,
+            utils::repeat(string),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -3052,7 +3195,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::SCRIPT_MODULE_BINARY)?;
+        utils::choice((
+            token::LPAREN,
+            token::MODULE,
+            utils::optional(identifier),
+            token::QUOTE,
+            utils::repeat(string),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -3061,7 +3212,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        utils::choice((module,))(visitor)
+        visitor.walker().rule(kind::SCRIPT_MODULE)?;
+        utils::choice((module, script_module_binary, script_module_quote))(visitor)
     }
 
     #[inline]
@@ -3166,45 +3318,51 @@ pub mod visit {
     mod token {
         use super::*;
 
-        #[inline]
-        pub fn lparen<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
-        where
-            Ctx: Context<'tree> + 'tree,
-            Vis: Visitor<'tree, Ctx> + ?Sized,
-        {
-            visitor.walker().token(kind::token::LPAREN)?;
-            Ok(())
+        macro_rules! make {
+            ($name:tt) => {
+                #[inline]
+                #[allow(non_snake_case)]
+                pub fn $name<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+                where
+                    Ctx: Context<'tree> + 'tree,
+                    Vis: Visitor<'tree, Ctx> + ?Sized,
+                {
+                    visitor.walker().token(kind::token::$name)?;
+                    Ok(())
+                }
+            };
         }
 
-        #[inline]
-        pub fn module<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
-        where
-            Ctx: Context<'tree> + 'tree,
-            Vis: Visitor<'tree, Ctx> + ?Sized,
-        {
-            visitor.walker().rule(kind::token::MODULE)?;
-            Ok(())
-        }
-
-        #[inline]
-        pub fn rparen<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
-        where
-            Ctx: Context<'tree> + 'tree,
-            Vis: Visitor<'tree, Ctx> + ?Sized,
-        {
-            visitor.walker().token(kind::token::RPAREN)?;
-            Ok(())
-        }
-
-        #[inline]
-        pub fn start<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
-        where
-            Ctx: Context<'tree> + 'tree,
-            Vis: Visitor<'tree, Ctx> + ?Sized,
-        {
-            visitor.walker().token(kind::token::START)?;
-            Ok(())
-        }
+        make!(ASSERT_EXHAUSTION);
+        make!(ASSERT_INVALID);
+        make!(ASSERT_MALFORMED);
+        make!(ASSERT_RETURN_ARITHMETIC_NAN);
+        make!(ASSERT_RETURN_CANONICAL_NAN);
+        make!(ASSERT_RETURN);
+        make!(ASSERT_TRAP);
+        make!(ASSERT_UNLINKABLE);
+        make!(BINARY);
+        make!(CONST);
+        make!(F32);
+        make!(F64);
+        make!(FULL_STOP);
+        make!(I32);
+        make!(I64);
+        make!(INPUT);
+        make!(INVOKE);
+        make!(LPAREN);
+        make!(MODULE);
+        make!(NAN_ARITHMETIC);
+        make!(NAN_CANONICAL);
+        make!(OUTPUT);
+        make!(QUOTE);
+        make!(REF_EXTERN);
+        make!(REF_FUNC);
+        make!(REF_NULL);
+        make!(REGISTER);
+        make!(RPAREN);
+        make!(SCRIPT);
+        make!(START);
     }
 }
 
