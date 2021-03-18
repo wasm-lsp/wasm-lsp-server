@@ -31,7 +31,8 @@ impl std::fmt::Debug for NodeErrorData {
 }
 
 impl NodeErrorData {
-    fn new(node: tree_sitter::Node, error_state: Vec<u16>) -> Self {
+    #[allow(missing_docs)]
+    pub fn new(node: tree_sitter::Node, error_state: Vec<u16>) -> Self {
         let language = node.language();
         let kind_id = node.kind_id();
         let range = node.range();
@@ -69,6 +70,11 @@ pub struct NodeError {
 }
 
 impl NodeError {
+    #[allow(missing_docs)]
+    pub fn new(language: tree_sitter::Language, expected: Vec<u16>, found: NodeErrorData) -> Self {
+        Self { language, expected, found }
+    }
+
     #[allow(missing_docs)]
     pub fn expected(&self) -> &[u16] {
         &self.expected

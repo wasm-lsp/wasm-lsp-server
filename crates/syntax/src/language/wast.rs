@@ -275,6 +275,10 @@ pub mod grouped {
 pub trait Visitor<'tree, Ctx: crate::node::Context<'tree> + 'tree> {
     fn walker(&mut self) -> &mut NodeWalker<'tree, Ctx>;
 
+    fn node(&self) -> tree_sitter::Node<'tree>;
+
+    fn reset(&mut self, node: tree_sitter::Node<'tree>);
+
     fn visit_action_get(&mut self) -> Result<(), SyntaxErrors> {
         visit::action_get(self)
     }
@@ -1472,9 +1476,9 @@ pub mod utils {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         move |visitor| {
-            let prev = visitor.walker().node();
+            let prev = visitor.node();
             if fun(visitor).is_err() {
-                visitor.walker().reset(prev);
+                visitor.reset(prev);
             }
 
             Ok(())
@@ -1490,12 +1494,12 @@ pub mod utils {
     {
         move |visitor| {
             loop {
-                let prev = visitor.walker().node();
+                let prev = visitor.node();
                 if visitor.walker().done {
                     break;
                 }
                 if fun(visitor).is_err() {
-                    visitor.walker().reset(prev);
+                    visitor.reset(prev);
                     break;
                 }
             }
@@ -1522,10 +1526,10 @@ pub mod utils {
 
             let mut succeeded_once = false;
             loop {
-                let prev = visitor.walker().node();
+                let prev = visitor.node();
                 if let Err(mut errs) = fun(visitor) {
                     if succeeded_once {
-                        visitor.walker().reset(prev);
+                        visitor.reset(prev);
                         break;
                     }
                     errors.append(&mut errs);
@@ -1711,9 +1715,9 @@ pub mod utils {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         move |visitor| {
-            let prev = visitor.walker().node();
+            let prev = visitor.node();
             if let Err(mut errs) = fun(visitor) {
-                visitor.walker().reset(prev);
+                visitor.reset(prev);
                 let mut errors = SyntaxErrors::new();
                 errors.append(&mut errs);
                 return Err(errors);
@@ -3383,6 +3387,17 @@ impl<'tree> BasicVisitor<'tree> {
 }
 
 impl<'tree> Visitor<'tree, Context<'tree>> for BasicVisitor<'tree> {
+    #[inline]
+    fn node(&self) -> tree_sitter::Node<'tree> {
+        self.walker.node()
+    }
+
+    #[inline]
+    fn reset(&mut self, node: tree_sitter::Node<'tree>) {
+        self.walker.reset(node)
+    }
+
+    #[inline]
     fn walker(&mut self) -> &mut NodeWalker<'tree, Context<'tree>> {
         &mut self.walker
     }
