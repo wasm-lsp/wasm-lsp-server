@@ -246,12 +246,14 @@ pub mod kind {
                 (REVERSE_SOLIDUS_REVERSE_SOLIDUS, "\\", false),
                 (RPAREN, ")", false),
                 (SCRIPT, "script", false),
+                (SEMICOLON_RPAREN, ";)", false),
                 (SEMICOLON_SEMICOLON, ";;", false),
                 (START, "start", false),
                 (TABLE, "table", false),
                 (THEN, "then", false),
                 (TYPE, "type", false),
                 (V128, "v128", false),
+                (ZERO_X, "0x", false),
             ],
         }
     }
@@ -2372,7 +2374,6 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().token(kind::IDENTIFIER)?;
-        log::info!("after identifier");
         Ok(())
     }
 
@@ -3171,9 +3172,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        // utils::choice((utils::repeat(command), utils::repeat1(module_field)))(visitor)?;
-        // utils::done(visitor)
-        module_field(visitor)
+        utils::choice((utils::repeat(command), utils::repeat1(module_field)))(visitor)?;
+        utils::done(visitor)
     }
 
     #[inline]
@@ -3398,12 +3398,14 @@ pub mod visit {
         make!(REVERSE_SOLIDUS_REVERSE_SOLIDUS);
         make!(RPAREN);
         make!(SCRIPT);
+        make!(SEMICOLON_RPAREN);
         make!(SEMICOLON_SEMICOLON);
         make!(START);
         make!(TABLE);
         make!(THEN);
         make!(TYPE);
         make!(V128);
+        make!(ZERO_X);
     }
 }
 

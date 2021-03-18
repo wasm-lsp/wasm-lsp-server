@@ -67,6 +67,7 @@ pub mod kind {
             (HEX_FLOAT, "hex_float", true),
             (HEX_NAT, "hex_nat", true),
             (IDENTIFIER, "identifier", true),
+            (IDENTIFIER_PATTERN, "identifier_pattern", true),
             (IF_BLOCK, "if_block", true),
             (IMPORT_DESC_FUNC_TYPE, "import_desc_func_type", true),
             (IMPORT_DESC_GLOBAL_TYPE, "import_desc_global_type", true),
@@ -133,6 +134,7 @@ pub mod kind {
             (RESERVED, "reserved", true),
             (ROOT, "ROOT", true),
             (SHARE, "share", true),
+            (SIGN, "sign", true),
             (STRING, "string", true),
             (TABLE_FIELDS_ELEM, "table_fields_elem", true),
             (TABLE_FIELDS_TYPE, "table_fields_type", true),
@@ -207,12 +209,14 @@ pub mod kind {
                 (REVERSE_SOLIDUS_REVERSE_SOLIDUS, "\\", false),
                 (RPAREN, ")", false),
                 (SCRIPT, "script", false),
+                (SEMICOLON_RPAREN, ";)", false),
                 (SEMICOLON_SEMICOLON, ";;", false),
                 (START, "start", false),
                 (TABLE, "table", false),
                 (THEN, "then", false),
                 (TYPE, "type", false),
                 (V128, "v128", false),
+                (ZERO_X, "0x", false),
             ],
         }
     }
@@ -696,6 +700,10 @@ pub trait Visitor<'tree, Ctx: crate::node::Context<'tree> + 'tree> {
         visit::share(self)
     }
 
+    fn visit_sign(&mut self) -> Result<(), SyntaxErrors> {
+        visit::sign(self)
+    }
+
     fn visit_string(&mut self) -> Result<(), SyntaxErrors> {
         visit::string(self)
     }
@@ -737,6 +745,825 @@ pub trait Visitor<'tree, Ctx: crate::node::Context<'tree> + 'tree> {
     }
 }
 
+pub mod utils {
+    #![allow(missing_docs)]
+    #![allow(unused)]
+
+    use super::*;
+    use crate::node::{Context, SyntaxError};
+
+    pub trait Choice<'tree, Ctx, Vis>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors>;
+    }
+
+    impl<'tree, Ctx, Vis> Choice<'tree, Ctx, Vis> for ()
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        #[inline]
+        fn choice(&self, _: &mut Vis) -> Result<(), SyntaxErrors> {
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A> Choice<'tree, Ctx, Vis> for (A,)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B> Choice<'tree, Ctx, Vis> for (A, B)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C> Choice<'tree, Ctx, Vis> for (A, B, C)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D> Choice<'tree, Ctx, Vis> for (A, B, C, D)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.3)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E> Choice<'tree, Ctx, Vis> for (A, B, C, D, E)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.3)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.4)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E, F> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.3)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.4)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.5)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.3)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.4)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.5)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.6)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G, H> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G, H)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        H: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.3)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.4)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.5)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.6)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.7)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G, H, I> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G, H, I)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        H: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        I: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.3)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.4)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.5)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.6)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.7)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.8)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G, H, I, J> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G, H, I, J)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        H: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        I: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        J: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            let mut errors = SyntaxErrors::new();
+
+            if let Err(mut errs) = restore(&self.0)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.1)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.2)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.3)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.4)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.5)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.6)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.7)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.8)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            if let Err(mut errs) = restore(&self.9)(visitor) {
+                errors.append(&mut errs);
+            } else {
+                return Ok(());
+            }
+
+            Err(errors)
+        }
+    }
+
+    #[inline]
+    pub fn choice<'tree, Ctx, Vis, T>(funs: T) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        T: Choice<'tree, Ctx, Vis>,
+    {
+        move |visitor| funs.choice(visitor)
+    }
+
+    #[inline]
+    pub fn done<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        if visitor.walker().done {
+            return Ok(());
+        } else {
+            let mut errors = SyntaxErrors::new();
+            errors.push(SyntaxError::MoreNodes);
+            return Err(errors);
+        }
+    }
+
+    #[inline]
+    pub fn optional<'tree, Ctx, Vis>(
+        fun: impl Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    ) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        move |visitor| {
+            let prev = visitor.node();
+            if fun(visitor).is_err() {
+                visitor.reset(prev);
+            }
+
+            Ok(())
+        }
+    }
+
+    pub fn repeat<'tree, Ctx, Vis>(
+        fun: impl Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    ) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        move |visitor| {
+            loop {
+                let prev = visitor.node();
+                if visitor.walker().done {
+                    break;
+                }
+                if fun(visitor).is_err() {
+                    visitor.reset(prev);
+                    break;
+                }
+            }
+
+            Ok(())
+        }
+    }
+
+    #[inline]
+    pub fn repeat1<'tree, Ctx, Vis>(
+        fun: impl Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    ) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        move |visitor| {
+            let mut errors = SyntaxErrors::new();
+
+            if visitor.walker().done {
+                errors.push(SyntaxError::DoneEarly);
+                return Err(errors);
+            }
+
+            let mut succeeded_once = false;
+            loop {
+                let prev = visitor.node();
+                if let Err(mut errs) = fun(visitor) {
+                    if succeeded_once {
+                        visitor.reset(prev);
+                        break;
+                    }
+                    errors.append(&mut errs);
+                    return Err(errors);
+                } else {
+                    succeeded_once = true;
+                }
+            }
+
+            Ok(())
+        }
+    }
+
+    pub trait Seq<'tree, Ctx, Vis>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors>;
+    }
+
+    impl<'tree, Ctx, Vis> Seq<'tree, Ctx, Vis> for ()
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        #[inline]
+        fn seq(&self, _: &mut Vis) -> Result<(), SyntaxErrors> {
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A> Seq<'tree, Ctx, Vis> for (A,)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)?;
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B> Seq<'tree, Ctx, Vis> for (A, B)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)?;
+            self.1(visitor)?;
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C> Seq<'tree, Ctx, Vis> for (A, B, C)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)?;
+            self.1(visitor)?;
+            self.2(visitor)?;
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D> Seq<'tree, Ctx, Vis> for (A, B, C, D)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)?;
+            self.1(visitor)?;
+            self.2(visitor)?;
+            self.3(visitor)?;
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E> Seq<'tree, Ctx, Vis> for (A, B, C, D, E)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)?;
+            self.1(visitor)?;
+            self.2(visitor)?;
+            self.3(visitor)?;
+            self.4(visitor)?;
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E, F> Seq<'tree, Ctx, Vis> for (A, B, C, D, E, F)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)?;
+            self.1(visitor)?;
+            self.2(visitor)?;
+            self.3(visitor)?;
+            self.4(visitor)?;
+            self.5(visitor)?;
+            Ok(())
+        }
+    }
+
+    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G> Seq<'tree, Ctx, Vis> for (A, B, C, D, E, F, G)
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    {
+        #[inline]
+        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
+            self.0(visitor)?;
+            self.1(visitor)?;
+            self.2(visitor)?;
+            self.3(visitor)?;
+            self.4(visitor)?;
+            self.5(visitor)?;
+            self.6(visitor)?;
+            Ok(())
+        }
+    }
+
+    #[inline]
+    pub fn seq<'tree, Ctx, Vis, T>(funs: T) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+        T: Seq<'tree, Ctx, Vis>,
+    {
+        move |visitor| funs.seq(visitor)
+    }
+
+    #[inline]
+    pub fn restore<'tree, Ctx, Vis>(
+        fun: impl Fn(&mut Vis) -> Result<(), SyntaxErrors>,
+    ) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        move |visitor| {
+            let prev = visitor.node();
+            if let Err(mut errs) = fun(visitor) {
+                visitor.reset(prev);
+                let mut errors = SyntaxErrors::new();
+                errors.append(&mut errs);
+                return Err(errors);
+            }
+            Ok(())
+        }
+    }
+}
+
 pub mod visit {
     #![allow(missing_docs)]
     #![allow(unused)]
@@ -768,6 +1595,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::ALIGN_OFFSET_VALUE)?;
         Ok(())
     }
 
@@ -776,7 +1604,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ALIGN_VALUE)?;
+        utils::choice((token::ALIGN, token::EQUALS, align_offset_value))(visitor)
     }
 
     pub fn annotation_parens<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -784,7 +1613,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ANNOTATION_PARENS)?;
+        utils::seq((token::LPAREN, utils::repeat(annotation_part), token::RPAREN))(visitor)
     }
 
     pub fn annotation_part<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -792,7 +1622,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ANNOTATION_PART)?;
+        utils::choice((
+            comment_block_annot,
+            comment_line_annot,
+            annotation_parens,
+            reserved,
+            identifier,
+            string,
+        ))(visitor)
     }
 
     pub fn annotation<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -800,7 +1638,13 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ANNOTATION)?;
+        utils::seq((
+            token::LPAREN_AMPERSAND,
+            identifier_pattern,
+            utils::repeat(annotation_part),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn block_block<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -808,7 +1652,19 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::BLOCK_BLOCK)?;
+        utils::seq((
+            token::BLOCK,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+            token::END,
+            utils::optional(identifier),
+        ))(visitor)
     }
 
     pub fn block_if<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -816,7 +1672,24 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::BLOCK_IF)?;
+        utils::seq((
+            token::IF,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+            utils::optional(utils::seq((
+                token::ELSE,
+                utils::optional(identifier),
+                utils::optional(instr_list),
+            ))),
+            token::END,
+            utils::optional(identifier),
+        ))(visitor)
     }
 
     pub fn block_loop<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -824,7 +1697,19 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::BLOCK_LOOP)?;
+        utils::seq((
+            token::LOOP,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+            token::END,
+            utils::optional(identifier),
+        ))(visitor)
     }
 
     pub fn comment_block_annot<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -832,7 +1717,9 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::COMMENT_BLOCK_ANNOT)?;
+        // FIXME: regex
+        todo!()
     }
 
     pub fn comment_block<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -840,7 +1727,9 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::COMMENT_BLOCK)?;
+        // FIXME: regex
+        todo!()
     }
 
     pub fn comment_line_annot<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -848,7 +1737,9 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::COMMENT_LINE_ANNOT)?;
+        // FIXME: regex; prec left
+        todo!()
     }
 
     pub fn comment_line<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -856,7 +1747,9 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::COMMENT_LINE)?;
+        // FIXME: regex; prec.left
+        todo!()
     }
 
     pub fn dec_float<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -864,7 +1757,9 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::DEC_FLOAT)?;
+        // FIXME: regex
+        todo!()
     }
 
     pub fn dec_nat<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -872,6 +1767,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::DEC_NAT)?;
         Ok(())
     }
 
@@ -880,7 +1776,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_EXPR_EXPR)?;
+        expr(visitor)
     }
 
     pub fn elem_expr_item<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -888,7 +1785,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_EXPR_ITEM)?;
+        utils::seq((token::LPAREN, token::ITEM, utils::repeat(instr), token::RPAREN))(visitor)
     }
 
     pub fn elem_expr<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -896,7 +1794,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_EXPR)?;
+        utils::choice((elem_expr_item, elem_expr_expr))(visitor)
     }
 
     pub fn elem_kind<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -904,7 +1803,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_KIND)?;
+        token::FUNC(visitor)
     }
 
     pub fn elem_list<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -912,7 +1812,11 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_LIST)?;
+        utils::choice((
+            utils::seq((elem_kind, utils::repeat(index))),
+            utils::seq((ref_type, utils::repeat(elem_expr))),
+        ))(visitor)
     }
 
     pub fn escape_sequence<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -920,7 +1824,9 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ESCAPE_SEQUENCE)?;
+        // FIXME: regex
+        todo!()
     }
 
     pub fn export_desc_func<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -928,7 +1834,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_FUNC)?;
+        utils::seq((token::LPAREN, token::FUNC, index, token::RPAREN))(visitor)
     }
 
     pub fn export_desc_global<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -936,7 +1843,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_GLOBAL)?;
+        utils::seq((token::LPAREN, token::GLOBAL, index, token::RPAREN))(visitor)
     }
 
     pub fn export_desc_memory<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -944,7 +1852,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_MEMORY)?;
+        utils::seq((token::LPAREN, token::MEMORY, index, token::RPAREN))(visitor)
     }
 
     pub fn export_desc_table<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -952,7 +1861,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_TABLE)?;
+        utils::seq((token::LPAREN, token::TABLE, index, token::RPAREN))(visitor)
     }
 
     pub fn export_desc<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -960,7 +1870,13 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC)?;
+        utils::choice((
+            export_desc_func,
+            export_desc_table,
+            export_desc_memory,
+            export_desc_global,
+        ))(visitor)
     }
 
     pub fn export<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -968,7 +1884,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT)?;
+        utils::seq((token::LPAREN, token::EXPORT, name, token::RPAREN))(visitor)
     }
 
     pub fn expr<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -976,7 +1893,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR)?;
+        utils::seq((token::LPAREN, expr1, token::RPAREN))(visitor)
     }
 
     pub fn expr1_block<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -984,7 +1902,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_BLOCK)?;
+        utils::seq((
+            token::BLOCK,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+        ))(visitor)
     }
 
     pub fn expr1_call<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -992,7 +1920,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_CALL)?;
+        utils::seq((
+            token::CALL_INDIRECT,
+            utils::optional(index),
+            utils::optional(type_use),
+            utils::repeat(func_type_params_many),
+            utils::repeat(func_type_results),
+            utils::repeat(expr),
+        ))(visitor)
     }
 
     pub fn expr1_if<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1000,7 +1936,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_IF)?;
+        utils::seq((token::IF, utils::optional(identifier), if_block))(visitor)
     }
 
     pub fn expr1_loop<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1008,7 +1945,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_LOOP)?;
+        utils::seq((
+            token::LOOP,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+        ))(visitor)
     }
 
     pub fn expr1_plain<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1016,7 +1963,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_PLAIN)?;
+        utils::seq((instr_plain, utils::repeat(expr)))(visitor)
     }
 
     pub fn expr1<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1024,7 +1972,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1)?;
+        utils::choice((expr1_plain, expr1_call, expr1_block, expr1_loop, expr1_if))(visitor)
     }
 
     pub fn float<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1032,7 +1981,11 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FLOAT)?;
+        utils::seq((
+            utils::optional(sign),
+            utils::choice((dec_float, hex_float, token::INF, nan)),
+        ))(visitor)
     }
 
     pub fn func_locals_many<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1040,7 +1993,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_LOCALS_MANY)?;
+        utils::seq((token::LPAREN, token::LOCAL, utils::repeat(value_type), token::RPAREN))(visitor)
     }
 
     pub fn func_locals_one<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1048,7 +2002,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_LOCALS_ONE)?;
+        utils::seq((token::LPAREN, token::LOCAL, identifier, value_type, token::RPAREN))(visitor)
     }
 
     pub fn func_locals<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1056,7 +2011,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_LOCALS)?;
+        utils::choice((func_locals_one, func_locals_many))(visitor)
     }
 
     pub fn func_type_params_many<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1064,7 +2020,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_PARAMS_MANY)?;
+        utils::seq((token::LPAREN, token::PARAM, utils::repeat(value_type), token::RPAREN))(visitor)
     }
 
     pub fn func_type_params_one<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1072,7 +2029,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_PARAMS_ONE)?;
+        utils::seq((token::LPAREN, token::PARAM, identifier, value_type, token::RPAREN))(visitor)
     }
 
     pub fn func_type_params<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1080,7 +2038,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_PARAMS)?;
+        utils::choice((func_type_params_one, func_type_params_many))(visitor)
     }
 
     pub fn func_type_results<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1088,7 +2047,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_RESULTS)?;
+        utils::seq((token::LPAREN, token::RESULT, utils::repeat(value_type), token::RPAREN))(visitor)
     }
 
     pub fn func_type<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1096,7 +2056,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE)?;
+        utils::choice((func_type_params, func_type_results))(visitor)
     }
 
     pub fn global_type_imm<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1104,7 +2065,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::GLOBAL_TYPE_IMM)?;
+        value_type(visitor)
     }
 
     pub fn global_type_mut<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1112,7 +2074,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::GLOBAL_TYPE_MUT)?;
+        utils::seq((token::LPAREN, token::MUT, value_type, token::RPAREN))(visitor)
     }
 
     pub fn global_type<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1120,7 +2083,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::GLOBAL_TYPE)?;
+        utils::choice((global_type_imm, global_type_mut))(visitor)
     }
 
     pub fn hex_float<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1128,6 +2092,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::HEX_FLOAT)?;
         Ok(())
     }
 
@@ -1136,10 +2101,19 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::HEX_NAT)?;
         Ok(())
     }
 
     pub fn identifier<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn identifier_pattern<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
     where
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
@@ -1673,10 +2647,19 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        utils::choice((module, utils::repeat(module_field)))(visitor)?;
+        utils::done(visitor)
     }
 
     pub fn share<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        Ok(())
+    }
+
+    pub fn sign<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
     where
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
@@ -1837,12 +2820,14 @@ pub mod visit {
         make!(REVERSE_SOLIDUS_REVERSE_SOLIDUS);
         make!(RPAREN);
         make!(SCRIPT);
+        make!(SEMICOLON_RPAREN);
         make!(SEMICOLON_SEMICOLON);
         make!(START);
         make!(TABLE);
         make!(THEN);
         make!(TYPE);
         make!(V128);
+        make!(ZERO_X);
     }
 }
 
