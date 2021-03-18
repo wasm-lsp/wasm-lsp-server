@@ -72,7 +72,11 @@ pub struct NodeError {
 impl NodeError {
     #[allow(missing_docs)]
     pub fn new(language: tree_sitter::Language, expected: Vec<u16>, found: NodeErrorData) -> Self {
-        Self { language, expected, found }
+        Self {
+            language,
+            expected,
+            found,
+        }
     }
 
     #[allow(missing_docs)]
