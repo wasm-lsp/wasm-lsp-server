@@ -3337,6 +3337,7 @@ pub mod visit {
             };
         }
 
+        make!(ALIGN);
         make!(ASSERT_EXHAUSTION);
         make!(ASSERT_INVALID);
         make!(ASSERT_MALFORMED);
@@ -3346,27 +3347,63 @@ pub mod visit {
         make!(ASSERT_TRAP);
         make!(ASSERT_UNLINKABLE);
         make!(BINARY);
+        make!(BLOCK);
+        make!(BR_TABLE);
+        make!(CALL_INDIRECT);
         make!(CONST);
+        make!(DATA);
+        make!(DECLARE);
+        make!(DOLLAR_SIGN);
+        make!(ELEM);
+        make!(ELSE);
+        make!(END);
+        make!(EQUALS);
+        make!(EXPORT);
+        make!(EXTERNREF);
         make!(F32);
         make!(F64);
         make!(FULL_STOP);
+        make!(FUNC);
+        make!(FUNCREF);
+        make!(GET);
+        make!(GLOBAL);
         make!(I32);
         make!(I64);
+        make!(IF);
+        make!(IMPORT);
+        make!(INF);
         make!(INPUT);
         make!(INVOKE);
+        make!(ITEM);
+        make!(LOCAL);
+        make!(LOOP);
+        make!(LPAREN_AMPERSAND);
+        make!(LPAREN_SEMICOLON);
         make!(LPAREN);
+        make!(MEMORY);
         make!(MODULE);
+        make!(MUT);
         make!(NAN_ARITHMETIC);
         make!(NAN_CANONICAL);
+        make!(OFFSET);
         make!(OUTPUT);
+        make!(PARAM);
         make!(QUOTE);
         make!(REF_EXTERN);
         make!(REF_FUNC);
         make!(REF_NULL);
+        make!(REF);
         make!(REGISTER);
+        make!(RESULT);
+        make!(REVERSE_SOLIDUS_REVERSE_SOLIDUS);
         make!(RPAREN);
         make!(SCRIPT);
+        make!(SEMICOLON_SEMICOLON);
         make!(START);
+        make!(TABLE);
+        make!(THEN);
+        make!(TYPE);
+        make!(V128);
     }
 }
 
