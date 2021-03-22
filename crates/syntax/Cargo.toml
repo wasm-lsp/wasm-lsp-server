@@ -2,7 +2,7 @@
 edition = "2018"
 name = "wasm-lsp-syntax"
 version = "0.0.0"
-authors = ["hvithrafn <hvithrafn@users.noreply.github.com>"]
+authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
 readme = "README.md"
 repository = "https://github.com/wasm-lsp/wasm-lsp-server"
