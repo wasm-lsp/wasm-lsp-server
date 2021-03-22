@@ -2,7 +2,7 @@
 publish = false
 name = "xtask"
 version = "0.1.0"
-authors = ["hvithrafn <hvithrafn@users.noreply.github.com>"]
+authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
 edition = "2018"
 
 [dependencies]
