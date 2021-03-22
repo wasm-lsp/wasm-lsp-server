@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["MODULE_FIELDS",""]]});

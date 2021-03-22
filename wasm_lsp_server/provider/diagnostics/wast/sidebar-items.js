@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["diagnostics","Provider function for LSP `textDocument/publishDiagnostics` for `.wast` documents."]]});

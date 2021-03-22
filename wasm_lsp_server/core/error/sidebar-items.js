@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Error","Runtime errors for the LSP server."]],"struct":[["IntoJsonRpcError","Wrapper struct for converting [`anyhow::Error`] into [`lspower::jsonrpc::Error`]."]]});
