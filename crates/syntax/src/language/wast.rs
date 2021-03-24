@@ -157,9 +157,9 @@ pub mod kind {
             (RESERVED, "reserved", true),
             (RESULT_CONST_NAN, "result_const_nan", true),
             (RESULT_CONST, "result_const", true),
-            (RESULT_REF_EXTERN, "result_ref_extern", true),
-            (RESULT_REF_FUNC, "result_ref_func", true),
-            (RESULT_REF_NULL, "result_ref_null", true),
+            (RESULT_REF_DOT_EXTERN, "result_ref_extern", true),
+            (RESULT_REF_DOT_FUNC, "result_ref_func", true),
+            (RESULT_REF_DOT_NULL, "result_ref_null", true),
             (RESULT, "result", true),
             (ROOT, "ROOT", true),
             (SCRIPT_MODULE_BINARY, "script_module_binary", true),
@@ -237,9 +237,9 @@ pub mod kind {
                 (OUTPUT, "output", false),
                 (PARAM, "param", false),
                 (QUOTE, "quote", false),
-                (REF_EXTERN, "ref.extern", false),
-                (REF_FUNC, "ref.func", false),
-                (REF_NULL, "ref.null", false),
+                (REF_DOT_EXTERN, "ref.extern", false),
+                (REF_DOT_FUNC, "ref.func", false),
+                (REF_DOT_NULL, "ref.null", false),
                 (REF, "ref", false),
                 (REGISTER, "register", false),
                 (RESULT, "result", false),
@@ -2890,8 +2890,8 @@ pub mod visit {
         visitor.walker().rule(kind::OP_CONST_REF)?;
         utils::choice((
             op_const,
-            utils::seq((token::REF_NULL, utils::choice((ref_kind, index)))),
-            utils::seq((token::REF_EXTERN, nat)),
+            utils::seq((token::REF_DOT_NULL, utils::choice((ref_kind, index)))),
+            utils::seq((token::REF_DOT_EXTERN, nat)),
         ))(visitor)
     }
 
@@ -3122,8 +3122,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().rule(kind::RESULT_REF_EXTERN)?;
-        token::REF_EXTERN(visitor)
+        visitor.walker().rule(kind::RESULT_REF_DOT_EXTERN)?;
+        token::REF_DOT_EXTERN(visitor)
     }
 
     #[inline]
@@ -3132,8 +3132,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().rule(kind::RESULT_REF_FUNC)?;
-        token::REF_FUNC(visitor)
+        visitor.walker().rule(kind::RESULT_REF_DOT_FUNC)?;
+        token::REF_DOT_FUNC(visitor)
     }
 
     #[inline]
@@ -3142,8 +3142,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        visitor.walker().rule(kind::RESULT_REF_NULL)?;
-        token::REF_NULL(visitor)
+        visitor.walker().rule(kind::RESULT_REF_DOT_NULL)?;
+        token::REF_DOT_NULL(visitor)
     }
 
     #[inline]
@@ -3389,9 +3389,9 @@ pub mod visit {
         make!(OUTPUT);
         make!(PARAM);
         make!(QUOTE);
-        make!(REF_EXTERN);
-        make!(REF_FUNC);
-        make!(REF_NULL);
+        make!(REF_DOT_EXTERN);
+        make!(REF_DOT_FUNC);
+        make!(REF_DOT_NULL);
         make!(REF);
         make!(REGISTER);
         make!(RESULT);
