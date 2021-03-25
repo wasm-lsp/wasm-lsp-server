@@ -28,6 +28,7 @@ pub mod kind {
             (BLOCK_IF, "block_if", true),
             (BLOCK_LOOP, "block_loop", true),
             (COMMENT_BLOCK_ANNOT, "comment_block_annot", true),
+            (COMMENT_BLOCK_INNER, "comment_block_inner", true),
             (COMMENT_BLOCK, "comment_block", true),
             (COMMENT_LINE_ANNOT, "comment_line_annot", true),
             (COMMENT_LINE, "comment_line", true),
@@ -127,6 +128,8 @@ pub mod kind {
             (OP_SIMD_OFFSET_OPT_ALIGN_OPT, "opt_simd_offset_opt_align_opt", true),
             (OP_TABLE_COPY, "op_table_copy", true),
             (OP_TABLE_INIT, "op_table_init", true),
+            (PAT00, "pat00", true),
+            (PAT01, "pat01", true),
             (REF_KIND, "ref_kind", true),
             (REF_TYPE_EXTERNREF, "ref_type_externref", true),
             (REF_TYPE_FUNCREF, "ref_type_funcref", true),
@@ -211,6 +214,7 @@ pub mod kind {
                 (MEMORY, "memory", false),
                 (MODULE, "module", false),
                 (MUT, "mut", false),
+                (NAN, "nan", false),
                 (OFFSET, "offset", false),
                 (OUTPUT, "output", false),
                 (PARAM, "param", false),
@@ -227,6 +231,7 @@ pub mod kind {
                 (SELECT, "select", false),
                 (SEMICOLON_RPAREN, ";)", false),
                 (SEMICOLON_SEMICOLON, ";;", false),
+                (SEMICOLON, ";", false),
                 (START, "start", false),
                 (TABLE_DOT_COPY, "table.copy", false),
                 (TABLE_DOT_INIT, "table.init", false),
@@ -910,7 +915,9 @@ pub mod utils {
     wasm_lsp_macros::impl_seq!(5);
     wasm_lsp_macros::impl_seq!(6);
     wasm_lsp_macros::impl_seq!(7);
+    wasm_lsp_macros::impl_seq!(8);
     wasm_lsp_macros::impl_seq!(9);
+    wasm_lsp_macros::impl_seq!(11);
     wasm_lsp_macros::impl_seq!(16);
     wasm_lsp_macros::impl_seq!(17);
 
@@ -1099,8 +1106,25 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::COMMENT_BLOCK_ANNOT)?;
-        // FIXME: regex
-        todo!()
+        utils::seq((
+            token::LPAREN_SEMICOLON,
+            utils::repeat(utils::choice((
+                comment_block_annot,
+                comment_block_inner,
+                token::LPAREN,
+                token::SEMICOLON,
+            ))),
+            token::SEMICOLON_RPAREN,
+        ))(visitor)
+    }
+
+    pub fn comment_block_inner<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::COMMENT_BLOCK_INNER)?;
+        Ok(())
     }
 
     pub fn comment_block<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1109,8 +1133,16 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::COMMENT_BLOCK)?;
-        // FIXME: regex
-        todo!()
+        utils::seq((
+            token::LPAREN_SEMICOLON,
+            utils::repeat(utils::choice((
+                comment_block,
+                comment_block_inner,
+                token::LPAREN,
+                token::SEMICOLON,
+            ))),
+            token::SEMICOLON_RPAREN,
+        ))(visitor)
     }
 
     pub fn comment_line_annot<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1119,8 +1151,7 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::COMMENT_LINE_ANNOT)?;
-        // FIXME: regex; prec left
-        todo!()
+        Ok(())
     }
 
     pub fn comment_line<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1129,8 +1160,7 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::COMMENT_LINE)?;
-        // FIXME: regex; prec.left
-        todo!()
+        Ok(())
     }
 
     pub fn dec_float<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1139,8 +1169,7 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::DEC_FLOAT)?;
-        // FIXME: regex
-        todo!()
+        Ok(())
     }
 
     pub fn dec_nat<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1206,8 +1235,7 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::ESCAPE_SEQUENCE)?;
-        // FIXME: regex
-        todo!()
+        Ok(())
     }
 
     pub fn export_desc_func<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1720,7 +1748,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INSTR)?;
+        utils::choice((instr_plain, instr_call, instr_block, expr))(visitor)
     }
 
     pub fn int<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1728,7 +1757,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INT)?;
+        utils::seq((utils::optional(sign), nat))(visitor)
     }
 
     pub fn limits<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1736,7 +1766,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::LIMITS)?;
+        utils::seq((nat, utils::optional(nat), utils::optional(share)))(visitor)
     }
 
     pub fn memory_fields_data<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1744,7 +1775,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_FIELDS_DATA)?;
+        utils::seq((token::LPAREN, token::DATA, utils::repeat(string), token::RPAREN))(visitor)
     }
 
     pub fn memory_fields_type<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1752,7 +1784,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_FIELDS_TYPE)?;
+        utils::seq((utils::optional(import), memory_type))(visitor)
     }
 
     pub fn memory_type<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1760,7 +1793,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_TYPE)?;
+        limits(visitor)
     }
 
     pub fn memory_use<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1768,7 +1802,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_USE)?;
+        utils::seq((token::LPAREN, token::MEMORY, index, token::RPAREN))(visitor)
     }
 
     pub fn module_field_data<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1776,7 +1811,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_DATA)?;
+        utils::seq((
+            token::LPAREN,
+            token::DATA,
+            utils::optional(index),
+            utils::optional(utils::seq((utils::optional(memory_use), offset))),
+            utils::repeat(string),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn module_field_elem<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1784,7 +1827,20 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_ELEM)?;
+        utils::seq((
+            token::LPAREN,
+            token::ELEM,
+            utils::optional(index),
+            utils::choice((
+                elem_list,
+                utils::seq((table_use, offset, utils::choice((elem_list, utils::repeat(index))))),
+                utils::seq((token::DECLARE, elem_list)),
+                utils::seq((offset, elem_list)),
+                utils::seq((offset, utils::repeat(index))),
+            )),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn module_field_export<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1792,7 +1848,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_EXPORT)?;
+        utils::seq((token::LPAREN, token::EXPORT, name, export_desc, token::RPAREN))(visitor)
     }
 
     pub fn module_field_func<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1800,7 +1857,20 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_FUNC)?;
+        utils::seq((
+            token::LPAREN,
+            token::FUNC,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::optional(import),
+            utils::optional(type_use),
+            utils::repeat(func_type_params),
+            utils::repeat(func_type_results),
+            utils::repeat(func_locals),
+            utils::optional(instr_list),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn module_field_global<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1808,7 +1878,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_GLOBAL)?;
+        utils::seq((
+            token::LPAREN,
+            token::GLOBAL,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::optional(import),
+            global_type,
+            utils::repeat(instr),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn module_field_import<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1816,7 +1896,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_IMPORT)?;
+        utils::seq((token::LPAREN, token::IMPORT, name, name, import_desc, token::RPAREN))(visitor)
     }
 
     pub fn module_field_memory<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1824,7 +1905,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_MEMORY)?;
+        utils::seq((
+            token::LPAREN,
+            token::MEMORY,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::choice((memory_fields_data, memory_fields_type)),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn module_field_start<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1832,7 +1921,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_START)?;
+        utils::seq((token::LPAREN, token::START, index, token::RPAREN))(visitor)
     }
 
     pub fn module_field_table<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1840,7 +1930,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_TABLE)?;
+        utils::seq((
+            token::LPAREN,
+            token::TABLE,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::choice((table_fields_elem, table_fields_type)),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn module_field_type<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1848,7 +1946,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_TYPE)?;
+        utils::seq((
+            token::LPAREN,
+            token::TYPE,
+            utils::optional(identifier),
+            type_field,
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn module_field<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1856,7 +1961,19 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD)?;
+        utils::choice((
+            module_field_type,
+            module_field_global,
+            module_field_table,
+            module_field_memory,
+            module_field_func,
+            module_field_elem,
+            module_field_data,
+            module_field_start,
+            module_field_import,
+            module_field_export,
+        ))(visitor)
     }
 
     pub fn module<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1864,16 +1981,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        // let mut errors = SyntaxErrors::new();
-        // let mut walker = visitor.walker();
-
-        // walker.step(kind::token::LPAREN, false)?;
-        // walker.step(kind::token::MODULE, false)?;
-        // identifier(visitor, node);
-        // repeat!(module_field, visitor, node, errors);
-        // walker.step(kind::token::RPAREN, false)?;
-
-        Ok(())
+        visitor.walker().rule(kind::MODULE)?;
+        utils::seq((
+            token::LPAREN,
+            token::MODULE,
+            utils::optional(identifier),
+            utils::repeat(module_field),
+            token::RPAREN,
+        ))(visitor)
     }
 
     pub fn name<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1881,7 +1996,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NAME)?;
+        string(visitor)
     }
 
     pub fn nan<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1889,6 +2005,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::NAN)?;
         Ok(())
     }
 
@@ -1897,7 +2014,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NAT)?;
+        utils::choice((dec_nat, hex_nat))(visitor)
     }
 
     pub fn num_type_f32<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1905,7 +2023,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_F32)?;
+        token::F32(visitor)
     }
 
     pub fn num_type_f64<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1913,7 +2032,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_F64)?;
+        token::F64(visitor)
     }
 
     pub fn num_type_i32<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1921,7 +2041,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_I32)?;
+        token::I32(visitor)
     }
 
     pub fn num_type_i64<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1929,7 +2050,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_I64)?;
+        token::I64(visitor)
     }
 
     pub fn num_type_v128<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1937,7 +2059,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_V128)?;
+        token::V128(visitor)
     }
 
     pub fn num<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1945,7 +2068,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM)?;
+        utils::choice((int, float))(visitor)
     }
 
     pub fn offset_const_expr<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1953,7 +2077,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OFFSET_CONST_EXPR)?;
+        utils::seq((token::LPAREN, token::OFFSET, utils::repeat(instr), token::RPAREN))(visitor)
     }
 
     pub fn offset_expr<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1961,7 +2086,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OFFSET_EXPR)?;
+        offset_expr(visitor)
     }
 
     pub fn offset_value<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1969,7 +2095,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OFFSET_VALUE)?;
+        utils::seq((token::OFFSET, token::EQUALS, align_offset_value))(visitor)
     }
 
     pub fn offset<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1977,7 +2104,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OFFSET)?;
+        utils::choice((offset_const_expr, offset_expr))(visitor)
     }
 
     pub fn op_const<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1985,7 +2113,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_CONST)?;
+        utils::choice((utils::seq((pat00, float)), utils::seq((pat01, int))))(visitor)
     }
 
     pub fn op_func_bind<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -1993,7 +2122,11 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_FUNC_BIND)?;
+        utils::seq((
+            token::FUNC_DOT_BIND,
+            utils::optional(utils::seq((token::LPAREN, token::TYPE, index, token::RPAREN))),
+        ))(visitor)
     }
 
     pub fn op_index_opt_offset_opt_align_opt<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -2001,6 +2134,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::OP_INDEX_OPT_OFFSET_OPT_ALIGN_OPT)?;
         Ok(())
     }
 
@@ -2135,6 +2269,24 @@ pub mod visit {
     {
         visitor.walker().rule(kind::OP_TABLE_INIT)?;
         utils::seq((token::TABLE_DOT_INIT, index, utils::optional(index)))(visitor)
+    }
+
+    pub fn pat00<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::PAT00)?;
+        Ok(())
+    }
+
+    pub fn pat01<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::PAT01)?;
+        Ok(())
     }
 
     pub fn ref_kind<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
@@ -2310,7 +2462,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::VALUE_TYPE)?;
+        utils::choice((value_type_num_type, value_type_ref_type))(visitor)
     }
 
     mod token {
@@ -2387,6 +2540,7 @@ pub mod visit {
         make!(MEMORY);
         make!(MODULE);
         make!(MUT);
+        make!(NAN);
         make!(OFFSET);
         make!(OUTPUT);
         make!(PARAM);
@@ -2403,6 +2557,7 @@ pub mod visit {
         make!(SELECT);
         make!(SEMICOLON_RPAREN);
         make!(SEMICOLON_SEMICOLON);
+        make!(SEMICOLON);
         make!(START);
         make!(TABLE_DOT_COPY);
         make!(TABLE_DOT_INIT);
