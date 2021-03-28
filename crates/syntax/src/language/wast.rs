@@ -1118,8 +1118,10 @@ pub mod utils {
                 visitor.reset(prev);
                 let mut errors = SyntaxErrors::new();
                 errors.append(&mut errs);
+                log::info!("restore :: Err :: {:#?}", errors);
                 return Err(errors);
             }
+            log::info!("restore :: Ok");
             Ok(())
         }
     }
@@ -1451,7 +1453,8 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::COMMAND)?;
-        utils::choice((action, assertion, meta, register, script_module))(visitor)
+        // utils::choice((action, assertion, meta, register, script_module))(visitor)
+        script_module(visitor)
     }
 
     #[inline]
@@ -2514,9 +2517,11 @@ pub mod visit {
         utils::seq((
             token::LPAREN,
             token::MODULE,
-            utils::optional(identifier),
-            utils::repeat(module_field),
+            // utils::optional(identifier),
+            // utils::repeat(module_field),
             token::RPAREN,
+            token::RPAREN,
+            // token::RPAREN,
         ))(visitor)
     }
 
@@ -3013,7 +3018,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        utils::choice((utils::repeat(command), utils::repeat1(module_field)))(visitor)
+        command(visitor)
+        // utils::choice((utils::repeat(command), utils::repeat1(module_field)))(visitor)
         // utils::done(visitor)
     }
 
@@ -3058,7 +3064,8 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::SCRIPT_MODULE)?;
-        utils::choice((module, script_module_binary, script_module_quote))(visitor)
+        // utils::choice((module, script_module_binary, script_module_quote))(visitor)
+        module(visitor)
     }
 
     #[inline]

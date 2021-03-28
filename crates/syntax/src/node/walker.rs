@@ -317,18 +317,13 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
                 let found = next.kind();
                 log::info!("expected: {}, found: {}", expected, found);
             }
+            if next.is_missing() {
+                self.reset(prev);
+                let data = NodeErrorData::new(next, self.error_state.clone());
+                let error = SyntaxError::MissingNode(data);
+                return Err(error);
+            }
             if that_id != next_id {
-                if next.is_error() && !self.within_error() && descend_into_error {
-                    self.error_state.push(that_id);
-                    return Ok(());
-                }
-
-                if !next.is_error() && self.within_error() && descend_into_error {
-                    self.error_state.push(that_id);
-                    self.reset(prev);
-                    return Ok(());
-                }
-
                 let language = self.language.clone().into();
                 let expected = vec![that_id];
                 let found = NodeErrorData::new(next, self.error_state.clone());
@@ -340,14 +335,11 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
                 .into();
                 return Err(error);
             }
-            if next.is_missing() {
-                self.reset(prev);
-                let data = NodeErrorData::new(next, self.error_state.clone());
-                let error = SyntaxError::MissingNode(data);
-                return Err(error);
-            }
+            Ok(())
+        } else {
+            let error = SyntaxError::DoneEarly;
+            Err(error)
         }
-        Ok(())
     }
 
     #[allow(missing_docs)]

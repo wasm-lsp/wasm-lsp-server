@@ -428,6 +428,7 @@ pub fn impl_choice(input: TokenStream) -> TokenStream {
             quote! {
                 let mut errors = SyntaxErrors::new();
                 #(#cases)*
+                log::info!("choice :: errors :: {:#?}", errors);
                 Err(errors)
             }
         },
@@ -467,6 +468,7 @@ pub fn impl_seq(input: TokenStream) -> TokenStream {
             let cases = (0 .. depth).map(|n| {
                 let i = syn::Index::from(n);
                 quote! {
+                    log::info!("seq: {:#?}", #i);
                     self.#i(visitor)?;
                 }
             });
