@@ -42,6 +42,7 @@ pub mod kind {
             (BLOCK_LOOP, "block_loop", true),
             (COMMAND, "command", true),
             (COMMENT_BLOCK_ANNOT, "comment_block_annot", true),
+            (COMMENT_BLOCK_INNER, "comment_block_inner", true),
             (COMMENT_BLOCK, "comment_block", true),
             (COMMENT_LINE_ANNOT, "comment_line_annot", true),
             (COMMENT_LINE, "comment_line", true),
@@ -81,6 +82,7 @@ pub mod kind {
             (GLOBAL_TYPE, "global_type", true),
             (HEX_FLOAT, "hex_float", true),
             (HEX_NAT, "hex_nat", true),
+            (IDENTIFIER_PATTERN, "identifier_pattern", true),
             (IDENTIFIER, "identifier", true),
             (IF_BLOCK, "if_block", true),
             (IMPORT_DESC_FUNC_TYPE, "import_desc_func_type", true),
@@ -93,6 +95,7 @@ pub mod kind {
             (INDEX, "index", true),
             (INSTR_BLOCK, "instr_block", true),
             (INSTR_CALL, "instr_call", true),
+            (INSTR_LIST_CALL, "instr_list_call", true),
             (INSTR_LIST, "instr_list", true),
             (INSTR_PLAIN, "instr_plain", true),
             (INSTR, "instr", true),
@@ -148,6 +151,8 @@ pub mod kind {
             (OP_SIMD_OFFSET_OPT_ALIGN_OPT, "opt_simd_offset_opt_align_opt", true),
             (OP_TABLE_COPY, "op_table_copy", true),
             (OP_TABLE_INIT, "op_table_init", true),
+            (PAT00, "pat00", true),
+            (PAT01, "pat01", true),
             (REF_KIND, "ref_kind", true),
             (REF_TYPE_EXTERNREF, "ref_type_externref", true),
             (REF_TYPE_FUNCREF, "ref_type_funcref", true),
@@ -166,6 +171,7 @@ pub mod kind {
             (SCRIPT_MODULE_QUOTE, "script_module_quote", true),
             (SCRIPT_MODULE, "script_module", true),
             (SHARE, "share", true),
+            (SIGN, "sign", true),
             (STRING, "string", true),
             (TABLE_FIELDS_ELEM, "table_fields_elem", true),
             (TABLE_FIELDS_TYPE, "table_fields_type", true),
@@ -202,29 +208,40 @@ pub mod kind {
                 (DATA, "data", false),
                 (DECLARE, "declare", false),
                 (DOLLAR_SIGN, "$", false),
+                (DOT_SHUFFLE, ".shuffle", false),
                 (ELEM, "elem", false),
                 (ELSE, "else", false),
                 (END, "end", false),
                 (EQUALS, "=", false),
                 (EXPORT, "export", false),
                 (EXTERNREF, "externref", false),
+                (EXTRACT_LANE, "extract_lane", false),
                 (F32, "f32", false),
+                (F32X4, "f32x4", false),
                 (F64, "f64", false),
+                (F64X2, "f64x2", false),
                 (FULL_STOP, ".", false),
+                (FUNC_DOT_BIND, "func.bind", false),
                 (FUNC, "func", false),
                 (FUNCREF, "funcref", false),
                 (GET, "get", false),
                 (GLOBAL, "global", false),
+                (I16X8, "i16x8", false),
                 (I32, "i32", false),
+                (I32X4, "i32x4", false),
                 (I64, "i64", false),
+                (I64X2, "i64x2", false),
+                (I8X16, "i8x16", false),
                 (IF, "if", false),
                 (IMPORT, "import", false),
                 (INF, "inf", false),
                 (INPUT, "input", false),
                 (INVOKE, "invoke", false),
                 (ITEM, "item", false),
+                (LET, "let", false),
                 (LOCAL, "local", false),
                 (LOOP, "loop", false),
+                (LOW_LINE, "_", false),
                 (LPAREN_AMPERSAND, "(@", false),
                 (LPAREN_SEMICOLON, "(;", false),
                 (LPAREN, "(", false),
@@ -233,6 +250,7 @@ pub mod kind {
                 (MUT, "mut", false),
                 (NAN_ARITHMETIC, "nan:arithmetic", false),
                 (NAN_CANONICAL, "nan:canonical", false),
+                (NAN, "nan", false),
                 (OFFSET, "offset", false),
                 (OUTPUT, "output", false),
                 (PARAM, "param", false),
@@ -242,16 +260,22 @@ pub mod kind {
                 (REF_DOT_NULL, "ref.null", false),
                 (REF, "ref", false),
                 (REGISTER, "register", false),
+                (REPLACE_LANE, "replace_lane", false),
                 (RESULT, "result", false),
                 (REVERSE_SOLIDUS_REVERSE_SOLIDUS, "\\", false),
                 (RPAREN, ")", false),
                 (SCRIPT, "script", false),
+                (SELECT, "select", false),
                 (SEMICOLON_RPAREN, ";)", false),
                 (SEMICOLON_SEMICOLON, ";;", false),
+                (SEMICOLON, ";", false),
                 (START, "start", false),
+                (TABLE_DOT_COPY, "table.copy", false),
+                (TABLE_DOT_INIT, "table.init", false),
                 (TABLE, "table", false),
                 (THEN, "then", false),
                 (TYPE, "type", false),
+                (V128_DOT_CONST, "v128.const", false),
                 (V128, "v128", false),
                 (ZERO_X, "0x", false),
             ],
@@ -577,6 +601,10 @@ pub trait Visitor<'tree, Ctx: crate::node::Context<'tree> + 'tree> {
         visit::instr_call(self)
     }
 
+    fn visit_instr_list_call(&mut self) -> Result<(), SyntaxErrors> {
+        visit::instr_list_call(self)
+    }
+
     fn visit_instr_list(&mut self) -> Result<(), SyntaxErrors> {
         visit::instr_list(self)
     }
@@ -869,6 +897,10 @@ pub trait Visitor<'tree, Ctx: crate::node::Context<'tree> + 'tree> {
         visit::share(self)
     }
 
+    fn visit_sign(&mut self) -> Result<(), SyntaxErrors> {
+        visit::sign(self)
+    }
+
     fn visit_string(&mut self) -> Result<(), SyntaxErrors> {
         visit::string(self)
     }
@@ -926,523 +958,17 @@ pub mod utils {
         fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors>;
     }
 
-    impl<'tree, Ctx, Vis> Choice<'tree, Ctx, Vis> for ()
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-    {
-        #[inline]
-        fn choice(&self, _: &mut Vis) -> Result<(), SyntaxErrors> {
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A> Choice<'tree, Ctx, Vis> for (A,)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B> Choice<'tree, Ctx, Vis> for (A, B)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C> Choice<'tree, Ctx, Vis> for (A, B, C)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D> Choice<'tree, Ctx, Vis> for (A, B, C, D)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.3)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E> Choice<'tree, Ctx, Vis> for (A, B, C, D, E)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.3)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.4)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E, F> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.3)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.4)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.5)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.3)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.4)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.5)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.6)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G, H> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G, H)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        H: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.3)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.4)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.5)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.6)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.7)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G, H, I> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G, H, I)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        H: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        I: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.3)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.4)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.5)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.6)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.7)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.8)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G, H, I, J> Choice<'tree, Ctx, Vis> for (A, B, C, D, E, F, G, H, I, J)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        H: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        I: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        J: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            let mut errors = SyntaxErrors::new();
-
-            if let Err(mut errs) = restore(&self.0)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.1)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.2)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.3)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.4)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.5)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.6)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.7)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.8)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            if let Err(mut errs) = restore(&self.9)(visitor) {
-                errors.append(&mut errs);
-            } else {
-                return Ok(());
-            }
-
-            Err(errors)
-        }
-    }
+    wasm_lsp_macros::impl_choice!(0);
+    wasm_lsp_macros::impl_choice!(1);
+    wasm_lsp_macros::impl_choice!(2);
+    wasm_lsp_macros::impl_choice!(3);
+    wasm_lsp_macros::impl_choice!(4);
+    wasm_lsp_macros::impl_choice!(5);
+    wasm_lsp_macros::impl_choice!(6);
+    wasm_lsp_macros::impl_choice!(7);
+    wasm_lsp_macros::impl_choice!(8);
+    wasm_lsp_macros::impl_choice!(9);
+    wasm_lsp_macros::impl_choice!(10);
 
     #[inline]
     pub fn choice<'tree, Ctx, Vis, T>(funs: T) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
@@ -1554,149 +1080,19 @@ pub mod utils {
         fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors>;
     }
 
-    impl<'tree, Ctx, Vis> Seq<'tree, Ctx, Vis> for ()
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-    {
-        #[inline]
-        fn seq(&self, _: &mut Vis) -> Result<(), SyntaxErrors> {
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A> Seq<'tree, Ctx, Vis> for (A,)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)?;
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B> Seq<'tree, Ctx, Vis> for (A, B)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)?;
-            self.1(visitor)?;
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C> Seq<'tree, Ctx, Vis> for (A, B, C)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)?;
-            self.1(visitor)?;
-            self.2(visitor)?;
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D> Seq<'tree, Ctx, Vis> for (A, B, C, D)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)?;
-            self.1(visitor)?;
-            self.2(visitor)?;
-            self.3(visitor)?;
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E> Seq<'tree, Ctx, Vis> for (A, B, C, D, E)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)?;
-            self.1(visitor)?;
-            self.2(visitor)?;
-            self.3(visitor)?;
-            self.4(visitor)?;
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E, F> Seq<'tree, Ctx, Vis> for (A, B, C, D, E, F)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)?;
-            self.1(visitor)?;
-            self.2(visitor)?;
-            self.3(visitor)?;
-            self.4(visitor)?;
-            self.5(visitor)?;
-            Ok(())
-        }
-    }
-
-    impl<'tree, Ctx, Vis, A, B, C, D, E, F, G> Seq<'tree, Ctx, Vis> for (A, B, C, D, E, F, G)
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-        A: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        B: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        C: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        D: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        E: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        F: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-        G: Fn(&mut Vis) -> Result<(), SyntaxErrors>,
-    {
-        #[inline]
-        fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors> {
-            self.0(visitor)?;
-            self.1(visitor)?;
-            self.2(visitor)?;
-            self.3(visitor)?;
-            self.4(visitor)?;
-            self.5(visitor)?;
-            self.6(visitor)?;
-            Ok(())
-        }
-    }
+    wasm_lsp_macros::impl_seq!(0);
+    wasm_lsp_macros::impl_seq!(1);
+    wasm_lsp_macros::impl_seq!(2);
+    wasm_lsp_macros::impl_seq!(3);
+    wasm_lsp_macros::impl_seq!(4);
+    wasm_lsp_macros::impl_seq!(5);
+    wasm_lsp_macros::impl_seq!(6);
+    wasm_lsp_macros::impl_seq!(7);
+    wasm_lsp_macros::impl_seq!(8);
+    wasm_lsp_macros::impl_seq!(9);
+    wasm_lsp_macros::impl_seq!(11);
+    wasm_lsp_macros::impl_seq!(16);
+    wasm_lsp_macros::impl_seq!(17);
 
     #[inline]
     pub fn seq<'tree, Ctx, Vis, T>(funs: T) -> impl Fn(&mut Vis) -> Result<(), SyntaxErrors>
@@ -1778,6 +1174,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::ALIGN_OFFSET_VALUE)?;
         Ok(())
     }
 
@@ -1787,7 +1184,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ALIGN_VALUE)?;
+        utils::choice((token::ALIGN, token::EQUALS, align_offset_value))(visitor)
     }
 
     #[inline]
@@ -1796,7 +1194,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ANNOTATION_PARENS)?;
+        utils::seq((token::LPAREN, utils::repeat(annotation_part), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -1805,7 +1204,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ANNOTATION_PART)?;
+        utils::choice((
+            comment_block_annot,
+            comment_line_annot,
+            annotation_parens,
+            reserved,
+            identifier,
+            string,
+        ))(visitor)
     }
 
     #[inline]
@@ -1814,7 +1221,13 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ANNOTATION)?;
+        utils::seq((
+            token::LPAREN_AMPERSAND,
+            identifier_pattern,
+            utils::repeat(annotation_part),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -1969,7 +1382,19 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::BLOCK_BLOCK)?;
+        utils::seq((
+            token::BLOCK,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+            token::END,
+            utils::optional(identifier),
+        ))(visitor)
     }
 
     #[inline]
@@ -1978,7 +1403,24 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::BLOCK_IF)?;
+        utils::seq((
+            token::IF,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+            utils::optional(utils::seq((
+                token::ELSE,
+                utils::optional(identifier),
+                utils::optional(instr_list),
+            ))),
+            token::END,
+            utils::optional(identifier),
+        ))(visitor)
     }
 
     #[inline]
@@ -1987,7 +1429,19 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::BLOCK_LOOP)?;
+        utils::seq((
+            token::LOOP,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+            token::END,
+            utils::optional(identifier),
+        ))(visitor)
     }
 
     #[inline]
@@ -2006,6 +1460,25 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::COMMENT_BLOCK_ANNOT)?;
+        utils::seq((
+            token::LPAREN_SEMICOLON,
+            utils::repeat(utils::choice((
+                comment_block_annot,
+                comment_block_inner,
+                token::LPAREN,
+                token::SEMICOLON,
+            ))),
+            token::SEMICOLON_RPAREN,
+        ))(visitor)
+    }
+
+    pub fn comment_block_inner<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::COMMENT_BLOCK_INNER)?;
         Ok(())
     }
 
@@ -2015,7 +1488,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::COMMENT_BLOCK)?;
+        utils::seq((
+            token::LPAREN_SEMICOLON,
+            utils::repeat(utils::choice((
+                comment_block,
+                comment_block_inner,
+                token::LPAREN,
+                token::SEMICOLON,
+            ))),
+            token::SEMICOLON_RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2024,6 +1507,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::COMMENT_LINE_ANNOT)?;
         Ok(())
     }
 
@@ -2033,6 +1517,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::COMMENT_LINE)?;
         Ok(())
     }
 
@@ -2042,6 +1527,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::DEC_FLOAT)?;
         Ok(())
     }
 
@@ -2061,7 +1547,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_EXPR_EXPR)?;
+        expr(visitor)
     }
 
     #[inline]
@@ -2070,7 +1557,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_EXPR_ITEM)?;
+        utils::seq((token::LPAREN, token::ITEM, utils::repeat(instr), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2079,7 +1567,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_EXPR)?;
+        utils::choice((elem_expr_item, elem_expr_expr))(visitor)
     }
 
     #[inline]
@@ -2088,7 +1577,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_KIND)?;
+        token::FUNC(visitor)
     }
 
     #[inline]
@@ -2097,7 +1587,11 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::ELEM_LIST)?;
+        utils::choice((
+            utils::seq((elem_kind, utils::repeat(index))),
+            utils::seq((ref_type, utils::repeat(elem_expr))),
+        ))(visitor)
     }
 
     #[inline]
@@ -2106,6 +1600,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::ESCAPE_SEQUENCE)?;
         Ok(())
     }
 
@@ -2115,7 +1610,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_FUNC)?;
+        utils::seq((token::LPAREN, token::FUNC, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2124,7 +1620,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_GLOBAL)?;
+        utils::seq((token::LPAREN, token::GLOBAL, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2133,7 +1630,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_MEMORY)?;
+        utils::seq((token::LPAREN, token::MEMORY, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2142,7 +1640,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC_TABLE)?;
+        utils::seq((token::LPAREN, token::TABLE, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2151,7 +1650,13 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT_DESC)?;
+        utils::choice((
+            export_desc_func,
+            export_desc_table,
+            export_desc_memory,
+            export_desc_global,
+        ))(visitor)
     }
 
     #[inline]
@@ -2160,7 +1665,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPORT)?;
+        utils::seq((token::LPAREN, token::EXPORT, name, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2183,7 +1689,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR)?;
+        utils::seq((token::LPAREN, expr1, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2192,7 +1699,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_BLOCK)?;
+        utils::seq((
+            token::BLOCK,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+        ))(visitor)
     }
 
     #[inline]
@@ -2201,7 +1718,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_CALL)?;
+        utils::seq((
+            token::CALL_INDIRECT,
+            utils::optional(index),
+            utils::optional(type_use),
+            utils::repeat(func_type_params_many),
+            utils::repeat(func_type_results),
+            utils::repeat(expr),
+        ))(visitor)
     }
 
     #[inline]
@@ -2210,7 +1735,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_IF)?;
+        utils::seq((token::IF, utils::optional(identifier), if_block))(visitor)
     }
 
     #[inline]
@@ -2219,7 +1745,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_LOOP)?;
+        utils::seq((
+            token::LOOP,
+            utils::optional(identifier),
+            utils::seq((
+                utils::optional(type_use),
+                utils::repeat(func_type_params_many),
+                utils::repeat(func_type_results),
+                utils::optional(instr_list),
+            )),
+        ))(visitor)
     }
 
     #[inline]
@@ -2228,7 +1764,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1_PLAIN)?;
+        utils::seq((instr_plain, utils::repeat(expr)))(visitor)
     }
 
     #[inline]
@@ -2237,7 +1774,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::EXPR1)?;
+        utils::choice((expr1_plain, expr1_call, expr1_block, expr1_loop, expr1_if))(visitor)
     }
 
     #[inline]
@@ -2246,7 +1784,11 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FLOAT)?;
+        utils::seq((
+            utils::optional(sign),
+            utils::choice((dec_float, hex_float, token::INF, nan)),
+        ))(visitor)
     }
 
     #[inline]
@@ -2255,7 +1797,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_LOCALS_MANY)?;
+        utils::seq((token::LPAREN, token::LOCAL, utils::repeat(value_type), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2264,7 +1807,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_LOCALS_ONE)?;
+        utils::seq((token::LPAREN, token::LOCAL, identifier, value_type, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2273,7 +1817,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_LOCALS)?;
+        utils::choice((func_locals_one, func_locals_many))(visitor)
     }
 
     #[inline]
@@ -2282,7 +1827,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_PARAMS_MANY)?;
+        utils::seq((token::LPAREN, token::PARAM, utils::repeat(value_type), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2291,7 +1837,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_PARAMS_ONE)?;
+        utils::seq((token::LPAREN, token::PARAM, identifier, value_type, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2300,7 +1847,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_PARAMS)?;
+        utils::choice((func_type_params_one, func_type_params_many))(visitor)
     }
 
     #[inline]
@@ -2309,7 +1857,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE_RESULTS)?;
+        utils::seq((token::LPAREN, token::RESULT, utils::repeat(value_type), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2318,7 +1867,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::FUNC_TYPE)?;
+        utils::choice((func_type_params, func_type_results))(visitor)
     }
 
     #[inline]
@@ -2327,7 +1877,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::GLOBAL_TYPE_IMM)?;
+        value_type(visitor)
     }
 
     #[inline]
@@ -2336,7 +1887,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::GLOBAL_TYPE_MUT)?;
+        utils::seq((token::LPAREN, token::MUT, value_type, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2345,7 +1897,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::GLOBAL_TYPE)?;
+        utils::choice((global_type_imm, global_type_mut))(visitor)
     }
 
     #[inline]
@@ -2354,6 +1907,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::HEX_FLOAT)?;
         Ok(())
     }
 
@@ -2377,13 +1931,35 @@ pub mod visit {
         Ok(())
     }
 
+    pub fn identifier_pattern<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::IDENTIFIER_PATTERN)?;
+        Ok(())
+    }
+
     #[inline]
     pub fn if_block<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
     where
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IF_BLOCK)?;
+        utils::seq((
+            utils::optional(type_use),
+            utils::repeat(func_type_params_many),
+            utils::repeat(func_type_results),
+            utils::repeat(expr),
+            utils::seq((token::LPAREN, token::THEN, utils::optional(instr_list), token::RPAREN)),
+            utils::optional(utils::seq((
+                token::LPAREN,
+                token::ELSE,
+                utils::optional(instr_list),
+                token::RPAREN,
+            ))),
+        ))(visitor)
     }
 
     #[inline]
@@ -2392,7 +1968,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IMPORT_DESC_FUNC_TYPE)?;
+        utils::seq((
+            token::LPAREN,
+            token::FUNC,
+            utils::optional(identifier),
+            utils::repeat(func_type),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2401,7 +1984,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IMPORT_DESC_GLOBAL_TYPE)?;
+        utils::seq((
+            token::LPAREN,
+            token::GLOBAL,
+            utils::optional(identifier),
+            global_type,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2410,7 +2000,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IMPORT_DESC_MEMORY_TYPE)?;
+        utils::seq((
+            token::LPAREN,
+            token::GLOBAL,
+            utils::optional(identifier),
+            memory_type,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2419,7 +2016,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IMPORT_DESC_TABLE_TYPE)?;
+        utils::seq((
+            token::LPAREN,
+            token::GLOBAL,
+            utils::optional(identifier),
+            table_type,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2428,7 +2032,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IMPORT_DESC_TYPE_USE)?;
+        utils::seq((
+            token::LPAREN,
+            token::GLOBAL,
+            utils::optional(identifier),
+            table_type,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2437,7 +2048,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IMPORT_DESC)?;
+        utils::choice((
+            import_desc_type_use,
+            import_desc_func_type,
+            import_desc_table_type,
+            import_desc_memory_type,
+            import_desc_global_type,
+        ))(visitor)
     }
 
     #[inline]
@@ -2446,7 +2064,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::IMPORT)?;
+        utils::seq((token::LPAREN, token::IMPORT, name, name, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2465,7 +2084,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INSTR_BLOCK)?;
+        utils::choice((block_block, block_loop, block_if))(visitor)
     }
 
     #[inline]
@@ -2474,7 +2094,29 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INSTR_CALL)?;
+        utils::seq((
+            token::CALL_INDIRECT,
+            utils::optional(type_use),
+            utils::repeat(func_type_params_many),
+            utils::repeat(func_type_results),
+            instr,
+        ))(visitor)
+    }
+
+    #[inline]
+    pub fn instr_list_call<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::INSTR_LIST_CALL)?;
+        utils::seq((
+            token::CALL_INDIRECT,
+            utils::optional(type_use),
+            utils::repeat(func_type_params_many),
+            utils::repeat(func_type_results),
+        ))(visitor)
     }
 
     #[inline]
@@ -2483,7 +2125,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INSTR_LIST)?;
+        utils::repeat1((utils::choice((instr_list_call, instr))))(visitor)
     }
 
     #[inline]
@@ -2492,7 +2135,34 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INSTR_PLAIN)?;
+        utils::seq((
+            op_nullary,
+            utils::seq((op_index, index)),
+            utils::seq((op_index_opt, utils::optional(index))),
+            utils::seq((token::BR_TABLE, index, utils::repeat(index))),
+            utils::seq((token::REF_DOT_EXTERN, nat)),
+            utils::seq((token::REF_DOT_NULL, utils::choice((ref_kind, index)))),
+            utils::seq((
+                op_index_opt_offset_opt_align_opt,
+                utils::optional(index),
+                utils::optional(offset_value),
+                utils::optional(align_value),
+            )),
+            utils::seq((
+                op_simd_offset_opt_align_opt,
+                utils::optional(offset_value),
+                utils::optional(align_value),
+            )),
+            op_const,
+            op_func_bind,
+            op_let,
+            op_select,
+            op_simd_const,
+            op_simd_lane,
+            op_table_copy,
+            op_table_init,
+        ))(visitor)
     }
 
     #[inline]
@@ -2501,7 +2171,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INSTR)?;
+        utils::choice((instr_plain, instr_call, instr_block, expr))(visitor)
     }
 
     #[inline]
@@ -2510,7 +2181,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::INT)?;
+        utils::seq((utils::optional(sign), nat))(visitor)
     }
 
     #[inline]
@@ -2519,7 +2191,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::LIMITS)?;
+        utils::seq((nat, utils::optional(nat), utils::optional(share)))(visitor)
     }
 
     #[inline]
@@ -2558,7 +2231,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_FIELDS_DATA)?;
+        utils::seq((token::LPAREN, token::DATA, utils::repeat(string), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2567,7 +2241,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_FIELDS_TYPE)?;
+        utils::seq((utils::optional(import), memory_type))(visitor)
     }
 
     #[inline]
@@ -2576,7 +2251,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_TYPE)?;
+        limits(visitor)
     }
 
     #[inline]
@@ -2585,7 +2261,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MEMORY_USE)?;
+        utils::seq((token::LPAREN, token::MEMORY, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2652,7 +2329,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_DATA)?;
+        utils::seq((
+            token::LPAREN,
+            token::DATA,
+            utils::optional(index),
+            utils::optional(utils::seq((utils::optional(memory_use), offset))),
+            utils::repeat(string),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2661,7 +2346,20 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_ELEM)?;
+        utils::seq((
+            token::LPAREN,
+            token::ELEM,
+            utils::optional(index),
+            utils::choice((
+                elem_list,
+                utils::seq((table_use, offset, utils::choice((elem_list, utils::repeat(index))))),
+                utils::seq((token::DECLARE, elem_list)),
+                utils::seq((offset, elem_list)),
+                utils::seq((offset, utils::repeat(index))),
+            )),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2670,7 +2368,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_EXPORT)?;
+        utils::seq((token::LPAREN, token::EXPORT, name, export_desc, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2679,7 +2378,20 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_FUNC)?;
+        utils::seq((
+            token::LPAREN,
+            token::FUNC,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::optional(import),
+            utils::optional(type_use),
+            utils::repeat(func_type_params),
+            utils::repeat(func_type_results),
+            utils::repeat(func_locals),
+            utils::optional(instr_list),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2688,7 +2400,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_GLOBAL)?;
+        utils::seq((
+            token::LPAREN,
+            token::GLOBAL,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::optional(import),
+            global_type,
+            utils::repeat(instr),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2697,7 +2419,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_IMPORT)?;
+        utils::seq((token::LPAREN, token::IMPORT, name, name, import_desc, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2706,7 +2429,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_MEMORY)?;
+        utils::seq((
+            token::LPAREN,
+            token::MEMORY,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::choice((memory_fields_data, memory_fields_type)),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2725,7 +2456,15 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_TABLE)?;
+        utils::seq((
+            token::LPAREN,
+            token::TABLE,
+            utils::optional(identifier),
+            utils::repeat(export),
+            utils::choice((table_fields_elem, table_fields_type)),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2734,7 +2473,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::MODULE_FIELD_TYPE)?;
+        utils::seq((
+            token::LPAREN,
+            token::TYPE,
+            utils::optional(identifier),
+            type_field,
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -2745,16 +2491,16 @@ pub mod visit {
     {
         visitor.walker().rule(kind::MODULE_FIELD)?;
         utils::choice((
-            // module_field_type,
-            // module_field_global,
-            // module_field_table,
-            // module_field_memory,
-            // module_field_func,
-            // module_field_elem,
-            // module_field_data,
+            module_field_type,
+            module_field_global,
+            module_field_table,
+            module_field_memory,
+            module_field_func,
+            module_field_elem,
+            module_field_data,
             module_field_start,
-            /* module_field_import,
-             * module_field_export, */
+            module_field_import,
+            module_field_export,
         ))(visitor)
     }
 
@@ -2764,8 +2510,10 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::MODULE)?;
         utils::seq((
             token::LPAREN,
+            token::MODULE,
             utils::optional(identifier),
             utils::repeat(module_field),
             token::RPAREN,
@@ -2778,7 +2526,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NAME)?;
+        string(visitor)
     }
 
     #[inline]
@@ -2787,6 +2536,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::NAN)?;
         Ok(())
     }
 
@@ -2806,7 +2556,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_F32)?;
+        token::F32(visitor)
     }
 
     #[inline]
@@ -2815,7 +2566,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_F64)?;
+        token::F64(visitor)
     }
 
     #[inline]
@@ -2824,7 +2576,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_I32)?;
+        token::I32(visitor)
     }
 
     #[inline]
@@ -2833,7 +2586,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_I64)?;
+        token::I64(visitor)
     }
 
     #[inline]
@@ -2842,7 +2596,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM_TYPE_V128)?;
+        token::V128(visitor)
     }
 
     #[inline]
@@ -2851,7 +2606,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::NUM)?;
+        utils::choice((int, float))(visitor)
     }
 
     #[inline]
@@ -2860,7 +2616,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OFFSET_CONST_EXPR)?;
+        utils::seq((token::LPAREN, token::OFFSET, utils::repeat(instr), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -2869,7 +2626,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OFFSET_EXPR)?;
+        offset_expr(visitor)
     }
 
     #[inline]
@@ -2878,11 +2636,22 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OFFSET_VALUE)?;
+        utils::seq((token::OFFSET, token::EQUALS, align_offset_value))(visitor)
     }
 
     #[inline]
     pub fn offset<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::OFFSET)?;
+        utils::choice((offset_const_expr, offset_expr))(visitor)
+    }
+
+    #[inline]
+    pub fn op_const_ref<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
     where
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
@@ -2896,21 +2665,13 @@ pub mod visit {
     }
 
     #[inline]
-    pub fn op_const_ref<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
-    where
-        Ctx: Context<'tree> + 'tree,
-        Vis: Visitor<'tree, Ctx> + ?Sized,
-    {
-        Ok(())
-    }
-
-    #[inline]
     pub fn op_const<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
     where
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_CONST)?;
+        utils::choice((utils::seq((pat00, float)), utils::seq((pat01, int))))(visitor)
     }
 
     #[inline]
@@ -2919,7 +2680,11 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_FUNC_BIND)?;
+        utils::seq((
+            token::FUNC_DOT_BIND,
+            utils::optional(utils::seq((token::LPAREN, token::TYPE, index, token::RPAREN))),
+        ))(visitor)
     }
 
     #[inline]
@@ -2928,6 +2693,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::OP_INDEX_OPT_OFFSET_OPT_ALIGN_OPT)?;
         Ok(())
     }
 
@@ -2937,6 +2703,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::OP_INDEX_OPT)?;
         Ok(())
     }
 
@@ -2946,6 +2713,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::OP_INDEX)?;
         Ok(())
     }
 
@@ -2955,7 +2723,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_LET)?;
+        utils::seq((
+            token::LET,
+            utils::optional(index),
+            utils::repeat(func_type_params),
+            utils::repeat(func_type_results),
+            utils::repeat(func_locals),
+        ))(visitor)
     }
 
     #[inline]
@@ -2964,6 +2739,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::OP_NULLARY)?;
         Ok(())
     }
 
@@ -2973,7 +2749,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_SELECT)?;
+        utils::seq((token::SELECT, utils::repeat(func_type_results)))(visitor)
     }
 
     #[inline]
@@ -2982,7 +2759,18 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_SIMD_CONST)?;
+        utils::seq((
+            token::V128_DOT_CONST,
+            utils::choice((
+                utils::seq((token::F32X4, float, float, float, float)),
+                utils::seq((token::F64X2, float, float)),
+                utils::seq((token::I8X16, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float)),
+                utils::seq((token::I16X8, float, float, float, float, float, float, float, float)),
+                utils::seq((token::I32X4, float, float, float, float)),
+                utils::seq((token::I64X2, float, float)),
+            )),
+        ))(visitor)
     }
 
     #[inline]
@@ -2991,7 +2779,33 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_SIMD_LANE)?;
+        utils::choice((
+            utils::seq((
+                utils::seq((token::I8X16, token::DOT_SHUFFLE)),
+                float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float,
+            )),
+            utils::seq((
+                utils::choice((token::I8X16, token::I16X8)),
+                token::FULL_STOP,
+                token::EXTRACT_LANE,
+                token::LOW_LINE,
+                // FIXME: regex
+                int,
+            )),
+            utils::seq((
+                utils::choice((token::F32X4, token::F64X2, token::I32X4, token::I64X2)),
+                token::FULL_STOP,
+                token::EXTRACT_LANE,
+                int,
+            )),
+            utils::seq((
+                utils::choice((token::F32X4, token::F64X2, token::I8X16, token::I16X8, token::I32X4, token::I64X2)),
+                token::FULL_STOP,
+                token::REPLACE_LANE,
+                int,
+            )),
+        ))(visitor)
     }
 
     #[inline]
@@ -3000,6 +2814,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::OP_INDEX_OPT_OFFSET_OPT_ALIGN_OPT)?;
         Ok(())
     }
 
@@ -3009,7 +2824,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::OP_TABLE_COPY)?;
+        utils::seq((token::TABLE_DOT_COPY, utils::optional(utils::seq((index, index)))))(visitor)
     }
 
     #[inline]
@@ -3018,6 +2834,25 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::OP_TABLE_INIT)?;
+        utils::seq((token::TABLE_DOT_INIT, index, utils::optional(index)))(visitor)
+    }
+
+    pub fn pat00<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::PAT00)?;
+        Ok(())
+    }
+
+    pub fn pat01<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::PAT01)?;
         Ok(())
     }
 
@@ -3027,6 +2862,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::REF_KIND)?;
         Ok(())
     }
 
@@ -3036,6 +2872,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::REF_TYPE_EXTERNREF)?;
         Ok(())
     }
 
@@ -3045,6 +2882,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::REF_TYPE_FUNCREF)?;
         Ok(())
     }
 
@@ -3054,6 +2892,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::REF_TYPE_REF)?;
         Ok(())
     }
 
@@ -3063,7 +2902,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::REF_TYPE)?;
+        utils::choice((ref_type_externref, ref_type_funcref, ref_type_ref))(visitor)
     }
 
     #[inline]
@@ -3088,6 +2928,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::RESERVED)?;
         Ok(())
     }
 
@@ -3172,8 +3013,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        utils::choice((utils::repeat(command), utils::repeat1(module_field)))(visitor)?;
-        utils::done(visitor)
+        utils::choice((utils::repeat(command), utils::repeat1(module_field)))(visitor)
+        // utils::done(visitor)
     }
 
     #[inline]
@@ -3226,6 +3067,17 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::SHARE)?;
+        Ok(())
+    }
+
+    #[inline]
+    pub fn sign<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
+    where
+        Ctx: Context<'tree> + 'tree,
+        Vis: Visitor<'tree, Ctx> + ?Sized,
+    {
+        visitor.walker().rule(kind::SIGN)?;
         Ok(())
     }
 
@@ -3235,6 +3087,7 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
+        visitor.walker().rule(kind::STRING)?;
         Ok(())
     }
 
@@ -3244,7 +3097,14 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::TABLE_FIELDS_ELEM)?;
+        utils::seq((
+            ref_type,
+            token::LPAREN,
+            token::ELEM,
+            utils::choice((utils::repeat(index), utils::seq((elem_expr, utils::repeat(elem_expr))))),
+            token::RPAREN,
+        ))(visitor)
     }
 
     #[inline]
@@ -3253,7 +3113,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::TABLE_FIELDS_TYPE)?;
+        utils::seq((utils::optional(import), table_type))(visitor)
     }
 
     #[inline]
@@ -3262,7 +3123,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::TABLE_TYPE)?;
+        utils::seq((limits, ref_type))(visitor)
     }
 
     #[inline]
@@ -3271,7 +3133,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::TABLE_USE)?;
+        utils::seq((token::LPAREN, token::TABLE, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -3280,7 +3143,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::TYPE_FIELD)?;
+        utils::seq((token::LPAREN, token::FUNC, utils::repeat(func_type), token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -3289,7 +3153,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::TYPE_USE)?;
+        utils::seq((token::LPAREN, token::TYPE, index, token::RPAREN))(visitor)
     }
 
     #[inline]
@@ -3298,7 +3163,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::VALUE_TYPE_NUM_TYPE)?;
+        utils::choice((num_type_f32, num_type_f64, num_type_i32, num_type_i64, num_type_v128))(visitor)
     }
 
     #[inline]
@@ -3307,7 +3173,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::VALUE_TYPE_REF_TYPE)?;
+        ref_type(visitor)
     }
 
     #[inline]
@@ -3316,7 +3183,8 @@ pub mod visit {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        Ok(())
+        visitor.walker().rule(kind::VALUE_TYPE)?;
+        utils::choice((value_type_num_type, value_type_ref_type))(visitor)
     }
 
     mod token {
@@ -3354,29 +3222,40 @@ pub mod visit {
         make!(DATA);
         make!(DECLARE);
         make!(DOLLAR_SIGN);
+        make!(DOT_SHUFFLE);
         make!(ELEM);
         make!(ELSE);
         make!(END);
         make!(EQUALS);
         make!(EXPORT);
         make!(EXTERNREF);
+        make!(EXTRACT_LANE);
         make!(F32);
+        make!(F32X4);
         make!(F64);
+        make!(F64X2);
         make!(FULL_STOP);
+        make!(FUNC_DOT_BIND);
         make!(FUNC);
         make!(FUNCREF);
         make!(GET);
         make!(GLOBAL);
+        make!(I16X8);
         make!(I32);
+        make!(I32X4);
         make!(I64);
+        make!(I64X2);
+        make!(I8X16);
         make!(IF);
         make!(IMPORT);
         make!(INF);
         make!(INPUT);
         make!(INVOKE);
         make!(ITEM);
+        make!(LET);
         make!(LOCAL);
         make!(LOOP);
+        make!(LOW_LINE);
         make!(LPAREN_AMPERSAND);
         make!(LPAREN_SEMICOLON);
         make!(LPAREN);
@@ -3385,6 +3264,7 @@ pub mod visit {
         make!(MUT);
         make!(NAN_ARITHMETIC);
         make!(NAN_CANONICAL);
+        make!(NAN);
         make!(OFFSET);
         make!(OUTPUT);
         make!(PARAM);
@@ -3394,16 +3274,22 @@ pub mod visit {
         make!(REF_DOT_NULL);
         make!(REF);
         make!(REGISTER);
+        make!(REPLACE_LANE);
         make!(RESULT);
         make!(REVERSE_SOLIDUS_REVERSE_SOLIDUS);
         make!(RPAREN);
         make!(SCRIPT);
+        make!(SELECT);
         make!(SEMICOLON_RPAREN);
         make!(SEMICOLON_SEMICOLON);
+        make!(SEMICOLON);
         make!(START);
+        make!(TABLE_DOT_COPY);
+        make!(TABLE_DOT_INIT);
         make!(TABLE);
         make!(THEN);
         make!(TYPE);
+        make!(V128_DOT_CONST);
         make!(V128);
         make!(ZERO_X);
     }

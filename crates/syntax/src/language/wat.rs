@@ -504,6 +504,10 @@ pub trait Visitor<'tree, Ctx: crate::node::Context<'tree> + 'tree> {
         visit::instr_call(self)
     }
 
+    fn visit_instr_list_call(&mut self) -> Result<(), SyntaxErrors> {
+        visit::instr_list_call(self)
+    }
+
     fn visit_instr_list(&mut self) -> Result<(), SyntaxErrors> {
         visit::instr_list(self)
     }
@@ -958,25 +962,6 @@ pub mod visit {
 
     use super::*;
     use crate::node::{Context, SyntaxError};
-
-    macro_rules! repeat {
-        ($name:ident, $visitor:expr, $node:expr, $errors:expr) => {{
-            let mut success = false;
-            loop {
-                let result = module_field($visitor, $node);
-                if result.is_ok() {
-                    success = true;
-                }
-                if let Err(mut errs) = result {
-                    if success {
-                        break;
-                    }
-                    $errors.append(&mut errs);
-                    return Err($errors);
-                }
-            }
-        }};
-    }
 
     pub fn align_offset_value<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
     where
