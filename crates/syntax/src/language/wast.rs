@@ -1118,10 +1118,8 @@ pub mod utils {
                 visitor.reset(prev);
                 let mut errors = SyntaxErrors::new();
                 errors.append(&mut errs);
-                log::info!("restore :: Err :: {:#?}", errors);
                 return Err(errors);
             }
-            log::info!("restore :: Ok");
             Ok(())
         }
     }
