@@ -31,7 +31,7 @@ package = "tree-sitter"
 version = "0.19"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = { version = "=0.2.71", features = ["strict-macro"] }
+wasm-bindgen = { version = "=0.2.73", features = ["strict-macro"] }
 wasm-bindgen-futures = "0.4"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies.futures]
