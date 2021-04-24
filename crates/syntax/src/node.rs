@@ -66,12 +66,12 @@ impl<'tree> NodeExt for tree_sitter::Node<'tree> {
 pub struct NodeError {
     language: tree_sitter::Language,
     expected: Vec<u16>,
-    found: NodeErrorData,
+    found: Option<NodeErrorData>,
 }
 
 impl NodeError {
     #[allow(missing_docs)]
-    pub fn new(language: tree_sitter::Language, expected: Vec<u16>, found: NodeErrorData) -> Self {
+    pub fn new(language: tree_sitter::Language, expected: Vec<u16>, found: Option<NodeErrorData>) -> Self {
         Self {
             language,
             expected,
@@ -85,7 +85,7 @@ impl NodeError {
     }
 
     #[allow(missing_docs)]
-    pub fn found(&self) -> &NodeErrorData {
+    pub fn found(&self) -> &Option<NodeErrorData> {
         &self.found
     }
 }

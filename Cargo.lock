@@ -969,14 +969,12 @@ dependencies = [
 [[package]]
 name = "lsp-text"
 version = "0.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "352604f368ecca66e61a8a227fa190693e20849330f8291b326525f7e30051ae"
 dependencies = [
  "anyhow",
  "bytes",
  "lsp-types",
  "ropey",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.0.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1753,6 +1751,18 @@ dependencies = [
 [[package]]
 name = "tree-sitter-facade"
 version = "0.0.7"
+dependencies = [
+ "anyhow",
+ "js-sys",
+ "tree-sitter",
+ "wasm-bindgen",
+ "web-sys",
+ "web-tree-sitter-sys",
+]
+
+[[package]]
+name = "tree-sitter-facade"
+version = "0.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ccc5174ac5c6e5ba867c936733fedce7546a26383ae80eb728d31e109f81d0aa"
 dependencies = [
@@ -2028,7 +2038,7 @@ dependencies = [
  "futures",
  "thiserror",
  "tree-sitter",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.0.7",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-tree-sitter-sys",
@@ -2073,7 +2083,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.0.7",
  "wasm-lsp-languages",
  "wasm-lsp-macros",
  "wasm-lsp-syntax",
@@ -2089,7 +2099,7 @@ dependencies = [
  "log",
  "thiserror",
  "tree-sitter",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.0.7",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-lsp-languages",

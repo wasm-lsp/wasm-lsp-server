@@ -163,23 +163,31 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     /// Move the cursor to the first child node.
     #[inline]
     pub fn goto_first_child(&mut self) -> bool {
+        log::info!("goto_first_child >>");
+
         let ancestor = self.cursor.node();
         let moved = self.cursor.goto_first_child();
         if moved {
             let prefixed = Default::default();
             self.context.push_ancestor(ancestor, prefixed);
         }
+
+        log::info!("goto_first_child << {}", moved);
         moved
     }
 
     /// Move the cursor to the next sibling node.
     #[inline]
     pub fn goto_next_sibling(&mut self) -> bool {
+        log::info!("goto_next_sibling >>");
+
         let prefix = self.cursor.node();
         let moved = self.cursor.goto_next_sibling();
         if moved {
             self.context.push_prefix(prefix);
         }
+
+        log::info!("goto_next_sibling << {}", moved);
         moved
     }
 
@@ -224,6 +232,8 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     /// Move the cursor to the next ancestor sibling node.
     #[inline]
     pub fn goto_next_ancestor_sibling(&mut self) -> bool {
+        log::info!("goto_next_ancestor_sibling >>");
+
         let mut moved;
         let mut finished = true;
 
@@ -242,16 +252,22 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
         }
 
         self.done = finished;
+
+        log::info!("goto_next_ancestor_sibling << {}", moved);
         moved
     }
 
     /// Move the cursor to the parent node.
     #[inline]
     pub fn goto_parent(&mut self) -> bool {
+        log::info!("goto_parent >>");
+
         let moved = self.cursor.goto_parent();
         if moved {
             self.context.pop();
         }
+
+        log::info!("goto_parent << {}", moved);
         moved
     }
 
@@ -306,27 +322,36 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     }
 
     #[inline]
-    fn step(&mut self, that_id: u16, descend_into_error: bool) -> Result<(), SyntaxError> {
+    fn step(&mut self, that_kind_id: u16, descend_into_error: bool) -> Result<(), SyntaxError> {
         let prev = self.node();
+
+        let language: tree_sitter::Language = self.language.into();
+        let this = prev.clone();
+        let this_id = this.id();
+        let this_kind_id = this.kind_id();
+        let this_kind = language.node_kind_for_id(this_kind_id).unwrap();
+        log::info!("stepping from: {}@{}", this_kind, this_id);
+
+        let expected = language.node_kind_for_id(that_kind_id).unwrap();
+        log::info!("expected: {}", expected);
+
         if self.goto_next() {
             let next = self.node();
-            let next_id = next.kind_id();
-            {
-                let language: tree_sitter::Language = self.language.into();
-                let expected = language.node_kind_for_id(that_id).unwrap();
-                let found = next.kind();
-                log::info!("expected: {}, found: {}", expected, found);
-            }
+            let next_kind_id = next.kind_id();
+            let found = next.kind();
+            log::info!("found: {}\n", found);
+
             if next.is_missing() {
                 self.reset(prev);
                 let data = NodeErrorData::new(next, self.error_state.clone());
                 let error = SyntaxError::MissingNode(data);
                 return Err(error);
             }
-            if that_id != next_id {
+
+            if that_kind_id != next_kind_id {
                 let language = self.language.clone().into();
-                let expected = vec![that_id];
-                let found = NodeErrorData::new(next, self.error_state.clone());
+                let expected = vec![that_kind_id];
+                let found = Some(NodeErrorData::new(next, self.error_state.clone()));
                 let error = NodeError {
                     language,
                     expected,
@@ -335,9 +360,17 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
                 .into();
                 return Err(error);
             }
+
             Ok(())
         } else {
-            let error = SyntaxError::DoneEarly;
+            let expected = vec![that_kind_id];
+            let found = None;
+            let error = NodeError {
+                language,
+                expected,
+                found,
+            }
+            .into();
             Err(error)
         }
     }
