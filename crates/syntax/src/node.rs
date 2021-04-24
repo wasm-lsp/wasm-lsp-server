@@ -16,11 +16,11 @@ impl std::fmt::Debug for NodeErrorData {
         let kind_id = self
             .language
             .node_kind_for_id(self.kind_id)
-            .unwrap_or("<unknown>".into());
+            .unwrap_or_else(|| "<unknown>".into());
         let error_state = self
             .error_state
             .iter()
-            .map(|&id| self.language.node_kind_for_id(id).unwrap_or("<unknown>".into()))
+            .map(|&id| self.language.node_kind_for_id(id).unwrap_or_else(|| "<unknown>".into()))
             .collect::<Vec<_>>();
         f.debug_struct("NodeErrorData")
             .field("kind_id", &kind_id)
@@ -101,7 +101,7 @@ impl std::fmt::Debug for NodeError {
         let expected = self
             .expected
             .iter()
-            .map(|&id| self.language.node_kind_for_id(id).unwrap_or("<unknown>".into()))
+            .map(|&id| self.language.node_kind_for_id(id).unwrap_or_else(|| "<unknown>".into()))
             .collect::<Vec<_>>();
         f.debug_struct("SyntaxError")
             .field("expected", &expected)
@@ -115,7 +115,7 @@ impl std::fmt::Display for NodeError {
         let expected = self
             .expected
             .iter()
-            .map(|&id| self.language.node_kind_for_id(id).unwrap_or("<unknown>".into()))
+            .map(|&id| self.language.node_kind_for_id(id).unwrap_or_else(|| "<unknown>".into()))
             .collect::<Vec<_>>();
         f.debug_struct("SyntaxError")
             .field("expected", &expected)

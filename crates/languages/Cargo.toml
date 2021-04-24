@@ -25,7 +25,6 @@ thiserror = "1.0"
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
 version = "0.0"
-path = "../../../../tree-sitter-facade"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies.tree-sitter-sys]
 package = "tree-sitter"

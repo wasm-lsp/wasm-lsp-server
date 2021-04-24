@@ -322,7 +322,7 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
     }
 
     #[inline]
-    fn step(&mut self, that_kind_id: u16, descend_into_error: bool) -> Result<(), SyntaxError> {
+    fn step(&mut self, that_kind_id: u16, _descend_into_error: bool) -> Result<(), SyntaxError> {
         let prev = self.node();
 
         let language: tree_sitter::Language = self.language.into();

@@ -785,7 +785,6 @@ pub mod utils {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        #[inline]
         fn choice(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors>;
     }
 
@@ -818,11 +817,11 @@ pub mod utils {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         if visitor.walker().done {
-            return Ok(());
+            Ok(())
         } else {
             let mut errors = SyntaxErrors::new();
             errors.push(SyntaxError::MoreNodes);
-            return Err(errors);
+            Err(errors)
         }
     }
 
@@ -907,7 +906,6 @@ pub mod utils {
         Ctx: Context<'tree> + 'tree,
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
-        #[inline]
         fn seq(&self, visitor: &mut Vis) -> Result<(), SyntaxErrors>;
     }
 
@@ -1690,7 +1688,7 @@ pub mod visit {
         Vis: Visitor<'tree, Ctx> + ?Sized,
     {
         visitor.walker().rule(kind::INSTR_LIST)?;
-        utils::repeat1((utils::choice((instr_list_call, instr))))(visitor)
+        utils::repeat1(utils::choice((instr_list_call, instr)))(visitor)
     }
 
     pub fn instr_plain<'tree, Ctx, Vis>(visitor: &mut Vis) -> Result<(), SyntaxErrors>
