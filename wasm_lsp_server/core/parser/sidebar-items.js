@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["wast","Create a `.wast` parser from the tree-sitter grammar."],["wat","Create a `.wat` parser from the tree-sitter grammar."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["diagnostics","Provider definitions for LSP `textDocument/publishDiagnostics`."],["document_symbol","Provider definitions for LSP `textDocument/documentSymbol`"],["semantic_tokens","Provider definitions for LSP `textDocument/semanticTokens/*`"]]});

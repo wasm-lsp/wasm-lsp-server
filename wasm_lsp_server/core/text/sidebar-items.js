@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Text","Convenience struct for packaging the language-id and textual content of a [`core::Document`]."]]});

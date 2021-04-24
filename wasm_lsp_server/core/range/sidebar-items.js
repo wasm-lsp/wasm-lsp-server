@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["RangeExt","Utility trait for working with [`tree_sitter::Range`]."]]});

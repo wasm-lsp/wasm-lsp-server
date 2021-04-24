@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["COMMENT_NODES","Comment nodes for both the `.wast` and `.wat` grammar."]],"mod":[["wast","Functions for working with the `.wast` grammar. Functions for working with the `.wast` grammar."],["wat","Functions for working with the `.wat` grammar. Functions for working with the `.wat` grammar."]]});
