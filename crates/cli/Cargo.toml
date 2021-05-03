@@ -44,7 +44,7 @@ runtime-tokio = [
 
 [build-dependencies]
 anyhow = "1.0"
-built = { version = "0.4", features = ["git2"] }
+built = { version = "0.5", features = ["git2"] }
 
 [dependencies]
 anyhow = "1.0"
