@@ -506,6 +506,7 @@ USAGE:
 
 FLAGS:
     -h, --help          Prints help information
+    --with-corpus
 "#
         .trim();
 
