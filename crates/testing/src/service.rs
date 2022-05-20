@@ -1,20 +1,24 @@
-use lspower::{ExitedError, LspService, MessageStream};
 use serde_json::Value;
+use tower_lsp::{ClientSocket, LspService};
 use tower_test::mock::Spawn;
+use wasm_lsp_server::Server;
 
-pub async fn send(service: &mut Spawn<LspService>, request: &Value) -> Result<Option<Value>, ExitedError> {
+pub async fn send(
+    service: &mut tower_test::mock::Spawn<LspService<Server>>,
+    request: &serde_json::Value,
+) -> Result<Option<Value>, tower_lsp::ExitedError> {
     let request = serde_json::from_value(request.clone()).unwrap();
     let response = service.call(request).await?;
     let response = response.and_then(|x| serde_json::to_value(x).ok());
     Ok(response)
 }
 
-pub fn spawn() -> anyhow::Result<(Spawn<LspService>, MessageStream)> {
-    let (service, messages) = LspService::new(|client| {
+pub fn spawn() -> anyhow::Result<(tower_test::mock::Spawn<LspService<Server>>, ClientSocket)> {
+    let (service, socket) = LspService::new(|client| {
         let server = wasm_lsp_server::Server::new(client);
         server.unwrap()
     });
-    Ok((Spawn::new(service), messages))
+    Ok((Spawn::new(service), socket))
 }
 
 #[macro_export]

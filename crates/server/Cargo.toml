@@ -19,40 +19,40 @@ default = ["runtime-tokio"]
 goldenfiles = []
 runtime-agnostic = [
   "async-lock",
-  "lspower/runtime-agnostic",
+  "tower-lsp/runtime-agnostic",
 ]
 runtime-tokio = [
-  "lspower/runtime-tokio",
   "tokio",
   "tokio/rt-multi-thread",
+  "tower-lsp/runtime-tokio",
 ]
 
 [build-dependencies]
 anyhow = "1.0"
-built = { version = "0.4", features = ["git2"] }
+built = { version = "0.5", features = ["git2"] }
 
 [dependencies]
 anyhow = "1.0"
 async-lock = { version = "2.3", optional = true }
 bytes = "1.0"
-clap = "2.33"
-dashmap = "4.0"
-env_logger = "0.8"
+clap = "3.1"
+dashmap = "5.3"
+env_logger = "0.9"
 futures = "0.3"
 log = "0.4"
-lsp = { version = "0.88", package = "lsp-types" }
-lsp-text = "0.0"
-lspower = { version = "1.0", default-features = false }
+lsp = { version = "0.93", package = "lsp-types" }
+lsp-text = { version = "0.4", features = ["tree-sitter"] }
 ropey = "1.2"
 serde_json = "1.0"
 thiserror = "1.0"
 tokio = { version = "1.3", features = ["io-std", "sync"], optional = true }
+tower-lsp = { version = "0.17", default-features = false }
 wasm-lsp-languages = { version = "0.0", path = "../languages" }
 wasm-lsp-syntax = { version = "0.0", path = "../syntax" }
 
 [dependencies.tree-sitter]
 package = "tree-sitter-facade"
-version = "0.0"
+version = "0.3"
 
 [dev-dependencies]
 criterion = "0.3"

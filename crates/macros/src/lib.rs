@@ -110,7 +110,7 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
         // Skip the file if contained in the exclude list; otherwise continue.
         if !exclude.contains(&String::from(file_name)) {
             let file_stem = path.file_stem().unwrap().to_str().unwrap();
-            let test_name = heck::SnakeCase::to_snake_case(file_stem);
+            let test_name = heck::ToSnakeCase::to_snake_case(file_stem);
             let test_name = format!("r#{}", test_name);
 
             // Compute the test identifier.

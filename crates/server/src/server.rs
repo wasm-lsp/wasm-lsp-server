@@ -1,20 +1,20 @@
 //! LSP server capabilities and server instance.
 
 use crate::{core, handler};
-use lspower::jsonrpc;
 use std::sync::Arc;
+use tower_lsp::jsonrpc;
 
 /// The WebAssembly language server structure.
 pub struct Server {
     /// Reference to the LSP client.
-    pub client: lspower::Client,
+    pub client: tower_lsp::Client,
     /// Reference to the LSP session.
     pub session: Arc<core::Session>,
 }
 
 impl Server {
     /// Create a new [`Server`] instance.
-    pub fn new(client: lspower::Client) -> anyhow::Result<Self> {
+    pub fn new(client: tower_lsp::Client) -> anyhow::Result<Self> {
         let session = Arc::new(core::Session::new(Some(client.clone()))?);
         Ok(Server { client, session })
     }
@@ -54,7 +54,7 @@ pub fn capabilities() -> lsp::ServerCapabilities {
     let text_document_sync = {
         let options = lsp::TextDocumentSyncOptions {
             open_close: Some(true),
-            change: Some(lsp::TextDocumentSyncKind::Incremental),
+            change: Some(lsp::TextDocumentSyncKind::INCREMENTAL),
             ..Default::default()
         };
         Some(lsp::TextDocumentSyncCapability::Options(options))
@@ -68,8 +68,8 @@ pub fn capabilities() -> lsp::ServerCapabilities {
     }
 }
 
-#[lspower::async_trait]
-impl lspower::LanguageServer for Server {
+#[tower_lsp::async_trait]
+impl tower_lsp::LanguageServer for Server {
     async fn initialize(&self, params: lsp::InitializeParams) -> jsonrpc::Result<lsp::InitializeResult> {
         *self.session.client_capabilities.write().await = Some(params.capabilities);
         let capabilities = capabilities();
@@ -80,7 +80,7 @@ impl lspower::LanguageServer for Server {
     }
 
     async fn initialized(&self, _: lsp::InitializedParams) {
-        let typ = lsp::MessageType::Info;
+        let typ = lsp::MessageType::INFO;
         let message = "WebAssembly language server initialized!";
         self.client.log_message(typ, message).await;
     }

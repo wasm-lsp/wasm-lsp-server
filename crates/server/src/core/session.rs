@@ -28,7 +28,7 @@ pub struct Session {
     pub server_capabilities: RwLock<lsp::ServerCapabilities>,
     /// The current client LSP capabilities configuration.
     pub client_capabilities: RwLock<Option<lsp::ClientCapabilities>>,
-    client: Option<lspower::Client>,
+    client: Option<tower_lsp::Client>,
     texts: DashMap<lsp::Url, core::Text>,
     parsers: DashMap<lsp::Url, Mutex<tree_sitter::Parser>>,
     trees: DashMap<lsp::Url, Mutex<tree_sitter::Tree>>,
@@ -36,7 +36,7 @@ pub struct Session {
 
 impl Session {
     /// Create a new [`Session`].
-    pub fn new(client: Option<lspower::Client>) -> anyhow::Result<Self> {
+    pub fn new(client: Option<tower_lsp::Client>) -> anyhow::Result<Self> {
         let server_capabilities = RwLock::new(server::capabilities());
         let client_capabilities = RwLock::new(Default::default());
         let texts = DashMap::new();
@@ -53,7 +53,7 @@ impl Session {
     }
 
     /// Retrieve the handle for the LSP client.
-    pub fn client(&self) -> anyhow::Result<&lspower::Client> {
+    pub fn client(&self) -> anyhow::Result<&tower_lsp::Client> {
         self.client
             .as_ref()
             .ok_or_else(|| core::Error::ClientNotInitialized.into())

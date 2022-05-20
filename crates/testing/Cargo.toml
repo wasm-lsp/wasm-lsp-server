@@ -16,7 +16,7 @@ maintenance = { status = "experimental" }
 
 [dependencies]
 anyhow = "1.0.28"
-lspower = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", features = ["preserve_order"] }
+tower-lsp = { version = "0.17", default-features = false }
 tower-test = "0.4.0"
 wasm-lsp-server = { version = "0.0", path = "../server" }

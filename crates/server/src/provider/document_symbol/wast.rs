@@ -90,7 +90,7 @@ pub async fn document_symbol(
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if child.matches_subtypes(wast::kind::MODULE_FIELD, &wast::grouped::MODULE_FIELDS) {
+                    if child.matches_subtypes(wast::kind::MODULE_FIELD, wast::grouped::MODULE_FIELDS) {
                         work.push(Work::Node(child));
                         children_count += 1;
                     }
@@ -99,7 +99,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count,
-                    kind: lsp::SymbolKind::Module,
+                    kind: lsp::SymbolKind::MODULE,
                     name_hint: "module",
                 });
             },
@@ -118,7 +118,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count: 0,
-                    kind: lsp::SymbolKind::Key,
+                    kind: lsp::SymbolKind::KEY,
                     name_hint: "data",
                 });
             },
@@ -128,7 +128,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count: 0,
-                    kind: lsp::SymbolKind::Field,
+                    kind: lsp::SymbolKind::FIELD,
                     name_hint: "elem",
                 });
             },
@@ -138,7 +138,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count: 0,
-                    kind: lsp::SymbolKind::Function,
+                    kind: lsp::SymbolKind::FUNCTION,
                     name_hint: "func",
                 });
             },
@@ -148,7 +148,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count: 0,
-                    kind: lsp::SymbolKind::Event,
+                    kind: lsp::SymbolKind::EVENT,
                     name_hint: "global",
                 });
             },
@@ -158,7 +158,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count: 0,
-                    kind: lsp::SymbolKind::Array,
+                    kind: lsp::SymbolKind::ARRAY,
                     name_hint: "memory",
                 });
             },
@@ -168,7 +168,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count: 0,
-                    kind: lsp::SymbolKind::Interface,
+                    kind: lsp::SymbolKind::INTERFACE,
                     name_hint: "table",
                 });
             },
@@ -178,7 +178,7 @@ pub async fn document_symbol(
                 data.push(Data {
                     node,
                     children_count: 0,
-                    kind: lsp::SymbolKind::TypeParameter,
+                    kind: lsp::SymbolKind::TYPE_PARAMETER,
                     name_hint: "type",
                 });
             },

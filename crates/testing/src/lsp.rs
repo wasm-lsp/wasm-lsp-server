@@ -70,8 +70,8 @@ pub mod text_document {
     pub mod did_change {
 
         pub mod notification {
-            use lspower::lsp::*;
             use serde_json::{json, Value};
+            use tower_lsp::lsp_types::*;
 
             pub fn entire<S: AsRef<str>>(uri: &Url, text: S) -> Value {
                 json!({
@@ -93,8 +93,8 @@ pub mod text_document {
     }
 
     pub mod did_close {
-        use lspower::lsp::*;
         use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
 
         pub fn notification(uri: &Url) -> Value {
             json!({
@@ -110,8 +110,8 @@ pub mod text_document {
     }
 
     pub mod did_open {
-        use lspower::lsp::*;
         use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
 
         pub fn notification<S: AsRef<str>, T: AsRef<str>>(uri: &Url, language_id: S, version: i64, text: T) -> Value {
             json!({
@@ -130,8 +130,8 @@ pub mod text_document {
     }
 
     pub mod document_symbol {
-        use lspower::lsp::*;
         use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
 
         pub fn request(uri: &Url) -> Value {
             json!({
@@ -156,8 +156,8 @@ pub mod text_document {
     }
 
     pub mod hover {
-        use lspower::lsp::*;
         use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
 
         pub fn request(uri: &Url, position: Position) -> Value {
             json!({
@@ -184,8 +184,8 @@ pub mod text_document {
     }
 
     pub mod publish_diagnostics {
-        use lspower::lsp::*;
         use serde_json::{json, Value};
+        use tower_lsp::lsp_types::*;
 
         pub fn notification(uri: &Url, diagnostics: &[Diagnostic]) -> Value {
             json!({
