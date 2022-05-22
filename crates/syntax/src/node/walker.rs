@@ -161,6 +161,7 @@ impl<'tree, C: Context<'tree>> NodeWalker<'tree, C> {
 
     /// Move cursor to the next accessible node.
     #[inline]
+    #[allow(clippy::needless_late_init)]
     pub fn goto_next(&mut self) -> bool {
         let mut moved;
 
