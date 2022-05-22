@@ -62,8 +62,8 @@ Once the server is installed you can install the Visual Studio Code [client exte
 
 | extension | supported | kind                                                                                                             |
 | :-------: | --------- | ---------------------------------------------------------------------------------------------------------------- |
-|  `.wat`   | 🗹         | [WebAssembly module definition](https://github.com/WebAssembly/spec/tree/master/interpreter#s-expression-syntax) |
-|  `.wast`  | 🗹         | [WebAssembly script](https://github.com/WebAssembly/spec/tree/master/interpreter#scripts)                        |
+|  `.wat`   | ☑        | [WebAssembly module definition](https://github.com/WebAssembly/spec/tree/master/interpreter#s-expression-syntax) |
+|  `.wast`  | ☑        | [WebAssembly script](https://github.com/WebAssembly/spec/tree/master/interpreter#scripts)                        |
 
 ## Supported WebAssembly Proposals
 
@@ -71,20 +71,20 @@ The server also supports parsing WebAssembly modules that use the following feat
 
 #### Phase 4 (Standardization)
 
-- 🗹 [bulk-memory-operations](https://github.com/WebAssembly/bulk-memory-operations)
-- 🗹 [reference-types](https://github.com/WebAssembly/reference-types)
+- ☑ [bulk-memory-operations](https://github.com/WebAssembly/bulk-memory-operations)
+- ☑ [reference-types](https://github.com/WebAssembly/reference-types)
 
 #### Phase 3 (Implementation)
 
-- 🗹 [annotations](https://github.com/WebAssembly/annotations)
-- 🗹 [multi-memory](https://github.com/WebAssembly/multi-memory)
-- 🗹 [simd](https://github.com/WebAssembly/simd)
+- ☑ [annotations](https://github.com/WebAssembly/annotations)
+- ☑ [multi-memory](https://github.com/WebAssembly/multi-memory)
+- ☑ [simd](https://github.com/WebAssembly/simd)
 
 #### Phase 2 (Specification)
 
-- 🗹 [exception-handling](https://github.com/WebAssembly/exception-handling)
-- 🗹 [function-references](https://github.com/WebAssembly/function-references)
-- 🗹 [threads](https://github.com/WebAssembly/threads)
+- ☑ [exception-handling](https://github.com/WebAssembly/exception-handling)
+- ☑ [function-references](https://github.com/WebAssembly/function-references)
+- ☑ [threads](https://github.com/WebAssembly/threads)
 
 #### Phase 1 (Proposal)
 
@@ -96,10 +96,10 @@ Nothing planned.
 
 ## Language Server Feature Support
 
-- 🗹 document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/tree-sitter-wasm)
-- 🗹 document symbol provider
-- 🗹 syntax error diagnostics provider
-- 🗹 incremental document synchronization
+- ☑ document parsing via [wasm tree-sitter grammars](https://github.com/wasm-lsp/tree-sitter-wasm)
+- ☑ document symbol provider
+- ☑ syntax error diagnostics provider
+- ☑ incremental document synchronization
 
 ## Language Server Feature Roadmap
 
