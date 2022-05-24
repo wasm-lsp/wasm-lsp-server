@@ -5,7 +5,7 @@ use thiserror::Error;
 
 /// Runtime errors for the LSP server.
 #[allow(clippy::enum_variant_names)]
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Eq, Error, PartialEq)]
 pub enum Error {
     /// Error that occurs when [`core::Session.client`] is accessed and is `None`.
     #[error("ClientNotInitialzed")]
