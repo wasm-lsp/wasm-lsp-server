@@ -68,6 +68,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-codec-lite"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2527c30e3972d8ff366b353125dae828c4252a154dbe6063684f6c5e014760a3"
+dependencies = [
+ "anyhow",
+ "bytes",
+ "futures-core",
+ "futures-io",
+ "futures-sink",
+ "log",
+ "pin-project-lite",
+ "thiserror",
+]
+
+[[package]]
 name = "async-executor"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -999,9 +1015,9 @@ dependencies = [
 
 [[package]]
 name = "lsp-text"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "408a3ab924d9ef22643478e317b8ed18ef893cafe060a404dc1c1394dd5f2d29"
+checksum = "f1a7b439656bb651851d509894b66742e2f99ebae19d79c76f3d15e3b8cbb78f"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1043,7 +1059,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc2242d4cb4071c7b9ae53001c8c658402b55bb8c3669a70d3ce9565f1144b30"
 dependencies = [
  "anyhow",
- "async-codec-lite",
+ "async-codec-lite 0.0.0",
  "async-trait",
  "auto_impl",
  "bytes",
@@ -1122,9 +1138,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.11.0"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b10983b38c53aebdf33f542c6275b0f58a238129d00c4ae0e6fb59738d783ca"
+checksum = "7709cef83f0c1f58f666e746a08b21e0085f7440fa6a29cc194d68aac97a4225"
 
 [[package]]
 name = "oorandom"
@@ -1342,9 +1358,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.5.5"
+version = "1.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a11647b6b25ff05a515cb92c365cec08801e83423a235b51e231e1808747286"
+checksum = "d83f127d94bdbcda4c8cc2e50f6f84f4b611f69c902699ca385a39c3a75f9ff1"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1359,9 +1375,9 @@ checksum = "6c230d73fb8d8c1b9c0b3135c5142a8acee3a0558fb8db5cf1cb65f8d7862132"
 
 [[package]]
 name = "regex-syntax"
-version = "0.6.25"
+version = "0.6.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
+checksum = "49b3de9ec5dc0a3417da371aab17d729997c15010e7fd24ff707773a33bddb64"
 
 [[package]]
 name = "remove_dir_all"
@@ -1755,7 +1771,7 @@ version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43e094780b4447366c59f79acfd65b1375ecaa84e61dddbde1421aa506334024"
 dependencies = [
- "async-codec-lite",
+ "async-codec-lite 0.0.2",
  "async-trait",
  "auto_impl",
  "bytes",
@@ -1848,9 +1864,9 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-facade"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1df8ef2fd7607c6f30a39c803672108383f11d539e97777b3d132e3d5235d9e3"
+checksum = "5eb4b6ac199843c638883d0933561ff64f1d6d8edb6af0421118a9ff656cd2e9"
 dependencies = [
  "anyhow",
  "js-sys",
@@ -2216,9 +2232,9 @@ dependencies = [
 
 [[package]]
 name = "web-tree-sitter-sys"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2089fcd84600ff3b72e7f7ba16eb20f60fbd073e9f12050971fbbac2775349e1"
+checksum = "59545f981ac8b874d2959b40c1c0700c17ea364b0c25a6a3eb93f6eeebe4aac1"
 dependencies = [
  "js-sys",
  "wasm-bindgen",

@@ -31,7 +31,7 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
                     continue;
                 },
                 _ => {
-                    covering_error_range = Some(range);
+                    covering_error_range = Some(range.clone());
                 },
             }
             let message = String::from("ERROR node");
@@ -57,7 +57,7 @@ pub fn diagnostics(tree: &tree_sitter::Tree, content: &ropey::Rope) -> Vec<lsp::
                     continue;
                 },
                 _ => {
-                    covering_error_range = Some(range);
+                    covering_error_range = Some(range.clone());
                 },
             }
             let message = format!(r#"expected "{}" after "{}""#, current.kind(), previous.kind());
