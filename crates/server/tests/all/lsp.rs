@@ -22,17 +22,29 @@ async fn exit() -> anyhow::Result<()> {
     let status = None::<Value>;
     testing::assert_exchange!(service, notification, Ok(status));
 
-    // FIXME
-    // // send "textDocument/didOpen" notification; should error
-    // testing::assert_status!(service, Err(tower_lsp::ExitedError));
-    // let notification = &{
-    //     let uri = lsp::Url::parse("inmemory::///test")?;
-    //     let language_id = "wasm.wat";
-    //     let text = String::from("");
-    //     testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text)
-    // };
-    // let status = tower_lsp::ExitedError;
-    // testing::assert_exchange!(service, notification, Err(status));
+    // send "textDocument/didOpen" notification; should error
+    match service.poll_ready() {
+        std::task::Poll::Ready(Err(err)) => {
+            assert_eq!(err.to_string(), "language server has exited");
+        },
+        _ => {
+            panic!()
+        }
+    }
+    let notification = &{
+        let uri = lsp::Url::parse("inmemory::///test")?;
+        let language_id = "wasm.wat";
+        let text = String::from("");
+        testing::lsp::text_document::did_open::notification(&uri, language_id, 1, text)
+    };
+    match testing::service::send(service, notification).await {
+        Err(err) => {
+            assert_eq!(err.to_string(), "language server has exited");
+        },
+        _ => {
+            panic!()
+        }
+    }
 
     Ok(())
 }
