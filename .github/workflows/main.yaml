@@ -185,6 +185,7 @@ jobs:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
+          toolchain: nightly
           profile: minimal
       - name: Run cargo xtask init
         uses: actions-rs/cargo@v1
