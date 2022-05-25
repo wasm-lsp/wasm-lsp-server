@@ -32,13 +32,13 @@ runtime-futures = [
   "wasm-lsp-server/runtime-agnostic",
 ]
 runtime-smol = [
-  "tower-lsp/runtime-agnostic",
   "smol",
+  "tower-lsp/runtime-agnostic",
   "wasm-lsp-server/runtime-agnostic",
 ]
 runtime-tokio = [
-  "tower-lsp/runtime-tokio",
   "tokio",
+  "tower-lsp/runtime-tokio",
   "wasm-lsp-server/runtime-tokio",
 ]
 

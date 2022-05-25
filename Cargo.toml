@@ -12,6 +12,6 @@ members = [
   "crates/syntax",
   "crates/testing",
   "fuzz",
-  "xtask"
+  "xtask",
 ]
 default-members = ["crates/cli"]
