@@ -29,7 +29,7 @@ async fn exit() -> anyhow::Result<()> {
         },
         _ => {
             panic!()
-        }
+        },
     }
     let notification = &{
         let uri = lsp::Url::parse("inmemory::///test")?;
@@ -43,7 +43,7 @@ async fn exit() -> anyhow::Result<()> {
         },
         _ => {
             panic!()
-        }
+        },
     }
 
     Ok(())
