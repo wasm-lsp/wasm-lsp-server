@@ -447,7 +447,10 @@ FLAGS:
         }
 
         // Run `cargo test` with custom options.
-        pub fn test_cli(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
+        pub fn test_cli(
+            args: &mut pico_args::Arguments,
+            mut cargo_args: Vec<std::ffi::OsString>,
+        ) -> crate::Fallible<()> {
             let help = r#"
 xtask-test-cli
 
