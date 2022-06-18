@@ -53,22 +53,6 @@ dependencies = [
 
 [[package]]
 name = "async-codec-lite"
-version = "0.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "932ad436d9570582ac23e13163f598c647c1af1220f102e83488ed47d50d7f05"
-dependencies = [
- "anyhow",
- "bytes",
- "futures-core",
- "futures-io",
- "futures-sink",
- "log",
- "pin-project-lite",
- "thiserror",
-]
-
-[[package]]
-name = "async-codec-lite"
 version = "0.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2527c30e3972d8ff366b353125dae828c4252a154dbe6063684f6c5e014760a3"
@@ -534,16 +518,6 @@ dependencies = [
 
 [[package]]
 name = "dashmap"
-version = "4.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e77a43b28d0668df09411cb0bc9a8c2adc40f9a048afe863e05fd43251e8e39c"
-dependencies = [
- "cfg-if",
- "num_cpus",
-]
-
-[[package]]
-name = "dashmap"
 version = "5.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3495912c9c1ccf2e18976439f4443f3fee0fd61f424ff99fde6a66b15ecb448f"
@@ -807,15 +781,6 @@ checksum = "db0d4cf898abf0081f964436dc980e96670a0f36863e4b83aaacdb65c9d7ccc3"
 
 [[package]]
 name = "heck"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
-dependencies = [
- "unicode-segmentation",
-]
-
-[[package]]
-name = "heck"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2540771e65fc8cb83cd6e8a237f70c319bd5c29f78ed1084ba5d50eeac86f7f9"
@@ -1006,22 +971,9 @@ checksum = "f1a7b439656bb651851d509894b66742e2f99ebae19d79c76f3d15e3b8cbb78f"
 dependencies = [
  "anyhow",
  "bytes",
- "lsp-types 0.93.0",
+ "lsp-types",
  "ropey",
  "tree-sitter-facade",
-]
-
-[[package]]
-name = "lsp-types"
-version = "0.91.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2368312c59425dd133cb9a327afee65be0a633a8ce471d248e2202a48f8f68ae"
-dependencies = [
- "bitflags",
- "serde",
- "serde_json",
- "serde_repr",
- "url",
 ]
 
 [[package]]
@@ -1035,44 +987,6 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "url",
-]
-
-[[package]]
-name = "lspower"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc2242d4cb4071c7b9ae53001c8c658402b55bb8c3669a70d3ce9565f1144b30"
-dependencies = [
- "anyhow",
- "async-codec-lite 0.0.0",
- "async-trait",
- "auto_impl",
- "bytes",
- "dashmap 4.0.2",
- "futures",
- "httparse",
- "log",
- "lsp-types 0.91.1",
- "lspower-macros",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-util 0.6.10",
- "tower-service",
- "twoway",
-]
-
-[[package]]
-name = "lspower-macros"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca1d48da0e4a6100b4afd52fae99f36d47964a209624021280ad9ffdd410e83d"
-dependencies = [
- "heck 0.3.3",
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -1708,20 +1622,6 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.6.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36943ee01a6d67977dd3f84a5a1d2efeb4ada3a1ae771cadfaa535d9d9fc6507"
-dependencies = [
- "bytes",
- "futures-core",
- "futures-sink",
- "log",
- "pin-project-lite",
- "tokio",
-]
-
-[[package]]
-name = "tokio-util"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc463cd8deddc3770d20f9852143d50bf6094e640b485cb2e189a2099085ff45"
@@ -1769,20 +1669,20 @@ version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43e094780b4447366c59f79acfd65b1375ecaa84e61dddbde1421aa506334024"
 dependencies = [
- "async-codec-lite 0.0.2",
+ "async-codec-lite",
  "async-trait",
  "auto_impl",
  "bytes",
- "dashmap 5.3.4",
+ "dashmap",
  "futures",
  "httparse",
  "log",
- "lsp-types 0.93.0",
+ "lsp-types",
  "memchr",
  "serde",
  "serde_json",
  "tokio",
- "tokio-util 0.7.3",
+ "tokio-util",
  "tower",
  "tower-lsp-macros",
 ]
@@ -1863,22 +1763,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "twoway"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c57ffb460d7c24cd6eda43694110189030a3d1dfe418416d9468fd1c1d290b47"
-dependencies = [
- "memchr",
- "unchecked-index",
-]
-
-[[package]]
-name = "unchecked-index"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eeba86d422ce181a719445e51872fa30f1f7413b62becb52e95ec91aa262d85c"
-
-[[package]]
 name = "unicode-bidi"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1898,12 +1782,6 @@ checksum = "d54590932941a9e9266f0832deed84ebe1bf2e4c9e4a3554d393d18f5e854bf9"
 dependencies = [
  "tinyvec",
 ]
-
-[[package]]
-name = "unicode-segmentation"
-version = "1.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e8820f5d777f6224dc4be3632222971ac30164d4a258d595640799554ebfd99"
 
 [[package]]
 name = "unicode-width"
@@ -2074,11 +1952,11 @@ dependencies = [
  "blocking",
  "futures",
  "libfuzzer-sys",
- "lsp-types 0.93.0",
- "lspower",
+ "lsp-types",
  "serde_json",
  "smol",
  "tokio",
+ "tower-lsp",
  "wasm-lsp-server",
  "wasm-lsp-testing",
  "wasm-smith",
@@ -2106,7 +1984,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "glob",
- "heck 0.4.0",
+ "heck",
  "proc-macro2",
  "quote",
  "syn",
@@ -2123,9 +2001,8 @@ dependencies = [
  "async-lock",
  "built",
  "bytes",
- "clap 3.2.5",
  "criterion",
- "dashmap 5.3.4",
+ "dashmap",
  "env_logger",
  "futures",
  "glob",
@@ -2133,7 +2010,7 @@ dependencies = [
  "indoc",
  "log",
  "lsp-text",
- "lsp-types 0.93.0",
+ "lsp-types",
  "ropey",
  "serde_json",
  "thiserror",
