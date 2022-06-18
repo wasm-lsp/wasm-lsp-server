@@ -7,4 +7,4 @@ edition = "2018"
 
 [dependencies]
 dunce = "1.0"
-pico-args = "0.5"
+pico-args = "0.4"
