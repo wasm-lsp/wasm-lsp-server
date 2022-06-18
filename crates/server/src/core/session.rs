@@ -11,17 +11,6 @@ use async_lock::{Mutex, RwLock};
 #[cfg(feature = "tokio")]
 use tokio::sync::{Mutex, RwLock};
 
-/// A tag representing of the kinds of session resource.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum SessionResourceKind {
-    /// A tag representing a [`core::Document`].
-    Document,
-    /// A tag representing a [`tree_sitter::Parser`].
-    Parser,
-    /// A tag representing a [`tree_sitter::Tree`].
-    Tree,
-}
-
 /// The LSP server session. This contains the relevant state for workspace.
 pub struct Session {
     /// The current server LSP capabilities configuration.
@@ -145,4 +134,15 @@ impl Session {
             core::Error::SessionResourceNotFound { kind, uri }.into()
         })
     }
+}
+
+/// A tag representing of the kinds of session resource.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SessionResourceKind {
+    /// A tag representing a [`core::Document`].
+    Document,
+    /// A tag representing a [`tree_sitter::Parser`].
+    Parser,
+    /// A tag representing a [`tree_sitter::Tree`].
+    Tree,
 }
