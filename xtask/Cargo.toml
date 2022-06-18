@@ -1,9 +1,9 @@
 [package]
 publish = false
+edition = "2021"
 name = "xtask"
 version = "0.1.0"
 authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
-edition = "2018"
 
 [dependencies]
 dunce = "1.0"

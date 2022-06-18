@@ -81,7 +81,7 @@ pub async fn document_symbol(
 
                 let mut children_count = 0;
                 for child in node.children(&mut node.walk()) {
-                    if child.matches_subtypes(wat::kind::MODULE_FIELD, &*wat::grouped::MODULE_FIELDS) {
+                    if child.matches_subtypes(wat::kind::MODULE_FIELD, wat::grouped::MODULE_FIELDS) {
                         work.push(Work::Node(child));
                         children_count += 1;
                     }

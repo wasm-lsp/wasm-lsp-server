@@ -663,7 +663,6 @@ mod text_document {
         fn handler(_corpus: &str, path: &str) {
             use futures::stream::StreamExt;
             use serde_json::Value;
-            use std::convert::TryFrom;
             use wasm_lsp_server::core::Language;
 
             async fn handler(path: &str) -> anyhow::Result<()> {

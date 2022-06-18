@@ -1,5 +1,5 @@
 [package]
-edition = "2018"
+edition = "2021"
 name = "wasm-lsp-testing"
 version = "0.0.0"
 authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
