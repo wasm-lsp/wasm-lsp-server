@@ -153,6 +153,17 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Definitions related to the LSP session.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core</span>, <span class="ident">server</span>};
@@ -166,19 +177,10 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">tokio::sync</span>::{<span class="ident">Mutex</span>, <span class="ident">RwLock</span>};
 
-<span class="doccomment">/// A tag representing of the kinds of session resource.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SessionResourceKind</span> {
-    <span class="doccomment">/// A tag representing a [`core::Document`].</span>
-    <span class="ident">Document</span>,
-    <span class="doccomment">/// A tag representing a [`tree_sitter::Parser`].</span>
-    <span class="ident">Parser</span>,
-    <span class="doccomment">/// A tag representing a [`tree_sitter::Tree`].</span>
-    <span class="ident">Tree</span>,
-}
-
 <span class="doccomment">/// The LSP server session. This contains the relevant state for workspace.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Session</span> {
+    <span class="doccomment">/// The pre-loaded tree-sitter languages for `.wast` and `.wat`.</span>
+    <span class="kw">pub</span> <span class="ident">languages</span>: <span class="ident">SessionLanguages</span>,
     <span class="doccomment">/// The current server LSP capabilities configuration.</span>
     <span class="kw">pub</span> <span class="ident">server_capabilities</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">lsp::ServerCapabilities</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The current client LSP capabilities configuration.</span>
@@ -191,13 +193,14 @@
 
 <span class="kw">impl</span> <span class="ident">Session</span> {
     <span class="doccomment">/// Create a new [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tower_lsp::Client</span><span class="op">&gt;</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">languages</span>: <span class="ident">SessionLanguages</span>, <span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tower_lsp::Client</span><span class="op">&gt;</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">server_capabilities</span> <span class="op">=</span> <span class="ident">RwLock::new</span>(<span class="ident">server::capabilities</span>());
         <span class="kw">let</span> <span class="ident">client_capabilities</span> <span class="op">=</span> <span class="ident">RwLock::new</span>(<span class="ident">Default::default</span>());
         <span class="kw">let</span> <span class="ident">texts</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
         <span class="kw">let</span> <span class="ident">parsers</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
         <span class="kw">let</span> <span class="ident">trees</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">Session</span> {
+            <span class="ident">languages</span>,
             <span class="ident">server_capabilities</span>,
             <span class="ident">client_capabilities</span>,
             <span class="ident">client</span>,
@@ -300,6 +303,25 @@
             <span class="ident">core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
         })
     }
+}
+
+<span class="doccomment">/// Pre-loaded tree-sitter languages for `.wast` and `.wat`.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SessionLanguages</span> {
+    <span class="doccomment">/// Pre-loaded tree-sitter language for `.wast`.</span>
+    <span class="kw">pub</span> <span class="ident">wast</span>: <span class="ident">tree_sitter::Language</span>,
+    <span class="doccomment">/// Pre-loaded tree-sitter language for `.wat`.</span>
+    <span class="kw">pub</span> <span class="ident">wat</span>: <span class="ident">tree_sitter::Language</span>,
+}
+
+<span class="doccomment">/// A tag representing of the kinds of session resource.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SessionResourceKind</span> {
+    <span class="doccomment">/// A tag representing a [`core::Document`].</span>
+    <span class="ident">Document</span>,
+    <span class="doccomment">/// A tag representing a [`tree_sitter::Parser`].</span>
+    <span class="ident">Parser</span>,
+    <span class="doccomment">/// A tag representing a [`tree_sitter::Tree`].</span>
+    <span class="ident">Tree</span>,
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="wasm_lsp_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c3b7d7b49 2022-06-17)" ></div>

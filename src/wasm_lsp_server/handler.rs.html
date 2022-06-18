@@ -99,8 +99,6 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
 </pre><pre class="rust"><code><span class="doccomment">//! LSP message handler functions.</span>
 
 <span class="doccomment">/// LSP message handler functions for `textDocument/*`.</span>
@@ -152,8 +150,7 @@
     <span class="doccomment">/// LSP message handler function for `textDocument/didOpen`.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">did_open</span>(<span class="ident">session</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">core::Session</span><span class="op">&gt;</span>, <span class="ident">params</span>: <span class="ident">lsp::DidOpenTextDocumentParams</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">text_document</span>.<span class="ident">uri</span>.<span class="ident">clone</span>();
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">document</span>) <span class="op">=</span> <span class="ident">core::Document::open</span>(<span class="ident">params</span>)<span class="question-mark">?</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">document</span>) <span class="op">=</span> <span class="ident">core::Document::open</span>(<span class="ident">session</span>.<span class="ident">clone</span>(), <span class="ident">params</span>)<span class="question-mark">?</span> {
             <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">tree</span>.<span class="ident">clone</span>();
             <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">text</span>();
             <span class="ident">session</span>.<span class="ident">insert_document</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">document</span>)<span class="question-mark">?</span>;
@@ -163,7 +160,6 @@
         } <span class="kw">else</span> {
             <span class="macro">log::warn!</span>(<span class="string">&quot;&#39;textDocument/didOpen&#39; failed :: uri: {:#?}&quot;</span>, <span class="ident">uri</span>);
         }
-
         <span class="prelude-val">Ok</span>(())
     }
 
