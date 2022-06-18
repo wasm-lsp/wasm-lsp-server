@@ -273,7 +273,7 @@
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">children_count</span> <span class="op">=</span> <span class="number">0</span>;
                 <span class="kw">for</span> <span class="ident">child</span> <span class="kw">in</span> <span class="ident">node</span>.<span class="ident">children</span>(<span class="kw-2">&amp;mut</span> <span class="ident">node</span>.<span class="ident">walk</span>()) {
-                    <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">matches_subtypes</span>(<span class="ident">wat::kind::MODULE_FIELD</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">wat::grouped::MODULE_FIELDS</span>) {
+                    <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">matches_subtypes</span>(<span class="ident">wat::kind::MODULE_FIELD</span>, <span class="ident">wat::grouped::MODULE_FIELDS</span>) {
                         <span class="ident">work</span>.<span class="ident">push</span>(<span class="ident">Work::Node</span>(<span class="ident">child</span>));
                         <span class="ident">children_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     }
