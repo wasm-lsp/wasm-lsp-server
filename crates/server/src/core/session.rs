@@ -13,6 +13,8 @@ use tokio::sync::{Mutex, RwLock};
 
 /// The LSP server session. This contains the relevant state for workspace.
 pub struct Session {
+    /// The pre-loaded tree-sitter languages for `.wast` and `.wat`.
+    pub languages: SessionLanguages,
     /// The current server LSP capabilities configuration.
     pub server_capabilities: RwLock<lsp::ServerCapabilities>,
     /// The current client LSP capabilities configuration.
@@ -25,13 +27,14 @@ pub struct Session {
 
 impl Session {
     /// Create a new [`Session`].
-    pub fn new(client: Option<tower_lsp::Client>) -> anyhow::Result<Self> {
+    pub fn new(languages: SessionLanguages, client: Option<tower_lsp::Client>) -> anyhow::Result<Self> {
         let server_capabilities = RwLock::new(server::capabilities());
         let client_capabilities = RwLock::new(Default::default());
         let texts = DashMap::new();
         let parsers = DashMap::new();
         let trees = DashMap::new();
         Ok(Session {
+            languages,
             server_capabilities,
             client_capabilities,
             client,
@@ -134,6 +137,14 @@ impl Session {
             core::Error::SessionResourceNotFound { kind, uri }.into()
         })
     }
+}
+
+/// Pre-loaded tree-sitter languages for `.wast` and `.wat`.
+pub struct SessionLanguages {
+    /// Pre-loaded tree-sitter language for `.wast`.
+    pub wast: tree_sitter::Language,
+    /// Pre-loaded tree-sitter language for `.wat`.
+    pub wat: tree_sitter::Language,
 }
 
 /// A tag representing of the kinds of session resource.

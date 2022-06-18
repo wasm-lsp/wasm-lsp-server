@@ -19,6 +19,3 @@ mod error;
 
 /// Functions for creating [`tree-sitter::Language`].
 pub mod language;
-
-/// Functions for creating [`tree-sitter::Parser`].
-pub mod parser;

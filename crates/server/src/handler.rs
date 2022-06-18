@@ -49,8 +49,7 @@ pub mod text_document {
     /// LSP message handler function for `textDocument/didOpen`.
     pub async fn did_open(session: Arc<core::Session>, params: lsp::DidOpenTextDocumentParams) -> anyhow::Result<()> {
         let uri = params.text_document.uri.clone();
-
-        if let Some(document) = core::Document::open(params)? {
+        if let Some(document) = core::Document::open(session.clone(), params)? {
             let tree = document.tree.clone();
             let text = document.text();
             session.insert_document(uri.clone(), document)?;
@@ -60,7 +59,6 @@ pub mod text_document {
         } else {
             log::warn!("'textDocument/didOpen' failed :: uri: {:#?}", uri);
         }
-
         Ok(())
     }
 

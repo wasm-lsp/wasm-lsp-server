@@ -23,9 +23,17 @@ pub struct Document {
 
 impl Document {
     /// Create a new [`Document`] given [`lsp::DidOpenTextDocumentParams`].
-    pub fn open(params: lsp::DidOpenTextDocumentParams) -> anyhow::Result<Option<Self>> {
+    pub fn open(
+        session: Arc<crate::core::Session>,
+        params: lsp::DidOpenTextDocumentParams,
+    ) -> anyhow::Result<Option<Self>> {
         let language = core::Language::try_from(params.text_document.language_id.as_str())?;
-        let mut parser = tree_sitter::Parser::try_from(language)?;
+        let mut parser = tree_sitter::Parser::new()?;
+        match language {
+            core::Language::Wast => parser.set_language(&session.languages.wast)?,
+            core::Language::Wat => parser.set_language(&session.languages.wat)?,
+        };
+
         let content = ropey::Rope::from(params.text_document.text);
         let result = {
             let content = content.clone();

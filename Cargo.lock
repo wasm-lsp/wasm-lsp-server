@@ -1941,6 +1941,7 @@ dependencies = [
  "smol",
  "tokio",
  "tower-lsp",
+ "wasm-lsp-languages",
  "wasm-lsp-server",
 ]
 
@@ -2047,6 +2048,7 @@ dependencies = [
  "serde_json",
  "tower-lsp",
  "tower-test",
+ "wasm-lsp-languages",
  "wasm-lsp-server",
 ]
 

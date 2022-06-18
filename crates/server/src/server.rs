@@ -14,8 +14,8 @@ pub struct Server {
 
 impl Server {
     /// Create a new [`Server`] instance.
-    pub fn new(client: tower_lsp::Client) -> anyhow::Result<Self> {
-        let session = Arc::new(core::Session::new(Some(client.clone()))?);
+    pub fn new(languages: core::SessionLanguages, client: tower_lsp::Client) -> anyhow::Result<Self> {
+        let session = Arc::new(core::Session::new(languages, Some(client.clone()))?);
         Ok(Server { client, session })
     }
 }
