@@ -196,7 +196,12 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: xtask
-          args: test --runtime=${{ matrix.runtime }}
+          args: test
+      - name: Run cargo xtask test-cli
+        uses: actions-rs/cargo@v1
+        with:
+          command: xtask
+          args: test-cli --runtime=${{ matrix.runtime }}
 
   # verify that tests pass for wasm target
   cargo-test-wasm:

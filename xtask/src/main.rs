@@ -24,6 +24,7 @@ SUBCOMMANDS:
     install
     tarpaulin
     test
+    test-cli
     udeps
 "#
     .trim();
@@ -58,6 +59,7 @@ SUBCOMMANDS:
         Some("install") => subcommand::cargo::install(&mut args, cargo_args),
         Some("tarpaulin") => subcommand::cargo::tarpaulin(&mut args, cargo_args),
         Some("test") => subcommand::cargo::test(&mut args, cargo_args),
+        Some("test-cli") => subcommand::cargo::test_cli(&mut args, cargo_args),
         Some("udeps") => subcommand::cargo::udeps(&mut args, cargo_args),
         Some("help") => {
             println!("{}\n", help);
@@ -400,12 +402,57 @@ FLAGS:
         }
 
         // Run `cargo test` with custom options.
-        pub fn test(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
+        pub fn test(args: &mut pico_args::Arguments, cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
             let help = r#"
 xtask-test
 
 USAGE:
     xtask test
+
+FLAGS:
+    -h, --help          Prints help information
+    --rebuild-parsers   Rebuild tree-sitter parsers
+    -- '...'            Extra arguments to pass to the cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
+            if args.contains("--rebuild-parsers") {
+                crate::util::tree_sitter::rebuild_parsers()?;
+            }
+
+            crate::util::handle_unused(args)?;
+
+            let cargo = metadata::cargo()?;
+            let mut cmd = Command::new(cargo);
+            cmd.current_dir(metadata::project_root());
+            cmd.env("RUSTFLAGS", "-Dwarnings");
+            cmd.args(&["test"]);
+            cmd.args(&["--examples", "--lib", "--tests"]);
+            cmd.args(&["--package", "wasm-lsp-languages"]);
+            cmd.args(&["--package", "wasm-lsp-server"]);
+            cmd.args(&["--package", "wasm-lsp-syntax"]);
+            cmd.args(&["--package", "wasm-lsp-testing"]);
+            if cfg!(target_os = "linux") {
+                cmd.args(&["--package", "wasm-lsp-fuzz"]);
+            }
+            cmd.args(cargo_args);
+            cmd.status()?;
+
+            Ok(())
+        }
+
+        // Run `cargo test` with custom options.
+        pub fn test_cli(args: &mut pico_args::Arguments, mut cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
+            let help = r#"
+xtask-test-cli
+
+USAGE:
+    xtask test-cli
 
 FLAGS:
     -h, --help          Prints help information
@@ -433,15 +480,8 @@ FLAGS:
             cmd.env("RUSTFLAGS", "-Dwarnings");
             cmd.args(toolchain);
             cmd.args(&["test"]);
-            cmd.args(&["--examples", "--lib", "--tests"]);
+            cmd.args(&["--bins"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
-            cmd.args(&["--package", "wasm-lsp-languages"]);
-            cmd.args(&["--package", "wasm-lsp-server"]);
-            cmd.args(&["--package", "wasm-lsp-syntax"]);
-            cmd.args(&["--package", "wasm-lsp-testing"]);
-            if cfg!(target_os = "linux") {
-                cmd.args(&["--package", "wasm-lsp-fuzz"]);
-            }
             cmd.args(cargo_args);
             cmd.status()?;
 
