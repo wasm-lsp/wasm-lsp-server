@@ -2,7 +2,7 @@
 edition = "2021"
 name = "wasm-lsp-cli"
 version = "0.0.0"
-authors = ["silvanshade <hvithravn@users.noreply.github.com>"]
+authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
 readme = "README.md"
 repository = "https://github.com/wasm-lsp/wasm-lsp-server"
