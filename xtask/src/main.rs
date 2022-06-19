@@ -446,7 +446,7 @@ FLAGS:
             Ok(())
         }
 
-        // Run `cargo test` with custom options.
+        // Run `cargo test-cli` with custom options.
         pub fn test_cli(
             args: &mut pico_args::Arguments,
             mut cargo_args: Vec<std::ffi::OsString>,
