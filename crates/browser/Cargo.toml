@@ -1,0 +1,44 @@
+[package]
+edition = "2021"
+name = "wasm-lsp-browser"
+version = "0.0.0"
+authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
+license = "Apache-2.0 WITH LLVM-exception"
+readme = "README.md"
+repository = "https://github.com/wasm-lsp/wasm-lsp-server"
+keywords = []
+description = """
+A web browser interface for the WebAssembly language server.
+"""
+
+[badges]
+maintenance = { status = "experimental" }
+
+[features]
+default = [
+  "tower-lsp/runtime-agnostic",
+  "wasm-lsp-server/runtime-agnostic",
+]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+wasm-lsp-languages = { version = "0.0", path = "../languages" }
+wasm-lsp-server = { version = "0.0", path = "../server", default-features = false }
+futures = "0.3.21"
+js-sys = "0.3.57"
+tower-lsp = { version = "0.17.0", default-features = false }
+tree-sitter = { version = "*", package = "tree-sitter-facade" }
+wasm-bindgen = "0.2.80"
+wasm-bindgen-futures = { version = "0.4.30", features = ["futures-core-03-stream"] }
+wasm-streams = "0.2.3"
+web-tree-sitter-sys = "*"
+
+[dependencies.web-sys]
+version = "0.3.57"
+features = [
+  "ReadableStream",
+  "WritableStream",
+]

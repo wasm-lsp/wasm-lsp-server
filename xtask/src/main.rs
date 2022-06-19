@@ -15,6 +15,7 @@ FLAGS:
 
 SUBCOMMANDS:
     build
+    build-wasm
     check
     clippy
     doc
@@ -51,6 +52,7 @@ SUBCOMMANDS:
             Ok(())
         },
         Some("build") => subcommand::cargo::build(&mut args, cargo_args),
+        Some("build-wasm") => subcommand::cargo::build_wasm(&mut args, cargo_args),
         Some("check") => subcommand::cargo::check(&mut args, cargo_args),
         Some("clippy") => subcommand::cargo::clippy(&mut args, cargo_args),
         Some("doc") => subcommand::cargo::doc(&mut args, cargo_args),
@@ -132,6 +134,45 @@ FLAGS:
             cmd.args(toolchain);
             cmd.args(&["build"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
+            cmd.args(cargo_args);
+            cmd.status()?;
+
+            Ok(())
+        }
+
+        // Run `cargo build-wasm` with custom options.
+        pub fn build_wasm(args: &mut pico_args::Arguments, cargo_args: Vec<std::ffi::OsString>) -> crate::Fallible<()> {
+            let help = r#"
+xtask-build
+
+USAGE:
+    xtask build-wasm
+
+FLAGS:
+    -h, --help          Prints help information
+    --rebuild-parsers   Rebuild tree-sitter parsers
+    -- '...'            Extra arguments to pass to the cargo command
+"#
+            .trim();
+
+            if args.contains(["-h", "--help"]) {
+                println!("{}\n", help);
+                return Ok(());
+            }
+
+            if args.contains("--rebuild-parsers") {
+                crate::util::tree_sitter::rebuild_parsers()?;
+            }
+
+            crate::util::handle_unused(args)?;
+
+            let cargo = metadata::cargo()?;
+            let mut cmd = Command::new(cargo);
+            cmd.current_dir(metadata::project_root());
+            cmd.env("RUSTFLAGS", "--cfg=web_sys_unstable_apis");
+            cmd.args(&["build"]);
+            cmd.args(&["--package", "wasm-lsp-browser"]);
+            cmd.args(&["--target", "wasm32-unknown-unknown"]);
             cmd.args(cargo_args);
             cmd.status()?;
 

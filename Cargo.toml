@@ -5,6 +5,7 @@ opt-level = "z"
 
 [workspace]
 members = [
+  "crates/browser",
   "crates/cli",
   "crates/languages",
   "crates/macros",
