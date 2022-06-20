@@ -40,7 +40,7 @@ runtime-tokio = [
 ]
 
 [dependencies]
-async-std = { version = "1.9", optional = true }
+async-std = { version = "1.12", optional = true }
 blocking = { version = "1.0", optional = true }
 futures = "0.3"
 libfuzzer-sys = "0.4"
