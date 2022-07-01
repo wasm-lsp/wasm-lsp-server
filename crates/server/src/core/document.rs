@@ -2,7 +2,7 @@
 
 use crate::core::{self};
 use lsp_text::{RopeExt, TextEdit};
-use std::{convert::TryFrom, sync::Arc};
+use std::sync::Arc;
 
 #[cfg(feature = "runtime-agnostic")]
 use async_lock::Mutex;

@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, path::Path};
+use std::path::Path;
 
 /// Tree-sitter language for the `.wast` grammar.
 #[cfg(not(target_arch = "wasm32"))]

@@ -139,7 +139,6 @@ pub fn corpus_tests(input: TokenStream) -> TokenStream {
 }
 
 mod language {
-    use std::convert::TryFrom;
     use syn::parse::{Parse, ParseStream};
     use wasm_lsp_languages::language;
 

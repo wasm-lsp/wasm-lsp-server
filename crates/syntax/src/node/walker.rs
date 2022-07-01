@@ -26,12 +26,12 @@ pub mod context {
 
         #[derive(Debug, Clone, Eq, Hash, PartialEq)]
         pub struct Level<'tree> {
-            phantom: std::marker::PhantomData<&'tree Infallible>,
+            phantom: core::marker::PhantomData<&'tree Infallible>,
         }
 
         #[derive(Debug, Default, Clone, Eq, Hash, PartialEq)]
         pub struct Context<'tree> {
-            phantom: std::marker::PhantomData<&'tree Infallible>,
+            phantom: core::marker::PhantomData<&'tree Infallible>,
         }
 
         impl<'tree> super::Context<'tree> for Context<'tree> {

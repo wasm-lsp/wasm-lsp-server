@@ -1,6 +1,5 @@
 //! Definitions related to runtime errors.
 
-use crate::core;
 use thiserror::Error;
 
 /// Runtime errors for the LSP server.
@@ -14,7 +13,7 @@ pub enum Error {
     #[error("core::SessionResourceNotFound: kind={kind:?}, uri={uri:?}")]
     SessionResourceNotFound {
         /// The kind of the requested session resource.
-        kind: core::session::SessionResourceKind,
+        kind: crate::core::session::SessionResourceKind,
         /// The URL of the requested session resource.
         uri: lsp::Url,
     },

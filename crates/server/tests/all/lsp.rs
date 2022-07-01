@@ -508,7 +508,7 @@ mod text_document {
             fn handler(corpus: &str, path: &str) {
                 use futures::stream::StreamExt;
                 use serde_json::Value;
-                use std::{convert::TryFrom, io::Write};
+                use std::io::Write;
                 use wasm_lsp_syntax::core::language::Language;
 
                 async fn handler(corpus: &str, path: &str) -> anyhow::Result<()> {

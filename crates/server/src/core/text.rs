@@ -1,12 +1,9 @@
 //! Definitions related to working with textual content.
 
-use crate::core;
-use std::convert::TryInto;
-
 /// Convenience struct for packaging the language-id and textual content of a [`core::Document`].
 pub struct Text {
     /// The language-id of the [`core::Document`].
-    pub language: core::Language,
+    pub language: crate::core::Language,
     /// The textual content of the [`core::Document`].
     pub content: ropey::Rope,
 }
@@ -14,7 +11,7 @@ pub struct Text {
 impl Text {
     /// Create a new [`Text`] from a language-id and some textual content.
     pub fn new(
-        language_id: impl TryInto<core::Language, Error = anyhow::Error>,
+        language_id: impl TryInto<crate::core::Language, Error = anyhow::Error>,
         text: impl AsRef<str>,
     ) -> anyhow::Result<Self> {
         let text = text.as_ref();
@@ -24,8 +21,8 @@ impl Text {
     }
 }
 
-impl From<core::Document> for Text {
-    fn from(value: core::Document) -> Self {
+impl From<crate::core::Document> for Text {
+    fn from(value: crate::core::Document) -> Self {
         value.text()
     }
 }

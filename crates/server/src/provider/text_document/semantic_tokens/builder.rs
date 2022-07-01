@@ -3,7 +3,7 @@
 use anyhow::anyhow;
 use lsp::SemanticTokensFullDeltaResult;
 use lsp_text::RopeExt;
-use std::{collections::HashMap, convert::TryFrom};
+use std::collections::HashMap;
 
 /// Manages tokenization state for encoding semantic token data.
 #[derive(Clone, Debug)]
