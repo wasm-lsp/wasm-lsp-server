@@ -26,13 +26,13 @@ pub struct Server {
     /// Reference to the LSP client.
     pub client: tower_lsp::Client,
     /// Reference to the LSP session.
-    pub session: Arc<core::Session>,
+    pub session: Arc<crate::core::Session>,
 }
 
 impl Server {
     /// Create a new [`Server`] instance.
-    pub fn new(languages: core::SessionLanguages, client: tower_lsp::Client) -> anyhow::Result<Self> {
-        let session = Arc::new(core::Session::new(languages, Some(client.clone()))?);
+    pub fn new(languages: crate::core::SessionLanguages, client: tower_lsp::Client) -> anyhow::Result<Self> {
+        let session = Arc::new(crate::core::Session::new(languages, Some(client.clone()))?);
         Ok(Server { client, session })
     }
 
@@ -89,7 +89,7 @@ impl Server {
 impl tower_lsp::LanguageServer for Server {
     async fn initialize(&self, params: lsp::InitializeParams) -> jsonrpc::Result<lsp::InitializeResult> {
         let session = self.session.clone();
-        let result = handler::initialize(session, params).await;
+        let result = crate::handler::initialize(session, params).await;
         Ok(result)
     }
 
@@ -105,17 +105,19 @@ impl tower_lsp::LanguageServer for Server {
 
     async fn did_open(&self, params: lsp::DidOpenTextDocumentParams) {
         let session = self.session.clone();
-        handler::text_document::did_open(session, params).await.unwrap()
+        crate::handler::text_document::did_open(session, params).await.unwrap()
     }
 
     async fn did_change(&self, params: lsp::DidChangeTextDocumentParams) {
         let session = self.session.clone();
-        handler::text_document::did_change(session, params).await.unwrap()
+        crate::handler::text_document::did_change(session, params)
+            .await
+            .unwrap()
     }
 
     async fn did_close(&self, params: lsp::DidCloseTextDocumentParams) {
         let session = self.session.clone();
-        handler::text_document::did_close(session, params).await.unwrap()
+        crate::handler::text_document::did_close(session, params).await.unwrap()
     }
 
     async fn document_symbol(
@@ -123,8 +125,8 @@ impl tower_lsp::LanguageServer for Server {
         params: lsp::DocumentSymbolParams,
     ) -> jsonrpc::Result<Option<lsp::DocumentSymbolResponse>> {
         let session = self.session.clone();
-        let result = handler::text_document::document_symbol(session, params).await;
-        Ok(result.map_err(core::IntoJsonRpcError)?)
+        let result = crate::handler::text_document::document_symbol(session, params).await;
+        Ok(result.map_err(crate::core::IntoJsonRpcError)?)
     }
 
     async fn semantic_tokens_full(
@@ -132,8 +134,8 @@ impl tower_lsp::LanguageServer for Server {
         params: lsp::SemanticTokensParams,
     ) -> jsonrpc::Result<Option<lsp::SemanticTokensResult>> {
         let session = self.session.clone();
-        let result = handler::text_document::semantic_tokens::full(session, params).await;
-        Ok(result.map_err(core::IntoJsonRpcError)?)
+        let result = crate::handler::text_document::semantic_tokens::full(session, params).await;
+        Ok(result.map_err(crate::core::IntoJsonRpcError)?)
     }
 
     async fn semantic_tokens_range(
@@ -141,7 +143,7 @@ impl tower_lsp::LanguageServer for Server {
         params: lsp::SemanticTokensRangeParams,
     ) -> jsonrpc::Result<Option<lsp::SemanticTokensRangeResult>> {
         let session = self.session.clone();
-        let result = handler::text_document::semantic_tokens::range(session, params).await;
-        Ok(result.map_err(core::IntoJsonRpcError)?)
+        let result = crate::handler::text_document::semantic_tokens::range(session, params).await;
+        Ok(result.map_err(crate::core::IntoJsonRpcError)?)
     }
 }
