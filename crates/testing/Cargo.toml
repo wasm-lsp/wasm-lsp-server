@@ -15,7 +15,7 @@ Testing support framework for the WebAssembly language server.
 maintenance = { status = "experimental" }
 
 [dependencies]
-anyhow = "1.0.28"
+anyhow = "1.0"
 serde_json = { version = "1.0", features = ["preserve_order"] }
 tower-lsp = { version = "0.17", default-features = false }
 tower-test = "0.4.0"
