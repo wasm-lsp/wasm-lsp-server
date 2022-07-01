@@ -5,8 +5,10 @@ use std::sync::Arc;
 
 /// LSP message handler function for `initialize`.
 pub async fn initialize(session: Arc<core::Session>, params: lsp::InitializeParams) -> lsp::InitializeResult {
+    // Received the client capabilities and store them in the server session
     *session.client_capabilities.write().await = Some(params.capabilities);
-    let capabilities = crate::server::capabilities();
+    // Retrieve the server capabilities for the response to the client
+    let capabilities = session.server_capabilities.read().await.clone();
     lsp::InitializeResult {
         capabilities,
         ..lsp::InitializeResult::default()

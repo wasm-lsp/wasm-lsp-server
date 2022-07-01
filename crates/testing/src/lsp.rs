@@ -27,7 +27,7 @@ pub mod initialize {
         json!({
             "jsonrpc": "2.0",
             "result": {
-                "capabilities": wasm_lsp_server::capabilities(),
+                "capabilities": wasm_lsp_server::Server::capabilities(),
             },
             "id": 1,
         })

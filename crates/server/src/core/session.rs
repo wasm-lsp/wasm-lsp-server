@@ -1,6 +1,6 @@
 //! Definitions related to the LSP session.
 
-use crate::{core, server};
+use crate::core;
 use dashmap::{
     mapref::one::{Ref, RefMut},
     DashMap,
@@ -28,7 +28,7 @@ pub struct Session {
 impl Session {
     /// Create a new [`Session`].
     pub fn new(languages: SessionLanguages, client: Option<tower_lsp::Client>) -> anyhow::Result<Self> {
-        let server_capabilities = RwLock::new(server::capabilities());
+        let server_capabilities = RwLock::new(crate::Server::capabilities());
         let client_capabilities = RwLock::new(Default::default());
         let texts = DashMap::new();
         let parsers = DashMap::new();
