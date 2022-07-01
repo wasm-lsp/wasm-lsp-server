@@ -1,5 +1,18 @@
 //! LSP message handler functions.
 
+use crate::core;
+use std::sync::Arc;
+
+/// LSP message handler function for `initialize`.
+pub async fn initialize(session: Arc<core::Session>, params: lsp::InitializeParams) -> lsp::InitializeResult {
+    *session.client_capabilities.write().await = Some(params.capabilities);
+    let capabilities = crate::server::capabilities();
+    lsp::InitializeResult {
+        capabilities,
+        ..lsp::InitializeResult::default()
+    }
+}
+
 /// LSP message handler functions for `textDocument/*`.
 pub mod text_document {
     use crate::{core, provider};

@@ -71,12 +71,9 @@ pub fn capabilities() -> lsp::ServerCapabilities {
 #[tower_lsp::async_trait]
 impl tower_lsp::LanguageServer for Server {
     async fn initialize(&self, params: lsp::InitializeParams) -> jsonrpc::Result<lsp::InitializeResult> {
-        *self.session.client_capabilities.write().await = Some(params.capabilities);
-        let capabilities = capabilities();
-        Ok(lsp::InitializeResult {
-            capabilities,
-            ..lsp::InitializeResult::default()
-        })
+        let session = self.session.clone();
+        let result = handler::initialize(session, params).await;
+        Ok(result)
     }
 
     async fn initialized(&self, _: lsp::InitializedParams) {
