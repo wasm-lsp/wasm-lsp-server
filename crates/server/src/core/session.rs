@@ -1,14 +1,11 @@
 //! Definitions related to the LSP session.
 
-use dashmap::{
-    mapref::one::{Ref, RefMut},
-    DashMap,
-};
-
 #[cfg(feature = "runtime-agnostic")]
 use async_lock::{Mutex, RwLock};
 #[cfg(feature = "tokio")]
 use tokio::sync::{Mutex, RwLock};
+
+use crate::core::MapExt;
 
 /// The LSP server session. This contains the relevant state for workspace.
 pub struct Session {
@@ -19,9 +16,9 @@ pub struct Session {
     /// The current client LSP capabilities configuration.
     pub client_capabilities: RwLock<Option<lsp::ClientCapabilities>>,
     client: Option<tower_lsp::Client>,
-    texts: DashMap<lsp::Url, crate::core::Text>,
-    parsers: DashMap<lsp::Url, Mutex<tree_sitter::Parser>>,
-    trees: DashMap<lsp::Url, Mutex<tree_sitter::Tree>>,
+    texts: crate::core::Map<lsp::Url, crate::core::Text>,
+    parsers: crate::core::Map<lsp::Url, Mutex<tree_sitter::Parser>>,
+    trees: crate::core::Map<lsp::Url, Mutex<tree_sitter::Tree>>,
 }
 
 impl Session {
@@ -29,9 +26,9 @@ impl Session {
     pub fn new(languages: SessionLanguages, client: Option<tower_lsp::Client>) -> anyhow::Result<Self> {
         let server_capabilities = RwLock::new(crate::Server::capabilities());
         let client_capabilities = RwLock::new(Default::default());
-        let texts = DashMap::new();
-        let parsers = DashMap::new();
-        let trees = DashMap::new();
+        let texts = crate::core::Map::default();
+        let parsers = crate::core::Map::default();
+        let trees = crate::core::Map::default();
         Ok(Session {
             languages,
             server_capabilities,
@@ -51,23 +48,23 @@ impl Session {
     }
 
     /// Insert a [`crate::core::Document`] into the [`Session`].
-    pub fn insert_document(&self, uri: lsp::Url, document: crate::core::Document) -> anyhow::Result<()> {
-        let result = self.texts.insert(uri.clone(), document.text());
+    pub async fn insert_document(&self, uri: lsp::Url, document: crate::core::Document) -> anyhow::Result<()> {
+        let result = self.texts.insert(uri.clone(), document.text()).await;
         debug_assert!(result.is_none());
-        let result = self.parsers.insert(uri.clone(), Mutex::new(document.parser));
+        let result = self.parsers.insert(uri.clone(), Mutex::new(document.parser)).await;
         debug_assert!(result.is_none());
-        let result = self.trees.insert(uri, Mutex::new(document.tree));
+        let result = self.trees.insert(uri, Mutex::new(document.tree)).await;
         debug_assert!(result.is_none());
         Ok(())
     }
 
     /// Remove a [`crate::core::Document`] from the [`Session`].
-    pub fn remove_document(&self, uri: &lsp::Url) -> anyhow::Result<()> {
-        let result = self.texts.remove(uri);
+    pub async fn remove_document(&self, uri: &lsp::Url) -> anyhow::Result<()> {
+        let result = self.texts.remove(uri).await;
         debug_assert!(result.is_some());
-        let result = self.parsers.remove(uri);
+        let result = self.parsers.remove(uri).await;
         debug_assert!(result.is_some());
-        let result = self.trees.remove(uri);
+        let result = self.trees.remove(uri).await;
         debug_assert!(result.is_some());
         Ok(())
     }
@@ -89,8 +86,11 @@ impl Session {
 
     /// Get a reference to the [`crate::core::Text`] for a [`crate::core::Document`] in the
     /// [`Session`].
-    pub async fn get_text(&self, uri: &lsp::Url) -> anyhow::Result<Ref<'_, lsp::Url, crate::core::Text>> {
-        self.texts.get(uri).ok_or_else(|| {
+    pub async fn get_text<'a>(
+        &'a self,
+        uri: &'a lsp::Url,
+    ) -> anyhow::Result<crate::core::Ref<'a, lsp::Url, crate::core::Text>> {
+        self.texts.get(uri).await.ok_or_else(|| {
             let kind = SessionResourceKind::Document;
             let uri = uri.clone();
             crate::core::Error::SessionResourceNotFound { kind, uri }.into()
@@ -99,8 +99,11 @@ impl Session {
 
     /// Get a mutable reference to the [`crate::core::Text`] for a [`crate::core::Document`] in the
     /// [`Session`].
-    pub async fn get_mut_text(&self, uri: &lsp::Url) -> anyhow::Result<RefMut<'_, lsp::Url, crate::core::Text>> {
-        self.texts.get_mut(uri).ok_or_else(|| {
+    pub async fn get_mut_text<'a>(
+        &'a self,
+        uri: &'a lsp::Url,
+    ) -> anyhow::Result<crate::core::RefMut<'a, lsp::Url, crate::core::Text>> {
+        self.texts.get_mut(uri).await.ok_or_else(|| {
             let kind = SessionResourceKind::Document;
             let uri = uri.clone();
             crate::core::Error::SessionResourceNotFound { kind, uri }.into()
@@ -109,11 +112,11 @@ impl Session {
 
     /// Get a mutable reference to the [`tree_sitter::Parser`] for a [`crate::core::Document`] in
     /// the [`Session`].
-    pub async fn get_mut_parser(
-        &self,
-        uri: &lsp::Url,
-    ) -> anyhow::Result<RefMut<'_, lsp::Url, Mutex<tree_sitter::Parser>>> {
-        self.parsers.get_mut(uri).ok_or_else(|| {
+    pub async fn get_mut_parser<'a>(
+        &'a self,
+        uri: &'a lsp::Url,
+    ) -> anyhow::Result<crate::core::RefMut<'a, lsp::Url, Mutex<tree_sitter::Parser>>> {
+        self.parsers.get_mut(uri).await.ok_or_else(|| {
             let kind = SessionResourceKind::Parser;
             let uri = uri.clone();
             crate::core::Error::SessionResourceNotFound { kind, uri }.into()
@@ -122,8 +125,11 @@ impl Session {
 
     /// Get a reference to the [`tree_sitter::Tree`] for a [`crate::core::Document`] in the
     /// [`Session`].
-    pub async fn get_tree(&self, uri: &lsp::Url) -> anyhow::Result<Ref<'_, lsp::Url, Mutex<tree_sitter::Tree>>> {
-        self.trees.get(uri).ok_or_else(|| {
+    pub async fn get_tree<'a>(
+        &'a self,
+        uri: &'a lsp::Url,
+    ) -> anyhow::Result<crate::core::Ref<'a, lsp::Url, Mutex<tree_sitter::Tree>>> {
+        self.trees.get(uri).await.ok_or_else(|| {
             let kind = SessionResourceKind::Tree;
             let uri = uri.clone();
             crate::core::Error::SessionResourceNotFound { kind, uri }.into()
@@ -132,8 +138,11 @@ impl Session {
 
     /// Get a mutable reference to the [`tree_sitter::Tree`] for a [`crate::core::Document`] in the
     /// [`Session`].
-    pub async fn get_mut_tree(&self, uri: &lsp::Url) -> anyhow::Result<RefMut<'_, lsp::Url, Mutex<tree_sitter::Tree>>> {
-        self.trees.get_mut(uri).ok_or_else(|| {
+    pub async fn get_mut_tree<'a>(
+        &'a self,
+        uri: &'a lsp::Url,
+    ) -> anyhow::Result<crate::core::RefMut<'a, lsp::Url, Mutex<tree_sitter::Tree>>> {
+        self.trees.get_mut(uri).await.ok_or_else(|| {
             let kind = SessionResourceKind::Tree;
             let uri = uri.clone();
             crate::core::Error::SessionResourceNotFound { kind, uri }.into()

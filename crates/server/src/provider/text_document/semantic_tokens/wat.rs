@@ -12,7 +12,8 @@ pub(crate) async fn full(
     content: &ropey::Rope,
 ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
     let params = {
-        let tree = session.get_tree(&params.text_document.uri).await?;
+        let uri = params.text_document.uri.clone();
+        let tree = session.get_tree(&uri).await?;
         lsp::SemanticTokensRangeParams {
             work_done_progress_params: params.work_done_progress_params,
             partial_result_params: params.partial_result_params,

@@ -73,7 +73,8 @@ pub async fn document_symbol(
     session: Arc<core::Session>,
     params: lsp::DocumentSymbolParams,
 ) -> anyhow::Result<Option<lsp::DocumentSymbolResponse>> {
-    let text = session.get_text(&params.text_document.uri).await?;
+    let uri = params.text_document.uri.clone();
+    let text = session.get_text(&uri).await?;
     let session = session.clone();
     let response = match text.language {
         core::Language::Wast => self::wast::document_symbol(session, params, &text.content).await?,

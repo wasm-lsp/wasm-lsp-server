@@ -12,7 +12,8 @@ pub async fn full(
     session: Arc<core::Session>,
     params: lsp::SemanticTokensParams,
 ) -> anyhow::Result<Option<lsp::SemanticTokensResult>> {
-    let text = session.get_text(&params.text_document.uri).await?;
+    let uri = params.text_document.uri.clone();
+    let text = session.get_text(&uri).await?;
     let response = match text.language {
         Language::Wast => wast::full(session.clone(), params, &text.content).await?,
         Language::Wat => wat::full(session.clone(), params, &text.content).await?,
@@ -25,7 +26,8 @@ pub async fn range(
     session: Arc<core::Session>,
     params: lsp::SemanticTokensRangeParams,
 ) -> anyhow::Result<Option<lsp::SemanticTokensRangeResult>> {
-    let text = session.get_text(&params.text_document.uri).await?;
+    let uri = params.text_document.uri.clone();
+    let text = session.get_text(&uri).await?;
     let response = match text.language {
         Language::Wast => wast::range(session.clone(), params, &text.content).await?,
         Language::Wat => wat::range(session.clone(), params, &text.content).await?,

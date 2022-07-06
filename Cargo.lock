@@ -1990,7 +1990,7 @@ name = "wasm-lsp-browser"
 version = "0.0.0"
 dependencies = [
  "console_error_panic_hook",
- "futures",
+ "futures-lite",
  "js-sys",
  "tower-lsp",
  "tree-sitter-facade",
@@ -2014,7 +2014,7 @@ dependencies = [
  "built",
  "clap 3.2.8",
  "env_logger",
- "futures",
+ "futures-lite",
  "predicates",
  "smol",
  "tokio",
@@ -2078,12 +2078,12 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-lock",
+ "async-trait",
  "built",
  "bytes",
  "criterion",
- "dashmap",
  "env_logger",
- "futures",
+ "futures-lite",
  "glob",
  "goldenfile",
  "indoc",

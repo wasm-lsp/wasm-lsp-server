@@ -37,7 +37,7 @@ pub async fn did_close(
     params: lsp::DidCloseTextDocumentParams,
 ) -> anyhow::Result<()> {
     let uri = params.text_document.uri;
-    session.remove_document(&uri)?;
+    session.remove_document(&uri).await?;
     let diagnostics = Default::default();
     let version = Default::default();
     session.client()?.publish_diagnostics(uri, diagnostics, version).await;
@@ -53,7 +53,7 @@ pub async fn did_open(
     if let Some(document) = crate::core::Document::open(session.clone(), params)? {
         let tree = document.tree.clone();
         let text = document.text();
-        session.insert_document(uri.clone(), document)?;
+        session.insert_document(uri.clone(), document).await?;
         let diagnostics = crate::provider::text_document::diagnostics(&tree, &text);
         let version = Default::default();
         session.client()?.publish_diagnostics(uri, diagnostics, version).await;
