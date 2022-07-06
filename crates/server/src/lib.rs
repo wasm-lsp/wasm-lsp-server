@@ -40,32 +40,32 @@ impl Server {
     pub fn capabilities() -> lsp::ServerCapabilities {
         let document_symbol_provider = Some(lsp::OneOf::Left(true));
 
-        let semantic_tokens_provider = {
-            let token_types = vec![
-                lsp::SemanticTokenType::COMMENT,
-                lsp::SemanticTokenType::FUNCTION,
-                lsp::SemanticTokenType::KEYWORD,
-                lsp::SemanticTokenType::NAMESPACE,
-                lsp::SemanticTokenType::OPERATOR,
-                lsp::SemanticTokenType::PARAMETER,
-                lsp::SemanticTokenType::STRING,
-                lsp::SemanticTokenType::TYPE,
-                lsp::SemanticTokenType::TYPE_PARAMETER,
-                lsp::SemanticTokenType::VARIABLE,
-            ];
-            let token_modifiers = Default::default();
+        // let semantic_tokens_provider = {
+        //     let token_types = vec![
+        //         lsp::SemanticTokenType::COMMENT,
+        //         lsp::SemanticTokenType::FUNCTION,
+        //         lsp::SemanticTokenType::KEYWORD,
+        //         lsp::SemanticTokenType::NAMESPACE,
+        //         lsp::SemanticTokenType::OPERATOR,
+        //         lsp::SemanticTokenType::PARAMETER,
+        //         lsp::SemanticTokenType::STRING,
+        //         lsp::SemanticTokenType::TYPE,
+        //         lsp::SemanticTokenType::TYPE_PARAMETER,
+        //         lsp::SemanticTokenType::VARIABLE,
+        //     ];
+        //     let token_modifiers = Default::default();
 
-            let options = lsp::SemanticTokensOptions {
-                legend: lsp::SemanticTokensLegend {
-                    token_types,
-                    token_modifiers,
-                },
-                range: Some(true),
-                full: Some(lsp::SemanticTokensFullOptions::Bool(true)),
-                ..Default::default()
-            };
-            Some(lsp::SemanticTokensServerCapabilities::SemanticTokensOptions(options))
-        };
+        //     let options = lsp::SemanticTokensOptions {
+        //         legend: lsp::SemanticTokensLegend {
+        //             token_types,
+        //             token_modifiers,
+        //         },
+        //         range: Some(true),
+        //         full: Some(lsp::SemanticTokensFullOptions::Bool(true)),
+        //         ..Default::default()
+        //     };
+        //     Some(lsp::SemanticTokensServerCapabilities::SemanticTokensOptions(options))
+        // };
 
         let text_document_sync = {
             let options = lsp::TextDocumentSyncOptions {
@@ -79,7 +79,7 @@ impl Server {
         lsp::ServerCapabilities {
             text_document_sync,
             document_symbol_provider,
-            semantic_tokens_provider,
+            // semantic_tokens_provider,
             ..Default::default()
         }
     }
