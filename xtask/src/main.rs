@@ -204,6 +204,7 @@ FLAGS:
             cmd.args(&["check"]);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
+            cmd.args(&["--package", "wasm-lsp-browser"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-languages"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
@@ -243,9 +244,11 @@ FLAGS:
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
+            cmd.env("RUSTFLAGS", "-Dwarnings --cfg=web_sys_unstable_apis");
             cmd.args(&["+nightly", "clippy"]);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
+            cmd.args(&["--package", "wasm-lsp-browser"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-languages"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
@@ -398,6 +401,7 @@ FLAGS:
             cmd.args(&[
                 "--packages",
                 "xtask",
+                "wasm-lsp-browser",
                 "wasm-lsp-cli",
                 "wasm-lsp-languages",
                 "wasm-lsp-macros",
@@ -452,7 +456,7 @@ FLAGS:
             let cargo = metadata::cargo()?;
             let mut cmd = Command::new(cargo);
             cmd.current_dir(metadata::project_root());
-            cmd.env("RUSTFLAGS", "-Dwarnings");
+            cmd.env("RUSTFLAGS", "-Dwarnings --cfg=web_sys_unstable_apis");
             cmd.args(&["test"]);
             cmd.args(&["--examples", "--lib", "--tests"]);
             cmd.args(&["--package", "wasm-lsp-languages"]);
@@ -534,6 +538,7 @@ FLAGS:
             cmd.args(&["+nightly", "udeps"]);
             cmd.args(&["--all-targets"]);
             cmd.args(&["--package", "xtask"]);
+            cmd.args(&["--package", "wasm-lsp-browser"]);
             cmd.args(&["--package", "wasm-lsp-cli"]);
             cmd.args(&["--package", "wasm-lsp-languages"]);
             cmd.args(&["--package", "wasm-lsp-macros"]);
