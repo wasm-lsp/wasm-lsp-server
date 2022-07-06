@@ -27,6 +27,13 @@ fn run() -> anyhow::Result<()> {
     cli();
     futures::executor::block_on(async {
         #[rustfmt::skip]
+        #[cfg(target_arch = "wasm32")]
+        let languages = wasm_lsp_server::core::SessionLanguages {
+            wast: wasm_lsp_languages::language::wast().await?,
+            wat : wasm_lsp_languages::language::wat ().await?,
+        };
+        #[rustfmt::skip]
+        #[cfg(not(target_arch = "wasm32"))]
         let languages = wasm_lsp_server::core::SessionLanguages {
             wast: wasm_lsp_languages::language::wast(),
             wat : wasm_lsp_languages::language::wat (),

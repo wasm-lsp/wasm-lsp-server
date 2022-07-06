@@ -2,7 +2,7 @@ use serde_json::Value;
 
 #[futures_test::test]
 async fn exit() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let service = &mut testing::service::spawn().await?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -51,7 +51,7 @@ async fn exit() -> anyhow::Result<()> {
 
 #[futures_test::test]
 async fn initialize() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let service = &mut testing::service::spawn().await?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -64,7 +64,7 @@ async fn initialize() -> anyhow::Result<()> {
 
 #[futures_test::test]
 async fn initialized() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let service = &mut testing::service::spawn().await?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -83,7 +83,7 @@ async fn initialized() -> anyhow::Result<()> {
 
 #[futures_test::test]
 async fn initialize_once() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let service = &mut testing::service::spawn().await?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -108,7 +108,7 @@ async fn initialize_once() -> anyhow::Result<()> {
 
 #[futures_test::test]
 async fn shutdown() -> anyhow::Result<()> {
-    let service = &mut testing::service::spawn()?.0;
+    let service = &mut testing::service::spawn().await?.0;
 
     // send "initialize" request
     testing::assert_status!(service, Ok(()));
@@ -153,7 +153,7 @@ mod text_document {
         let language_id = "wasm.wast";
         let text = String::from("(module)");
 
-        let (ref mut service, ref mut messages) = testing::service::spawn()?;
+        let (ref mut service, ref mut messages) = testing::service::spawn().await?;
 
         // send "initialize" request
         testing::assert_status!(service, Ok(()));
@@ -208,7 +208,7 @@ mod text_document {
         let language_id = "wasm.wast";
         let text = String::from("(module)");
 
-        let (ref mut service, ref mut messages) = testing::service::spawn()?;
+        let (ref mut service, ref mut messages) = testing::service::spawn().await?;
 
         // send "initialize" request
         testing::assert_status!(service, Ok(()));
@@ -270,7 +270,7 @@ mod text_document {
                 (elem (i32.const 0))
             "#});
 
-            let (ref mut service, ref mut messages) = testing::service::spawn()?;
+            let (ref mut service, ref mut messages) = testing::service::spawn().await?;
 
             // send "initialize" request
             testing::assert_status!(service, Ok(()));
@@ -390,7 +390,7 @@ mod text_document {
                 (assert_return (invoke "empty"))
             "#});
 
-            let (ref mut service, ref mut messages) = testing::service::spawn()?;
+            let (ref mut service, ref mut messages) = testing::service::spawn().await?;
 
             // send "initialize" request
             testing::assert_status!(service, Ok(()));
@@ -529,7 +529,7 @@ mod text_document {
                     let language = Language::try_from(path)?;
                     let language_id = language.id();
 
-                    let (ref mut service, ref mut messages) = testing::service::spawn()?;
+                    let (ref mut service, ref mut messages) = testing::service::spawn().await?;
 
                     // send "initialize" request
                     testing::assert_status!(service, Ok(()));
@@ -670,7 +670,7 @@ mod text_document {
                 let language = Language::try_from(std::path::Path::new(path))?;
                 let language_id = language.id();
 
-                let (ref mut service, ref mut messages) = testing::service::spawn()?;
+                let (ref mut service, ref mut messages) = testing::service::spawn().await?;
 
                 // send "initialize" request
                 testing::assert_status!(service, Ok(()));

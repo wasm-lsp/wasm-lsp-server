@@ -8,7 +8,7 @@ use wasm_smith::Module;
 
 fuzz_target!(|module: Module| {
     let future = async {
-        let (mut service, mut messages) = testing::service::spawn().unwrap();
+        let (mut service, mut messages) = testing::service::spawn().await.unwrap();
         let service = &mut service;
 
         let wasm = module.to_bytes();

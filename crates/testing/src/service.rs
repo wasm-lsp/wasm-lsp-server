@@ -13,13 +13,20 @@ pub async fn send(
     Ok(response)
 }
 
-pub fn spawn() -> anyhow::Result<(tower_test::mock::Spawn<LspService<Server>>, ClientSocket)> {
-    let (service, socket) = LspService::new(|client| {
-        #[rustfmt::skip]
-        let languages = wasm_lsp_server::core::SessionLanguages {
-            wast: wasm_lsp_languages::language::wast(),
-            wat : wasm_lsp_languages::language::wat (),
-        };
+pub async fn spawn() -> anyhow::Result<(tower_test::mock::Spawn<LspService<Server>>, ClientSocket)> {
+    #[rustfmt::skip]
+    #[cfg(target_arch = "wasm32")]
+    let languages = wasm_lsp_server::core::SessionLanguages {
+        wast: wasm_lsp_languages::language::wast().await?,
+        wat : wasm_lsp_languages::language::wat ().await?,
+    };
+    #[rustfmt::skip]
+    #[cfg(not(target_arch = "wasm32"))]
+    let languages = wasm_lsp_server::core::SessionLanguages {
+        wast: wasm_lsp_languages::language::wast(),
+        wat : wasm_lsp_languages::language::wat (),
+    };
+    let (service, socket) = LspService::new(move |client| {
         let server = wasm_lsp_server::Server::new(languages, client);
         server.unwrap()
     });

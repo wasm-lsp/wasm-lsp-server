@@ -38,5 +38,5 @@ wasm-lsp-server = { version = "0.0", path = "../server", default-features = fals
 [dev-dependencies]
 predicates = "2.1"
 
-[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+[target.'cfg(any(target_os = "wasi", not(target_arch = "wasm32")))'.dev-dependencies]
 assert_cmd = "2.0"
