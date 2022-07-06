@@ -1,11 +1,7 @@
 //! Definitions related to the LSP session.
 
-#[cfg(feature = "runtime-agnostic")]
-use async_lock::{Mutex, RwLock};
-#[cfg(feature = "tokio")]
-use tokio::sync::{Mutex, RwLock};
-
 use crate::core::MapExt;
+use async_lock::{Mutex, RwLock};
 
 /// The LSP server session. This contains the relevant state for workspace.
 pub struct Session {

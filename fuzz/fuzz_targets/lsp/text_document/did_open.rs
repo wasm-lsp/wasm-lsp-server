@@ -34,23 +34,5 @@ fuzz_target!(|module: Module| {
         assert_eq!(actual, expected);
     };
 
-    #[cfg(feature = "runtime-async-std")]
-    {
-        async_std::task::block_on(future);
-    }
-
-    #[cfg(feature = "runtime-futures")]
-    {
-        futures::future::block_on(future);
-    }
-
-    #[cfg(feature = "runtime-smol")]
-    {
-        smol::block_on(future);
-    }
-
-    #[cfg(feature = "runtime-tokio")]
-    {
-        tokio::runtime::Runtime::new().unwrap().block_on(future);
-    }
+    futures::executor::block_on(future);
 });

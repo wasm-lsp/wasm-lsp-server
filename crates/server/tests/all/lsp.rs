@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-#[tokio::test]
+#[futures_test::test]
 async fn exit() -> anyhow::Result<()> {
     let service = &mut testing::service::spawn()?.0;
 
@@ -49,7 +49,7 @@ async fn exit() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[tokio::test]
+#[futures_test::test]
 async fn initialize() -> anyhow::Result<()> {
     let service = &mut testing::service::spawn()?.0;
 
@@ -62,7 +62,7 @@ async fn initialize() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[tokio::test]
+#[futures_test::test]
 async fn initialized() -> anyhow::Result<()> {
     let service = &mut testing::service::spawn()?.0;
 
@@ -81,7 +81,7 @@ async fn initialized() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[tokio::test]
+#[futures_test::test]
 async fn initialize_once() -> anyhow::Result<()> {
     let service = &mut testing::service::spawn()?.0;
 
@@ -106,7 +106,7 @@ async fn initialize_once() -> anyhow::Result<()> {
     Ok(())
 }
 
-#[tokio::test]
+#[futures_test::test]
 async fn shutdown() -> anyhow::Result<()> {
     let service = &mut testing::service::spawn()?.0;
 
@@ -147,7 +147,7 @@ mod text_document {
     use futures::stream::StreamExt;
     use serde_json::Value;
 
-    #[tokio::test]
+    #[futures_test::test]
     async fn did_close() -> anyhow::Result<()> {
         let uri = lsp::Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
@@ -202,7 +202,7 @@ mod text_document {
         Ok(())
     }
 
-    #[tokio::test]
+    #[futures_test::test]
     async fn did_open() -> anyhow::Result<()> {
         let uri = lsp::Url::parse("inmemory:///test")?;
         let language_id = "wasm.wast";
@@ -255,7 +255,7 @@ mod text_document {
         use futures::stream::StreamExt;
         use serde_json::{json, Value};
 
-        #[tokio::test]
+        #[futures_test::test]
         async fn wat() -> anyhow::Result<()> {
             let uri = lsp::Url::parse("inmemory:///test")?;
             let language_id = "wasm.wat";
@@ -373,7 +373,7 @@ mod text_document {
             Ok(())
         }
 
-        #[tokio::test]
+        #[futures_test::test]
         async fn wast() -> anyhow::Result<()> {
             let uri = lsp::Url::parse("inmemory:///test")?;
             let language_id = "wasm.wast";
@@ -580,8 +580,7 @@ mod text_document {
 
                     Ok(())
                 }
-                let runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
-                runtime.block_on(handler(corpus, path)).unwrap();
+                futures::executor::block_on(handler(corpus, path)).unwrap();
             }
 
             corpus_tests! {
@@ -713,8 +712,7 @@ mod text_document {
 
                 Ok(())
             }
-            let runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
-            runtime.block_on(handler(path)).unwrap();
+            futures::executor::block_on(handler(path)).unwrap();
         }
 
         corpus_tests! {

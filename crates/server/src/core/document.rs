@@ -1,13 +1,9 @@
 //! Definitions related to LSP documents.
 
 use crate::core::{self};
+use async_lock::Mutex;
 use lsp_text::{RopeExt, TextEdit};
 use std::sync::Arc;
-
-#[cfg(feature = "runtime-agnostic")]
-use async_lock::Mutex;
-#[cfg(feature = "runtime-tokio")]
-use tokio::sync::Mutex;
 
 /// Documents for the LSP session.
 pub struct Document {

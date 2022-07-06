@@ -15,10 +15,7 @@ A web browser interface for the WebAssembly language server.
 maintenance = { status = "experimental" }
 
 [features]
-default = [
-  "tower-lsp/runtime-agnostic",
-  "wasm-lsp-server/runtime-agnostic",
-]
+default = []
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -29,7 +26,7 @@ wasm-lsp-languages = { version = "0.0", path = "../languages" }
 wasm-lsp-server = { version = "0.0", path = "../server", default-features = false }
 futures = "0.3"
 js-sys = "0.3"
-tower-lsp = { version = "0.17", default-features = false }
+tower-lsp = { version = "0.17", default-features = false, features = ["runtime-agnostic"] }
 tree-sitter = { version = "*", package = "tree-sitter-facade" }
 wasm-bindgen = "=0.2.81"
 wasm-bindgen-futures = { version = "0.4", features = ["futures-core-03-stream"] }
