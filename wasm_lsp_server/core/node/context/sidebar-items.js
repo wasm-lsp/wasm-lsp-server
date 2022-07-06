@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["basic",""],["trace",""]],"trait":[["Context",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["basic",""],["trace",""]],"trait":[["Context",""]]};

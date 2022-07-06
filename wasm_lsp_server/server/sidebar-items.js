@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["capabilities","Convenience function for building [`lsp::ServerCapabilities`] for [Server]."]],"struct":[["Server","The WebAssembly language server structure."]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Context","The current node context."],["Level",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Context","The current node context."],["Level",""]]};

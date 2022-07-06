@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["text_document","LSP message handler functions for `textDocument/*`."]]});
+window.SIDEBAR_ITEMS = {"fn":[["initialize","LSP message handler function for `initialize`."]],"mod":[["text_document","LSP message handler functions for `textDocument/*`."]]};

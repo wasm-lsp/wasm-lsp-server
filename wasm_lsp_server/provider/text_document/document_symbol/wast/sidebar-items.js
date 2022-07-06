@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["document_symbol","Provider function for LSP `textDocument/documentSymbol` for `.wast` documents."]]};

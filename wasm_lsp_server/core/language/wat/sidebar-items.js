@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["field",""],["grouped",""],["kind",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["field",""],["grouped",""],["kind",""]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Ref",""],["RefMut",""],["SharedValue","A simple wrapper around `T`"]]};

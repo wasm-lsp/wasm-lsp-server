@@ -1,9 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/server/src/core/session.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>session.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../wasm_lsp_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/server/src/core/session.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>session.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../wasm_lsp_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../wasm_lsp_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../wasm_lsp_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../wasm_lsp_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
                                 <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
                         </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -164,18 +163,18 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Definitions related to the LSP session.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core</span>, <span class="ident">server</span>};
-<span class="kw">use</span> <span class="ident">dashmap</span>::{
-    <span class="ident">mapref::one</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
-    <span class="ident">DashMap</span>,
-};
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime-agnostic&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::MapExt</span>;
 <span class="kw">use</span> <span class="ident">async_lock</span>::{<span class="ident">Mutex</span>, <span class="ident">RwLock</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">tokio::sync</span>::{<span class="ident">Mutex</span>, <span class="ident">RwLock</span>};
 
 <span class="doccomment">/// The LSP server session. This contains the relevant state for workspace.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Session</span> {
@@ -186,19 +185,19 @@
     <span class="doccomment">/// The current client LSP capabilities configuration.</span>
     <span class="kw">pub</span> <span class="ident">client_capabilities</span>: <span class="ident">RwLock</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">lsp::ClientCapabilities</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tower_lsp::Client</span><span class="op">&gt;</span>,
-    <span class="ident">texts</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">lsp::Url</span>, <span class="ident">core::Text</span><span class="op">&gt;</span>,
-    <span class="ident">parsers</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Parser</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">trees</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Tree</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">texts</span>: <span class="ident"><span class="kw">crate</span>::core::Map</span><span class="op">&lt;</span><span class="ident">lsp::Url</span>, <span class="ident"><span class="kw">crate</span>::core::Text</span><span class="op">&gt;</span>,
+    <span class="ident">parsers</span>: <span class="ident"><span class="kw">crate</span>::core::Map</span><span class="op">&lt;</span><span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Parser</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">trees</span>: <span class="ident"><span class="kw">crate</span>::core::Map</span><span class="op">&lt;</span><span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Tree</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Session</span> {
     <span class="doccomment">/// Create a new [`Session`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">languages</span>: <span class="ident">SessionLanguages</span>, <span class="ident">client</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">tower_lsp::Client</span><span class="op">&gt;</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">server_capabilities</span> <span class="op">=</span> <span class="ident">RwLock::new</span>(<span class="ident">server::capabilities</span>());
+        <span class="kw">let</span> <span class="ident">server_capabilities</span> <span class="op">=</span> <span class="ident">RwLock::new</span>(<span class="ident"><span class="kw">crate</span>::Server::capabilities</span>());
         <span class="kw">let</span> <span class="ident">client_capabilities</span> <span class="op">=</span> <span class="ident">RwLock::new</span>(<span class="ident">Default::default</span>());
-        <span class="kw">let</span> <span class="ident">texts</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
-        <span class="kw">let</span> <span class="ident">parsers</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
-        <span class="kw">let</span> <span class="ident">trees</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
+        <span class="kw">let</span> <span class="ident">texts</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::core::Map::default</span>();
+        <span class="kw">let</span> <span class="ident">parsers</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::core::Map::default</span>();
+        <span class="kw">let</span> <span class="ident">trees</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::core::Map::default</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">Session</span> {
             <span class="ident">languages</span>,
             <span class="ident">server_capabilities</span>,
@@ -214,27 +213,28 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">tower_lsp::Client</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">client</span>
             .<span class="ident">as_ref</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">core::Error::ClientNotInitialized</span>.<span class="ident">into</span>())
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::core::Error::ClientNotInitialized</span>.<span class="ident">into</span>())
     }
 
-    <span class="doccomment">/// Insert a [`core::Document`] into the [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="ident">lsp::Url</span>, <span class="ident">document</span>: <span class="ident">core::Document</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">insert</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">document</span>.<span class="ident">text</span>());
+    <span class="doccomment">/// Insert a [`crate::core::Document`] into the [`Session`].</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="ident">lsp::Url</span>, <span class="ident">document</span>: <span class="ident"><span class="kw">crate</span>::core::Document</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">document</span>.<span class="ident">text</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">insert</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">text</span>).<span class="kw">await</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">result</span>.<span class="ident">is_none</span>());
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">insert</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">Mutex::new</span>(<span class="ident">document</span>.<span class="ident">parser</span>));
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">insert</span>(<span class="ident">uri</span>.<span class="ident">clone</span>(), <span class="ident">Mutex::new</span>(<span class="ident">document</span>.<span class="ident">parser</span>)).<span class="kw">await</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">result</span>.<span class="ident">is_none</span>());
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">insert</span>(<span class="ident">uri</span>, <span class="ident">Mutex::new</span>(<span class="ident">document</span>.<span class="ident">tree</span>));
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">insert</span>(<span class="ident">uri</span>, <span class="ident">Mutex::new</span>(<span class="ident">document</span>.<span class="ident">tree</span>)).<span class="kw">await</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">result</span>.<span class="ident">is_none</span>());
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Remove a [`core::Document`] from the [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp::Url</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">remove</span>(<span class="ident">uri</span>);
+    <span class="doccomment">/// Remove a [`crate::core::Document`] from the [`Session`].</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_document</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp::Url</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">remove</span>(<span class="ident">uri</span>).<span class="kw">await</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">result</span>.<span class="ident">is_some</span>());
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">remove</span>(<span class="ident">uri</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">remove</span>(<span class="ident">uri</span>).<span class="kw">await</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">result</span>.<span class="ident">is_some</span>());
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">remove</span>(<span class="ident">uri</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">remove</span>(<span class="ident">uri</span>).<span class="kw">await</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">result</span>.<span class="ident">is_some</span>());
         <span class="prelude-val">Ok</span>(())
     }
@@ -254,53 +254,68 @@
         }
     }
 
-    <span class="doccomment">/// Get a reference to the [`core::Text`] for a [`core::Document`] in the [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp::Url</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp::Url</span>, <span class="ident">core::Text</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">get</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Document</span>;
-            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
-            <span class="ident">core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
-        })
-    }
-
-    <span class="doccomment">/// Get a mutable reference to the [`core::Text`] for a [`core::Document`] in the [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp::Url</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp::Url</span>, <span class="ident">core::Text</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Document</span>;
-            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
-            <span class="ident">core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
-        })
-    }
-
-    <span class="doccomment">/// Get a mutable reference to the [`tree_sitter::Parser`] for a [`core::Document`] in the</span>
+    <span class="doccomment">/// Get a reference to the [`crate::core::Text`] for a [`crate::core::Document`] in the</span>
     <span class="doccomment">/// [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_parser</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp::Url</span>,
-    ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Parser</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_text</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
+        <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp::Url</span>,
+    ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::core::Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">lsp::Url</span>, <span class="ident"><span class="kw">crate</span>::core::Text</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">get</span>(<span class="ident">uri</span>).<span class="kw">await</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Document</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident"><span class="kw">crate</span>::core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
+    }
+
+    <span class="doccomment">/// Get a mutable reference to the [`crate::core::Text`] for a [`crate::core::Document`] in the</span>
+    <span class="doccomment">/// [`Session`].</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_text</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
+        <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp::Url</span>,
+    ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::core::RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">lsp::Url</span>, <span class="ident"><span class="kw">crate</span>::core::Text</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">texts</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="kw">await</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Document</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident"><span class="kw">crate</span>::core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
+    }
+
+    <span class="doccomment">/// Get a mutable reference to the [`tree_sitter::Parser`] for a [`crate::core::Document`] in</span>
+    <span class="doccomment">/// the [`Session`].</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_parser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
+        <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp::Url</span>,
+    ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::core::RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Parser</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">parsers</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="kw">await</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Parser</span>;
             <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
-            <span class="ident">core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+            <span class="ident"><span class="kw">crate</span>::core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
         })
     }
 
-    <span class="doccomment">/// Get a reference to the [`tree_sitter::Tree`] for a [`core::Document`] in the [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp::Url</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Tree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">get</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Tree</span>;
-            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
-            <span class="ident">core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
-        })
-    }
-
-    <span class="doccomment">/// Get a mutable reference to the [`tree_sitter::Tree`] for a [`core::Document`] in the</span>
+    <span class="doccomment">/// Get a reference to the [`tree_sitter::Tree`] for a [`crate::core::Document`] in the</span>
     <span class="doccomment">/// [`Session`].</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">lsp::Url</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Tree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_tree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
+        <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp::Url</span>,
+    ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::core::Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Tree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">get</span>(<span class="ident">uri</span>).<span class="kw">await</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Tree</span>;
             <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
-            <span class="ident">core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+            <span class="ident"><span class="kw">crate</span>::core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
+        })
+    }
+
+    <span class="doccomment">/// Get a mutable reference to the [`tree_sitter::Tree`] for a [`crate::core::Document`] in the</span>
+    <span class="doccomment">/// [`Session`].</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mut_tree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
+        <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">lsp::Url</span>,
+    ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::core::RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">lsp::Url</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">tree_sitter::Tree</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">trees</span>.<span class="ident">get_mut</span>(<span class="ident">uri</span>).<span class="kw">await</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">SessionResourceKind::Tree</span>;
+            <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">uri</span>.<span class="ident">clone</span>();
+            <span class="ident"><span class="kw">crate</span>::core::Error::SessionResourceNotFound</span> { <span class="ident">kind</span>, <span class="ident">uri</span> }.<span class="ident">into</span>()
         })
     }
 }
@@ -316,7 +331,7 @@
 <span class="doccomment">/// A tag representing of the kinds of session resource.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SessionResourceKind</span> {
-    <span class="doccomment">/// A tag representing a [`core::Document`].</span>
+    <span class="doccomment">/// A tag representing a [`crate::core::Document`].</span>
     <span class="ident">Document</span>,
     <span class="doccomment">/// A tag representing a [`tree_sitter::Parser`].</span>
     <span class="ident">Parser</span>,
@@ -324,5 +339,5 @@
     <span class="ident">Tree</span>,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="wasm_lsp_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (21e9336fe 2022-06-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="wasm_lsp_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (7b46aa594 2022-07-05)" ></div>
 </body></html>

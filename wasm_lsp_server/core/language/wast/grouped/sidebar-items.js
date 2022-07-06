@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MODULE_FIELDS",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["MODULE_FIELDS",""]]};

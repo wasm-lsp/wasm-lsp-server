@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["RangeExt","Utility trait for working with [`tree_sitter::Range`]."]]});
+window.SIDEBAR_ITEMS = {"trait":[["RangeExt","Utility trait for working with [`tree_sitter::Range`]."]]};

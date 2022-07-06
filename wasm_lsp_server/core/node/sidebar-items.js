@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["context",""]],"struct":[["NodeWalker",""]],"trait":[["Context",""],["NodeExt","Utility trait for working with [`tree_sitter::Node`]."]],"type":[["BasicNodeWalker",""],["TraceNodeWalker",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["context",""]],"struct":[["NodeWalker",""]],"trait":[["Context",""],["NodeExt","Utility trait for working with [`tree_sitter::Node`]."]],"type":[["BasicNodeWalker",""],["TraceNodeWalker",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Document","Documents for the LSP session."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Document","Documents for the LSP session."]]};
