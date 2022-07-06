@@ -7,4 +7,4 @@ authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
 
 [dependencies]
 dunce = "1.0"
-pico-args = "0.4"
+pico-args = "0.5"
