@@ -45,7 +45,8 @@ impl Session {
 
     /// Insert a [`crate::core::Document`] into the [`Session`].
     pub async fn insert_document(&self, uri: lsp::Url, document: crate::core::Document) -> anyhow::Result<()> {
-        let result = self.texts.insert(uri.clone(), document.text()).await;
+        let text = document.text();
+        let result = self.texts.insert(uri.clone(), text).await;
         debug_assert!(result.is_none());
         let result = self.parsers.insert(uri.clone(), Mutex::new(document.parser)).await;
         debug_assert!(result.is_none());
