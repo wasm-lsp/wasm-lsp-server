@@ -859,15 +859,15 @@ dependencies = [
 
 [[package]]
 name = "lsp-text"
-version = "0.5.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1a7b439656bb651851d509894b66742e2f99ebae19d79c76f3d15e3b8cbb78f"
+checksum = "756678d230c24143e31305c399b8c9175615db7230646258736a270717c611da"
 dependencies = [
  "anyhow",
  "bytes",
  "lsp-types",
  "ropey",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.9.0",
 ]
 
 [[package]]
@@ -1574,7 +1574,20 @@ dependencies = [
  "tree-sitter",
  "wasm-bindgen",
  "web-sys",
- "web-tree-sitter-sys",
+ "web-tree-sitter-sys 0.6.2",
+]
+
+[[package]]
+name = "tree-sitter-facade"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b44e6891c6ead45559fbc28372517553ad40adba80adcba6ca7c960177a8df83"
+dependencies = [
+ "js-sys",
+ "tree-sitter",
+ "wasm-bindgen",
+ "web-sys",
+ "web-tree-sitter-sys 1.3.0",
 ]
 
 [[package]]
@@ -1745,14 +1758,14 @@ dependencies = [
  "futures",
  "js-sys",
  "tower-lsp",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.4.2",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-lsp-languages",
  "wasm-lsp-server",
  "wasm-streams",
  "web-sys",
- "web-tree-sitter-sys",
+ "web-tree-sitter-sys 0.6.2",
 ]
 
 [[package]]
@@ -1797,10 +1810,10 @@ dependencies = [
  "futures",
  "thiserror",
  "tree-sitter",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.4.2",
  "wasm-bindgen",
  "wasm-bindgen-futures",
- "web-tree-sitter-sys",
+ "web-tree-sitter-sys 0.6.2",
 ]
 
 [[package]]
@@ -1841,7 +1854,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tower-lsp",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.4.2",
  "wasm-lsp-languages",
  "wasm-lsp-macros",
  "wasm-lsp-syntax",
@@ -1856,12 +1869,12 @@ dependencies = [
  "futures",
  "thiserror",
  "tree-sitter",
- "tree-sitter-facade",
+ "tree-sitter-facade 0.4.2",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-lsp-languages",
  "wasm-lsp-macros",
- "web-tree-sitter-sys",
+ "web-tree-sitter-sys 0.6.2",
 ]
 
 [[package]]
@@ -1941,6 +1954,17 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
+]
+
+[[package]]
+name = "web-tree-sitter-sys"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab32acd9a6c3f5d9044c125b7fd173f87d019b8853fe6a424f438c9349601b26"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]
